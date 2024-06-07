@@ -28,7 +28,7 @@ const Header = () => {
           <li className='rounded-full bg-sky-600 p-4 hover:bg-blue-700 text-white'>
             <a href="#">Просмотр данных</a>
           </li>
-          <li className='rounded-full bg-rose-700 p-4 text-white'>
+          <li className='rounded-full bg-rose-700 hover:bg-rose-800 p-4 text-white'>
             <a href="#">Выйти</a>
           </li>
         </ul>
