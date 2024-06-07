@@ -21,7 +21,7 @@ const Header = () => {
         </h1>
       </div>
       <nav className='text-2xl col-start-3 col-span-3'>
-        <ul className='flex justify-between'>
+        <menu className='flex justify-between'>
           <li className='rounded-full bg-sky-600 hover:bg-blue-700 p-4 text-white'>
             <a href="#">Сформировать отчеты</a>
           </li>
@@ -31,7 +31,7 @@ const Header = () => {
           <li className='rounded-full bg-rose-700 hover:bg-rose-800 p-4 text-white'>
             <a href="#">Выйти</a>
           </li>
-        </ul>
+        </menu>
       </nav>
     </header>
   )
