@@ -34,7 +34,7 @@ const Header = () => {
         </menu>
       </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
