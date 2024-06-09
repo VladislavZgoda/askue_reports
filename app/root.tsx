@@ -23,9 +23,15 @@ export default function App() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Отчеты АСКУЭ</title>
       </head>
-      <body className="font-sans box-border">
+      <body
+        className="font-sans box-border grid
+        grid-cols-[minmax(400px,_1fr)_1fr_1fr_1fr_1fr]
+        grid-rows-[1fr_2fr_2fr_2fr_70px]"
+      >
         <MainLayout />
-        <Outlet />
+        <div className="col-start-2 col-span-4 row-start-2 row-span-3">
+          <Outlet />
+        </div>
         <ScrollRestoration />
         <Scripts />
       </body>
