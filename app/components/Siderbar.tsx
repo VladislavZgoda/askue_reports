@@ -5,7 +5,7 @@ const Siderbar = () => {
   return (
     <div
       className="col-span-1 row-start-2 row-span-3
-      bg-neutral-200 border-r-2 border-gray-300"
+      bg-indigo-100 border-r-2 border-gray-300"
     >
       <div className="flex p-3 items-center flex-col justify-between
             border-b-2 border-gray-300 h-32">

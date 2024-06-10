@@ -5,7 +5,7 @@ const Header = () => {
     <header
       className='
         grid grid-cols-5 items-center
-      bg-neutral-200 p-5 col-span-5
+        bg-indigo-100 p-5 col-span-5
         row-span-1 border-b-2 border-gray-300'
     >
       <div
