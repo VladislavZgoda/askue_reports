@@ -4,6 +4,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  redirect
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
@@ -12,6 +13,10 @@ import MainLayout from "./layout/MainLayout";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
+
+export const action = () => {
+  return redirect('/transformerSubstation/new');
+};
 
 export default function App() {
   return (
