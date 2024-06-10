@@ -24,9 +24,9 @@ export default function App() {
         <title>Отчеты АСКУЭ</title>
       </head>
       <body
-        className="font-sans box-border grid
-        grid-cols-[minmax(400px,_1fr)_1fr_1fr_1fr_1fr]
-        grid-rows-[1fr_2fr_2fr_2fr_70px]"
+        className="font-sans box-border grid h-
+        grid-cols-[24rem_1fr_1fr_1fr_1fr]
+        grid-rows-[1fr_2fr_2fr_2fr_2rem]"
       >
         <MainLayout />
         <div className="col-start-2 col-span-4 row-start-2 row-span-3">
