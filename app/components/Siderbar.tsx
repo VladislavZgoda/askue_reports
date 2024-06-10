@@ -28,8 +28,8 @@ const Siderbar = () => {
           <button
             type="submit"
             className="bg-white px-4 py-1 rounded-lg text-teal-700
-             ml-2 text-2xl border-2 border-gray-300 hover:border-4
-           hover:border-teal-700 hover:font-semibold"
+             ml-2 text-2xl border-2 border-gray-300 hover:border-4 hover:bg-sky-600
+           hover:border-sky-700 hover:font-semibold hover:text-white"
           >
             Добавить ТП
           </button>
@@ -37,8 +37,11 @@ const Siderbar = () => {
       </div>
       <nav className="py-5">
           <ul
-            className="overflow-auto flex flex-col items-center h-[65vh]"
-        >
+            className="overflow-auto flex flex-col items-center h-[65vh]
+            scrollbar scrollbar-thumb-teal-700 scrollbar-track-teal-400
+            hover:scrollbar-thumb-sky-700 hover:scrollbar-track-sky-400
+            overflow-y-scroll"
+          >
             <li>Test</li>
             <li>Test</li>
             <li>Test</li>
