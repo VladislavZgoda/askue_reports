@@ -5,6 +5,11 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    /* eslint-disable */
+    require('tailwind-scrollbar')({ 
+      preferredStrategy: 'pseudoelements' 
+    }),
+  ],
 } satisfies Config
 
