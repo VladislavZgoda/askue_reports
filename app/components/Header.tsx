@@ -9,7 +9,7 @@ const Header = () => {
         row-span-1 border-b-2 border-gray-300'
     >
       <div
-        className='flex col-span-1 items-center justify-self-center w-64
+        className='flex col-span-1 items-center justify-self-end w-64
           justify-around rounded-lg bg-teal-600 p-2'
       >
         <img
