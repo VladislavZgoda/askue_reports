@@ -15,7 +15,7 @@ export const links: LinksFunction = () => [
 ];
 
 export const action = () => {
-  return redirect('/transformerSubstation/new');
+  return redirect('/transformerSubstations/new');
 };
 
 export default function App() {
