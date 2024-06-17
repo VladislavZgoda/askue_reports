@@ -3,17 +3,23 @@ import { IoIosSearch } from "react-icons/io";
 import type { TransSubs } from "~/root";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
-  const cloneTransSubs = structuredClone(transSubs);
-  cloneTransSubs.sort((a, b) =>
-    a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
-  );
-
-  const transformerSubstations = cloneTransSubs
-    .map(transSub =>
+  const listItems = () => {
+    if (transSubs.length) {
+      const cloneTransSubs = structuredClone(transSubs);
+      cloneTransSubs.sort((a, b) =>
+        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
+      );
+      const transformerSubstations = cloneTransSubs
+        .map(transSub =>
           <li key={transSub.id}>
             {transSub.name}
           </li>
-        );
+      );
+      return transformerSubstations;
+    } else {
+      return <li>Нет записей</li>
+    }
+  };
 
   return (
     <div
@@ -55,7 +61,7 @@ const Siderbar = ({ transSubs }: TransSubs) => {
             hover:scrollbar-thumb-sky-700 hover:scrollbar-track-sky-400
             overflow-y-scroll"
           >
-            {transformerSubstations}
+          {listItems()}
           </ul>
       </nav>
     </div>
