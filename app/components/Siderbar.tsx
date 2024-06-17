@@ -3,11 +3,17 @@ import { IoIosSearch } from "react-icons/io";
 import type { TransSubs } from "~/root";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
-  const transformerSubstations = transSubs.map(transSub =>
-    <li key={transSub.id}>
-      {transSub.name}
-    </li>
+  const cloneTransSubs = structuredClone(transSubs);
+  cloneTransSubs.sort((a, b) =>
+    a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
   );
+
+  const transformerSubstations = cloneTransSubs
+    .map(transSub =>
+          <li key={transSub.id}>
+            {transSub.name}
+          </li>
+        );
 
   return (
     <div
