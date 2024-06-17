@@ -1,7 +1,8 @@
 import { Form } from "@remix-run/react";
 import { IoIosSearch } from "react-icons/io";
+import type { TransSubs } from "~/root";
 
-const Siderbar = ({ transSubs }) => {
+const Siderbar = ({ transSubs }: TransSubs) => {
   const transformerSubstations = transSubs.map(transSub =>
     <li key={transSub.id}>
       {transSub.name}

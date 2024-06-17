@@ -1,8 +1,9 @@
 import Header from "~/components/Header";
 import Siderbar from "~/components/Siderbar";
 import Footer from "~/components/Footer";
+import type { TransSubs } from "~/root";
 
-const MainLayout = (props) => {
+const MainLayout = (props: TransSubs) => {
   return (
     <>
       <Header />

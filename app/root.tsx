@@ -11,6 +11,7 @@ import type { LinksFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import MainLayout from "./layout/MainLayout";
+import type { TransformerSubstation } from "~/.server/db-queries/transformerSubstationTable";
 import { selectAllTransSubs } from "./.server/db-queries/transformerSubstationTable";
 
 export const links: LinksFunction = () => [
@@ -25,6 +26,10 @@ export const loader = async () => {
 export const action = () => {
   return redirect('/transformerSubstations/new');
 };
+
+export interface TransSubs {
+  transSubs: TransformerSubstation[]
+}
 
 export default function App() {
   const { transSubs } = useLoaderData<typeof loader>();

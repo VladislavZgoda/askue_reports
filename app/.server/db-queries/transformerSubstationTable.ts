@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
 
-interface TransformerSubstation {
+export interface TransformerSubstation {
   id: number;
   name: string;
 }
