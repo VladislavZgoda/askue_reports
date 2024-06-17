@@ -19,3 +19,14 @@ export const insertNewTS = async (
 
   return transSub[0];
 };
+
+export const selectAllTransSubs = async (
+  ): Promise<TransformerSubstation[]> => {
+    const transSubs = await db
+      .select({
+         id: TransformerSubstationTable.id,
+         name: TransformerSubstationTable.name
+      })
+      .from(TransformerSubstationTable);
+      return transSubs;
+};
