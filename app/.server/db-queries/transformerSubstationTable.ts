@@ -28,5 +28,6 @@ export const selectAllTransSubs = async (
          name: TransformerSubstationTable.name
       })
       .from(TransformerSubstationTable);
-      return transSubs;
+
+    return transSubs;
 };
