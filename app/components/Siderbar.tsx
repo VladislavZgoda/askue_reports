@@ -1,7 +1,13 @@
 import { Form } from "@remix-run/react";
 import { IoIosSearch } from "react-icons/io";
 
-const Siderbar = () => {
+const Siderbar = ({ transSubs }) => {
+  const transformerSubstations = transSubs.map(transSub =>
+    <li key={transSub.id}>
+      {transSub.name}
+    </li>
+  );
+
   return (
     <div
       className="col-span-1 row-start-2 row-span-3
@@ -42,44 +48,7 @@ const Siderbar = () => {
             hover:scrollbar-thumb-sky-700 hover:scrollbar-track-sky-400
             overflow-y-scroll"
           >
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
-            <li>Test</li>
+            {transformerSubstations}
           </ul>
       </nav>
     </div>
