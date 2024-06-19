@@ -7,14 +7,19 @@ const Siderbar = ({ transSubs }: TransSubs) => {
     if (transSubs.length) {
       const cloneTransSubs = structuredClone(transSubs);
       cloneTransSubs.sort((a, b) =>
-        a.name.toLocaleLowerCase().localeCompare(b.name.toLocaleLowerCase())
-      );
+        a.name.localeCompare(b.name, undefined, {
+          numeric: true,
+          sensitivity: 'base'
+        })
+      );  
+
       const transformerSubstations = cloneTransSubs
         .map(transSub =>
           <li key={transSub.id}>
             {transSub.name}
           </li>
       );
+
       return transformerSubstations;
     } else {
       return <li>Нет записей</li>
