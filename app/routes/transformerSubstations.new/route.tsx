@@ -12,7 +12,7 @@ export const action = async ({
   request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const transSub = await insertNewTS(formData);
-  return redirect(`/transformerSubstation/${transSub.id}`);
+  return redirect(`/transformerSubstations/${transSub.id}`);
 };
 
 export default function CreateNewTransformerSubstation() {
