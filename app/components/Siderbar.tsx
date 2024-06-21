@@ -1,6 +1,6 @@
 import { Form } from "@remix-run/react";
 import { IoIosSearch } from "react-icons/io";
-import type { TransSubs } from "~/root";
+import type { TransSubs } from "~/types";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
   const listItems = () => {
@@ -11,7 +11,7 @@ const Siderbar = ({ transSubs }: TransSubs) => {
           numeric: true,
           sensitivity: 'base'
         })
-      );  
+      );
 
       const transformerSubstations = cloneTransSubs
         .map(transSub =>
