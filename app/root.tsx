@@ -35,11 +35,11 @@ export interface TransSubs {
 
 export const Layout = ({
   children
-}: { 
-  children: React.ReactNode 
-}) => {
+}: {
+  children: React.ReactNode
+  }) => {
   const { transSubs } = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
-  
+
   return (
     <html lang="ru">
       <head>
@@ -67,7 +67,7 @@ export default function App() {
   return(
     <div className="col-start-2 col-span-4 row-start-2 row-span-3">
       <Outlet />
-    </div> 
+    </div>
   );
 }
 
@@ -86,7 +86,7 @@ export const ErrorBoundary = () => {
   } else if (error instanceof Error) {
     return (
       <div>
-        <h1>Error</h1>
+        <h1>{ error.name }</h1>
         <p>{error.message}</p>
       </div>
     );
