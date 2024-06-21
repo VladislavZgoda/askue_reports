@@ -5,9 +5,11 @@ import {
   Scripts,
   ScrollRestoration,
   redirect,
-  useLoaderData
+  useRouteLoaderData,
+  useRouteError,
+  isRouteErrorResponse,
 } from "@remix-run/react";
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import MainLayout from "./layout/MainLayout";
@@ -31,9 +33,13 @@ export interface TransSubs {
   transSubs: TransformerSubstation[]
 }
 
-export default function App() {
-  const { transSubs } = useLoaderData<typeof loader>();
-
+export const Layout = ({
+  children
+}: { 
+  children: React.ReactNode 
+}) => {
+  const { transSubs } = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
+  
   return (
     <html lang="ru">
       <head>
@@ -49,12 +55,42 @@ export default function App() {
         grid-rows-[1fr_2fr_2fr_2fr_2rem]"
       >
         <MainLayout transSubs={transSubs} />
-        <div className="col-start-2 col-span-4 row-start-2 row-span-3">
-          <Outlet />
-        </div>
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
     </html>
   );
+};
+
+export default function App() {
+  return(
+    <div className="col-start-2 col-span-4 row-start-2 row-span-3">
+      <Outlet />
+    </div> 
+  );
 }
+
+export const ErrorBoundary = () => {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div>
+        <h1>
+          {error.status} {error.statusText}
+        </h1>
+        <p>{error.data}</p>
+      </div>
+    );
+  } else if (error instanceof Error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+      </div>
+    );
+  } else {
+    return <h1>Unknown Error</h1>;
+  }
+};
