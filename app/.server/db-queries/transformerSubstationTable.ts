@@ -2,13 +2,8 @@ import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
 import { eq } from 'drizzle-orm';
 
-export interface TransformerSubstation {
-  id: number;
-  name: string;
-}
-
 export const insertNewTS = async (
-  formData: FormData): Promise<TransformerSubstation> => {
+  formData: FormData) => {
   const name = String(formData.get('name'));
   const transSub = await db
     .insert(TransformerSubstationTable)
@@ -22,7 +17,7 @@ export const insertNewTS = async (
 };
 
 export const selectAllTransSubs = async (
-  ): Promise<TransformerSubstation[]> => {
+  ) => {
     const transSubs = await db
       .select({
          id: TransformerSubstationTable.id,
@@ -34,7 +29,7 @@ export const selectAllTransSubs = async (
 };
 
 export const selectTransSub = async (
-  id: string): Promise<TransformerSubstation> => {
+  id: string) => {
   const transSubs = await db
     .select({
       id: TransformerSubstationTable.id,
