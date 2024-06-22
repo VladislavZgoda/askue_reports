@@ -33,7 +33,7 @@ export const Layout = ({
 }: {
   children: React.ReactNode
   }) => {
-  const { transSubs } = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
+  const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
 
   return (
     <html lang="ru">
@@ -49,7 +49,7 @@ export const Layout = ({
         grid-cols-[24rem_1fr_1fr_1fr_1fr]
         grid-rows-[1fr_2fr_2fr_2fr_2rem]"
       >
-        <MainLayout transSubs={transSubs} />
+        <MainLayout transSubs={data?.transSubs} />
         {children}
         <ScrollRestoration />
         <Scripts />

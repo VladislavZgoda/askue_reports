@@ -4,7 +4,7 @@ import type { TransSubs } from "~/types";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
   const listItems = () => {
-    if (transSubs.length) {
+    if (transSubs?.length) {
       const cloneTransSubs = structuredClone(transSubs);
       cloneTransSubs.sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
@@ -18,9 +18,11 @@ const Siderbar = ({ transSubs }: TransSubs) => {
           <li key={transSub.id}>
             {transSub.name}
           </li>
-      );
+        );
 
       return transformerSubstations;
+    } else if (transSubs?.length === undefined) {
+      return <li>Ошибка загрузки данных</li>
     } else {
       return <li>Нет записей</li>
     }

@@ -17,15 +17,21 @@ export const insertNewTS = async (
 };
 
 export const selectAllTransSubs = async (
-  ) => {
-    const transSubs = await db
-      .select({
-         id: TransformerSubstationTable.id,
-         name: TransformerSubstationTable.name
-      })
-      .from(TransformerSubstationTable);
+) => {
+    try {
+      const transSubs = await db
+        .select({
+          id: TransformerSubstationTable.id,
+          name: TransformerSubstationTable.name
+        })
+        .from(TransformerSubstationTable);
 
-    return transSubs;
+      return transSubs;
+    } catch (error) {
+      throw new Error('DB is not available', {
+        cause: 'Cannot connect to db'
+      });
+    }
 };
 
 export const selectTransSub = async (
