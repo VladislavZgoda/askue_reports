@@ -62,12 +62,7 @@ const Siderbar = ({ transSubs }: TransSubs) => {
         </Form>
       </div>
       <nav className="py-5">
-          <ul
-            className="overflow-auto flex flex-col items-center h-[65vh]
-            scrollbar scrollbar-thumb-teal-700 scrollbar-track-teal-400
-            hover:scrollbar-thumb-sky-700 hover:scrollbar-track-sky-400
-            overflow-y-scroll"
-          >
+          <ul className="overflow-auto flex flex-col items-center h-[65vh]">
           {listItems()}
           </ul>
       </nav>

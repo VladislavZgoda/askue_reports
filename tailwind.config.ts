@@ -6,10 +6,6 @@ export default {
     extend: {},
   },
   plugins: [
-    /* eslint-disable */
-    require('tailwind-scrollbar')({
-      preferredStrategy: 'pseudoelements'
-    }),
     require('daisyui'),
   ],
   daisyui: {
