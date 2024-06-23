@@ -31,31 +31,28 @@ const Siderbar = ({ transSubs }: TransSubs) => {
   return (
     <div
       className="col-span-1 row-start-2 row-span-3
-      bg-indigo-100 border-r-2 border-gray-300"
+       border-r-2 border-neutral"
     >
       <div className="flex p-3 items-center flex-col justify-between
-            border-b-2 border-gray-300 h-32">
+            border-b-2 border-neutral h-40 flex-initial">
         <Form role="search">
           <div
             className="relative flex items-center text-gray-400
-                      focus-within:text-gray-600">
-            <IoIosSearch className="w-7 h-8 absolute ml-2 pointer-events-none"/>
+                      focus-within:text-neutral flex-initial">
+            <IoIosSearch className="w-6 h-6 ml-0.5 mb-1 absolute pointer-events-none"/>
             <input
               type="search"
               placeholder="Поиск"
               aria-label="Поиск ТП"
-              className="rounded-md pl-10 pr-2 py-2 ring-2 border-none
-              ring-gray-300 focus:ring-2 focus:ring-gray-500 text-2xl
-              font-semibold"
+              className="flex-initial input input-bordered w-full max-w-xs input-xs
+              input-accent md:input-md sm:input-sm lg:input-lg placeholder:text-xl"
             />
           </div>
         </Form>
-        <Form method="post">
+        <Form method="post" className="flex-initial">
           <button
             type="submit"
-            className="bg-white px-4 py-1 rounded-lg text-teal-700
-             ml-2 text-2xl border-2 border-gray-300 hover:border-4 hover:bg-sky-600
-           hover:border-sky-700 hover:font-semibold hover:text-white"
+            className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
           >
             Добавить ТП
           </button>
