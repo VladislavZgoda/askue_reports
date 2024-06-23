@@ -24,37 +24,35 @@ export default function CreateNewTransformerSubstation() {
       <Form
         method="post"
         className="flex flex-col p-8 h-2/5 w-3/5 flex-initial justify-evenly items-center
-        bg-indigo-100 rounded-lg"
+        bg-neutral-content rounded-lg"
       >
-        <div
-          className="flex flex-initial flex-col items-center font-semibold
-          focus-within:text-gray-600 text-teal-700"
-        >
-          <label htmlFor="name">Наименование</label>
+        <div className="form-control w-full max-w-xs">
+          <label className="label" htmlFor="name">
+            <span className="label-text">Наименование</span>
+          </label>
           <input
             type="text"
+            placeholder="ТП-1000"
+            className="input input-bordered w-full max-w-xs input-xs
+            input-accent md:input-md sm:input-sm lg:input-lg"
             name="name"
             id="name"
-            placeholder="ТП-1000"
-            className="text-center mt-2 border-4 border-teal-700 rounded-md
-            py-2 px-1 focus:border-gray-500"
           />
         </div>
         <div className="flex flex-initial justify-evenly w-full text-white font-semibold">
           <button
             type="submit"
-            className="max-w-fit bg-sky-600 rounded-md py-2 px-5 hover:bg-blue-700"
+            className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
           >
             Создать
           </button>
           <button
             type="button"
-            className="max-w-fit bg-rose-700 rounded-md py-2 px-2 hover:bg-rose-500"
+            className="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
           >
-            Отменить
+            Назад
           </button>
         </div>
-
       </Form>
     </main>
   );
