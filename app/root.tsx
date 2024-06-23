@@ -36,7 +36,7 @@ export const Layout = ({
   const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
 
   return (
-    <html lang="ru">
+    <html lang="ru" data-theme='retro'>
       <head>
         <Meta />
         <Links />
@@ -47,7 +47,7 @@ export const Layout = ({
       <body
         className="font-sans box-border grid h-
         grid-cols-[24rem_1fr_1fr_1fr_1fr]
-        grid-rows-[1fr_2fr_2fr_2fr_2rem]"
+        grid-rows-[1fr_2fr_2fr_2fr_3rem]"
       >
         <MainLayout transSubs={data?.transSubs} />
         {children}
