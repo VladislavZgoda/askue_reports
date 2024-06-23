@@ -7,9 +7,13 @@ export default {
   },
   plugins: [
     /* eslint-disable */
-    require('tailwind-scrollbar')({ 
-      preferredStrategy: 'pseudoelements' 
+    require('tailwind-scrollbar')({
+      preferredStrategy: 'pseudoelements'
     }),
+    require('daisyui'),
   ],
+  daisyui: {
+    themes: ['retro'],
+  },
 } satisfies Config
 
