@@ -1,5 +1,4 @@
 import { Form } from "@remix-run/react";
-import { IoIosSearch } from "react-icons/io";
 import type { TransSubs } from "~/types";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
@@ -34,25 +33,26 @@ const Siderbar = ({ transSubs }: TransSubs) => {
        border-r-2 border-neutral"
     >
       <div className="flex p-3 items-center flex-col justify-between
-            border-b-2 border-neutral h-40 flex-initial">
+            border-b-2 border-neutral h-36 flex-initial">
         <Form role="search">
-          <div
-            className="relative flex items-center text-gray-400
-                      focus-within:text-neutral flex-initial">
-            <IoIosSearch className="w-6 h-6 ml-0.5 mb-1 absolute pointer-events-none"/>
-            <input
-              type="search"
-              placeholder="Поиск"
-              aria-label="Поиск ТП"
-              className="flex-initial input input-bordered w-full max-w-xs input-xs
-              input-accent md:input-md sm:input-sm lg:input-lg placeholder:text-xl"
-            />
-          </div>
+          <label className="input input-bordered input-info flex items-center gap-2">
+            <input type="search" className="grow" placeholder="Поиск ТП" aria-label="Поиск ТП" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="h-4 w-4 opacity-70">
+              <path
+                fillRule="evenodd"
+                d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                clipRule="evenodd" />
+            </svg>
+          </label>
         </Form>
         <Form method="post" className="flex-initial">
           <button
             type="submit"
-            className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
+            className="btn  btn-xs sm:btn-sm md:btn-md btn-outline w-52"
           >
             Добавить ТП
           </button>
