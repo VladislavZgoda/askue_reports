@@ -8,8 +8,8 @@ const Header = () => {
         row-span-1 border-b-2 border-neutral'
     >
       <div
-        className='flex col-span-2 items-center justify-self-start w-64
-          justify-around rounded-lg bg-success p-2 ml-14'
+        className='flex col-span-1 items-center ml-12 w-64
+          justify-around rounded-lg bg-success p-2'
       >
         <img
           className='size-14'
@@ -20,10 +20,10 @@ const Header = () => {
           Отчеты АСКУЭ
         </h1>
       </div>
-      <nav className='text-xl col-start-3 col-span-3 mr-6'>
+      <nav className='text-xl col-start-2 col-span-4 justify-self-center'>
         <menu
           className='menu menu-horizontal bg-base-200 w-full
-          justify-evenly rounded-xl'
+          rounded-xl gap-14'
         >
           <li>
             <a
