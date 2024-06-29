@@ -57,16 +57,21 @@ export default function CreateNewTransformerSubstation() {
           <input
             type="text"
             placeholder="ТП-1000"
-            className="input input-bordered w-full max-w-xs input-xs
-            input-accent md:input-md sm:input-sm lg:input-lg"
+            className={
+              `input input-bordered w-full max-w-xs input-xs
+               md:input-md sm:input-sm lg:input-lg
+               ${actionData?.error ? 'input-error' : 'input-accent'}`
+            }
             name="name"
             id="name"
             defaultValue={actionData?.name}
           />
           {actionData?.error ? (
-            <p style={{ color: "red" }}>
-              {actionData.error}
-            </p>
+            <div className="label">
+              <span className="label-text-alt text-error">
+                {actionData.error}
+              </span>
+            </div>
           ) : null}
         </div>
         <div className="flex flex-initial justify-evenly w-full text-white font-semibold">
