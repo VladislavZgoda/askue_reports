@@ -5,17 +5,41 @@ import {
 } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect, json } from "@remix-run/node";
-
 import { insertNewTS } from "~/.server/db-queries/transformerSubstationTable";
+
 
 export const action = async ({
   request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const transSub = await insertNewTS(formData);
-  return redirect(`/transformerSubstations/${transSub.id}`);
+  const name = String(formData.get('name'));
+
+  if (name.length < 3) {
+    const error = 'Длина наименования должна быть не меньше 3 символов.'
+    return json({ error, name });
+  }
+
+  try {
+    const transSub = await insertNewTS(name);
+    return redirect(`/transformerSubstations/${transSub.id}`);
+  } catch (error) {
+    if (error instanceof Error
+      && error.message.includes('unique constraint')) {
+      const error = `Наименование ${name} уже существует.`
+      return json({ error, name });
+    } else if (error instanceof Error
+      && error.message.includes('value too long')) {
+      const error = `Максимальная длина наименования - 8 символов.`
+      return json({ error, name });
+    }
+    else {
+      throw error;
+    }
+  }
 };
 
 export default function CreateNewTransformerSubstation() {
+  const actionData = useActionData<typeof action>();
+
   return (
     <main
       className="flex flex-initial items-center justify-center
@@ -37,7 +61,13 @@ export default function CreateNewTransformerSubstation() {
             input-accent md:input-md sm:input-sm lg:input-lg"
             name="name"
             id="name"
+            defaultValue={actionData?.name}
           />
+          {actionData?.error ? (
+            <p style={{ color: "red" }}>
+              {actionData.error}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-initial justify-evenly w-full text-white font-semibold">
           <button

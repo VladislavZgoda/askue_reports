@@ -3,8 +3,7 @@ import { TransformerSubstationTable } from "../schema";
 import { eq } from 'drizzle-orm';
 
 export const insertNewTS = async (
-  formData: FormData) => {
-  const name = String(formData.get('name'));
+  name: string) => {
   const transSub = await db
     .insert(TransformerSubstationTable)
     .values({ name })
