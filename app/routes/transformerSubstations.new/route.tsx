@@ -1,7 +1,7 @@
 import {
   Form,
   useActionData,
-  useNavigation
+  useNavigate
 } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect, json } from "@remix-run/node";
@@ -39,6 +39,7 @@ export const action = async ({
 
 export default function CreateNewTransformerSubstation() {
   const actionData = useActionData<typeof action>();
+  const navigate = useNavigate();
 
   return (
     <main
@@ -84,6 +85,7 @@ export default function CreateNewTransformerSubstation() {
           <button
             type="button"
             className="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
+            onClick={() => navigate(-1)}
           >
             Назад
           </button>
