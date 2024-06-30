@@ -1,7 +1,8 @@
 import {
   Form,
   useActionData,
-  useNavigate
+  useNavigate,
+  useNavigation
 } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { redirect, json } from "@remix-run/node";
@@ -40,6 +41,9 @@ export const action = async ({
 export default function CreateNewTransformerSubstation() {
   const actionData = useActionData<typeof action>();
   const navigate = useNavigate();
+  const navigation = useNavigation();
+  const isSubmitting =
+    navigation.formAction === '/transformerSubstations/new';
 
   return (
     <main
@@ -48,6 +52,7 @@ export default function CreateNewTransformerSubstation() {
     >
       <Form
         method="post"
+        action="/transformerSubstations/new"
         className="flex flex-col p-8 h-2/5 w-3/5 flex-initial justify-evenly items-center
         bg-neutral-content rounded-lg"
       >
@@ -80,7 +85,8 @@ export default function CreateNewTransformerSubstation() {
             type="submit"
             className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
           >
-            Создать
+            {isSubmitting ? <span className="loading loading-spinner"></span> : null}
+            {isSubmitting ? 'Создаю...' : 'Создать'}
           </button>
           <button
             type="button"
