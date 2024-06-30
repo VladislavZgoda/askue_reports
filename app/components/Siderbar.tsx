@@ -1,4 +1,4 @@
-import { Form } from "@remix-run/react";
+import { Form, NavLink } from "@remix-run/react";
 import type { TransSubs } from "~/types";
 
 const Siderbar = ({ transSubs }: TransSubs) => {
@@ -14,8 +14,19 @@ const Siderbar = ({ transSubs }: TransSubs) => {
 
       const transformerSubstations = cloneTransSubs
         .map(transSub =>
-          <li key={transSub.id}>
-            {transSub.name}
+          <li key={transSub.id} className="mb-1.5">
+            <NavLink
+              to={`/transformerSubstations/${transSub.id}`}
+              className={({ isActive, isPending }) =>
+                isActive
+                  ? 'btn btn-info btn-active btn-wide text-base'
+                  : isPending
+                  ? 'btn btn-ghost btn-wide text-base btn-active'
+                  : 'btn btn-ghost btn-wide text-base'
+              }
+            >
+              {transSub.name}
+            </NavLink>
           </li>
         );
 
@@ -59,7 +70,7 @@ const Siderbar = ({ transSubs }: TransSubs) => {
         </Form>
       </div>
       <nav className="py-5">
-          <ul className="overflow-auto flex flex-col items-center h-[65vh]">
+        <ul className="flex overflow-auto flex-col items-center h-[65vh]">
           {listItems()}
           </ul>
       </nav>
