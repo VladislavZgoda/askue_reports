@@ -1,4 +1,5 @@
 import logo from '../../images/logo.svg';
+import { Link } from '@remix-run/react';
 
 const Header = () => {
   return (
@@ -7,7 +8,8 @@ const Header = () => {
         grid grid-cols-5 items-center p-5 col-span-5
         row-span-1 border-b-2 border-neutral'
     >
-      <div
+      <Link
+        to='/'
         className='flex col-span-1 items-center ml-12 w-64
           justify-around rounded-lg bg-success p-2'
       >
@@ -19,7 +21,7 @@ const Header = () => {
         <h1 className="text-2xl font-bold text-white">
           Отчеты АСКУЭ
         </h1>
-      </div>
+      </Link>
       <nav className='text-xl col-start-2 col-span-4 justify-self-center'>
         <menu
           className='menu menu-horizontal bg-base-200 w-full
