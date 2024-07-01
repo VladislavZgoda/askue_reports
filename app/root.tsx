@@ -8,6 +8,7 @@ import {
   useRouteLoaderData,
   useRouteError,
   isRouteErrorResponse,
+  useNavigation
 } from "@remix-run/react";
 import type { LinksFunction, SerializeFrom } from "@remix-run/node";
 import { json } from "@remix-run/node";
@@ -59,8 +60,15 @@ export const Layout = ({
 };
 
 export default function App() {
+  const navigation = useNavigation();
+
   return(
     <div className="col-start-2 col-span-4 row-start-2 row-span-3">
+      {navigation.state === 'loading' ? (
+        <div className="flex justify-center items-center h-full">
+          <span className="loading loading-spinner text-primary size-96"></span>
+        </div>
+      ) : ''}
       <Outlet />
     </div>
   );
