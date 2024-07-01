@@ -45,3 +45,9 @@ export const selectTransSub = async (
 
   return transSubs[0];
 };
+
+export const deleteTransSub = async (id: string) => {
+  await db
+    .delete(TransformerSubstationTable)
+    .where(eq(TransformerSubstationTable.id, Number(id)));
+};
