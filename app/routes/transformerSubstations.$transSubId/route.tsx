@@ -1,6 +1,6 @@
 import { json } from '@remix-run/node';
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { Form, useLoaderData } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 
@@ -38,7 +38,20 @@ export default function TransformerSubstation() {
               <a>Переименовать ТП</a>
             </li>
             <li>
-              <a>Удалить ТП</a>
+              <Form
+                action='destroy'
+                method='post'
+                onSubmit={(e) => {
+                  const response = confirm(
+                    'Подтвердите удаление.'
+                  );
+                  if (!response) {
+                    e.preventDefault();
+                  }
+                }}
+              >
+                <button type='submit'>Удалить ТП</button>
+              </Form>
             </li>
           </ul>
         </li>
