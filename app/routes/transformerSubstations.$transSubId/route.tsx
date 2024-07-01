@@ -18,7 +18,7 @@ export const loader = async ({
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
   }
-  
+
   return json({ transSub });
 };
 
@@ -27,7 +27,22 @@ export default function TransformerSubstation() {
 
   return (
     <main>
-      { transSub.name }
+      <ul className="menu bg-base-200 rounded-box w-96 menu-lg m-2">
+        <li>
+          <h2 className="menu-title">{transSub.name}</h2>
+          <ul>
+            <li>
+              <a>Добавить данные</a>
+            </li>
+            <li>
+              <a>Переименовать ТП</a>
+            </li>
+            <li>
+              <a>Удалить ТП</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </main>
   );
 }
