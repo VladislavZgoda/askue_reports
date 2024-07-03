@@ -35,7 +35,9 @@ export default function TransformerSubstation() {
               <a>Добавить данные</a>
             </li>
             <li>
-              <a>Переименовать ТП</a>
+              <Form action='edit'>
+                <button type='submit'>Переименовать ТП</button>
+              </Form>             
             </li>
             <li>
               <Form
