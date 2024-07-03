@@ -24,11 +24,11 @@ export const action = async ({
     return redirect(`/transformerSubstations/${transSub.id}`);
   } catch (error) {
     if (error instanceof Error
-      && error.message.includes('unique constraint')) {
+      && error.message.includes('name_unique')) {
       const error = `Наименование ${name} уже существует.`
       return json({ error, name });
     } else if (error instanceof Error
-      && error.message.includes('value too long')) {
+      && error.message.includes('character varying')) {
       const error = `Максимальная длина наименования - 8 символов.`
       return json({ error, name });
     }
