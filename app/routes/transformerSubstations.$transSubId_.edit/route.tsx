@@ -15,6 +15,10 @@ import {
   updateTransSub
 } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
+import { 
+  checkNameConstrains,
+  checkNameLength 
+} from "~/.server/helpers/validateInput";
 
 export const loader = async ({
   params
@@ -41,26 +45,20 @@ export const action = async ({
   invariant(params.transSubId, 'Expected params.transSubId');
   const formData = await request.formData();
   const name = String(formData.get('name'));
-
-  if (name.length < 3) {
-    const error = 'Длина наименования должна быть не меньше 3 символов.'
-    return json({ error, name });
+  const errNameLength = checkNameLength(name);
+  
+  if (errNameLength) {
+    return errNameLength;
   }
 
   try {
     await updateTransSub(params.transSubId, name);
     return redirect(`/transformerSubstations/${params.transSubId}`);
   } catch (error) {
-    if (error instanceof Error
-      && error.message.includes('name_unique')) {
-      const error = `Наименование ${name} уже существует.`
-      return json({ error, name });
-    } else if (error instanceof Error
-      && error.message.includes('character varying')) {
-      const error = `Максимальная длина наименования - 8 символов.`
-      return json({ error, name });
-    }
-    else {
+    const err = checkNameConstrains(error, name);
+    if (err) {
+      return err;
+    } else {
       throw error;
     }
   }
