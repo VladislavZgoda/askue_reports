@@ -1,6 +1,5 @@
 import {
   useActionData,
-  useNavigate,
   useNavigation
 } from "@remix-run/react";
 import type { ActionFunctionArgs } from "@remix-run/node";
@@ -38,7 +37,6 @@ export const action = async ({
 
 export default function CreateNewTransformerSubstation() {
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
   const navigation = useNavigation();
   const formAction = '/transformerSubstations/new';
   const isSubmitting =
@@ -49,7 +47,6 @@ export default function CreateNewTransformerSubstation() {
       transSub={undefined}
       isSubmitting={isSubmitting}
       actionData={actionData}
-      navigate={navigate}
       formAction={formAction}
       buttonNames={{ submitName: 'Создание...', idleName: 'Создать' }}
     />

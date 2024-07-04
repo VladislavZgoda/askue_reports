@@ -1,14 +1,15 @@
-import { Form } from "@remix-run/react";
+import { Form, useNavigate } from "@remix-run/react";
 import type { TransSubName } from "~/types";
 
 const TransSubName = ({
   transSub,
   isSubmitting,
   actionData,
-  navigate,
   formAction,
   buttonNames
 }: TransSubName) => {
+  const navigate = useNavigate();
+
   return (
     <main
       className="flex flex-initial items-center justify-center

@@ -1,5 +1,3 @@
-import type { NavigateFunction } from "@remix-run/react";
-
 export type TransSubs = {
   transSubs: {
     id: number;
@@ -17,7 +15,6 @@ export type TransSubName = {
     error: string;
     name: string;
   } | undefined,
-  navigate: NavigateFunction,
   formAction: string,
   buttonNames: {
     submitName: string;

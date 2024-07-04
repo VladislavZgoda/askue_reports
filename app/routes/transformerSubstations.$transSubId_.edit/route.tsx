@@ -7,7 +7,6 @@ import {
   useLoaderData,
   useActionData,
   useNavigation,
-  useNavigate
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 import {
@@ -67,7 +66,6 @@ export const action = async ({
 export default function EditTransformerSubstation() {
   const { transSub } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const navigate = useNavigate();
   const navigation = useNavigation();
   const formAction = `/transformerSubstations/${transSub.id}/edit`;
   const isSubmitting =
@@ -78,7 +76,6 @@ export default function EditTransformerSubstation() {
       transSub={transSub}
       isSubmitting={isSubmitting}
       actionData={actionData}
-      navigate={navigate}
       formAction={formAction}
       buttonNames={{ submitName: 'Изменение...', idleName: 'Переименовать' }}
     />
