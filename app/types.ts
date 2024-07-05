@@ -2,7 +2,8 @@ export type TransSubs = {
   transSubs: {
     id: number;
     name: string;
-  }[]
+  }[],
+  q: string | null
 };
 
 export type TransSubName = {

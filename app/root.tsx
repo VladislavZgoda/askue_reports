@@ -10,7 +10,7 @@ import {
   isRouteErrorResponse,
   useNavigation
 } from "@remix-run/react";
-import type { 
+import type {
   LinksFunction,
   SerializeFrom,
   LoaderFunctionArgs
@@ -30,7 +30,7 @@ export const loader = async ({
   const url = new URL(request.url);
   const q = url.searchParams.get('q');
   const transSubs = await selectTransSubs(q);
-  return json({ transSubs });
+  return json({ transSubs, q });
 };
 
 export const action = () => {
@@ -58,7 +58,7 @@ export const Layout = ({
         grid-cols-[24rem_1fr_1fr_1fr_1fr]
         grid-rows-[1fr_2fr_2fr_2fr_3rem]"
       >
-        <MainLayout transSubs={data?.transSubs} />
+        <MainLayout transSubs={data?.transSubs} q={data.q} />
         {children}
         <ScrollRestoration />
         <Scripts />
