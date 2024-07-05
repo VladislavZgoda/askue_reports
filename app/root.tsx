@@ -10,18 +10,26 @@ import {
   isRouteErrorResponse,
   useNavigation
 } from "@remix-run/react";
-import type { LinksFunction, SerializeFrom } from "@remix-run/node";
+import type { 
+  LinksFunction,
+  SerializeFrom,
+  LoaderFunctionArgs
+} from "@remix-run/node";
 import { json } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import MainLayout from "./layout/MainLayout";
-import { selectAllTransSubs } from "./.server/db-queries/transformerSubstationTable";
+import { selectTransSubs } from "./.server/db-queries/transformerSubstationTable";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export const loader = async () => {
-  const transSubs = await selectAllTransSubs();
+export const loader = async ({
+  request
+}: LoaderFunctionArgs) => {
+  const url = new URL(request.url);
+  const q = url.searchParams.get('q');
+  const transSubs = await selectTransSubs(q);
   return json({ transSubs });
 };
 

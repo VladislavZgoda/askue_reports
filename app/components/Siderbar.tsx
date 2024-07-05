@@ -47,7 +47,13 @@ const Siderbar = ({ transSubs }: TransSubs) => {
             border-b-2 border-neutral h-36 flex-initial">
         <Form role="search">
           <label className="input input-bordered input-info flex items-center gap-2">
-            <input type="search" className="grow" placeholder="Поиск ТП" aria-label="Поиск ТП" />
+            <input 
+              type="search" 
+              className="grow" 
+              placeholder="Поиск ТП" 
+              aria-label="Поиск ТП" 
+              name="q"
+            />
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"

@@ -1,9 +1,11 @@
 import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
-import { eq } from 'drizzle-orm';
+import { eq, ilike } from 'drizzle-orm';
+import { searchString } from "../helpers/mutateString";
 
 export const insertNewTS = async (
-  name: string) => {
+  name: string
+) => {
   const transSub = await db
     .insert(TransformerSubstationTable)
     .values({ name })
@@ -15,26 +17,33 @@ export const insertNewTS = async (
   return transSub[0];
 };
 
-export const selectAllTransSubs = async (
+export const selectTransSubs = async (
+  searchParam: string | null
 ) => {
-    try {
-      const transSubs = await db
-        .select({
-          id: TransformerSubstationTable.id,
-          name: TransformerSubstationTable.name
-        })
-        .from(TransformerSubstationTable);
+  try {
+    const q = searchParam 
+      ? searchString(searchParam) 
+      : '%%';
 
-      return transSubs;
-    } catch (error) {
-      throw new Error('DB is not available', {
-        cause: 'Cannot connect to db'
-      });
-    }
+    const transSubs = await db
+      .select({
+        id: TransformerSubstationTable.id,
+        name: TransformerSubstationTable.name
+      })
+      .from(TransformerSubstationTable)
+      .where(ilike(TransformerSubstationTable.name, q));
+      
+    return transSubs;
+  } catch (error) {
+    throw new Error('DB is not available', {
+      cause: 'Cannot connect to db'
+    });
+  }
 };
 
 export const selectTransSub = async (
-  id: string) => {
+  id: string
+) => {
   const transSubs = await db
     .select({
       id: TransformerSubstationTable.id,
