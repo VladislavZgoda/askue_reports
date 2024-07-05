@@ -6,13 +6,13 @@ export const checkNameConstrains = (
 ) => {
   if (error instanceof Error
       && error.message.includes('name_unique')) {
-      const error = `Наименование ${name} уже существует.`
-      return json({ error, name });
-    } else if (error instanceof Error
-      && error.message.includes('character varying')) {
-      const error = `Максимальная длина наименования - 8 символов.`
-      return json({ error, name });
-    }
+    const error = `Наименование ${name} уже существует.`
+    return json({ error, name });
+  } else if (error instanceof Error
+    && error.message.includes('character varying')) {
+    const error = `Максимальная длина наименования - 8 символов.`
+    return json({ error, name });
+  }
 };
 
 export const checkNameLength = (
