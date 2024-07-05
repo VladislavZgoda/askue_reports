@@ -21,9 +21,7 @@ export const selectTransSubs = async (
   searchParam: string | null
 ) => {
   try {
-    const q = searchParam 
-      ? searchString(searchParam) 
-      : '%%';
+    const q = searchString(searchParam);
 
     const transSubs = await db
       .select({
@@ -32,7 +30,7 @@ export const selectTransSubs = async (
       })
       .from(TransformerSubstationTable)
       .where(ilike(TransformerSubstationTable.name, q));
-      
+
     return transSubs;
   } catch (error) {
     throw new Error('DB is not available', {
@@ -68,5 +66,5 @@ export const updateTransSub = async (
   await db
     .update(TransformerSubstationTable)
     .set({name})
-    .where(eq(TransformerSubstationTable.id, Number(id)))   
+    .where(eq(TransformerSubstationTable.id, Number(id)))
 };
