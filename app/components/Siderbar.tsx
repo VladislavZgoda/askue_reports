@@ -1,7 +1,14 @@
 import { Form, NavLink } from "@remix-run/react";
 import type { TransSubs } from "~/types";
+import { useEffect, useState } from 'react';
 
 const Siderbar = ({ transSubs, q }: TransSubs) => {
+  const [query, setQuery] = useState(q || '');
+
+  useEffect(() => {
+    setQuery(q || '');
+  }, [q]);
+
   const listItems = () => {
     if (transSubs?.length) {
       const cloneTransSubs = structuredClone(transSubs);
@@ -53,7 +60,10 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
               placeholder="Поиск ТП"
               aria-label="Поиск ТП"
               name="q"
-              defaultValue={q || ''}
+              onChange={(e) => 
+                setQuery(e.currentTarget.value)
+              }
+              value={query}
             />
             <svg
               xmlns="http://www.w3.org/2000/svg"
