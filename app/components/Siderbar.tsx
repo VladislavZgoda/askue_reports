@@ -1,9 +1,14 @@
-import { Form, NavLink } from "@remix-run/react";
+import {
+  Form,
+  NavLink,
+  useSubmit
+} from "@remix-run/react";
 import type { TransSubs } from "~/types";
 import { useEffect, useState } from 'react';
 
 const Siderbar = ({ transSubs, q }: TransSubs) => {
   const [query, setQuery] = useState(q || '');
+  const submit = useSubmit();
 
   useEffect(() => {
     setQuery(q || '');
@@ -52,7 +57,12 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
     >
       <div className="flex p-3 items-center flex-col justify-between
             border-b-2 border-neutral h-36 flex-initial">
-        <Form role="search">
+        <Form
+          role="search"
+          onChange={(e) =>
+            submit(e.currentTarget)
+          }
+        >
           <label className="input input-bordered input-info flex items-center gap-2">
             <input
               type="search"
@@ -60,7 +70,7 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
               placeholder="Поиск ТП"
               aria-label="Поиск ТП"
               name="q"
-              onChange={(e) => 
+              onChange={(e) =>
                 setQuery(e.currentTarget.value)
               }
               value={query}
