@@ -66,9 +66,12 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
             border-b-2 border-neutral h-36 flex-initial">
         <Form
           role="search"
-          onChange={(e) =>
-            submit(e.currentTarget)
-          }
+          onChange={(e) => {
+            const isFirstSearch = q === null;
+            submit(e.currentTarget, {
+              replace: !isFirstSearch
+            });
+          }}
         >
           <label className="input input-bordered input-info flex items-center gap-2">
             <input
