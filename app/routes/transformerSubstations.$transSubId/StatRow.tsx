@@ -1,6 +1,9 @@
 const StatRow = (
-  data
+  {data}
 ) => {
+  console.log(data);
+
+
   return (
     <div className="stats shadow row-span-2">
       <div className="stat place-items-center">
