@@ -62,26 +62,32 @@ export default function TransformerSubstation() {
         </li>
       </ul>
 
-      <Form>
+      <Form className='flex flex-col'>
         <p>Выберете даты для данных</p>
-        <label htmlFor="private">БЫТ</label>
-        <input
-          type="date"
-          name='privateDate'
-          id='private'
-        />
-        <label htmlFor="legal">ЮР</label>
-        <input
-          type="date"
-          name='legalDate'
-          id='legal'
-        />
-        <label htmlFor="odpy">ОДПУ</label>
-        <input
-          type="date"
-          name='odpyDate'
-          id='odpy'
-        />
+        <div>
+          <label htmlFor="private">БЫТ</label>
+          <input
+            type="date"
+            name='privateDate'
+            id='private'
+          />
+        </div>
+        <div>
+          <label htmlFor="legal">ЮР</label>
+          <input
+            type="date"
+            name='legalDate'
+            id='legal'
+          />
+        </div>
+        <div>
+          <label htmlFor="odpy">ОДПУ</label>
+          <input
+            type="date"
+            name='odpyDate'
+            id='odpy'
+          />
+        </div>
       </Form>
 
       <div className="stats shadow row-span-2">
