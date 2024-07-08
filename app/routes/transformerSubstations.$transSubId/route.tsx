@@ -28,7 +28,9 @@ export default function TransformerSubstation() {
 
   return (
     <main className='m-2'>
-      <section>
+      <section 
+        className='flex gap-32'
+      >
         <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1">
           <li>
             <h2 className="menu-title">{transSub.name}</h2>
@@ -64,36 +66,41 @@ export default function TransformerSubstation() {
           </li>
         </ul>
 
-        <Form className='flex flex-col'>
+        <Form 
+          className='flex flex-col bg-base-200 p-5 rounded-md gap-2'
+        >
           <p>Выберете даты для данных</p>
-          <div>
+          <div className='flex flex-col gap-1'>
             <label htmlFor="private">БЫТ</label>
             <input
               type="date"
               name='privateDate'
               id='private'
+              className='p-1 rounded-md'
             />
           </div>
-          <div>
+          <div className='flex flex-col gap-1'>
             <label htmlFor="legal">ЮР</label>
             <input
               type="date"
               name='legalDate'
               id='legal'
+              className='p-1 rounded-md'
             />
           </div>
-          <div>
+          <div className='flex flex-col gap-1'>
             <label htmlFor="odpy">ОДПУ</label>
             <input
               type="date"
               name='odpyDate'
               id='odpy'
+              className='p-1 rounded-md'
             />
           </div>
         </Form>
       </section>
 
-      <section>
+      <section className='mt-2 flex flex-col gap-2 w-[50%]'>
         <StatRow data={{
           title1: 'Всего ПУ',
           value1: '0',
