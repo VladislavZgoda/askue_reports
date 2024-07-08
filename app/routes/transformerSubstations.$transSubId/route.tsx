@@ -27,9 +27,9 @@ export default function TransformerSubstation() {
   const { transSub } = useLoaderData<typeof loader>();
 
   return (
-    <main className='m-2'>
-      <section 
-        className='flex gap-32'
+    <main className='m-2 w-full'>
+      <section
+        className='flex justify-between w-[50%]'
       >
         <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1">
           <li>
@@ -66,8 +66,8 @@ export default function TransformerSubstation() {
           </li>
         </ul>
 
-        <Form 
-          className='flex flex-col bg-base-200 p-5 rounded-md gap-2'
+        <Form
+          className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'
         >
           <p>Выберете даты для данных</p>
           <div className='flex flex-col gap-1'>
