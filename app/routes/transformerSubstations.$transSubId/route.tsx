@@ -36,7 +36,9 @@ export default function TransformerSubstation() {
             <h2 className="menu-title">{transSub.name}</h2>
             <ul>
               <li>
-                <a>Добавить данные</a>
+                <Form action='AddData'>
+                  <button type='submit'>Добавить данные</button>
+                </Form>
               </li>
               <li>
                 <a>Изменить данные</a>
