@@ -76,7 +76,7 @@ export default function TransformerSubstation() {
               type="date"
               name='privateDate'
               id='private'
-              className='p-1 rounded-md'
+              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
             />
           </div>
           <div className='flex flex-col gap-1'>
@@ -85,7 +85,7 @@ export default function TransformerSubstation() {
               type="date"
               name='legalDate'
               id='legal'
-              className='p-1 rounded-md'
+              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
             />
           </div>
           <div className='flex flex-col gap-1'>
@@ -94,7 +94,7 @@ export default function TransformerSubstation() {
               type="date"
               name='odpyDate'
               id='odpy'
-              className='p-1 rounded-md'
+              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
             />
           </div>
         </Form>
