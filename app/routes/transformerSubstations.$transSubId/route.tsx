@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
-import StatRow from './StatRow';
+import StatTable from './StatTable';
 
 export const loader = async ({
   params
@@ -102,81 +102,8 @@ export default function TransformerSubstation() {
         </Form>
       </section>
 
-      <section className='mt-2 flex flex-col gap-2 w-[50%]'>
-        <StatRow data={{
-          title1: 'Всего ПУ',
-          value1: '0',
-          date1: '07-07-2024',
-          title2: 'Всего ПУ в работе',
-          value2: '0',
-          date2: '07-07-2024',
-          title3: 'Всего Техучетов',
-          value3: '0',
-          date3: '07-07-2024',
-          title4: 'Техучеты не под напряжением',
-          value4: '0',
-          date4: '07-07-2024'
-        }} />
-
-        <StatRow data={{
-          title1: 'Всего БЫТ',
-          value1: '0',
-          date1: '07-07-2024',
-          title2: 'БЫТ в работе',
-          value2: '0',
-          date2: '07-07-2024',
-          title3: 'Всего ЮР',
-          value3: '0',
-          date3: '07-07-2024',
-          title4: 'ЮР в работе',
-          value4: '0',
-          date4: '07-07-2024'
-        }} />
-
-        <StatRow data={{
-          title1: 'Всего ОДПУ',
-          value1: '0',
-          date1: '07-07-2024',
-          title2: 'ОДПУ в работе',
-          value2: '0',
-          date2: '07-07-2024',
-          title3: 'ЮР Sims',
-          value3: '0',
-          date3: '07-07-2024',
-          title4: 'ЮР П2',
-          value4: '0',
-          date4: '07-07-2024'
-        }} />
-
-        <StatRow data={{
-          title1: 'ОДПУ Sims',
-          value1: '0',
-          date1: '07-07-2024',
-          title2: 'ОДПУ П2',
-          value2: '0',
-          date2: '07-07-2024',
-          title3: 'ОДПУ Sims неисправно',
-          value3: '0',
-          date3: '07-07-2024',
-          title4: 'ОДПУ П2 неисправно',
-          value4: '0',
-          date4: '07-07-2024'
-        }} />
-
-        <StatRow data={{
-          title1: 'БЫТ неисправно',
-          value1: '0',
-          date1: '07-07-2024',
-          title2: 'ЮР Sims неисправно',
-          value2: '0',
-          date2: '07-07-2024',
-          title3: 'ЮР П2 неисправно',
-          value3: '0',
-          date3: '07-07-2024',
-          title4: 'ЮР П2 отключено',
-          value4: '0',
-          date4: '07-07-2024'
-        }} />
+      <section className='mt-2 w-[50%]'>
+        <StatTable />
       </section>
     </main>
   );
