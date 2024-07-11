@@ -81,14 +81,12 @@ export default function AddData() {
         </section>
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
-          <h2>Добавить вышедшие из строя ПУ</h2>
+          <h2>Добавить ЮР отключенные</h2>
           <fetcher.Form className='flex flex-col gap-5 h-full'>
             <NumberInput
-                labelName={'Количество вышедших из строя ПУ'}
-                inputName={'brokenMeters'}
+              labelName={'Количество отключенных ПУ'}
+              inputName={'disabledMeters'}
             />
-
-            <SelectInput />
 
             <button className="btn btn-outline btn-success mt-auto">
               Добавить
@@ -97,12 +95,14 @@ export default function AddData() {
         </section>
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
-          <h2>Добавить ЮР отключенные</h2>
+          <h2>Добавить вышедшие из строя ПУ</h2>
           <fetcher.Form className='flex flex-col gap-5 h-full'>
             <NumberInput
-              labelName={'Количество отключенных ПУ'}
-              inputName={'disabledMeters'}
+                labelName={'Количество вышедших из строя ПУ'}
+                inputName={'brokenMeters'}
             />
+
+            <SelectInput />
 
             <button className="btn btn-outline btn-success mt-auto">
               Добавить
