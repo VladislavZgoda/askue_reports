@@ -22,3 +22,8 @@ export type TransSubName = {
     idleName: string;
   }
 };
+
+export type NameForInput = {
+  labelName: string,
+  inputName: string
+};

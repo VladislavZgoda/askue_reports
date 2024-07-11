@@ -7,6 +7,7 @@ import {
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import DateInput from './DateInput';
+import NumberInput from './NumberInput';
 
 export const loader = async ({
   params
@@ -32,7 +33,7 @@ export default function AddData() {
 
   return (
     <main>
-      <h1 className='text-center mb-3 mt-2 font-bold text-xl'>
+      <h1 className='text-center mb-6 mt-2 font-bold text-xl'>
         {transSub.name}
       </h1>
 
@@ -40,37 +41,15 @@ export default function AddData() {
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcher.Form className='flex flex-col gap-5 h-full'>
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Количество новых ПУ
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Количество новых ПУ'
-                name='newMeters'
-              />
-            </label>
+            <NumberInput 
+              labelName={'Количество новых ПУ'}
+              inputName={'newMeters'} 
+            />
 
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Из них добавлено в систему
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Из них добавлено в систему'
-                name='addedToSystem'
-              />
-            </label>
+            <NumberInput 
+              labelName={'Из них добавлено в систему'}
+              inputName={'addedToSystem'} 
+            />
 
             <label className="form-control w-full max-w-xs">
               <div className="label">
@@ -104,37 +83,15 @@ export default function AddData() {
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить техучеты</h2>
           <fetcher.Form className='flex flex-col gap-5 h-full'>
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Количество Техучетов
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Количество Техучетов'
-                name='techMeters'
-              />
-            </label>
+            <NumberInput 
+                labelName={'Количество Техучетов'}
+                inputName={'techMeters'} 
+            />
 
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Из них под напряжением
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Из них под напряжением'
-                name='underVoltage'
-              />
-            </label>
+            <NumberInput 
+                labelName={'Из них под напряжением'}
+                inputName={'underVoltage'} 
+            />
 
             <button className="btn btn-outline btn-success mt-auto">
               Добавить
@@ -145,21 +102,10 @@ export default function AddData() {
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить вышедшие из строя ПУ</h2>
           <fetcher.Form className='flex flex-col gap-5 h-full'>
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Количество вышедших из строя ПУ
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Количество вышедших из строя ПУ'
-                name='brokenMeters'
-              />
-            </label>
+            <NumberInput 
+                labelName={'Количество вышедших из строя ПУ'}
+                inputName={'brokenMeters'} 
+            />
 
             <label className="form-control w-full max-w-xs">
               <div className="label">
@@ -190,24 +136,12 @@ export default function AddData() {
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить ЮР отключенные</h2>
-
           <fetcher.Form className='flex flex-col gap-5 h-full'>
-            <label className="form-control w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">
-                  Количество отключенных ПУ
-                </span>
-              </div>
-              <input
-                type="number"
-                min='0'
-                placeholder="0"
-                className="input input-bordered w-full max-w-xs"
-                aria-label='Количество Техучетов'
-                name='disabledMeters'
-              />
-            </label>
-
+            <NumberInput 
+              labelName={'Количество отключенных ПУ'}
+              inputName={'disabledMeters'} 
+            />
+        
             <button className="btn btn-outline btn-success mt-auto">
               Добавить
             </button>
