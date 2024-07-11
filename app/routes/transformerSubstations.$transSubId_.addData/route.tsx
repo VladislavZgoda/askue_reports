@@ -6,6 +6,7 @@ import {
 } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
+import DateInput from './DateInput';
 
 export const loader = async ({
   params
@@ -91,6 +92,8 @@ export default function AddData() {
                 <option value='ОДПУ П2'>ОДПУ П2</option>
               </select>
             </label>
+
+            <DateInput />
 
             <button className="btn btn-outline btn-success mt-auto">
               Добавить
