@@ -1,9 +1,9 @@
 const StatTable = () => {
   return (
-    <div className="overflow-x-auto mt-5">
+    <div className="overflow-auto max-h-[50vh] mt-5">
       <table className="table">
         {/* head */}
-        <thead>
+        <thead className="sticky top-0 bg-base-200">
           <tr className="text-lg">
             <th></th>
             <th>Тип</th>

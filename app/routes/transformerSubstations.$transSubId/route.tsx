@@ -27,9 +27,9 @@ export default function TransformerSubstation() {
   const { transSub } = useLoaderData<typeof loader>();
 
   return (
-    <main className='m-2 w-full'>
+    <main className='m-2'>
       <section
-        className='flex justify-between w-[50%]'
+        className='flex justify-between w-[60%]'
       >
         <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1">
           <li>
@@ -102,7 +102,7 @@ export default function TransformerSubstation() {
         </Form>
       </section>
 
-      <section className='mt-2 w-[50%]'>
+      <section className='mt-2 w-[60%]'>
         <StatTable />
       </section>
     </main>
