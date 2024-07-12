@@ -1,0 +1,140 @@
+{
+  "id": "e5494afa-4065-47f1-808a-002205d63c45",
+  "prevId": "b9b3a46b-4468-4957-a713-d06bee71c378",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.electricityMeters": {
+      "name": "electricityMeters",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balanceType": {
+          "name": "balanceType",
+          "type": "balanceType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transformerSubstation": {
+          "name": "transformerSubstation",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "electricityMeters_transformerSubstation_transformerSubstation_id_fk": {
+          "name": "electricityMeters_transformerSubstation_transformerSubstation_id_fk",
+          "tableFrom": "electricityMeters",
+          "tableTo": "transformerSubstation",
+          "columnsFrom": [
+            "transformerSubstation"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.transformerSubstation": {
+      "name": "transformerSubstation",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(8)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "transformerSubstation_name_unique": {
+          "name": "transformerSubstation_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      }
+    }
+  },
+  "enums": {
+    "public.balanceType": {
+      "name": "balanceType",
+      "schema": "public",
+      "values": [
+        "Быт",
+        "ЮР Sims",
+        "ЮР П2",
+        "ОДПУ Sims",
+        "ОДПУ П2"
+      ]
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
