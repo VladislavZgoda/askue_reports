@@ -2,7 +2,8 @@ import { json } from '@remix-run/node';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import {
   useLoaderData,
-  useFetcher
+  useFetcher,
+  Link
 } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
@@ -34,9 +35,15 @@ export default function AddData() {
 
   return (
     <main>
-      <h1 className='text-center mb-6 mt-2 font-bold text-xl'>
-        {transSub.name}
-      </h1>
+      <Link
+        to={`/transformerSubstations/${transSub.id}`}
+        className='link link-neutral'
+      >
+        <h1 className='text-center mb-6 mt-2 font-bold text-xl'>
+          {transSub.name}
+        </h1>
+      </Link>
+
 
       <div className='flex justify-around'>
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
