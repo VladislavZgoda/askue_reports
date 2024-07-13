@@ -44,3 +44,9 @@ export type NewMetersValues = {
   date: string,
   transformerSubstationId: number
 };
+
+export type CheckRecordValues = {
+  type: BalanceType,
+  date: string,
+  transformerSubstationId: number
+}
