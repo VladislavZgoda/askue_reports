@@ -1,5 +1,8 @@
 import { json } from '@remix-run/node';
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type {
+  LoaderFunctionArgs,
+  ActionFunctionArgs
+} from '@remix-run/node';
 import {
   useLoaderData,
   useFetcher,
@@ -10,6 +13,8 @@ import invariant from 'tiny-invariant';
 import DateInput from './DateInput';
 import NumberInput from './NumberInput';
 import SelectInput from './SelectInput';
+import { addNewMeters } from '~/.server/db-queries/addNewMeters';
+import type { BalanceType } from '~/types';
 
 export const loader = async ({
   params
@@ -27,6 +32,29 @@ export const loader = async ({
   }
 
   return json({ transSub });
+};
+
+export const action = async ({
+  request,
+  params
+}: ActionFunctionArgs) => {
+  invariant(params.transSubId, 'Expected params.transSubId');
+  const formData = await request.formData();
+  const { _action, ...values } = Object.fromEntries(formData);
+  const data = {
+    transSubId: params.transSubId,
+    newMeters: values.newMeters as string,
+    addedToSystem: values.addedToSystem as string,
+    type: values.type as BalanceType,
+    date: values.date as string
+  }
+
+  if (_action === 'addNewMeters') {
+    console.log(data);
+    await addNewMeters(data);
+  }
+
+  return null;
 };
 
 export default function AddData() {
@@ -48,7 +76,10 @@ export default function AddData() {
       <div className='flex justify-around'>
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить новые потребительские ПУ</h2>
-          <fetcher.Form className='flex flex-col gap-5 h-full'>
+          <fetcher.Form
+            className='flex flex-col gap-5 h-full'
+            method='post'
+          >
             <NumberInput
               labelName={'Количество новых ПУ'}
               inputName={'newMeters'}
@@ -62,7 +93,12 @@ export default function AddData() {
             <SelectInput />
             <DateInput />
 
-            <button className="btn btn-outline btn-success mt-auto">
+            <button
+              className="btn btn-outline btn-success mt-auto"
+              type='submit'
+              name='_action'
+              value='addNewMeters'
+            >
               Добавить
             </button>
           </fetcher.Form>
