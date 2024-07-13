@@ -1,0 +1,1 @@
+ALTER TABLE "electricityMeters" ALTER COLUMN "date" SET NOT NULL;

@@ -30,7 +30,7 @@ export const ElectricityMetersTable =
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
     type: BalanceType('balanceType').notNull(),
-    date: date('date', { mode: "string" }),
+    date: date('date', { mode: "string" }).notNull(),
     transformerSubstationId: integer('transformerSubstation')
       .references(() => TransformerSubstationTable.id, {
         'onDelete': 'cascade'
