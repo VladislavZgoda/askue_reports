@@ -27,3 +27,10 @@ export type NameForInput = {
   labelName: string,
   inputName: string
 };
+
+export type NewMetersValues = {
+  quantity: number,
+  type: 'Быт'| 'ЮР Sims'| 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2',
+  date: string,
+  transformerSubstationId: number
+};
