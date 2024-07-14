@@ -38,7 +38,7 @@ export type ActionValues = {
   date: string;
 }
 
-export type NewMetersValues = {
+export type MetersValues = {
   quantity: number,
   type: BalanceType,
   date: string,

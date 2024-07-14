@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { ElectricityMetersTable } from "../schema";
 import type {
-  NewMetersValues,
+  MetersValues,
   CheckRecordValues
 } from "~/types";
 import { eq, and } from "drizzle-orm";
@@ -11,14 +11,16 @@ export const insertNewMeters = async ({
   type,
   date,
   transformerSubstationId
- }: NewMetersValues) => {
+ }: MetersValues) => {
   await db
     .insert(ElectricityMetersTable)
     .values({ quantity, type, date, transformerSubstationId })
  };
 
-export const checkRecord = async ({
-  type, date, transformerSubstationId
+export const checkMetersRecord = async ({
+  type,
+  date,
+  transformerSubstationId
 }: CheckRecordValues) => {
   const record = await db
     .select({
@@ -39,4 +41,23 @@ export const checkRecord = async ({
   );
 
   return record;
+};
+
+export const updateMetersRecord = async ({
+  quantity,
+  type,
+  date,
+  transformerSubstationId
+}: MetersValues) => {
+  await db
+    .update(ElectricityMetersTable)
+    .set({ quantity })
+    .where(
+      and(
+        eq(ElectricityMetersTable.transformerSubstationId,
+          transformerSubstationId),
+        eq(ElectricityMetersTable.date, date),
+        eq(ElectricityMetersTable.type, type)
+      )
+    );
 };
