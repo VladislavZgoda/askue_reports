@@ -63,8 +63,10 @@ export const updateTransSub = async (
   id: string,
   name: string
 ) => {
+  const updated_at = new Date();
+
   await db
     .update(TransformerSubstationTable)
-    .set({name})
+    .set({ name, updated_at })
     .where(eq(TransformerSubstationTable.id, Number(id)))
 };
