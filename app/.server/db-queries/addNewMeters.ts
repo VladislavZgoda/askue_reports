@@ -1,7 +1,8 @@
 import {
   insertNewMeters,
   checkMetersRecord,
-  updateMetersRecord
+  updateMetersRecord,
+  selectLastQuantity
 } from "./electricityMetersTable";
 import type { ActionValues } from "~/types";
 
@@ -17,7 +18,15 @@ export const addNewMeters = async (
       quantity: insertValues.quantity + record[0].quantity
     });
   } else {
-    await insertNewMeters(insertValues);
+    const lastQuantity = (await selectLastQuantity(
+      insertValues.transformerSubstationId,
+      insertValues.type
+    ))[0]?.quantity ?? 0;
+
+    await insertNewMeters({
+      ...insertValues,
+      quantity: insertValues.quantity + lastQuantity
+    });
   }
 };
 

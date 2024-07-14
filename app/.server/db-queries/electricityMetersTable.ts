@@ -2,9 +2,10 @@ import { db } from "../db";
 import { ElectricityMetersTable } from "../schema";
 import type {
   MetersValues,
-  CheckRecordValues
+  CheckRecordValues,
+  BalanceType
 } from "~/types";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 export const insertNewMeters = async ({
   quantity,
@@ -60,4 +61,26 @@ export const updateMetersRecord = async ({
         eq(ElectricityMetersTable.type, type)
       )
     );
+};
+
+export const selectLastQuantity = async (
+  transformerSubstationId: number,
+  type: BalanceType
+) => {
+  const metersQuantity = await db
+    .select({
+      quantity: ElectricityMetersTable.quantity
+    })
+    .from(ElectricityMetersTable)
+    .where(
+      and(
+        eq(ElectricityMetersTable.transformerSubstationId,
+          transformerSubstationId),
+        eq(ElectricityMetersTable.type, type)
+      )
+    )
+    .orderBy(desc(ElectricityMetersTable.date))
+    .limit(1);
+
+  return metersQuantity;
 };
