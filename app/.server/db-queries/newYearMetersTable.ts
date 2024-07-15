@@ -2,7 +2,8 @@ import { db } from "../db";
 import { NewYearMetersTable } from "../schema";
 import type {
   YearMetersValues,
-  SelectYearQuantity
+  SelectYearQuantity,
+  LastYearQuantity
 } from "~/types";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -53,7 +54,7 @@ export const selectLastYearQuantity = async ({
   type,
   transformerSubstationId,
   year
-}: SelectYearQuantity) => {
+}: LastYearQuantity) => {
   const yearQuantity = await db
     .select({
       quantity: NewYearMetersTable.quantity,
