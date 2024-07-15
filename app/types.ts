@@ -45,6 +45,11 @@ export type MetersValues = {
   transformerSubstationId: number
 };
 
+export interface YearMetersValues extends MetersValues {
+  year: number,
+  added_to_system: number
+}
+
 export type CheckRecordValues = {
   type: BalanceType,
   date: string,

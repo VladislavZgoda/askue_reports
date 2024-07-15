@@ -5,6 +5,7 @@ import {
   selectLastQuantity
 } from "./electricityMetersTable";
 import type { ActionValues } from "~/types";
+import { insertYearMeters } from "./newYearMetersTable";
 
 export const addNewMeters = async (
   values: ActionValues
@@ -27,6 +28,12 @@ export const addNewMeters = async (
       ...insertValues,
       quantity: insertValues.quantity + lastQuantity
     });
+
+    const year = Number(insertValues.date.slice(0, 4))
+    await insertYearMeters({
+      ...insertValues,
+      year 
+    });
   }
 };
 
@@ -35,6 +42,7 @@ const handleInsertValues = (
 ) => {
   return {
     quantity: Number(values.newMeters),
+    added_to_system: Number(values.addedToSystem),
     type: values.type,
     date: values.date,
     transformerSubstationId: Number(values.transSubId)
