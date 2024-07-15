@@ -64,7 +64,7 @@ export const updateMetersRecord = async ({
 export const selectLastQuantity = async (
   transformerSubstationId: number,
   type: BalanceType
-) => {
+): Promise<number | undefined> => {
   const metersQuantity = await db
     .select({
       quantity: ElectricityMetersTable.quantity
@@ -80,5 +80,5 @@ export const selectLastQuantity = async (
     .orderBy(desc(ElectricityMetersTable.date))
     .limit(1);
 
-  return metersQuantity;
+  return metersQuantity[0]?.quantity;
 };

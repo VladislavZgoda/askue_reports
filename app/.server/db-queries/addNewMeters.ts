@@ -22,10 +22,10 @@ export const addNewMeters = async (
       quantity: updatedQuantity
     });
   } else {
-    const lastQuantity = (await selectLastQuantity(
+    const lastQuantity = await selectLastQuantity(
       insertValues.transformerSubstationId,
       insertValues.type
-    ))[0]?.quantity ?? 0;
+    ) ?? 0;
 
     await insertNewMeters({
       ...insertValues,
