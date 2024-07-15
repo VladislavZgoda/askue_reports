@@ -48,7 +48,7 @@ export const ElectricityMetersTable =
   pgTable('newYearMetersTable', {
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
-    added_to_system: integer('quantity').notNull(),
+    added_to_system: integer('added_to_system').notNull(),
     type: BalanceType('balanceType').notNull(),
     year: integer('year').notNull(),
     date: date('date', { mode: "string" }).notNull(),
