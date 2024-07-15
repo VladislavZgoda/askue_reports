@@ -45,9 +45,12 @@ export type MetersValues = {
   transformerSubstationId: number
 };
 
-export interface YearMetersValues extends MetersValues {
-  year: number,
+export interface InsertMetersValues extends MetersValues {
   added_to_system: number
+}
+
+export interface YearMetersValues extends InsertMetersValues {
+  year: number
 }
 
 export type CheckRecordValues = {
@@ -57,5 +60,14 @@ export type CheckRecordValues = {
 }
 
 export interface SelectYearQuantity extends CheckRecordValues {
+  year: number
+}
+
+export type LastQuantity = {
+  transformerSubstationId: number,
+  type: BalanceType
+};
+
+export interface LastYearQuantity extends LastQuantity {
   year: number
 }
