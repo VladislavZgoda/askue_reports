@@ -3,7 +3,7 @@ import { ElectricityMetersTable } from "../schema";
 import type {
   MetersValues,
   CheckRecordValues,
-  BalanceType
+  LastQuantity
 } from "~/types";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -61,10 +61,10 @@ export const updateMetersRecord = async ({
     );
 };
 
-export const selectLastQuantity = async (
-  transformerSubstationId: number,
-  type: BalanceType
-): Promise<number | undefined> => {
+export const selectLastQuantity = async ({
+  transformerSubstationId,
+  type
+}: LastQuantity): Promise<number | undefined> => {
   const metersQuantity = await db
     .select({
       quantity: ElectricityMetersTable.quantity
