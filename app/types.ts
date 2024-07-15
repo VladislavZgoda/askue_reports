@@ -55,3 +55,7 @@ export type CheckRecordValues = {
   date: string,
   transformerSubstationId: number
 }
+
+export interface SelectYearQuantity extends CheckRecordValues {
+  year: number
+}
