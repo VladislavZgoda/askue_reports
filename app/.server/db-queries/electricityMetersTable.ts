@@ -22,14 +22,10 @@ export const checkMetersRecord = async ({
   type,
   date,
   transformerSubstationId
-}: CheckRecordValues) => {
+}: CheckRecordValues): Promise<number | undefined> => {
   const record = await db
     .select({
-      quantity: ElectricityMetersTable.quantity,
-      transformerSubstationId:
-        ElectricityMetersTable.transformerSubstationId,
-      date: ElectricityMetersTable.date,
-      type: ElectricityMetersTable.type
+      quantity: ElectricityMetersTable.quantity
     })
     .from(ElectricityMetersTable)
     .where(
@@ -41,7 +37,7 @@ export const checkMetersRecord = async ({
       )
   );
 
-  return record;
+  return record[0]?.quantity;
 };
 
 export const updateMetersRecord = async ({

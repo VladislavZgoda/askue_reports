@@ -11,12 +11,15 @@ export const addNewMeters = async (
   values: ActionValues
 ) => {
   const insertValues = handleInsertValues(values);
-  const record = await checkMetersRecord(insertValues);
+  const prevMetersQuantity = await checkMetersRecord(insertValues);
 
-  if (record.length > 0) {
+  if (prevMetersQuantity) {
+    const updatedQuantity = insertValues.quantity + 
+    prevMetersQuantity;
+    
     await updateMetersRecord({
       ...insertValues,
-      quantity: insertValues.quantity + record[0].quantity
+      quantity: updatedQuantity
     });
   } else {
     const lastQuantity = (await selectLastQuantity(
@@ -29,7 +32,7 @@ export const addNewMeters = async (
       quantity: insertValues.quantity + lastQuantity
     });
 
-    const year = Number(insertValues.date.slice(0, 4))
+    const year = Number(insertValues.date.slice(0, 4));
     await insertYearMeters({
       ...insertValues,
       year 
