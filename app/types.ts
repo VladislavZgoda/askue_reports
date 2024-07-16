@@ -53,6 +53,10 @@ export interface YearMetersValues extends InsertMetersValues {
   year: number
 }
 
+export interface MonthMetersValues extends YearMetersValues {
+  month: string
+}
+
 export type CheckRecordValues = {
   type: BalanceType,
   date: string,
@@ -63,6 +67,10 @@ export interface SelectYearQuantity extends CheckRecordValues {
   year: number
 }
 
+export interface SelectMonthQuantity extends SelectYearQuantity {
+  month: string
+}
+
 export type LastQuantity = {
   transformerSubstationId: number,
   type: BalanceType
@@ -70,4 +78,8 @@ export type LastQuantity = {
 
 export interface LastYearQuantity extends LastQuantity {
   year: number
+}
+
+export interface LastMonthQuantity extends LastYearQuantity {
+  month: string
 }
