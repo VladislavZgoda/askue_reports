@@ -64,3 +64,25 @@ export const ElectricityMetersTable =
       mode: 'date',
     }).defaultNow().notNull(),
   });
+
+  export const NewMonthMetersTable = 
+  pgTable('newMonthMetersTable', {
+    id: serial('id').primaryKey(),
+    quantity: integer('quantity').notNull(),
+    added_to_system: integer('added_to_system').notNull(),
+    type: BalanceType('balanceType').notNull(),
+    month: varchar('month', { length: 2 }).notNull(),
+    year: integer('year').notNull(),
+    date: date('date', { mode: "string" }).notNull(),
+    transformerSubstationId: integer('transformerSubstation')
+      .references(() => TransformerSubstationTable.id, {
+        'onDelete': 'cascade'
+      }).notNull(),
+    created_at: timestamp('created_at', {
+      withTimezone: true,
+    }).defaultNow().notNull(),
+    updated_at: timestamp('updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).defaultNow().notNull(),
+  });
