@@ -58,12 +58,15 @@ const handleInsert = async (
     type, transformerSubstationId, year
   });
 
+  const updatedLastYearQuantity = quantity +
+  (lastYearQuantity[0]?.quantity ?? 0);
+  const updatedLastAddedToSystem = added_to_system +
+  (lastYearQuantity[0]?.added_to_system ?? 0);
+
   await insertYearMeters({
     ...insertValues,
-    quantity: quantity +
-      lastYearQuantity[0]?.quantity ?? 0,
-    added_to_system: added_to_system +
-      lastYearQuantity[0]?.added_to_system ?? 0,
+    quantity: updatedLastYearQuantity,
+    added_to_system: updatedLastAddedToSystem,
     year
   });
 };
@@ -91,13 +94,16 @@ const handleUpdate = async (
     type, date, transformerSubstationId, year
   });
 
+  const updatedYearQuantity = quantity +
+  (yearQuantity[0]?.quantity ?? 0);
+  const updatedAddedToSystem = added_to_system +
+  (yearQuantity[0]?.added_to_system ?? 0);
+
   await updateYearMeters({
     ...insertValues,
     year,
-    quantity: quantity +
-      yearQuantity[0]?.quantity ?? 0,
-    added_to_system: added_to_system +
-      yearQuantity[0]?.added_to_system ?? 0
+    quantity: updatedYearQuantity,
+    added_to_system: updatedAddedToSystem
   });
 };
 
