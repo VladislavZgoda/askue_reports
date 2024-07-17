@@ -24,7 +24,7 @@ import {
 import {
   insertNotInSystem,
   updateNotInSystem,
-  selectNotInSystem,
+  checkNotInSystem,
   selectLastNotInSystem
 } from "./notInSystemTable";
 
@@ -33,9 +33,19 @@ export const addNewMeters = async (
 ) => {
   const insertValues = handleInsertValues(values);
   const prevMetersQuantity = await checkMetersRecord(insertValues);
+  const prevNotInSystem = await checkNotInSystem(insertValues);
   const { quantity, added_to_system } = insertValues;
 
-  if (quantity === added_to_system) {
+  if (quantity > added_to_system &&
+    prevMetersQuantity) {
+    handleUpdateNotInSystem();
+    insertValues.quantity = added_to_system;
+  } else if (quantity > added_to_system) {
+    handleInsertNotInSystem();
+    insertValues.quantity = added_to_system;
+  }
+
+  if (added_to_system > 0) {
     if (prevMetersQuantity) {
       await handleUpdate(
         insertValues,
@@ -166,4 +176,12 @@ const handleInsertValues = (
     date: values.date,
     transformerSubstationId: Number(values.transSubId)
   };
+};
+
+const handleInsertNotInSystem = async () => {
+
+};
+
+const handleUpdateNotInSystem = async () => {
+
 };

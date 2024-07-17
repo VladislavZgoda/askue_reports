@@ -44,7 +44,7 @@ export const updateNotInSystem = async ({
     );
 };
 
-export const selectNotInSystem = async ({
+export const checkNotInSystem = async ({
   type,
   date,
   transformerSubstationId
