@@ -15,7 +15,12 @@ export const insertNewMeters = async ({
  }: MetersValues) => {
   await db
     .insert(ElectricityMetersTable)
-    .values({ quantity, type, date, transformerSubstationId })
+    .values({
+      quantity,
+      type,
+      date,
+      transformerSubstationId
+    });
  };
 
 export const checkMetersRecord = async ({
