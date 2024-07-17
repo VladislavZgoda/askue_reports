@@ -66,7 +66,7 @@ export const selectNotInSystem = async ({
   return record[0]?.quantity;
 };
 
-export const selectLastQuantity = async ({
+export const selectLastNotInSystem = async ({
   transformerSubstationId,
   type
 }: LastQuantity): Promise<number | undefined> => {

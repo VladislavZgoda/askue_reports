@@ -14,12 +14,19 @@ import {
   selectYearQuantity,
   updateYearMeters
 } from "./newYearMetersTable";
-import { 
+import {
   insertMonthMeters,
   updateMonthMeters,
   selectMonthQuantity,
   selectLastMonthQuantity
 } from "./newMothMetersTable";
+
+import {
+  insertNotInSystem,
+  updateNotInSystem,
+  selectNotInSystem,
+  selectLastNotInSystem
+} from "./notInSystemTable";
 
 export const addNewMeters = async (
   values: ActionValues
