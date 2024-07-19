@@ -32,29 +32,22 @@ export const addNewMeters = async (
   values: ActionValues
 ) => {
   const insertValues = handleInsertValues(values);
-  const prevMetersQuantity = await checkMetersRecord(insertValues);
   const prevNotInSystem = await checkNotInSystem(insertValues);
   const { quantity, added_to_system } = insertValues;
 
   if (quantity > added_to_system &&
-    prevMetersQuantity) {
-    handleUpdateNotInSystem();
+    prevNotInSystem) {
+    await handleUpdateNotInSystem(
+      insertValues,
+      prevNotInSystem
+    );
     insertValues.quantity = added_to_system;
   } else if (quantity > added_to_system) {
-    handleInsertNotInSystem();
+    await handleInsertNotInSystem(insertValues);
     insertValues.quantity = added_to_system;
-  }
-
-  if (added_to_system > 0) {
-    if (prevMetersQuantity) {
-      await handleUpdate(
-        insertValues,
-        prevMetersQuantity
-      );
-    } else {
-      await handleInsert(insertValues);
-    }
-  }
+  } 
+  
+  await handleInsertNewMeters(insertValues);
 };
 
 const handleInsert = async (
@@ -178,10 +171,44 @@ const handleInsertValues = (
   };
 };
 
-const handleInsertNotInSystem = async () => {
-
+const handleInsertNotInSystem = async (
+  insertValues: InsertMetersValues
+) => {
+  const { quantity, added_to_system } = insertValues;
+  const lastQuantity = await selectLastNotInSystem(insertValues) ?? 0;
+  const updatedQuantity = (quantity - added_to_system) + lastQuantity;
+  await insertNotInSystem({
+    ...insertValues,
+    quantity: updatedQuantity
+  });
 };
 
-const handleUpdateNotInSystem = async () => {
+const handleUpdateNotInSystem = async (
+  insertValues: InsertMetersValues,
+  prevNotInSystem: number
+) => {
+  const { quantity, added_to_system } = insertValues;
+  const updatedQuantity = (quantity - added_to_system) + prevNotInSystem;
+  await updateNotInSystem({
+    ...insertValues,
+    quantity: updatedQuantity,
+  });
+};
 
+const handleInsertNewMeters = async (
+  insertValues: InsertMetersValues
+) => {
+  const { added_to_system } = insertValues;
+
+  if (added_to_system > 0) {
+    const prevMetersQuantity = await checkMetersRecord(insertValues);
+    if (prevMetersQuantity) {
+      await handleUpdate(
+        insertValues,
+        prevMetersQuantity
+      );
+    } else {
+      await handleInsert(insertValues);
+    }
+  }
 };
