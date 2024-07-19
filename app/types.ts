@@ -83,3 +83,8 @@ export interface LastYearQuantity extends LastQuantity {
 export interface LastMonthQuantity extends LastYearQuantity {
   month: string
 }
+
+export type TotalMeters = {
+  quantity: number;
+  added_to_system: number;
+}

@@ -6,7 +6,8 @@ import {
 } from "./electricityMetersTable";
 import type {
   ActionValues,
-  InsertMetersValues
+  InsertMetersValues,
+  TotalMeters
 } from "~/types";
 import {
   insertYearMeters,
@@ -32,22 +33,26 @@ export const addNewMeters = async (
   values: ActionValues
 ) => {
   const insertValues = handleInsertValues(values);
-  const prevNotInSystem = await checkNotInSystem(insertValues);
   const { quantity, added_to_system } = insertValues;
 
-  if (quantity > added_to_system &&
-    prevNotInSystem) {
-    await handleUpdateNotInSystem(
-      insertValues,
-      prevNotInSystem
-    );
-    insertValues.quantity = added_to_system;
-  } else if (quantity > added_to_system) {
-    await handleInsertNotInSystem(insertValues);
-    insertValues.quantity = added_to_system;
-  } 
-  
-  await handleInsertNewMeters(insertValues);
+  if (quantity > added_to_system) {
+    const prevNotInSystem = await checkNotInSystem(insertValues);
+    if (prevNotInSystem) {
+      await handleUpdateNotInSystem(
+        insertValues,
+        prevNotInSystem
+      );
+    } else {
+      await handleInsertNotInSystem(insertValues);
+    }
+  }
+
+  await handleYearMeters(insertValues);
+  await handleMonthMeters(insertValues);
+  await handleInsertNewMeters({
+    ...insertValues,
+    quantity: insertValues.added_to_system
+  });
 };
 
 const handleInsert = async (
@@ -56,9 +61,7 @@ const handleInsert = async (
   const {
     quantity,
     type,
-    date,
     transformerSubstationId,
-    added_to_system
   } = insertValues;
   const lastQuantity = await selectLastQuantity({
     transformerSubstationId, type
@@ -68,94 +71,18 @@ const handleInsert = async (
     ...insertValues,
     quantity: quantity + lastQuantity
   });
-
-  const year = Number(date.slice(0, 4));
-  const lastYearQuantity = await selectLastYearQuantity({
-    type, transformerSubstationId, year
-  });
-
-  const updatedLastYearQuantity = quantity +
-  (lastYearQuantity[0]?.quantity ?? 0);
-  const updatedLastYearAddedToSystem = added_to_system +
-  (lastYearQuantity[0]?.added_to_system ?? 0);
-
-  await insertYearMeters({
-    ...insertValues,
-    quantity: updatedLastYearQuantity,
-    added_to_system: updatedLastYearAddedToSystem,
-    year
-  });
-
-  const month = date.slice(5, 7);
-  const lastMonthQuantity = await selectLastMonthQuantity({
-    type, transformerSubstationId, month, year
-  });
-
-  const updatedLastMonthQuantity = quantity +
-  (lastMonthQuantity[0]?.quantity ?? 0);
-  const updatedLastMonthAddedToSystem = added_to_system +
-  (lastMonthQuantity[0]?.added_to_system ?? 0);
-
-  await insertMonthMeters({
-    ...insertValues,
-    quantity: updatedLastMonthQuantity,
-    added_to_system: updatedLastMonthAddedToSystem,
-    month,
-    year
-  });
 };
 
 const handleUpdate = async (
   insertValues: InsertMetersValues,
   prevMetersQuantity: number
 ) => {
-  const {
-    quantity,
-    type,
-    date,
-    transformerSubstationId,
-    added_to_system
-  } = insertValues;
+  const { quantity } = insertValues;
   const updatedQuantity = quantity + prevMetersQuantity;
 
   await updateMetersRecord({
     ...insertValues,
     quantity: updatedQuantity
-  });
-
-  const year = Number(date.slice(0, 4));
-  const yearQuantity = await selectYearQuantity({
-    type, date, transformerSubstationId, year
-  });
-
-  const updatedYearQuantity = quantity +
-  (yearQuantity[0]?.quantity ?? 0);
-  const updatedAddedToSystem = added_to_system +
-  (yearQuantity[0]?.added_to_system ?? 0);
-
-  await updateYearMeters({
-    ...insertValues,
-    year,
-    quantity: updatedYearQuantity,
-    added_to_system: updatedAddedToSystem
-  });
-
-  const month = date.slice(5, 7);
-  const monthQuantity = await selectMonthQuantity({
-    type, date, transformerSubstationId, month, year
-  });
-
-  const updatedMonthQuantity = quantity +
-  (monthQuantity[0]?.quantity ?? 0);
-  const updatedMonthAddedToSystem = added_to_system +
-  (monthQuantity[0]?.added_to_system ?? 0);
-
-  await updateMonthMeters({
-    ...insertValues,
-    year,
-    month,
-    quantity: updatedMonthQuantity,
-    added_to_system: updatedMonthAddedToSystem
   });
 };
 
@@ -211,4 +138,147 @@ const handleInsertNewMeters = async (
       await handleInsert(insertValues);
     }
   }
+};
+
+const handleYearMeters = async (
+  insertValues: InsertMetersValues
+) => {
+  const { type, date, transformerSubstationId } = insertValues;
+  const year = Number(date.slice(0, 4));
+  const prevYearQuantity = await selectYearQuantity({
+    type, date, transformerSubstationId, year
+  });
+
+  if (prevYearQuantity[0]?.quantity) {
+    await updateTotalYearMeters(
+      insertValues,
+      prevYearQuantity[0],
+      year
+    );
+  } else {
+    await insertTotalYearMeters(
+      insertValues, year
+    );
+  }
+};
+
+const insertTotalYearMeters = async (
+  insertValues: InsertMetersValues,
+  year: number
+) => {
+  const {
+    quantity,
+    added_to_system,
+    type,
+    transformerSubstationId
+  } = insertValues;
+
+  const lastYearQuantity = await selectLastYearQuantity({
+    type, transformerSubstationId, year
+  });
+
+  const updatedLastYearQuantity = quantity +
+    (lastYearQuantity[0]?.quantity ?? 0);
+  const updatedLastYearAddedToSystem = added_to_system +
+    (lastYearQuantity[0]?.added_to_system ?? 0);
+
+  await insertYearMeters({
+    ...insertValues,
+    quantity: updatedLastYearQuantity,
+    added_to_system: updatedLastYearAddedToSystem,
+    year
+  });
+};
+
+const updateTotalYearMeters = async (
+  insertValues: InsertMetersValues,
+  prevYearQuantity: TotalMeters,
+  year: number
+) => {
+  const { quantity, added_to_system } = insertValues;
+  const updatedYearQuantity = quantity +
+    prevYearQuantity.quantity;
+  const updatedAddedToSystem = added_to_system +
+    prevYearQuantity.added_to_system;
+
+  await updateYearMeters({
+    ...insertValues,
+    year,
+    quantity: updatedYearQuantity,
+    added_to_system: updatedAddedToSystem
+  });
+};
+
+const handleMonthMeters = async (
+  insertValues: InsertMetersValues
+) => {
+  const { type, date, transformerSubstationId } = insertValues;
+  const year = Number(date.slice(0, 4));
+  const month = date.slice(5, 7);
+  const prevMonthQuantity = await selectMonthQuantity({
+    type, date, transformerSubstationId, month, year
+  });
+
+  if (prevMonthQuantity[0]?.quantity) {
+    await updateTotalMonthMeters(
+      insertValues,
+      prevMonthQuantity[0],
+      month,
+      year
+    );
+  } else {
+    await insertTotalMonthMeters(
+      insertValues, month, year
+    );
+  }
+};
+
+const insertTotalMonthMeters = async (
+  insertValues: InsertMetersValues,
+  month: string,
+  year: number
+) => {
+  const {
+    quantity,
+    added_to_system,
+    type,
+    transformerSubstationId
+  } = insertValues;
+
+  const lastMonthQuantity = await selectLastMonthQuantity({
+    type, transformerSubstationId, month, year
+  });
+  const updatedLastMonthQuantity = quantity +
+    (lastMonthQuantity[0]?.quantity ?? 0);
+  const updatedLastMonthAddedToSystem = added_to_system +
+    (lastMonthQuantity[0]?.added_to_system ?? 0);
+
+  await insertMonthMeters({
+    ...insertValues,
+    quantity: updatedLastMonthQuantity,
+    added_to_system: updatedLastMonthAddedToSystem,
+    month,
+    year
+  });
+};
+
+const updateTotalMonthMeters = async (
+  insertValues: InsertMetersValues,
+  prevMonthQuantity: TotalMeters,
+  month: string,
+  year: number
+) => {
+  const { quantity, added_to_system } = insertValues;
+  const updatedMonthQuantity = quantity +
+    prevMonthQuantity.quantity;
+  const updatedMonthAddedToSystem = added_to_system +
+    prevMonthQuantity.added_to_system;
+
+  await updateMonthMeters({
+    ...insertValues,
+    year,
+    month,
+    quantity: updatedMonthQuantity,
+    added_to_system: updatedMonthAddedToSystem
+  });
 };
