@@ -5,7 +5,8 @@ import {
   serial,
   timestamp,
   varchar,
-  date
+  date,
+  text
 } from 'drizzle-orm/pg-core';
 
 export const TransformerSubstationTable =
@@ -44,7 +45,7 @@ export const ElectricityMetersTable =
     }).defaultNow().notNull(),
   });
 
-export const NewYearMetersTable = 
+export const NewYearMetersTable =
   pgTable('newYearMetersTable', {
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
@@ -65,7 +66,7 @@ export const NewYearMetersTable =
     }).defaultNow().notNull(),
   });
 
-export const NewMonthMetersTable = 
+export const NewMonthMetersTable =
   pgTable('newMonthMetersTable', {
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
@@ -87,7 +88,7 @@ export const NewMonthMetersTable =
     }).defaultNow().notNull(),
   });
 
-export const NotInSystem = 
+export const NotInSystem =
   pgTable('notInSystem', {
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
@@ -103,5 +104,18 @@ export const NotInSystem =
     updated_at: timestamp('updated_at', {
       withTimezone: true,
       mode: 'date',
+    }).defaultNow().notNull(),
+  });
+
+export const MetersActionLog =
+  pgTable('metersActionLog', {
+    id: serial('id').primaryKey(),
+    message: text('message').notNull(),
+    transformerSubstationId: integer('transformerSubstation')
+      .references(() => TransformerSubstationTable.id, {
+        'onDelete': 'cascade'
+      }).notNull(),
+    created_at: timestamp('created_at', {
+      withTimezone: true,
     }).defaultNow().notNull(),
   });
