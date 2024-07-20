@@ -21,13 +21,13 @@ import {
   selectMonthQuantity,
   selectLastMonthQuantity
 } from "./newMothMetersTable";
-
 import {
   insertNotInSystem,
   updateNotInSystem,
   checkNotInSystem,
   selectLastNotInSystem
 } from "./notInSystemTable";
+import { insertMessage } from "./metersActionLogTable";
 
 export const addNewMeters = async (
   values: ActionValues
@@ -53,6 +53,7 @@ export const addNewMeters = async (
     ...insertValues,
     quantity: insertValues.added_to_system
   });
+  await addMessageToLog(insertValues);
 };
 
 const handleInsert = async (
@@ -281,4 +282,17 @@ const updateTotalMonthMeters = async (
     quantity: updatedMonthQuantity,
     added_to_system: updatedMonthAddedToSystem
   });
+};
+
+const addMessageToLog = async (
+  insertValues: InsertMetersValues
+) => {
+  const {
+    quantity,
+    added_to_system,
+    type,
+    transformerSubstationId
+  } = insertValues;
+  const message = `Добавлено: ${quantity} ${added_to_system} ${type}`;
+  await insertMessage(message, transformerSubstationId);
 };
