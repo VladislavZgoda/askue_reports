@@ -21,7 +21,6 @@ export const selectMessages = async (
     .select({
       id: MetersActionLog.id,
       message: MetersActionLog.message,
-      created_at: MetersActionLog.created_at
     })
     .from(MetersActionLog)
     .where(eq(
