@@ -15,6 +15,7 @@ export const TransformerSubstationTable =
     name: varchar('name', { length: 8 }).unique().notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
     }).defaultNow().notNull(),
     updated_at: timestamp('updated_at', {
       withTimezone: true,
@@ -38,6 +39,7 @@ export const ElectricityMetersTable =
       }).notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
     }).defaultNow().notNull(),
     updated_at: timestamp('updated_at', {
       withTimezone: true,
@@ -59,6 +61,7 @@ export const NewYearMetersTable =
       }).notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
     }).defaultNow().notNull(),
     updated_at: timestamp('updated_at', {
       withTimezone: true,
@@ -81,6 +84,7 @@ export const NewMonthMetersTable =
       }).notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
     }).defaultNow().notNull(),
     updated_at: timestamp('updated_at', {
       withTimezone: true,
@@ -100,6 +104,7 @@ export const NotInSystem =
       }).notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
     }).defaultNow().notNull(),
     updated_at: timestamp('updated_at', {
       withTimezone: true,
@@ -117,5 +122,25 @@ export const MetersActionLog =
       }).notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
+      mode: 'date'
+    }).defaultNow().notNull(),
+  });
+
+export const TechnicalMeters =
+  pgTable('technicalMeters', {
+    id: serial('id').primaryKey(),
+    quantity: integer('quantity').notNull(),
+    underVoltage: integer('quantity').notNull(),
+    transformerSubstationId: integer('transformerSubstation')
+      .references(() => TransformerSubstationTable.id, {
+        'onDelete': 'cascade'
+      }).notNull(),
+    created_at: timestamp('created_at', {
+      withTimezone: true,
+      mode: 'date'
+    }).defaultNow().notNull(),
+    updated_at: timestamp('updated_at', {
+      withTimezone: true,
+      mode: 'date',
     }).defaultNow().notNull(),
   });

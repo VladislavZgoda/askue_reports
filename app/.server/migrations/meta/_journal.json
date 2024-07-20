@@ -57,6 +57,13 @@
       "when": 1721413235731,
       "tag": "0007_adorable_dust",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1721484514063,
+      "tag": "0008_normal_santa_claus",
+      "breakpoints": true
     }
   ]
 }
