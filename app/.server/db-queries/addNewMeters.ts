@@ -293,6 +293,7 @@ const addMessageToLog = async (
     type,
     transformerSubstationId
   } = insertValues;
-  const message = `Добавлено: ${quantity} ${added_to_system} ${type}`;
+  const time = new Date().toLocaleString('ru');
+  const message = `Добавлено: ${quantity} ${added_to_system} ${type} ${time}`;
   await insertMessage(message, transformerSubstationId);
 };

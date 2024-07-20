@@ -15,6 +15,7 @@ import NumberInput from './NumberInput';
 import SelectInput from './SelectInput';
 import { addNewMeters } from '~/.server/db-queries/addNewMeters';
 import type { BalanceType } from '~/types';
+import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 
 export const loader = async ({
   params
@@ -31,7 +32,9 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  return json({ transSub });
+  const logMessages = await selectMessages(params.transSubId);
+
+  return json({ transSub, logMessages });
 };
 
 export const action = async ({
@@ -58,7 +61,7 @@ export const action = async ({
 };
 
 export default function AddData() {
-  const { transSub } = useLoaderData<typeof loader>();
+  const { transSub, logMessages } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
 
   return (
@@ -153,6 +156,31 @@ export default function AddData() {
           </fetcher.Form>
         </section>
       </div>
+
+      <section className='w-96 mt-8 ml-auto mr-auto mb-5'>
+        {logMessages.length > 0 ? (
+          <div className="bg-base-200 collapse">
+            <input type="checkbox" className="peer" />
+            <div
+              className="collapse-title bg-primary text-primary-content
+              peer-checked:bg-secondary peer-checked:text-secondary-content"
+            >
+              Нажмите, чтобы показать/скрыть лог
+            </div>
+            <div
+              className="collapse-content bg-primary text-primary-content
+               peer-checked:bg-secondary peer-checked:text-secondary-content"
+            >
+              <ul>
+                {logMessages.map(message =>
+                  <li key={message.id}>
+                    {message.message}
+                  </li>)}
+              </ul>
+            </div>
+          </div>
+        ) : null}
+      </section>
     </main>
   );
 }
