@@ -36,7 +36,7 @@ export type ActionValues = {
   addedToSystem: string;
   type: BalanceType;
   date: string;
-}
+};
 
 export type MetersValues = {
   quantity: number,
@@ -61,7 +61,7 @@ export type CheckRecordValues = {
   type: BalanceType,
   date: string,
   transformerSubstationId: number
-}
+};
 
 export interface SelectYearQuantity extends CheckRecordValues {
   year: number
@@ -87,4 +87,10 @@ export interface LastMonthQuantity extends LastYearQuantity {
 export type TotalMeters = {
   quantity: number;
   added_to_system: number;
-}
+};
+
+export type TechnicalMetersAction = {
+  transSubId: string;
+  techMeters: string;
+  underVoltage: string;
+};

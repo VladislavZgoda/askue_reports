@@ -16,6 +16,7 @@ import SelectInput from './SelectInput';
 import { addNewMeters } from '~/.server/db-queries/addNewMeters';
 import type { BalanceType } from '~/types';
 import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
+import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
 
 export const loader = async ({
   params
@@ -56,6 +57,16 @@ export const action = async ({
     }
 
     await addNewMeters(data);
+  }
+
+  if (_action === 'addTechnicalMeters') {
+    const data = {
+      transSubId: params.transSubId,
+      techMeters: values.techMeters as string,
+      underVoltage: values.underVoltage as string
+    };
+
+    await addTechnicalMeters(data);
   }
 
   return null;
@@ -110,7 +121,10 @@ export default function AddData() {
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить техучеты</h2>
-          <fetcher.Form className='flex flex-col gap-5 h-full'>
+          <fetcher.Form
+            className='flex flex-col gap-5 h-full'
+            method='post'
+          >
             <NumberInput
                 labelName={'Количество Техучетов'}
                 inputName={'techMeters'}
@@ -121,7 +135,12 @@ export default function AddData() {
                 inputName={'underVoltage'}
             />
 
-            <button className="btn btn-outline btn-success mt-auto">
+            <button
+              className="btn btn-outline btn-success mt-auto"
+              type='submit'
+              name='_action'
+              value='addTechnicalMeters'
+            >
               Добавить
             </button>
           </fetcher.Form>
@@ -176,7 +195,8 @@ export default function AddData() {
                 {logMessages.map(message =>
                   <li key={message.id}>
                     {message.message}
-                  </li>)}
+                  </li>
+                )}
               </ul>
             </div>
           </div>
