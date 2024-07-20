@@ -44,16 +44,17 @@ export const action = async ({
   invariant(params.transSubId, 'Expected params.transSubId');
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-  const data = {
-    transSubId: params.transSubId,
-    newMeters: values.newMeters as string,
-    addedToSystem: values.addedToSystem as string,
-    type: values.type as BalanceType,
-    date: values.date as string
-  }
+
 
   if (_action === 'addNewMeters') {
-    console.log(data);
+    const data = {
+      transSubId: params.transSubId,
+      newMeters: values.newMeters as string,
+      addedToSystem: values.addedToSystem as string,
+      type: values.type as BalanceType,
+      date: values.date as string
+    }
+
     await addNewMeters(data);
   }
 
@@ -157,7 +158,7 @@ export default function AddData() {
         </section>
       </div>
 
-      <section className='w-96 mt-8 ml-auto mr-auto mb-5'>
+      <section className='w-96 mt-8 ml-auto mr-auto mb-8'>
         {logMessages.length > 0 ? (
           <div className="bg-base-200 collapse">
             <input type="checkbox" className="peer" />
