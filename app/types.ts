@@ -94,3 +94,9 @@ export type TechnicalMetersAction = {
   techMeters: string;
   underVoltage: string;
 };
+
+export type TechnicalMetersValues = {
+  quantity: number,
+  underVoltage: number,
+  transformerSubstationId: number
+};
