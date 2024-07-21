@@ -144,3 +144,21 @@ export const TechnicalMeters =
       mode: 'date',
     }).defaultNow().notNull(),
   });
+
+export const DisabledLegalMeters =
+  pgTable('disabledLegalMeters', {
+    id: serial('id').primaryKey(),
+    quantity: integer('quantity').notNull(),
+    transformerSubstationId: integer('transformerSubstation')
+      .references(() => TransformerSubstationTable.id, {
+        'onDelete': 'cascade'
+      }).notNull(),
+    created_at: timestamp('created_at', {
+      withTimezone: true,
+      mode: 'date'
+    }).defaultNow().notNull(),
+    updated_at: timestamp('updated_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).defaultNow().notNull(),
+  });
