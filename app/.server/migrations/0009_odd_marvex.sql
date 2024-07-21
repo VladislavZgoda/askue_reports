@@ -1,0 +1,1 @@
+ALTER TABLE "technicalMeters" ADD COLUMN "underVoltage" integer NOT NULL;

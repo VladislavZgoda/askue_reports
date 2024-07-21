@@ -130,7 +130,7 @@ export const TechnicalMeters =
   pgTable('technicalMeters', {
     id: serial('id').primaryKey(),
     quantity: integer('quantity').notNull(),
-    underVoltage: integer('quantity').notNull(),
+    underVoltage: integer('underVoltage').notNull(),
     transformerSubstationId: integer('transformerSubstation')
       .references(() => TransformerSubstationTable.id, {
         'onDelete': 'cascade'
