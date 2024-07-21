@@ -17,6 +17,7 @@ import addNewMeters from '~/.server/db-queries/addNewMeters';
 import type { BalanceType } from '~/types';
 import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
+import addDisabledLegalMeters from '~/.server/db-queries/addDisabledLegalMeters';
 
 export const loader = async ({
   params
@@ -67,6 +68,15 @@ export const action = async ({
     };
 
     await addTechnicalMeters(data);
+  }
+
+  if (_action === 'addDisabledLegalMeters') {
+    const data = {
+      transSubId: params.transSubId,
+      disabledMeters: values.disabledMeters as string
+    };
+
+    await addDisabledLegalMeters(data);
   }
 
   return null;
@@ -148,13 +158,21 @@ export default function AddData() {
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить ЮР отключенные</h2>
-          <fetcher.Form className='flex flex-col gap-5 h-full'>
+          <fetcher.Form
+            className='flex flex-col gap-5 h-full'
+            method='post'
+          >
             <NumberInput
               labelName={'Количество отключенных ПУ'}
               inputName={'disabledMeters'}
             />
 
-            <button className="btn btn-outline btn-success mt-auto">
+            <button
+              className="btn btn-outline btn-success mt-auto"
+              type='submit'
+              name='_action'
+              value='addDisabledLegalMeters'
+            >
               Добавить
             </button>
           </fetcher.Form>

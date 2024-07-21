@@ -100,3 +100,8 @@ export type TechnicalMetersValues = {
   underVoltage: number,
   transformerSubstationId: number
 };
+
+export type DisabledLegalMetersAction = {
+  transSubId: string;
+  disabledMeters: string;
+};
