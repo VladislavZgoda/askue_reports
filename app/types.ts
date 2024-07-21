@@ -105,3 +105,8 @@ export type DisabledLegalMetersAction = {
   transSubId: string;
   disabledMeters: string;
 };
+
+export type DisabledLegalMetersValues = {
+  quantity: number,
+  transformerSubstationId: number
+}
