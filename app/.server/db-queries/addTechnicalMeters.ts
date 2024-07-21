@@ -1,11 +1,34 @@
 import type { TechnicalMetersAction } from "~/types";
-import { insertTechnicalMeters } from "./technicalMetersTable";
+import {
+  insertTechnicalMeters,
+  selectTechnicalMeters,
+  updateTechnicalMeters
+} from "./technicalMetersTable";
+import { insertMessage } from "./metersActionLogTable";
 
 export default async function addTechnicalMeters(
   values: TechnicalMetersAction
 ) {
   const processedValues = handleValues(values);
-  await insertTechnicalMeters(processedValues);
+  const prevValues =
+    await selectTechnicalMeters(
+      processedValues.transformerSubstationId
+    );
+
+  if (prevValues[0]?.quantity) {
+    const updatedValues = {
+      ...processedValues,
+      quantity: processedValues.quantity +
+        prevValues[0].quantity,
+      underVoltage: processedValues.underVoltage +
+        prevValues[0].underVoltage
+    };
+    await updateTechnicalMeters(updatedValues);
+  } else {
+    await insertTechnicalMeters(processedValues);
+  }
+
+  await addMessageToLog(values);
 }
 
 const handleValues = (
@@ -18,4 +41,14 @@ const handleValues = (
   };
 
   return processedValues;
+};
+
+const addMessageToLog = async (
+  values: TechnicalMetersAction
+) => {
+  const { techMeters, underVoltage } = values;
+  const transformerSubstationId = Number(values.transSubId);
+  const time = new Date().toLocaleString('ru');
+  const message = `Техучеты: ${techMeters} ${underVoltage} ${time}`;
+  await insertMessage(message, transformerSubstationId);
 };
