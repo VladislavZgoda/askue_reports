@@ -29,9 +29,9 @@ import {
 } from "./notInSystemTable";
 import { insertMessage } from "./metersActionLogTable";
 
-export const addNewMeters = async (
+export default async function addNewMeters (
   values: ActionValues
-) => {
+) {
   const insertValues = handleInsertValues(values);
   const { quantity, added_to_system } = insertValues;
 
@@ -54,7 +54,7 @@ export const addNewMeters = async (
     quantity: insertValues.added_to_system
   });
   await addMessageToLog(insertValues);
-};
+}
 
 const handleInsert = async (
   insertValues: InsertMetersValues

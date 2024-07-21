@@ -13,7 +13,7 @@ import invariant from 'tiny-invariant';
 import DateInput from './DateInput';
 import NumberInput from './NumberInput';
 import SelectInput from './SelectInput';
-import { addNewMeters } from '~/.server/db-queries/addNewMeters';
+import addNewMeters from '~/.server/db-queries/addNewMeters';
 import type { BalanceType } from '~/types';
 import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
