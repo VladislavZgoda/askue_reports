@@ -19,6 +19,7 @@ import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
 import addDisabledLegalMeters from '~/.server/db-queries/addDisabledLegalMeters';
 import addFailedMeters from '~/.server/db-queries/addFailedMeters';
+import SubmitButton from './SubmitButton';
 
 export const loader = async ({
   params
@@ -96,6 +97,10 @@ export const action = async ({
 export default function AddData() {
   const { transSub, logMessages } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
+  const formAction = `/transformerSubstations/${transSub.id}/AddData`;
+  const isSubmitting = 
+    fetcher.formData?.get('_action') === 'addNewMeters' 
+    && fetcher.state === 'submitting'; 
 
   return (
     <main>
@@ -110,11 +115,17 @@ export default function AddData() {
 
 
       <div className='flex justify-around'>
-        <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
+        <fieldset 
+          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
+          disabled={isSubmitting}
+          form='addNewMeters'
+        >
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
+            action={formAction}
+            id='addNewMeters'
           >
             <NumberInput
               labelName={'Количество новых ПУ'}
@@ -128,23 +139,33 @@ export default function AddData() {
 
             <SelectInput />
             <DateInput />
-
-            <button
+            <SubmitButton
+              buttonValue={'addNewMeters'}
+              isSubmitting={isSubmitting} 
+            />
+            {/* <button
               className="btn btn-outline btn-success mt-auto"
               type='submit'
               name='_action'
               value='addNewMeters'
             >
-              Добавить
-            </button>
+              {isSubmitting ? <span className="loading loading-spinner"></span> : null}
+              {isSubmitting ? `Запись...` : `Добавить`}
+            </button> */}
           </fetcher.Form>
-        </section>
+        </fieldset>
 
-        <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
+        <fieldset 
+          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
+          disabled={isSubmitting}
+          form='addTechnicalMeters'
+        >
           <h2>Добавить техучеты</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
+            action={formAction}
+            id='addTechnicalMeters'
           >
             <NumberInput
                 labelName={'Количество Техучетов'}
@@ -165,13 +186,19 @@ export default function AddData() {
               Добавить
             </button>
           </fetcher.Form>
-        </section>
+        </fieldset>
 
-        <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
+        <fieldset 
+          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
+          disabled={isSubmitting}
+          form='addDisabledLegalMeters'
+        >
           <h2>Добавить ЮР отключенные</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
+            action={formAction}
+            id='addDisabledLegalMeters'
           >
             <NumberInput
               labelName={'Количество отключенных ПУ'}
@@ -187,13 +214,19 @@ export default function AddData() {
               Добавить
             </button>
           </fetcher.Form>
-        </section>
+        </fieldset>
 
-        <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
+        <fieldset 
+          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
+          disabled={isSubmitting}
+          form='addFailedMeters'
+        >
           <h2>Добавить вышедшие из строя ПУ</h2>
           <fetcher.Form 
             className='flex flex-col gap-5 h-full'
             method='post'
+            action={formAction}
+            id='addFailedMeters'
           >
             <NumberInput
                 labelName={'Количество вышедших из строя ПУ'}
@@ -211,7 +244,7 @@ export default function AddData() {
               Добавить
             </button>
           </fetcher.Form>
-        </section>
+        </fieldset>
       </div>
 
       <section className='w-96 mt-8 ml-auto mr-auto mb-8'>
