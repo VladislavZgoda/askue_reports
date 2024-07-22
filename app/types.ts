@@ -121,3 +121,8 @@ export type FailedMetersAction = {
   brokenMeters: string;
   type: BalanceType;
 };
+
+export type SubmitButtonValues = {
+  buttonValue: string;
+  isSubmitting: boolean;
+};
