@@ -49,7 +49,6 @@ export const action = async ({
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
 
-
   if (_action === 'addNewMeters') {
     const data = {
       transSubId: params.transSubId,
