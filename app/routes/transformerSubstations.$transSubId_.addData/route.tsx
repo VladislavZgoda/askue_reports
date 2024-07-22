@@ -18,6 +18,7 @@ import type { BalanceType } from '~/types';
 import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
 import addDisabledLegalMeters from '~/.server/db-queries/addDisabledLegalMeters';
+import addFailedMeters from '~/.server/db-queries/addFailedMeters';
 
 export const loader = async ({
   params
@@ -77,6 +78,16 @@ export const action = async ({
     };
 
     await addDisabledLegalMeters(data);
+  }
+
+  if (_action === 'addFailedMeters') {
+    const data = {
+      transSubId: params.transSubId,
+      type: values.type as BalanceType,
+      brokenMeters: values.brokenMeters as string
+    };
+
+    await addFailedMeters(data);
   }
 
   return null;
@@ -180,7 +191,10 @@ export default function AddData() {
 
         <section className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
           <h2>Добавить вышедшие из строя ПУ</h2>
-          <fetcher.Form className='flex flex-col gap-5 h-full'>
+          <fetcher.Form 
+            className='flex flex-col gap-5 h-full'
+            method='post'
+          >
             <NumberInput
                 labelName={'Количество вышедших из строя ПУ'}
                 inputName={'brokenMeters'}
@@ -188,7 +202,12 @@ export default function AddData() {
 
             <SelectInput />
 
-            <button className="btn btn-outline btn-success mt-auto">
+            <button 
+              className="btn btn-outline btn-success mt-auto"
+              type='submit'
+              name='_action'
+              value='addFailedMeters'
+            >
               Добавить
             </button>
           </fetcher.Form>

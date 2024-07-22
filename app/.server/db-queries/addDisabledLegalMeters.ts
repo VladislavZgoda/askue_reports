@@ -4,7 +4,7 @@ import {
   selectDisabledLegalMeters,
   updateDisabledLegalMeters
  } from "./disabledLegalMetersTable";
- import { insertMessage } from "./metersActionLogTable";
+import { insertMessage } from "./metersActionLogTable";
 
 export default async function addDisabledLegalMeters(
   values: DisabledLegalMetersAction
