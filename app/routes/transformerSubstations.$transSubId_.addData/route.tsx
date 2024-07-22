@@ -97,10 +97,17 @@ export const action = async ({
 export default function AddData() {
   const { transSub, logMessages } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
-  const formAction = `/transformerSubstations/${transSub.id}/AddData`;
-  const isSubmitting = 
-    fetcher.formData?.get('_action') === 'addNewMeters' 
-    && fetcher.state === 'submitting'; 
+  const formAction = fetcher.formData?.get('_action');
+  const isSubmitting = fetcher.state === 'submitting';
+  const isSubmittingNewMeters =
+    formAction === 'addNewMeters' && isSubmitting;
+  const isSubmittingTechnicalMeters =
+    formAction === 'addTechnicalMeters' && isSubmitting;
+  const isSubmittingDisabledLegalMeters =
+    formAction === 'addDisabledLegalMeters' && isSubmitting;
+  const isSubmittingFailedMeters =
+    formAction === 'addFailedMeters' && isSubmitting;
+
 
   return (
     <main>
@@ -115,134 +122,102 @@ export default function AddData() {
 
 
       <div className='flex justify-around'>
-        <fieldset 
+        <fieldset
           className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmitting}
+          disabled={isSubmittingNewMeters}
           form='addNewMeters'
         >
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
-            action={formAction}
             id='addNewMeters'
           >
             <NumberInput
               labelName={'Количество новых ПУ'}
               inputName={'newMeters'}
             />
-
             <NumberInput
               labelName={'Из них добавлено в систему'}
               inputName={'addedToSystem'}
             />
-
             <SelectInput />
             <DateInput />
             <SubmitButton
               buttonValue={'addNewMeters'}
-              isSubmitting={isSubmitting} 
+              isSubmitting={isSubmittingNewMeters}
             />
-            {/* <button
-              className="btn btn-outline btn-success mt-auto"
-              type='submit'
-              name='_action'
-              value='addNewMeters'
-            >
-              {isSubmitting ? <span className="loading loading-spinner"></span> : null}
-              {isSubmitting ? `Запись...` : `Добавить`}
-            </button> */}
           </fetcher.Form>
         </fieldset>
 
-        <fieldset 
+        <fieldset
           className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmitting}
+          disabled={isSubmittingTechnicalMeters}
           form='addTechnicalMeters'
         >
           <h2>Добавить техучеты</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
-            action={formAction}
             id='addTechnicalMeters'
           >
             <NumberInput
-                labelName={'Количество Техучетов'}
-                inputName={'techMeters'}
+              labelName={'Количество Техучетов'}
+              inputName={'techMeters'}
             />
-
             <NumberInput
-                labelName={'Из них под напряжением'}
-                inputName={'underVoltage'}
+              labelName={'Из них под напряжением'}
+              inputName={'underVoltage'}
             />
-
-            <button
-              className="btn btn-outline btn-success mt-auto"
-              type='submit'
-              name='_action'
-              value='addTechnicalMeters'
-            >
-              Добавить
-            </button>
+            <SubmitButton
+              buttonValue={'addTechnicalMeters'}
+              isSubmitting={isSubmittingTechnicalMeters}
+            />
           </fetcher.Form>
         </fieldset>
 
-        <fieldset 
+        <fieldset
           className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmitting}
+          disabled={isSubmittingDisabledLegalMeters}
           form='addDisabledLegalMeters'
         >
           <h2>Добавить ЮР отключенные</h2>
           <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
-            action={formAction}
             id='addDisabledLegalMeters'
           >
             <NumberInput
               labelName={'Количество отключенных ПУ'}
               inputName={'disabledMeters'}
             />
-
-            <button
-              className="btn btn-outline btn-success mt-auto"
-              type='submit'
-              name='_action'
-              value='addDisabledLegalMeters'
-            >
-              Добавить
-            </button>
+            <SubmitButton
+              buttonValue={'addDisabledLegalMeters'}
+              isSubmitting={isSubmittingDisabledLegalMeters}
+            />
           </fetcher.Form>
         </fieldset>
 
-        <fieldset 
+        <fieldset
           className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmitting}
+          disabled={isSubmittingFailedMeters}
           form='addFailedMeters'
         >
           <h2>Добавить вышедшие из строя ПУ</h2>
-          <fetcher.Form 
+          <fetcher.Form
             className='flex flex-col gap-5 h-full'
             method='post'
-            action={formAction}
             id='addFailedMeters'
           >
             <NumberInput
-                labelName={'Количество вышедших из строя ПУ'}
-                inputName={'brokenMeters'}
+              labelName={'Количество вышедших из строя ПУ'}
+              inputName={'brokenMeters'}
             />
-
             <SelectInput />
-
-            <button 
-              className="btn btn-outline btn-success mt-auto"
-              type='submit'
-              name='_action'
-              value='addFailedMeters'
-            >
-              Добавить
-            </button>
+            <SubmitButton
+              buttonValue={'addFailedMeters'}
+              isSubmitting={isSubmittingFailedMeters}
+            />
           </fetcher.Form>
         </fieldset>
       </div>
