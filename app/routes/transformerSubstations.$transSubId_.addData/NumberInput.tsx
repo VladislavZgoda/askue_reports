@@ -2,7 +2,8 @@ import type { NameForInput } from "~/types";
 
 const NumberInput = ({ 
   labelName,
-  inputName
+  inputName,
+  error
  }: NameForInput) => {
   return (
     <label className="form-control w-full max-w-xs">
@@ -15,10 +16,16 @@ const NumberInput = ({
         type="number"
         min='0'
         placeholder="0"
-        className="input input-bordered w-full max-w-xs"
+        className={`input w-full max-w-xs
+          ${error ? 'input-error' : 'input-bordered'}`}
         aria-label={labelName}
         name={inputName}
       />
+      {error ? (
+        <div className="label">
+          <span className="label-text-alt text-error">{error}</span>
+        </div>
+      ) : null}
     </label>
   );
 };

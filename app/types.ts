@@ -24,8 +24,9 @@ export type TransSubName = {
 };
 
 export type NameForInput = {
-  labelName: string,
-  inputName: string
+  labelName: string;
+  inputName: string;
+  error: string | undefined;
 };
 
 export type BalanceType = 'Быт' | 'ЮР Sims' | 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2';
