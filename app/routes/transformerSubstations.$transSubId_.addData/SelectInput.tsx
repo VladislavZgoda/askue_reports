@@ -1,4 +1,8 @@
-const SelectInput = () => {
+import type { ErrorProp } from "~/types";
+
+const SelectInput = ({
+  error
+}: ErrorProp) => {
   return (
     <label className="form-control w-full max-w-xs">
       <div className="label">
@@ -7,7 +11,7 @@ const SelectInput = () => {
         </span>
       </div>
       <select
-        className="select select-bordered"
+        className={`select ${error ? 'select-error' : 'select-bordered'}`}
         aria-label='Выберете балансовую принадлежность'
         defaultValue={'DEFAULT'}
         name='type'
@@ -19,6 +23,11 @@ const SelectInput = () => {
         <option value='ОДПУ Sims'>ОДПУ Sims</option>
         <option value='ОДПУ П2'>ОДПУ П2</option>
       </select>
+      {error ? (
+        <div className="label">
+          <span className="label-text-alt text-error">{error}</span>
+        </div>
+      ) : null}
     </label>
   );
 };

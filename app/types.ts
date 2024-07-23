@@ -127,3 +127,7 @@ export type SubmitButtonValues = {
   buttonValue: string;
   isSubmitting: boolean;
 };
+
+export type ErrorProp = {
+  error: string | undefined;
+}; 
