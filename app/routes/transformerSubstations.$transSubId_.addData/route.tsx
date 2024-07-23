@@ -20,6 +20,7 @@ import addTechnicalMeters from '~/.server/db-queries/addTechnicalMeters';
 import addDisabledLegalMeters from '~/.server/db-queries/addDisabledLegalMeters';
 import addFailedMeters from '~/.server/db-queries/addFailedMeters';
 import SubmitButton from './SubmitButton';
+import validateInputNewMeters from './validationNewMetersInput';
 
 export const loader = async ({
   params
@@ -48,8 +49,14 @@ export const action = async ({
   invariant(params.transSubId, 'Expected params.transSubId');
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-
+  
   if (_action === 'addNewMeters') {
+    const errors = validateInputNewMeters(values);
+
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+
     const data = {
       transSubId: params.transSubId,
       newMeters: values.newMeters as string,
@@ -95,7 +102,8 @@ export const action = async ({
 
 export default function AddData() {
   const { transSub, logMessages } = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof action>();
+  const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
   const isSubmittingNewMeters =
@@ -106,7 +114,6 @@ export default function AddData() {
     formAction === 'addDisabledLegalMeters' && isSubmitting;
   const isSubmittingFailedMeters =
     formAction === 'addFailedMeters' && isSubmitting;
-
 
   return (
     <main>
@@ -135,12 +142,20 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество новых ПУ'}
               inputName={'newMeters'}
+              error={
+                actionErrors?.errors?.newMeters 
+                || actionErrors?.errors?.difference
+              }
             />
             <NumberInput
               labelName={'Из них добавлено в систему'}
               inputName={'addedToSystem'}
+              error={
+                actionErrors?.errors?.addedToSystem
+                || actionErrors?.errors?.difference
+              }
             />
-            <SelectInput />
+            <SelectInput error={actionErrors?.errors?.type} />
             <DateInput />
             <SubmitButton
               buttonValue={'addNewMeters'}
