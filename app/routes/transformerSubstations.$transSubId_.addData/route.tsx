@@ -24,6 +24,7 @@ import validateInputNewMeters from './validationNewMetersInput';
 import validateInputTechnicalMeters from './validationTechnicalMetersInput';
 import validateInputDisabledMeters from './validationDisabledMetersInput';
 import validateInputFailedMeters from './validationFailedMeters';
+import { useEffect, useRef } from 'react';
 
 export const loader = async ({
   params
@@ -52,7 +53,7 @@ export const action = async ({
   invariant(params.transSubId, 'Expected params.transSubId');
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-  
+
   if (_action === 'addNewMeters') {
     const errors = validateInputNewMeters(values);
 
@@ -135,6 +136,13 @@ export default function AddData() {
     formAction === 'addDisabledLegalMeters' && isSubmitting;
   const isSubmittingFailedMeters =
     formAction === 'addFailedMeters' && isSubmitting;
+  const newMetesRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!isSubmittingNewMeters) {
+      newMetesRef.current?.reset();
+    }
+  }, [isSubmittingNewMeters])
 
   return (
     <main>
@@ -159,12 +167,13 @@ export default function AddData() {
             className='flex flex-col gap-5 h-full'
             method='post'
             id='addNewMeters'
+            ref={newMetesRef}
           >
             <NumberInput
               labelName={'Количество новых ПУ'}
               inputName={'newMeters'}
               error={
-                actionErrors?.errors?.newMeters 
+                actionErrors?.errors?.newMeters
                 || actionErrors?.errors?.difference
               }
             />
@@ -200,7 +209,7 @@ export default function AddData() {
               labelName={'Количество Техучетов'}
               inputName={'techMeters'}
               error={
-                actionErrors?.errors?.techMeters 
+                actionErrors?.errors?.techMeters
                 || actionErrors?.errors?.techDif
               }
             />
@@ -208,7 +217,7 @@ export default function AddData() {
               labelName={'Из них под напряжением'}
               inputName={'underVoltage'}
               error={
-                actionErrors?.errors?.underVoltage 
+                actionErrors?.errors?.underVoltage
                 || actionErrors?.errors?.techDif
               }
             />
