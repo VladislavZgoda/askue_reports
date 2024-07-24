@@ -22,6 +22,7 @@ import addFailedMeters from '~/.server/db-queries/addFailedMeters';
 import SubmitButton from './SubmitButton';
 import validateInputNewMeters from './validationNewMetersInput';
 import validateInputTechnicalMeters from './validationTechnicalMetersInput';
+import validateInputDisabledMeters from './validationDisabledMetersInput';
 
 export const loader = async ({
   params
@@ -86,6 +87,12 @@ export const action = async ({
   }
 
   if (_action === 'addDisabledLegalMeters') {
+    const errors = validateInputDisabledMeters(values);
+
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+
     const data = {
       transSubId: params.transSubId,
       disabledMeters: values.disabledMeters as string
@@ -219,6 +226,7 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество отключенных ПУ'}
               inputName={'disabledMeters'}
+              error={actionErrors?.errors?.disabledMeters}
             />
             <SubmitButton
               buttonValue={'addDisabledLegalMeters'}
