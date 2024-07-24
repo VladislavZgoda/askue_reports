@@ -21,6 +21,7 @@ import addDisabledLegalMeters from '~/.server/db-queries/addDisabledLegalMeters'
 import addFailedMeters from '~/.server/db-queries/addFailedMeters';
 import SubmitButton from './SubmitButton';
 import validateInputNewMeters from './validationNewMetersInput';
+import validateInputTechnicalMeters from './validationTechnicalMetersInput';
 
 export const loader = async ({
   params
@@ -69,6 +70,12 @@ export const action = async ({
   }
 
   if (_action === 'addTechnicalMeters') {
+    const errors = validateInputTechnicalMeters(values);
+
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+
     const data = {
       transSubId: params.transSubId,
       techMeters: values.techMeters as string,
@@ -178,10 +185,18 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество Техучетов'}
               inputName={'techMeters'}
+              error={
+                actionErrors?.errors?.techMeters 
+                || actionErrors?.errors?.techDif
+              }
             />
             <NumberInput
               labelName={'Из них под напряжением'}
               inputName={'underVoltage'}
+              error={
+                actionErrors?.errors?.underVoltage 
+                || actionErrors?.errors?.techDif
+              }
             />
             <SubmitButton
               buttonValue={'addTechnicalMeters'}
