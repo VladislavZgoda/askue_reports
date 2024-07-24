@@ -23,6 +23,7 @@ import SubmitButton from './SubmitButton';
 import validateInputNewMeters from './validationNewMetersInput';
 import validateInputTechnicalMeters from './validationTechnicalMetersInput';
 import validateInputDisabledMeters from './validationDisabledMetersInput';
+import validateInputFailedMeters from './validationFailedMeters';
 
 export const loader = async ({
   params
@@ -102,6 +103,12 @@ export const action = async ({
   }
 
   if (_action === 'addFailedMeters') {
+    const errors = validateInputFailedMeters(values);
+
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
+    }
+
     const data = {
       transSubId: params.transSubId,
       type: values.type as BalanceType,
@@ -249,8 +256,9 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество вышедших из строя ПУ'}
               inputName={'brokenMeters'}
+              error={actionErrors?.errors?.brokenMeters}
             />
-            <SelectInput />
+            <SelectInput error={actionErrors?.errors?.failedType} />
             <SubmitButton
               buttonValue={'addFailedMeters'}
               isSubmitting={isSubmittingFailedMeters}
