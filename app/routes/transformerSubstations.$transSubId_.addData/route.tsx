@@ -156,7 +156,7 @@ export default function AddData() {
               }
             />
             <SelectInput error={actionErrors?.errors?.type} />
-            <DateInput />
+            <DateInput error={actionErrors?.errors?.date} />
             <SubmitButton
               buttonValue={'addNewMeters'}
               isSubmitting={isSubmittingNewMeters}
