@@ -128,21 +128,53 @@ export default function AddData() {
   const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
-  const isSubmittingNewMeters =
-    formAction === 'addNewMeters' && isSubmitting;
-  const isSubmittingTechnicalMeters =
-    formAction === 'addTechnicalMeters' && isSubmitting;
-  const isSubmittingDisabledLegalMeters =
-    formAction === 'addDisabledLegalMeters' && isSubmitting;
-  const isSubmittingFailedMeters =
-    formAction === 'addFailedMeters' && isSubmitting;
+  const isNewMetersAction = formAction === 'addNewMeters';
+  const isTechnicalMetersAction = formAction === 'addTechnicalMeters';
+  const isDisabledMetersAction = formAction === 'addDisabledLegalMeters';
+  const isFailedMetersAction = formAction === 'addFailedMeters';
+  const isSubmittingNewMeters = isNewMetersAction && isSubmitting;
+  const isSubmittingTechnicalMeters = isTechnicalMetersAction && isSubmitting;
+  const isSubmittingDisabledLegalMeters = isDisabledMetersAction && isSubmitting;
+  const isSubmittingFailedMeters = isFailedMetersAction && isSubmitting;
   const newMetesRef = useRef<HTMLFormElement>(null);
+  const technicalMetersRef = useRef<HTMLFormElement>(null);
+  const disabledMetersRef = useRef<HTMLFormElement>(null);
+  const failedMetersRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (!isSubmittingNewMeters && !actionErrors?.errors) {
+    if (!isSubmittingNewMeters 
+      && !actionErrors?.errors 
+      && isNewMetersAction) {
       newMetesRef.current?.reset();
     }
-  }, [isSubmittingNewMeters, actionErrors?.errors])
+
+    if (!isSubmittingTechnicalMeters 
+      && !actionErrors?.errors
+      && isTechnicalMetersAction) {
+      technicalMetersRef.current?.reset();
+    }
+
+    if (!isSubmittingDisabledLegalMeters 
+      && !actionErrors?.errors
+      && isDisabledMetersAction) {
+      disabledMetersRef.current?.reset();
+    }
+
+    if (!isSubmittingFailedMeters 
+      && !actionErrors?.errors
+      && isFailedMetersAction) {
+      failedMetersRef.current?.reset();
+    }
+  }, [isSubmittingNewMeters,
+      isSubmittingTechnicalMeters,
+      isSubmittingDisabledLegalMeters,
+      isSubmittingFailedMeters,
+      isNewMetersAction,
+      isTechnicalMetersAction,
+      isDisabledMetersAction,
+      isFailedMetersAction,
+      actionErrors?.errors
+    ]);
 
   return (
     <main>
@@ -204,6 +236,7 @@ export default function AddData() {
             className='flex flex-col gap-5 h-full'
             method='post'
             id='addTechnicalMeters'
+            ref={technicalMetersRef}
           >
             <NumberInput
               labelName={'Количество Техучетов'}
@@ -238,6 +271,7 @@ export default function AddData() {
             className='flex flex-col gap-5 h-full'
             method='post'
             id='addDisabledLegalMeters'
+            ref={disabledMetersRef}
           >
             <NumberInput
               labelName={'Количество отключенных ПУ'}
@@ -261,6 +295,7 @@ export default function AddData() {
             className='flex flex-col gap-5 h-full'
             method='post'
             id='addFailedMeters'
+            ref={failedMetersRef}
           >
             <NumberInput
               labelName={'Количество вышедших из строя ПУ'}
