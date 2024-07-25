@@ -139,10 +139,10 @@ export default function AddData() {
   const newMetesRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (!isSubmittingNewMeters) {
+    if (!isSubmittingNewMeters && !actionErrors?.errors) {
       newMetesRef.current?.reset();
     }
-  }, [isSubmittingNewMeters])
+  }, [isSubmittingNewMeters, actionErrors?.errors])
 
   return (
     <main>
