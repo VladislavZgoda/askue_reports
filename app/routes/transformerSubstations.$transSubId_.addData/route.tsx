@@ -55,10 +55,10 @@ export const action = async ({
   const { _action, ...values } = Object.fromEntries(formData);
 
   if (_action === 'addNewMeters') {
-    const errNewMeters = validateInputNewMeters(values);
+    const errors = validateInputNewMeters(values);
 
-    if (Object.keys(errNewMeters).length > 0) {
-      return json({ errNewMeters });
+    if (Object.keys(errors).length > 0) {
+      return json({ errors });
     }
 
     const data = {
@@ -141,39 +141,65 @@ export default function AddData() {
   const disabledMetersRef = useRef<HTMLFormElement>(null);
   const failedMetersRef = useRef<HTMLFormElement>(null);
   const [
-    errNewMeters, 
+    errNewMeters,
     setErrNewMeters
   ] = useState<{ [k: string]: string }>({});
-  
+  const [
+    errTechnicalMeters,
+    setErrTechnicalMeters
+  ] = useState<{ [k: string]: string }>({});
+  const [
+    errDisabledMeters,
+    setErrDisabledMeters
+  ] = useState<{ [k: string]: string }>({});
+  const [
+    errFailedMeters,
+    setErrFailedMeters
+  ] = useState<{ [k: string]: string }>({});
 
   useEffect(() => {
-    if (!isSubmittingNewMeters 
-      && !actionErrors?.errNewMeters 
+    if (!isSubmittingNewMeters
+      && !actionErrors?.errors
       && isNewMetersAction) {
       newMetesRef.current?.reset();
       setErrNewMeters({});
     }
 
-    if (!isSubmittingTechnicalMeters 
+    if (!isSubmittingTechnicalMeters
       && !actionErrors?.errors
       && isTechnicalMetersAction) {
       technicalMetersRef.current?.reset();
+      setErrTechnicalMeters({});
     }
 
-    if (!isSubmittingDisabledLegalMeters 
+    if (!isSubmittingDisabledLegalMeters
       && !actionErrors?.errors
       && isDisabledMetersAction) {
       disabledMetersRef.current?.reset();
+      setErrDisabledMeters({});
     }
 
-    if (!isSubmittingFailedMeters 
+    if (!isSubmittingFailedMeters
       && !actionErrors?.errors
       && isFailedMetersAction) {
       failedMetersRef.current?.reset();
+      setErrFailedMeters({});
     }
 
-    if (actionErrors?.errNewMeters) {
-      setErrNewMeters(actionErrors.errNewMeters);
+    if (actionErrors?.errors && isNewMetersAction) {
+      setErrNewMeters(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isTechnicalMetersAction) {
+      setErrTechnicalMeters(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isDisabledMetersAction) {
+      setErrDisabledMeters(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isFailedMetersAction) {
+      setErrFailedMeters(actionErrors.errors);
     }
   }, [isSubmittingNewMeters,
       isSubmittingTechnicalMeters,
@@ -184,8 +210,6 @@ export default function AddData() {
       isDisabledMetersAction,
       isFailedMetersAction,
       actionErrors?.errors,
-      actionErrors?.errNewMeters,
-      errNewMeters
     ]);
 
   return (
@@ -254,16 +278,16 @@ export default function AddData() {
               labelName={'Количество Техучетов'}
               inputName={'techMeters'}
               error={
-                actionErrors?.errors?.techMeters
-                || actionErrors?.errors?.techDif
+                errTechnicalMeters?.techMeters
+                || errTechnicalMeters?.techDif
               }
             />
             <NumberInput
               labelName={'Из них под напряжением'}
               inputName={'underVoltage'}
               error={
-                actionErrors?.errors?.underVoltage
-                || actionErrors?.errors?.techDif
+                errTechnicalMeters?.underVoltage
+                || errTechnicalMeters?.techDif
               }
             />
             <SubmitButton
@@ -288,7 +312,7 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество отключенных ПУ'}
               inputName={'disabledMeters'}
-              error={actionErrors?.errors?.disabledMeters}
+              error={errDisabledMeters?.disabledMeters}
             />
             <SubmitButton
               buttonValue={'addDisabledLegalMeters'}
@@ -312,9 +336,9 @@ export default function AddData() {
             <NumberInput
               labelName={'Количество вышедших из строя ПУ'}
               inputName={'brokenMeters'}
-              error={actionErrors?.errors?.brokenMeters}
+              error={errFailedMeters?.brokenMeters}
             />
-            <SelectInput error={actionErrors?.errors?.failedType} />
+            <SelectInput error={errFailedMeters?.failedType} />
             <SubmitButton
               buttonValue={'addFailedMeters'}
               isSubmitting={isSubmittingFailedMeters}
