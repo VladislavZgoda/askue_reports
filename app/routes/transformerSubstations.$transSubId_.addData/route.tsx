@@ -24,7 +24,7 @@ import validateInputNewMeters from './validationNewMetersInput';
 import validateInputTechnicalMeters from './validationTechnicalMetersInput';
 import validateInputDisabledMeters from './validationDisabledMetersInput';
 import validateInputFailedMeters from './validationFailedMeters';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const loader = async ({
   params
@@ -55,10 +55,10 @@ export const action = async ({
   const { _action, ...values } = Object.fromEntries(formData);
 
   if (_action === 'addNewMeters') {
-    const errors = validateInputNewMeters(values);
+    const errNewMeters = validateInputNewMeters(values);
 
-    if (Object.keys(errors).length > 0) {
-      return json({ errors });
+    if (Object.keys(errNewMeters).length > 0) {
+      return json({ errNewMeters });
     }
 
     const data = {
@@ -140,12 +140,18 @@ export default function AddData() {
   const technicalMetersRef = useRef<HTMLFormElement>(null);
   const disabledMetersRef = useRef<HTMLFormElement>(null);
   const failedMetersRef = useRef<HTMLFormElement>(null);
+  const [
+    errNewMeters, 
+    setErrNewMeters
+  ] = useState<{ [k: string]: string }>({});
+  
 
   useEffect(() => {
     if (!isSubmittingNewMeters 
-      && !actionErrors?.errors 
+      && !actionErrors?.errNewMeters 
       && isNewMetersAction) {
       newMetesRef.current?.reset();
+      setErrNewMeters({});
     }
 
     if (!isSubmittingTechnicalMeters 
@@ -165,6 +171,10 @@ export default function AddData() {
       && isFailedMetersAction) {
       failedMetersRef.current?.reset();
     }
+
+    if (actionErrors?.errNewMeters) {
+      setErrNewMeters(actionErrors.errNewMeters);
+    }
   }, [isSubmittingNewMeters,
       isSubmittingTechnicalMeters,
       isSubmittingDisabledLegalMeters,
@@ -173,7 +183,9 @@ export default function AddData() {
       isTechnicalMetersAction,
       isDisabledMetersAction,
       isFailedMetersAction,
-      actionErrors?.errors
+      actionErrors?.errors,
+      actionErrors?.errNewMeters,
+      errNewMeters
     ]);
 
   return (
@@ -205,20 +217,20 @@ export default function AddData() {
               labelName={'Количество новых ПУ'}
               inputName={'newMeters'}
               error={
-                actionErrors?.errors?.newMeters
-                || actionErrors?.errors?.difference
+                errNewMeters?.newMeters
+                || errNewMeters?.difference
               }
             />
             <NumberInput
               labelName={'Из них добавлено в систему'}
               inputName={'addedToSystem'}
               error={
-                actionErrors?.errors?.addedToSystem
-                || actionErrors?.errors?.difference
+                errNewMeters?.addedToSystem
+                || errNewMeters?.difference
               }
             />
-            <SelectInput error={actionErrors?.errors?.type} />
-            <DateInput error={actionErrors?.errors?.date} />
+            <SelectInput error={errNewMeters?.type} />
+            <DateInput error={errNewMeters?.date} />
             <SubmitButton
               buttonValue={'addNewMeters'}
               isSubmitting={isSubmittingNewMeters}
