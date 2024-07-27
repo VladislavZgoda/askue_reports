@@ -3,7 +3,7 @@ import {
   checkMetersRecord,
   updateMetersRecord,
   selectLastQuantity
-} from "./electricityMetersTable";
+} from "~/.server/db-queries/electricityMetersTable";
 import type {
   ActionValues,
   InsertMetersValues,
@@ -14,20 +14,20 @@ import {
   selectLastYearQuantity,
   selectYearQuantity,
   updateYearMeters
-} from "./newYearMetersTable";
+} from "~/.server/db-queries/newYearMetersTable";
 import {
   insertMonthMeters,
   updateMonthMeters,
   selectMonthQuantity,
   selectLastMonthQuantity
-} from "./newMothMetersTable";
+} from "~/.server/db-queries/newMothMetersTable";
 import {
   insertNotInSystem,
   updateNotInSystem,
   checkNotInSystem,
   selectLastNotInSystem
-} from "./notInSystemTable";
-import { insertMessage } from "./metersActionLogTable";
+} from "~/.server/db-queries/notInSystemTable";
+import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
 export default async function addNewMeters (
   values: ActionValues

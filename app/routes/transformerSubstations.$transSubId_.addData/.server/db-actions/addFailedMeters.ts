@@ -1,17 +1,17 @@
 import type { FailedMetersAction } from "~/types";
-import { 
+import {
   insertFailedMeters,
   selectFailedMeters,
   updatedFailedMeters
-} from "./failedMetersTable";
-import { insertMessage } from "./metersActionLogTable";
+} from "~/.server/db-queries/failedMetersTable";
+import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
 export default async function addFailedMeters(
   values: FailedMetersAction
 ) {
   const processedValues = handleValues(values);
   const prevValue = await selectFailedMeters(processedValues);
-  
+
   if (prevValue) {
     const updatedValues = {
       ...processedValues,

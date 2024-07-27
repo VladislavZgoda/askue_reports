@@ -1,10 +1,10 @@
 import type { DisabledLegalMetersAction } from "~/types";
-import { 
+import {
   insertDisabledLegalMeters,
   selectDisabledLegalMeters,
   updateDisabledLegalMeters
- } from "./disabledLegalMetersTable";
-import { insertMessage } from "./metersActionLogTable";
+ } from "~/.server/db-queries/disabledLegalMetersTable";
+import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
 export default async function addDisabledLegalMeters(
   values: DisabledLegalMetersAction

@@ -3,8 +3,8 @@ import {
   insertTechnicalMeters,
   selectTechnicalMeters,
   updateTechnicalMeters
-} from "./technicalMetersTable";
-import { insertMessage } from "./metersActionLogTable";
+} from "~/.server/db-queries/technicalMetersTable";
+import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
 export default async function addTechnicalMeters(
   values: TechnicalMetersAction
