@@ -157,6 +157,14 @@ export default function AddData() {
     errFailedMeters,
     setErrFailedMeters
   ] = useState<{ [k: string]: string }>({});
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleIsVisible = () => {
+    setIsVisible(true);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 5000);
+  };
 
   useEffect(() => {
     if (!isSubmittingNewMeters
@@ -164,6 +172,7 @@ export default function AddData() {
       && isNewMetersAction) {
       newMetesRef.current?.reset();
       setErrNewMeters({});
+      handleIsVisible();
     }
 
     if (!isSubmittingTechnicalMeters
@@ -171,6 +180,7 @@ export default function AddData() {
       && isTechnicalMetersAction) {
       technicalMetersRef.current?.reset();
       setErrTechnicalMeters({});
+      handleIsVisible();
     }
 
     if (!isSubmittingDisabledLegalMeters
@@ -178,6 +188,7 @@ export default function AddData() {
       && isDisabledMetersAction) {
       disabledMetersRef.current?.reset();
       setErrDisabledMeters({});
+      handleIsVisible();
     }
 
     if (!isSubmittingFailedMeters
@@ -185,21 +196,26 @@ export default function AddData() {
       && isFailedMetersAction) {
       failedMetersRef.current?.reset();
       setErrFailedMeters({});
+      handleIsVisible();
     }
 
-    if (actionErrors?.errors && isNewMetersAction) {
+    if (actionErrors?.errors
+      && isNewMetersAction) {
       setErrNewMeters(actionErrors.errors);
     }
 
-    if (actionErrors?.errors && isTechnicalMetersAction) {
+    if (actionErrors?.errors
+      && isTechnicalMetersAction) {
       setErrTechnicalMeters(actionErrors.errors);
     }
 
-    if (actionErrors?.errors && isDisabledMetersAction) {
+    if (actionErrors?.errors
+      && isDisabledMetersAction) {
       setErrDisabledMeters(actionErrors.errors);
     }
 
-    if (actionErrors?.errors && isFailedMetersAction) {
+    if (actionErrors?.errors
+      && isFailedMetersAction) {
       setErrFailedMeters(actionErrors.errors);
     }
   }, [isSubmittingNewMeters,
@@ -348,6 +364,16 @@ export default function AddData() {
           </div>
         ) : null}
       </section>
+
+      <div
+        className={`toast toast-top toast-end
+          ${isVisible ? 'visible' : 'invisible'}`
+        }
+      >
+        <div className="alert alert-success">
+          <span>Данные успешно добавлены.</span>
+        </div>
+      </div>
     </main>
   );
 }
