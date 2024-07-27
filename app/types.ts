@@ -1,3 +1,7 @@
+import type { FetcherWithComponents } from "@remix-run/react";
+import type { SerializeFrom } from "@remix-run/node";
+
+
 export type TransSubs = {
   transSubs: {
     id: number;
@@ -130,4 +134,17 @@ export type SubmitButtonValues = {
 
 export type ErrorProp = {
   error: string | undefined;
-}; 
+};
+
+export type FetcherFormType = {
+  children: React.ReactNode;
+  fetcher: FetcherWithComponents<SerializeFrom<{
+    errors: {
+      [k: string]: string;
+    };
+  }> | null>;
+  isSubmitting: boolean;
+  metesRef: React.RefObject<HTMLFormElement>;
+  h2Title: string;
+  formID: string;
+};

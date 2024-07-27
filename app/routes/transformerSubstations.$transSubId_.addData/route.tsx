@@ -25,6 +25,7 @@ import validateInputTechnicalMeters from './validationTechnicalMetersInput';
 import validateInputDisabledMeters from './validationDisabledMetersInput';
 import validateInputFailedMeters from './validationFailedMeters';
 import { useEffect, useRef, useState } from 'react';
+import FetcherForm from './FetcherForm';
 
 export const loader = async ({
   params
@@ -223,128 +224,103 @@ export default function AddData() {
         </h1>
       </Link>
 
-
       <div className='flex justify-around'>
-        <fieldset
-          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmittingNewMeters}
-          form='addNewMeters'
+        <FetcherForm
+          fetcher={fetcher}
+          metesRef={newMetesRef}
+          isSubmitting={isSubmittingNewMeters}
+          h2Title='Добавить новые потребительские ПУ'
+          formID='addNewMeters'
         >
-          <h2>Добавить новые потребительские ПУ</h2>
-          <fetcher.Form
-            className='flex flex-col gap-5 h-full'
-            method='post'
-            id='addNewMeters'
-            ref={newMetesRef}
-          >
-            <NumberInput
-              labelName={'Количество новых ПУ'}
-              inputName={'newMeters'}
-              error={
-                errNewMeters?.newMeters
-                || errNewMeters?.difference
-              }
-            />
-            <NumberInput
-              labelName={'Из них добавлено в систему'}
-              inputName={'addedToSystem'}
-              error={
-                errNewMeters?.addedToSystem
-                || errNewMeters?.difference
-              }
-            />
-            <SelectInput error={errNewMeters?.type} />
-            <DateInput error={errNewMeters?.date} />
-            <SubmitButton
-              buttonValue={'addNewMeters'}
-              isSubmitting={isSubmittingNewMeters}
-            />
-          </fetcher.Form>
-        </fieldset>
+          <NumberInput
+            labelName='Количество новых ПУ'
+            inputName='newMeters'
+            error={
+              errNewMeters?.newMeters
+              || errNewMeters?.difference
+            }
+          />
+          <NumberInput
+            labelName='Из них добавлено в систему'
+            inputName='addedToSystem'
+            error={
+              errNewMeters?.addedToSystem
+              || errNewMeters?.difference
+            }
+          />
+          <SelectInput error={errNewMeters?.type} />
+          <DateInput error={errNewMeters?.date} />
+          <SubmitButton
+            buttonValue='addNewMeters'
+            isSubmitting={isSubmittingNewMeters}
+          />
+        </FetcherForm>
 
-        <fieldset
-          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmittingTechnicalMeters}
-          form='addTechnicalMeters'
+        <FetcherForm
+          fetcher={fetcher}
+          metesRef={technicalMetersRef}
+          isSubmitting={isSubmittingTechnicalMeters}
+          h2Title='Добавить техучеты'
+          formID='addTechnicalMeters'
         >
-          <h2>Добавить техучеты</h2>
-          <fetcher.Form
-            className='flex flex-col gap-5 h-full'
-            method='post'
-            id='addTechnicalMeters'
-            ref={technicalMetersRef}
-          >
-            <NumberInput
-              labelName={'Количество Техучетов'}
-              inputName={'techMeters'}
-              error={
-                errTechnicalMeters?.techMeters
-                || errTechnicalMeters?.techDif
-              }
-            />
-            <NumberInput
-              labelName={'Из них под напряжением'}
-              inputName={'underVoltage'}
-              error={
-                errTechnicalMeters?.underVoltage
-                || errTechnicalMeters?.techDif
-              }
-            />
-            <SubmitButton
-              buttonValue={'addTechnicalMeters'}
-              isSubmitting={isSubmittingTechnicalMeters}
-            />
-          </fetcher.Form>
-        </fieldset>
+          <NumberInput
+            labelName='Количество Техучетов'
+            inputName='techMeters'
+            error={
+              errTechnicalMeters?.techMeters
+              || errTechnicalMeters?.techDif
+            }
+          />
+          <NumberInput
+            labelName='Из них под напряжением'
+            inputName='underVoltage'
+            error={
+              errTechnicalMeters?.underVoltage
+              || errTechnicalMeters?.techDif
+            }
+          />
+          <SubmitButton
+            buttonValue='addTechnicalMeters'
+            isSubmitting={isSubmittingTechnicalMeters}
+          />
+        </FetcherForm>
 
-        <fieldset
-          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmittingDisabledLegalMeters}
-          form='addDisabledLegalMeters'
+        <FetcherForm
+          fetcher={fetcher}
+          metesRef={disabledMetersRef}
+          isSubmitting={isSubmittingDisabledLegalMeters}
+          h2Title='Добавить ЮР отключенные'
+          formID='addDisabledLegalMeters'
         >
-          <h2>Добавить ЮР отключенные</h2>
-          <fetcher.Form
-            className='flex flex-col gap-5 h-full'
-            method='post'
-            id='addDisabledLegalMeters'
-            ref={disabledMetersRef}
-          >
-            <NumberInput
-              labelName={'Количество отключенных ПУ'}
-              inputName={'disabledMeters'}
-              error={errDisabledMeters?.disabledMeters}
-            />
-            <SubmitButton
-              buttonValue={'addDisabledLegalMeters'}
-              isSubmitting={isSubmittingDisabledLegalMeters}
-            />
-          </fetcher.Form>
-        </fieldset>
+          <NumberInput
+            labelName='Количество отключенных ПУ'
+            inputName='disabledMeters'
+            error={errDisabledMeters?.disabledMeters}
+          />
+          <SubmitButton
+            buttonValue='addDisabledLegalMeters'
+            isSubmitting={isSubmittingDisabledLegalMeters}
+          />
+        </FetcherForm>
 
-        <fieldset
-          className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'
-          disabled={isSubmittingFailedMeters}
-          form='addFailedMeters'
+        <FetcherForm
+          fetcher={fetcher}
+          metesRef={failedMetersRef}
+          isSubmitting={isSubmittingFailedMeters}
+          h2Title='Добавить вышедшие из строя ПУ'
+          formID='addFailedMeters'
         >
-          <h2>Добавить вышедшие из строя ПУ</h2>
-          <fetcher.Form
-            className='flex flex-col gap-5 h-full'
-            method='post'
-            id='addFailedMeters'
-            ref={failedMetersRef}
-          >
-            <NumberInput
-              labelName={'Количество вышедших из строя ПУ'}
-              inputName={'brokenMeters'}
-              error={errFailedMeters?.brokenMeters}
-            />
-            <SelectInput error={errFailedMeters?.failedType} />
-            <SubmitButton
-              buttonValue={'addFailedMeters'}
-              isSubmitting={isSubmittingFailedMeters}
-            />
-          </fetcher.Form>
-        </fieldset>
+          <NumberInput
+            labelName='Количество вышедших из строя ПУ'
+            inputName='brokenMeters'
+            error={errFailedMeters?.brokenMeters}
+          />
+          <SelectInput error={errFailedMeters?.failedType} />
+          <SubmitButton
+            buttonValue='addFailedMeters'
+            isSubmitting={isSubmittingFailedMeters}
+          />
+        </FetcherForm>
       </div>
 
       <section className='w-96 mt-8 ml-auto mr-auto mb-8'>
