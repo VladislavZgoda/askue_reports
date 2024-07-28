@@ -20,10 +20,10 @@ import addTechnicalMeters from './.server/db-actions/addTechnicalMeters';
 import addDisabledLegalMeters from './.server/db-actions/addDisabledLegalMeters';
 import addFailedMeters from './.server/db-actions/addFailedMeters';
 import SubmitButton from './SubmitButton';
-import validateInputNewMeters from './.server/validation/validationNewMetersInput';
-import validateInputTechnicalMeters from './.server/validation/validationTechnicalMetersInput';
-import validateInputDisabledMeters from './.server/validation/validationDisabledMetersInput';
-import validateInputFailedMeters from './.server/validation/validationFailedMeters';
+import validateInputNewMeters from './.server/validation/newMetersInput';
+import validateInputTechnicalMeters from './.server/validation/technicalMetersInput';
+import validateInputDisabledMeters from './.server/validation/disabledMetersInput';
+import validateInputFailedMeters from './.server/validation/failedMetersInput';
 import { useEffect, useRef, useState } from 'react';
 import FetcherForm from './FetcherForm';
 
