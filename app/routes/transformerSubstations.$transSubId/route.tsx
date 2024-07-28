@@ -41,7 +41,9 @@ export default function TransformerSubstation() {
                 </Form>
               </li>
               <li>
-                <a>Изменить данные</a>
+                <Form action='ChangeData'>
+                  <button type='submit'>Изменить данные</button>
+                </Form>
               </li>
               <li>
                 <Form action='edit'>
