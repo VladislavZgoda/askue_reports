@@ -4,6 +4,7 @@ import { Form, useLoaderData } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
+import NavigateForm from './NavigateForm';
 
 export const loader = async ({
   params
@@ -25,6 +26,14 @@ export const loader = async ({
 
 export default function TransformerSubstation() {
   const { transSub } = useLoaderData<typeof loader>();
+  const onDelete = (e: React.FormEvent) => {
+    const response = confirm(
+      'Подтвердите удаление.'
+    );
+    if (!response) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <main className='m-2'>
@@ -36,12 +45,12 @@ export default function TransformerSubstation() {
             <h2 className="menu-title">{transSub.name}</h2>
             <ul>
               <li>
-                <Form action='AddData'>
+                <Form action='addData'>
                   <button type='submit'>Добавить данные</button>
                 </Form>
               </li>
               <li>
-                <Form action='ChangeData'>
+                <Form action='changeData'>
                   <button type='submit'>Изменить данные</button>
                 </Form>
               </li>
@@ -51,20 +60,12 @@ export default function TransformerSubstation() {
                 </Form>
               </li>
               <li>
-                <Form
-                  action='destroy'
-                  method='post'
-                  onSubmit={(e) => {
-                    const response = confirm(
-                      'Подтвердите удаление.'
-                    );
-                    if (!response) {
-                      e.preventDefault();
-                    }
-                  }}
-                >
-                  <button type='submit'>Удалить ТП</button>
-                </Form>
+                <NavigateForm
+                  actionName='destroy'
+                  btnText='Удалить ТП'
+                  onDelete={onDelete}
+                  methodType='post'
+                />
               </li>
             </ul>
           </li>
