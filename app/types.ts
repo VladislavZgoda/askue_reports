@@ -1,6 +1,5 @@
-import type { FetcherWithComponents } from "@remix-run/react";
+import type { FetcherWithComponents, FormMethod } from "@remix-run/react";
 import type { SerializeFrom } from "@remix-run/node";
-
 
 export type TransSubs = {
   transSubs: {
@@ -152,4 +151,11 @@ export type FetcherFormType = {
 export type LinkType = {
   id: number;
   name: string;
+};
+
+export type NavigateFormType = {
+  actionName: string;
+  btnText: string;
+  onDelete: ((e: React.FormEvent) => void) | undefined;
+  methodType: FormMethod;
 };
