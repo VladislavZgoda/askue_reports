@@ -6,7 +6,6 @@ import type {
 import {
   useLoaderData,
   useFetcher,
-  Link
 } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
