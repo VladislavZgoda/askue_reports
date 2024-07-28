@@ -26,6 +26,7 @@ import validateInputDisabledMeters from './.server/validation/disabledMetersInpu
 import validateInputFailedMeters from './.server/validation/failedMetersInput';
 import { useEffect, useRef, useState } from 'react';
 import FetcherForm from './FetcherForm';
+import LinkToTransSub from '~/components/LinkToTransSub';
 
 export const loader = async ({
   params
@@ -231,14 +232,10 @@ export default function AddData() {
 
   return (
     <main>
-      <Link
-        to={`/transformerSubstations/${transSub.id}`}
-        className='link link-neutral'
-      >
-        <h1 className='text-center mb-6 mt-2 font-bold text-xl'>
-          {transSub.name}
-        </h1>
-      </Link>
+      <LinkToTransSub
+        id={transSub.id}
+        name={transSub.name}
+      />
 
       <div className='flex justify-around'>
         <FetcherForm
