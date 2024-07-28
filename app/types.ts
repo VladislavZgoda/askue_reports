@@ -148,3 +148,8 @@ export type FetcherFormType = {
   h2Title: string;
   formID: string;
 };
+
+export type LinkType = {
+  id: number;
+  name: string;
+};
