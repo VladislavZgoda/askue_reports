@@ -4,6 +4,7 @@ import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable"
 import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
+import loadPrivateData from "./.server/db-actions/loadPrivateData";
 
 export const loader = async ({
   params
@@ -20,7 +21,9 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  return json({ transSub });
+  const privateData = await loadPrivateData(transSub.id);
+
+  return json({ transSub, privateData });
 };
 
 export const action = async () => {
@@ -28,7 +31,7 @@ export const action = async () => {
 };
 
 export default function ChangeData() {
-  const { transSub } = useLoaderData<typeof loader>();
+  const { transSub, privateData } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
 
   return (
@@ -52,6 +55,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  defaultValue={privateData.totalMeters.quantity}
                 />
               </label>
               <label className="form-control w-full max-w-xs join-item">
@@ -63,6 +67,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Из них в системе"
+                  defaultValue={privateData.totalMeters.addedToSystem}
                 />
               </label>
             </div>
@@ -78,6 +83,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  defaultValue={privateData.totalYearMeters.quantity}
                 />
               </label>
               <label className="form-control w-full max-w-xs join-item">
@@ -89,6 +95,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Из них в системе"
+                  defaultValue={privateData.totalYearMeters.addedToSystem}
                 />
               </label>
             </div>
