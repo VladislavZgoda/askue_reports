@@ -155,3 +155,8 @@ export type NavigateFormType = {
   onDelete: ((e: React.FormEvent) => void) | undefined;
   methodType: FormMethod;
 };
+
+export type DateInputType = {
+  labelText: string;
+  inputName: string;
+};

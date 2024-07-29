@@ -1,9 +1,13 @@
-const DateInput = () => {
+import type { DateInputType } from "~/types";
+
+const DateInput = ({ 
+  labelText, inputName
+ }: DateInputType) => {
   return (
     <label className="form-control w-full max-w-xs">
       <div className="label">
         <span className="label-text">
-          Дата
+          {labelText}
         </span>
        </div>
         <input
@@ -11,8 +15,8 @@ const DateInput = () => {
           min='0'
           placeholder="0"
           className='input input-bordered w-full max-w-xs'
-          aria-label='Дата'
-          name='date'
+          aria-label={labelText}
+          name={inputName}
           defaultValue={todayDate()}
           required
         />

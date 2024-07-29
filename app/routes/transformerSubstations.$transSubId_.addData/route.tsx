@@ -261,7 +261,7 @@ export default function AddData() {
             }
           />
           <SelectInput error={errNewMeters?.type} />
-          <DateInput />
+          <DateInput labelText='Дата' inputName='date' />
           <SubmitButton
             buttonValue='addNewMeters'
             isSubmitting={isSubmittingNewMeters}

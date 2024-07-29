@@ -5,6 +5,7 @@ import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable'
 import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
 import NavigateForm from './NavigateForm';
+import DateInput from '~/components/DateInput';
 
 export const loader = async ({
   params
@@ -84,33 +85,9 @@ export default function TransformerSubstation() {
           className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'
         >
           <p>Выберете даты для данных</p>
-          <div className='flex flex-col gap-1'>
-            <label htmlFor="private">БЫТ</label>
-            <input
-              type="date"
-              name='privateDate'
-              id='private'
-              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
-            />
-          </div>
-          <div className='flex flex-col gap-1'>
-            <label htmlFor="legal">ЮР</label>
-            <input
-              type="date"
-              name='legalDate'
-              id='legal'
-              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
-            />
-          </div>
-          <div className='flex flex-col gap-1'>
-            <label htmlFor="odpy">ОДПУ</label>
-            <input
-              type="date"
-              name='odpyDate'
-              id='odpy'
-              className='p-1 rounded-md bg-base-100 border-info border-[1px]'
-            />
-          </div>
+          <DateInput labelText='БЫТ' inputName='privateDate' />
+          <DateInput labelText='ЮР' inputName='legalDate' />
+          <DateInput labelText='ОДПУ' inputName='odpyDate' />
         </Form>
       </section>
 
