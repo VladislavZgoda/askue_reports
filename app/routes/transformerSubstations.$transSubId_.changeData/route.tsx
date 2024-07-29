@@ -47,22 +47,22 @@ export default function ChangeData() {
                 <div className="label">
                   <span className="label-text">Количество ПУ</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ" 
+                  aria-label="Количество ПУ"
                 />
               </label>
               <label className="form-control w-full max-w-xs join-item">
                 <div className="label">
                   <span className="label-text">Из них в системе</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе" 
+                  aria-label="Из них в системе"
                 />
               </label>
             </div>
@@ -73,22 +73,22 @@ export default function ChangeData() {
                 <div className="label">
                   <span className="label-text">Количество ПУ</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ" 
+                  aria-label="Количество ПУ"
                 />
               </label>
               <label className="form-control w-full max-w-xs join-item">
                 <div className="label">
                   <span className="label-text">Из них в системе</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе" 
+                  aria-label="Из них в системе"
                 />
               </label>
             </div>
@@ -99,22 +99,22 @@ export default function ChangeData() {
                 <div className="label">
                   <span className="label-text">Количество ПУ</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ" 
+                  aria-label="Количество ПУ"
                 />
               </label>
               <label className="form-control w-full max-w-xs join-item">
                 <div className="label">
                   <span className="label-text">Из них в системе</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе" 
+                  aria-label="Из них в системе"
                 />
               </label>
             </div>
@@ -125,17 +125,17 @@ export default function ChangeData() {
                 <div className="label">
                   <span className="label-text">Количество ПУ</span>
                 </div>
-                <input 
-                  type="number" 
-                  placeholder="0" 
+                <input
+                  type="number"
+                  placeholder="0"
                   className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ" 
+                  aria-label="Количество ПУ"
                 />
               </label>
-              <button className="btn btn-outline btn-success">
+              <button className="btn btn-outline btn-accent">
                 Изменить данные
               </button>
-            </div>  
+            </div>
           </fetcher.Form>
         </div>
 
@@ -150,11 +150,11 @@ export default function ChangeData() {
           Tab content 2
         </div>
 
-        <input 
-          type="radio" 
-          name="my_tabs_2" 
-          role="tab" 
-          className="tab" 
+        <input
+          type="radio"
+          name="my_tabs_2"
+          role="tab"
+          className="tab"
           aria-label="ОДПУ" />
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
           Tab content 3
@@ -181,7 +181,7 @@ export default function ChangeData() {
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
           Tab content 5
         </div>
-      </div>      
+      </div>
     </main>
   );
 }
