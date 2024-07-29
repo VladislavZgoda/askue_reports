@@ -45,19 +45,28 @@ export default function TransformerSubstation() {
             <h2 className="menu-title">{transSub.name}</h2>
             <ul>
               <li>
-                <Form action='addData'>
-                  <button type='submit'>Добавить данные</button>
-                </Form>
+                <NavigateForm 
+                  actionName='addData'
+                  btnText='Добавить данные'
+                  onDelete={undefined}
+                  methodType='get'
+                 />
               </li>
               <li>
-                <Form action='changeData'>
-                  <button type='submit'>Изменить данные</button>
-                </Form>
+                <NavigateForm 
+                  actionName='changeData'
+                  btnText='Изменить данные'
+                  onDelete={undefined}
+                  methodType='get'
+                 />
               </li>
               <li>
-                <Form action='edit'>
-                  <button type='submit'>Переименовать ТП</button>
-                </Form>
+                <NavigateForm 
+                  actionName='edit'
+                  btnText='Переименовать ТП'
+                  onDelete={undefined}
+                  methodType='get'
+                 />
               </li>
               <li>
                 <NavigateForm
