@@ -131,10 +131,6 @@ export type SubmitButtonValues = {
   isSubmitting: boolean;
 };
 
-export type ErrorProp = {
-  error: string | undefined;
-};
-
 export type FetcherFormType = {
   children: React.ReactNode;
   fetcher: FetcherWithComponents<SerializeFrom<{

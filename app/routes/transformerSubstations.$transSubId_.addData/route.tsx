@@ -9,7 +9,7 @@ import {
 } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
-import DateInput from './DateInput';
+import DateInput from '~/components/DateInput';
 import NumberInput from './NumberInput';
 import SelectInput from './SelectInput';
 import addNewMeters from './.server/db-actions/addNewMeters';
@@ -261,7 +261,7 @@ export default function AddData() {
             }
           />
           <SelectInput error={errNewMeters?.type} />
-          <DateInput error={errNewMeters?.date} />
+          <DateInput />
           <SubmitButton
             buttonValue='addNewMeters'
             isSubmitting={isSubmittingNewMeters}

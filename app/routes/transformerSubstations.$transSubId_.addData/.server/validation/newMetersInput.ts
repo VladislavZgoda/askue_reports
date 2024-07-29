@@ -14,10 +14,6 @@ export default function validateInputNewMeters (
     errors.type = 'Пустое поле, выберете балансовую принадлежность.'
   }
 
-  if (!values.date) {
-    errors.date = 'Пустое поле, выберете дату.'
-  }
-
   if (Number(values.addedToSystem) > Number(values.newMeters)) {
     errors.difference = `Поле 'Количество новых ПУ' не должно быть меньше,
       чем поле 'Из них добавлено в систему'.`
