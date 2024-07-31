@@ -1,4 +1,7 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type {
+  LoaderFunctionArgs,
+  ActionFunctionArgs
+} from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import { json } from "@remix-run/node";
@@ -26,8 +29,19 @@ export const loader = async ({
   return json({ transSub, privateData });
 };
 
-export const action = async () => {
+export const action = async ({
+  request, params
+}: ActionFunctionArgs) => {
+  invariant(params.transSubId, 'Expected params.transSubId');
+  const formData = await request.formData();
+  const { _action, ...values } = Object.fromEntries(formData);
 
+  if (_action === 'changePrivate') {
+    console.log(values);
+
+  }
+
+  return null;
 };
 
 export default function ChangeData() {
@@ -43,7 +57,7 @@ export default function ChangeData() {
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
         <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="БЫТ" />
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
-          <fetcher.Form className="flex gap-8">
+          <fetcher.Form className="flex gap-8" method="post">
             <div className="join join-vertical gap-2">
               <h2 className="join-item text-center">Всего счетчиков</h2>
               <label className="form-control w-full max-w-xs join-item">
@@ -55,6 +69,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  name="totalMeters"
                   defaultValue={privateData.totalMeters.quantity}
                 />
               </label>
@@ -67,6 +82,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Из них в системе"
+                  name="inSystemTotal"
                   defaultValue={privateData.totalMeters.addedToSystem}
                 />
               </label>
@@ -83,6 +99,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  name="yearTotal"
                   defaultValue={privateData.totalYearMeters.quantity}
                 />
               </label>
@@ -95,6 +112,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Из них в системе"
+                  name="inSystemYear"
                   defaultValue={privateData.totalYearMeters.addedToSystem}
                 />
               </label>
@@ -111,6 +129,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  name="monthTotal"
                   defaultValue={privateData.totalMonthMeters.quantity}
                 />
               </label>
@@ -123,6 +142,7 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Из них в системе"
+                  name="isSystemMonth"
                   defaultValue={privateData.totalMonthMeters.addedToSystem}
                 />
               </label>
@@ -139,10 +159,16 @@ export default function ChangeData() {
                   placeholder="0"
                   className="input input-bordered w-full max-w-xs"
                   aria-label="Количество ПУ"
+                  name="failedMeters"
                   defaultValue={privateData.failedMeters}
                 />
               </label>
-              <button className="btn btn-outline btn-accent">
+              <button
+                type="submit"
+                className="btn btn-outline btn-accent"
+                name="_action"
+                value='changePrivate'
+              >
                 Изменить данные
               </button>
             </div>
