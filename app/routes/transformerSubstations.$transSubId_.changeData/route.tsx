@@ -8,6 +8,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadPrivateData from "./.server/db-actions/loadPrivateData";
+import updatePrivateData from "./.server/db-actions/changePrivateData";
 
 export const loader = async ({
   params
@@ -37,7 +38,7 @@ export const action = async ({
   const { _action, ...values } = Object.fromEntries(formData);
 
   if (_action === 'changePrivate') {
-    console.log(values);
+    await updatePrivateData(values);
 
   }
 
