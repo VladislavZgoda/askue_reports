@@ -87,3 +87,25 @@ export const selectLastNotInSystem = async ({
 
   return record[0]?.quantity;
 };
+
+export const getLastNotInSystemId = async({
+  transformerSubstationId,
+  type
+}: LastQuantity): Promise<number | undefined> => {
+  const recordId = await db
+    .select({
+      id: NotInSystem.id
+    })
+    .from(NotInSystem)
+    .where(
+      and(
+        eq(NotInSystem.transformerSubstationId,
+          transformerSubstationId),
+        eq(NotInSystem.type, type)
+      )
+    )
+    .orderBy(desc(NotInSystem.date))
+    .limit(1);
+
+  return recordId[0]?.id;
+};
