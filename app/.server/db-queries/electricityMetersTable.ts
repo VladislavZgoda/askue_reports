@@ -87,3 +87,21 @@ export const selectLastQuantity = async ({
 
   return metersQuantity[0]?.quantity;
 };
+
+export const getLastRecordId = async ({
+  transformerSubstationId,
+  type
+}: LastQuantity): Promise<number | undefined> => {
+  const recordId = await db
+    .select({ id: ElectricityMetersTable.id })
+    .from(ElectricityMetersTable)
+    .where(and(
+      eq(ElectricityMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      eq(ElectricityMetersTable.type, type)
+    ))
+    .orderBy(desc(ElectricityMetersTable.date))
+    .limit(1);
+
+  return recordId[0]?.id;
+};

@@ -36,6 +36,7 @@ export const action = async ({
   invariant(params.transSubId, 'Expected params.transSubId');
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
+  values.id = params.transSubId;
 
   if (_action === 'changePrivate') {
     await updatePrivateData(values);
