@@ -3,7 +3,8 @@ import { ElectricityMetersTable } from "../schema";
 import type {
   MetersValues,
   CheckRecordValues,
-  LastQuantity
+  LastQuantity,
+  UpdateOnIdType
 } from "~/types";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -104,4 +105,17 @@ export const getLastRecordId = async ({
     .limit(1);
 
   return recordId[0]?.id;
+};
+
+export const updateRecordOnId = async ({
+  id, quantity
+}: UpdateOnIdType) => {
+  const updated_at = new Date();
+
+  await db
+    .update(ElectricityMetersTable)
+    .set({ quantity, updated_at })
+    .where(
+      eq(ElectricityMetersTable.id, id),
+    );
 };

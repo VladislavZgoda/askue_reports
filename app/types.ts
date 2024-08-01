@@ -160,3 +160,8 @@ export type DateInputType = {
   labelText: string;
   inputName: string;
 };
+
+export type UpdateOnIdType = {
+  id: number;
+  quantity: number;
+};
