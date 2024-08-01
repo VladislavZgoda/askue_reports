@@ -3,7 +3,8 @@ import { NotInSystem } from "../schema";
 import type {
   MetersValues,
   CheckRecordValues,
-  LastQuantity
+  LastQuantity,
+  UpdateOnIdType
 } from "~/types";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -108,4 +109,17 @@ export const getLastNotInSystemId = async({
     .limit(1);
 
   return recordId[0]?.id;
+};
+
+export const updateNotInSystemOnId = async ({
+  id, quantity
+ }: UpdateOnIdType) => {
+  const updated_at = new Date();
+
+  await db
+    .update(NotInSystem)
+    .set({ quantity, updated_at })
+    .where(
+      eq(NotInSystem.id, id)
+    );
 };
