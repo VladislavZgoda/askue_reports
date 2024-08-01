@@ -1,15 +1,18 @@
-import type { BalanceType } from "~/types";
-import { getLastRecordId } from "~/.server/db-queries/electricityMetersTable";
+import type {
+  BalanceType,
+  UpdateTotalMetersType
+} from "~/types";
+import {
+  getLastRecordId,
+  updateRecordOnId
+} from "~/.server/db-queries/electricityMetersTable";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
-  const lastMetersQuantityId = await getLastRecordId({
-    transformerSubstationId: handledValues.id,
-    type: handledValues.type
-  });
-  console.log(lastMetersQuantityId);
+  await updateTotalMeters(handledValues);
+
 
 }
 
@@ -29,4 +32,20 @@ function handleValues(
   };
 
   return handledValues;
+}
+
+async function updateTotalMeters({
+  id, type, totalMeters, inSystemTotal
+}: UpdateTotalMetersType) {
+  const lastMetersQuantityId = await getLastRecordId({
+    transformerSubstationId: id,
+    type
+  });
+
+  if (lastMetersQuantityId) {
+    await updateRecordOnId({
+      id: lastMetersQuantityId,
+      quantity: inSystemTotal
+    });
+  }
 }

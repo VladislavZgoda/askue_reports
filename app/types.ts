@@ -165,3 +165,10 @@ export type UpdateOnIdType = {
   id: number;
   quantity: number;
 };
+
+export type UpdateTotalMetersType = {
+  totalMeters: number;
+  inSystemTotal: number;
+  id: number;
+  type: BalanceType;
+}
