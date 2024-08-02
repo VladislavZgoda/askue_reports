@@ -1,10 +1,11 @@
 import { db } from "../db";
 import { NewMonthMetersTable } from "../schema";
 import { eq, and, desc } from "drizzle-orm";
-import type { 
+import type {
   MonthMetersValues,
   SelectMonthQuantity,
-  LastMonthQuantity
+  LastMonthQuantity,
+  UpdateMonthOnIdType
 } from "~/types";
 
 export const insertMonthMeters = async ({
@@ -101,4 +102,37 @@ export const updateMonthMeters = async ({
       eq(NewMonthMetersTable.month, month),
       eq(NewMonthMetersTable.year, year)
     ));
+};
+
+export const getLastMonthId = async ({
+  type,
+  transformerSubstationId,
+  month,
+  year
+}: LastMonthQuantity): Promise<number | undefined> => {
+  const recordId = await db
+    .select({ id: NewMonthMetersTable.id })
+    .from(NewMonthMetersTable)
+    .where(and(
+      eq(NewMonthMetersTable.type, type),
+      eq(NewMonthMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      eq(NewMonthMetersTable.month, month),
+      eq(NewMonthMetersTable.year, year)
+    ))
+    .orderBy(desc(NewMonthMetersTable.date))
+    .limit(1);
+
+  return recordId[0]?.id
+};
+
+export const updateLastMonthOnId = async ({
+  id, quantity, added_to_system
+}: UpdateMonthOnIdType) => {
+  const updated_at = new Date();
+
+  await db
+    .update(NewMonthMetersTable)
+    .set({ quantity, added_to_system, updated_at })
+    .where(eq(NewMonthMetersTable.id, id))
 };

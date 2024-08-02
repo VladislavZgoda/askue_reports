@@ -186,3 +186,5 @@ export type UpdateTotalYearMetersType = {
   inSystemYear: number;
   yearTotal: number;
 };
+
+export type UpdateMonthOnIdType = UpdateYearOnIdType;
