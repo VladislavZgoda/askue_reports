@@ -4,11 +4,13 @@ import type {
 } from "~/types";
 import {
   getLastRecordId,
-  updateRecordOnId
+  updateRecordOnId,
+  insertNewMeters
 } from "~/.server/db-queries/electricityMetersTable";
 import {
   getLastNotInSystemId,
-  updateNotInSystemOnId
+  updateNotInSystemOnId,
+  insertNotInSystem
 } from "~/.server/db-queries/notInSystemTable";
 
 export default async function updatePrivateData(
@@ -18,6 +20,12 @@ export default async function updatePrivateData(
   await updateTotalMeters(handledValues);
 
 
+}
+
+function todayDate () {
+  const date = new Date().toLocaleDateString('en-CA');
+
+  return date;
 }
 
 function handleValues(
@@ -32,14 +40,15 @@ function handleValues(
     monthTotal: Number(values.monthTotal),
     isSystemMonth: Number(values.isSystemMonth),
     failedMeters: Number(values.failedMeters),
-    id: Number(values.id)
+    id: Number(values.id),
+    date: todayDate()
   };
 
   return handledValues;
 }
 
 async function updateTotalMeters({
-  id, type, totalMeters, inSystemTotal
+  id, type, totalMeters, inSystemTotal, date
 }: UpdateTotalMetersType) {
   const lastMetersQuantityId = await getLastRecordId({
     transformerSubstationId: id,
@@ -50,6 +59,13 @@ async function updateTotalMeters({
     await updateRecordOnId({
       id: lastMetersQuantityId,
       quantity: inSystemTotal
+    });
+  } else {
+    await insertNewMeters({
+      quantity: inSystemTotal,
+      transformerSubstationId: id,
+      date,
+      type
     });
   }
 
@@ -62,6 +78,13 @@ async function updateTotalMeters({
     await updateNotInSystemOnId({
       id: lastNotInSystemId,
       quantity: totalMeters - inSystemTotal
+    });
+  } else {
+    await insertNotInSystem({
+      transformerSubstationId: id,
+      quantity: totalMeters - inSystemTotal,
+      date,
+      type
     });
   }
 }

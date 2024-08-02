@@ -171,4 +171,5 @@ export type UpdateTotalMetersType = {
   inSystemTotal: number;
   id: number;
   type: BalanceType;
+  date: string;
 }
