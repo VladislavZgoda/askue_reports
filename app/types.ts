@@ -188,3 +188,13 @@ export type UpdateTotalYearMetersType = {
 };
 
 export type UpdateMonthOnIdType = UpdateYearOnIdType;
+
+export type UpdateTotalMonthMetersType = {
+  year: number;
+  id: number;
+  type: BalanceType;
+  date: string;
+  month: string;
+  monthTotal: number;
+  isSystemMonth: number;
+};

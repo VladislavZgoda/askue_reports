@@ -1,7 +1,8 @@
 import type {
   BalanceType,
   UpdateTotalMetersType,
-  UpdateTotalYearMetersType
+  UpdateTotalYearMetersType,
+  UpdateTotalMonthMetersType
 } from "~/types";
 import {
   getLastRecordId,
@@ -18,6 +19,11 @@ import {
   updateLastYearOnId,
   insertYearMeters
 } from "~/.server/db-queries/newYearMetersTable";
+import {
+  getLastMonthId,
+  updateLastMonthOnId,
+  insertMonthMeters
+} from "~/.server/db-queries/newMothMetersTable";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
@@ -25,20 +31,15 @@ export default async function updatePrivateData(
   const handledValues = handleValues(values);
   await updateTotalMeters(handledValues);
   await updateYearMeters(handledValues);
-  
-}
-
-function todayDate () {
-  const date = new Date().toLocaleDateString('en-CA');
-
-  return date;
+  await updateMonthMeters(handledValues);
 }
 
 function handleValues(
   values: { [k: string]: FormDataEntryValue }
 ) {
-  const date = todayDate();
+  const date = new Date().toLocaleDateString('en-CA');
   const year = Number(date.slice(0, 4));
+  const month = date.slice(5, 7);
 
   const handledValues = {
     type: 'Быт' as BalanceType,
@@ -51,7 +52,8 @@ function handleValues(
     failedMeters: Number(values.failedMeters),
     id: Number(values.id),
     date,
-    year
+    year,
+    month
   };
 
   return handledValues;
@@ -122,6 +124,35 @@ async function updateYearMeters({
       date,
       type,
       year
+    });
+  }
+}
+
+async function updateMonthMeters({
+  id, type, monthTotal, isSystemMonth, date, year, month
+}: UpdateTotalMonthMetersType) {
+  const lastMonthId = await getLastMonthId({
+    transformerSubstationId: id,
+    type,
+    month,
+    year
+  });
+
+  if (lastMonthId) {
+    await updateLastMonthOnId({
+      id: lastMonthId,
+      quantity: monthTotal,
+      added_to_system: isSystemMonth
+    });
+  } else {
+    await insertMonthMeters({
+      quantity: monthTotal,
+      added_to_system: isSystemMonth,
+      transformerSubstationId: id,
+      type,
+      date,
+      year,
+      month
     });
   }
 }
