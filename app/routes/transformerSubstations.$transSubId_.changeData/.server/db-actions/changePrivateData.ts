@@ -6,6 +6,10 @@ import {
   getLastRecordId,
   updateRecordOnId
 } from "~/.server/db-queries/electricityMetersTable";
+import {
+  getLastNotInSystemId,
+  updateNotInSystemOnId
+} from "~/.server/db-queries/notInSystemTable";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
@@ -46,6 +50,18 @@ async function updateTotalMeters({
     await updateRecordOnId({
       id: lastMetersQuantityId,
       quantity: inSystemTotal
+    });
+  }
+
+  const lastNotInSystemId = await getLastNotInSystemId({
+    transformerSubstationId: id,
+    type
+  });
+
+  if (lastNotInSystemId) {
+    await updateNotInSystemOnId({
+      id: lastNotInSystemId,
+      quantity: totalMeters - inSystemTotal
     });
   }
 }
