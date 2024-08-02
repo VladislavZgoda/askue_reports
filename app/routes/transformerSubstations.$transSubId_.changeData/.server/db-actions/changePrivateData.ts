@@ -1,6 +1,7 @@
 import type {
   BalanceType,
-  UpdateTotalMetersType
+  UpdateTotalMetersType,
+  UpdateTotalYearMetersType
 } from "~/types";
 import {
   getLastRecordId,
@@ -12,14 +13,19 @@ import {
   updateNotInSystemOnId,
   insertNotInSystem
 } from "~/.server/db-queries/notInSystemTable";
+import {
+  getLastYearId,
+  updateLastYearOnId,
+  insertYearMeters
+} from "~/.server/db-queries/newYearMetersTable";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
   await updateTotalMeters(handledValues);
-
-
+  await updateYearMeters(handledValues);
+  
 }
 
 function todayDate () {
@@ -31,6 +37,9 @@ function todayDate () {
 function handleValues(
   values: { [k: string]: FormDataEntryValue }
 ) {
+  const date = todayDate();
+  const year = Number(date.slice(0, 4));
+
   const handledValues = {
     type: 'Быт' as BalanceType,
     totalMeters: Number(values.totalMeters),
@@ -41,7 +50,8 @@ function handleValues(
     isSystemMonth: Number(values.isSystemMonth),
     failedMeters: Number(values.failedMeters),
     id: Number(values.id),
-    date: todayDate()
+    date,
+    year
   };
 
   return handledValues;
@@ -85,6 +95,33 @@ async function updateTotalMeters({
       quantity: totalMeters - inSystemTotal,
       date,
       type
+    });
+  }
+}
+
+async function updateYearMeters({
+  id, type, yearTotal, inSystemYear, date, year
+}: UpdateTotalYearMetersType) {
+  const lastYearId = await getLastYearId({
+    transformerSubstationId: id,
+    type,
+    year
+  });
+
+  if (lastYearId) {
+    await updateLastYearOnId({
+      id: lastYearId,
+      quantity: yearTotal,
+      added_to_system: inSystemYear
+    });
+  } else {
+    await insertYearMeters({
+      quantity: yearTotal,
+      added_to_system: inSystemYear,
+      transformerSubstationId: id,
+      date,
+      type,
+      year
     });
   }
 }
