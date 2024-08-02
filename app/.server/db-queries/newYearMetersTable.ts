@@ -3,7 +3,8 @@ import { NewYearMetersTable } from "../schema";
 import type {
   YearMetersValues,
   SelectYearQuantity,
-  LastYearQuantity
+  LastYearQuantity,
+  UpdateYearOnIdType
 } from "~/types";
 import { eq, and, desc } from "drizzle-orm";
 
@@ -93,4 +94,35 @@ export const updateYearMeters = async ({
        transformerSubstationId),
       eq(NewYearMetersTable.year, year)
     ));
+};
+
+export const getLastYearId = async ({
+  type,
+  transformerSubstationId,
+  year
+}: LastYearQuantity): Promise<number | undefined> => {
+  const recordId = await db
+    .select({ id: NewYearMetersTable.id })
+    .from(NewYearMetersTable)
+    .where(and(
+      eq(NewYearMetersTable.type, type),
+      eq(NewYearMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      eq(NewYearMetersTable.year, year)
+    ))
+    .orderBy(desc(NewYearMetersTable.date))
+    .limit(1);
+
+  return recordId[0]?.id;
+};
+
+export const updateLastYearOnId = async ({
+  id, quantity, added_to_system
+}: UpdateYearOnIdType) => {
+  const updated_at = new Date();
+
+  await db
+    .update(NewYearMetersTable)
+    .set({ quantity, added_to_system, updated_at })
+    .where(eq(NewYearMetersTable.id, id));
 };

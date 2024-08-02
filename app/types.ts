@@ -172,4 +172,8 @@ export type UpdateTotalMetersType = {
   id: number;
   type: BalanceType;
   date: string;
+};
+
+export interface UpdateYearOnIdType extends UpdateOnIdType {
+  added_to_system: number;
 }
