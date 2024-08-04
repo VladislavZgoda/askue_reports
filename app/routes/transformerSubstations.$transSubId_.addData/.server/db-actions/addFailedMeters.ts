@@ -2,7 +2,7 @@ import type { FailedMetersAction } from "~/types";
 import {
   insertFailedMeters,
   selectFailedMeters,
-  updatedFailedMeters
+  updateFailedMeters
 } from "~/.server/db-queries/failedMetersTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
@@ -17,7 +17,7 @@ export default async function addFailedMeters(
       ...processedValues,
       quantity: processedValues.quantity + prevValue
     };
-    await updatedFailedMeters(updatedValues);
+    await updateFailedMeters(updatedValues);
   } else {
     await insertFailedMeters(processedValues);
   }

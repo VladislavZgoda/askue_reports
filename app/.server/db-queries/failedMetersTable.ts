@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { FailedMeters } from "../schema";
-import type { 
+import type {
   FailedMetersValues,
   FindFailedMeters
  } from "~/types";
@@ -29,14 +29,14 @@ export const selectFailedMeters = async ({
     .from(FailedMeters)
     .where(and(
       eq(FailedMeters.type, type),
-      eq(FailedMeters.transformerSubstationId, 
+      eq(FailedMeters.transformerSubstationId,
         transformerSubstationId)
     ));
-  
+
   return quantity[0]?.quantity;
 };
 
-export const updatedFailedMeters = async ({
+export const updateFailedMeters = async ({
   quantity,
   type,
   transformerSubstationId
@@ -48,7 +48,7 @@ export const updatedFailedMeters = async ({
     .set({ quantity, updated_at })
     .where(and(
       eq(FailedMeters.type, type),
-      eq(FailedMeters.transformerSubstationId, 
+      eq(FailedMeters.transformerSubstationId,
         transformerSubstationId)
     ));
 };

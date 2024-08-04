@@ -2,7 +2,8 @@ import type {
   BalanceType,
   UpdateTotalMetersType,
   UpdateTotalYearMetersType,
-  UpdateTotalMonthMetersType
+  UpdateTotalMonthMetersType,
+  FailedMetersValues
 } from "~/types";
 import {
   getLastRecordId,
@@ -24,6 +25,11 @@ import {
   updateLastMonthOnId,
   insertMonthMeters
 } from "~/.server/db-queries/newMothMetersTable";
+import {
+  insertFailedMeters,
+  selectFailedMeters,
+  updateFailedMeters
+} from "~/.server/db-queries/failedMetersTable";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
@@ -32,6 +38,11 @@ export default async function updatePrivateData(
   await updateTotalMeters(handledValues);
   await updateYearMeters(handledValues);
   await updateMonthMeters(handledValues);
+  await changeFailedMeters({
+    quantity: handledValues.failedMeters,
+    type: handledValues.type,
+    transformerSubstationId: handledValues.id
+  });
 }
 
 function handleValues(
@@ -153,6 +164,24 @@ async function updateMonthMeters({
       date,
       year,
       month
+    });
+  }
+}
+
+async function changeFailedMeters({
+  quantity, type, transformerSubstationId
+}: FailedMetersValues) {
+  const prevValue = await selectFailedMeters({ type, transformerSubstationId });
+
+  if (prevValue) {
+    await updateFailedMeters({
+      quantity,
+      type,
+      transformerSubstationId
+    });
+  } else {
+    await insertFailedMeters({
+      quantity, type, transformerSubstationId
     });
   }
 }
