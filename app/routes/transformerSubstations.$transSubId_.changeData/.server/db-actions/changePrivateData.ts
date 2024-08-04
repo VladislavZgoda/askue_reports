@@ -3,7 +3,8 @@ import type {
   UpdateTotalMetersType,
   UpdateTotalYearMetersType,
   UpdateTotalMonthMetersType,
-  FailedMetersValues
+  FailedMetersValues,
+  PrevDataType
 } from "~/types";
 import {
   getLastRecordId,
@@ -30,12 +31,14 @@ import {
   selectFailedMeters,
   updateFailedMeters
 } from "~/.server/db-queries/failedMetersTable";
+import loadPrivateData from "./loadPrivateData";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
-  await updateTotalMeters(handledValues);
+  const prevData = await loadPrivateData(handledValues.id);
+  await updateTotalMeters(handledValues, prevData);
   await updateYearMeters(handledValues);
   await updateMonthMeters(handledValues);
   await changeFailedMeters({
@@ -72,17 +75,22 @@ function handleValues(
 
 async function updateTotalMeters({
   id, type, totalMeters, inSystemTotal, date
-}: UpdateTotalMetersType) {
+}: UpdateTotalMetersType,
+  prevData: PrevDataType) {
   const lastMetersQuantityId = await getLastRecordId({
     transformerSubstationId: id,
     type
   });
 
   if (lastMetersQuantityId) {
-    await updateRecordOnId({
-      id: lastMetersQuantityId,
-      quantity: inSystemTotal
-    });
+    const prevQuantity = prevData.totalMeters.addedToSystem;
+
+    if (!(prevQuantity === inSystemTotal)) {
+      await updateRecordOnId({
+        id: lastMetersQuantityId,
+        quantity: inSystemTotal
+      });
+    }
   } else {
     await insertNewMeters({
       quantity: inSystemTotal,
