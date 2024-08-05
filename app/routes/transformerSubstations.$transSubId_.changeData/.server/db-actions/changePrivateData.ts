@@ -39,7 +39,7 @@ export default async function updatePrivateData(
   const handledValues = handleValues(values);
   const prevData = await loadPrivateData(handledValues.id);
   await updateTotalMeters(handledValues, prevData);
-  await updateYearMeters(handledValues);
+  await updateYearMeters(handledValues, prevData);
   await updateMonthMeters(handledValues);
   await changeFailedMeters({
     quantity: handledValues.failedMeters,
@@ -128,7 +128,8 @@ async function updateTotalMeters({
 
 async function updateYearMeters({
   id, type, yearTotal, inSystemYear, date, year
-}: UpdateTotalYearMetersType) {
+}: UpdateTotalYearMetersType,
+  prevData: PrevDataType) {
   const lastYearId = await getLastYearId({
     transformerSubstationId: id,
     type,
@@ -136,11 +137,17 @@ async function updateYearMeters({
   });
 
   if (lastYearId) {
-    await updateLastYearOnId({
-      id: lastYearId,
-      quantity: yearTotal,
-      added_to_system: inSystemYear
-    });
+    const prevValues = prevData.totalYearMeters;
+    const isEqual = yearTotal === prevValues.quantity
+      && inSystemYear === prevValues.addedToSystem;
+
+    if (!isEqual) {
+      await updateLastYearOnId({
+        id: lastYearId,
+        quantity: yearTotal,
+        added_to_system: inSystemYear
+      });
+    }
   } else {
     await insertYearMeters({
       quantity: yearTotal,
