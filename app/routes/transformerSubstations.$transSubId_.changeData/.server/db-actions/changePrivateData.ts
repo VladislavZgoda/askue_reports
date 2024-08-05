@@ -40,7 +40,7 @@ export default async function updatePrivateData(
   const prevData = await loadPrivateData(handledValues.id);
   await updateTotalMeters(handledValues, prevData);
   await updateYearMeters(handledValues, prevData);
-  await updateMonthMeters(handledValues);
+  await updateMonthMeters(handledValues, prevData);
   await changeFailedMeters({
     quantity: handledValues.failedMeters,
     type: handledValues.type,
@@ -62,7 +62,7 @@ function handleValues(
     yearTotal: Number(values.yearTotal),
     inSystemYear: Number(values.inSystemYear),
     monthTotal: Number(values.monthTotal),
-    isSystemMonth: Number(values.isSystemMonth),
+    inSystemMonth: Number(values.isSystemMonth),
     failedMeters: Number(values.failedMeters),
     id: Number(values.id),
     date,
@@ -161,8 +161,10 @@ async function updateYearMeters({
 }
 
 async function updateMonthMeters({
-  id, type, monthTotal, isSystemMonth, date, year, month
-}: UpdateTotalMonthMetersType) {
+  id, type, monthTotal, inSystemMonth, date, year, month
+}: UpdateTotalMonthMetersType,
+  prevData: PrevDataType
+  ) {
   const lastMonthId = await getLastMonthId({
     transformerSubstationId: id,
     type,
@@ -171,15 +173,21 @@ async function updateMonthMeters({
   });
 
   if (lastMonthId) {
-    await updateLastMonthOnId({
-      id: lastMonthId,
-      quantity: monthTotal,
-      added_to_system: isSystemMonth
-    });
+    const prevValues = prevData.totalMonthMeters;
+    const isEqual = monthTotal === prevValues.quantity
+      && inSystemMonth === prevValues.addedToSystem;
+
+    if (!isEqual) {
+      await updateLastMonthOnId({
+        id: lastMonthId,
+        quantity: monthTotal,
+        added_to_system: inSystemMonth
+      });
+    }
   } else {
     await insertMonthMeters({
       quantity: monthTotal,
-      added_to_system: isSystemMonth,
+      added_to_system: inSystemMonth,
       transformerSubstationId: id,
       type,
       date,

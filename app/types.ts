@@ -196,7 +196,7 @@ export type UpdateTotalMonthMetersType = {
   date: string;
   month: string;
   monthTotal: number;
-  isSystemMonth: number;
+  inSystemMonth: number;
 };
 
 export type PrevDataType = {
