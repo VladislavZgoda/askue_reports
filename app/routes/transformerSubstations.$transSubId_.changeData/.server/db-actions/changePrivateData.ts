@@ -203,11 +203,15 @@ async function changeFailedMeters({
   const prevValue = await selectFailedMeters({ type, transformerSubstationId });
 
   if (prevValue) {
-    await updateFailedMeters({
-      quantity,
-      type,
-      transformerSubstationId
-    });
+    const isEqual = prevValue === quantity;
+
+    if (!isEqual) {
+      await updateFailedMeters({
+        quantity,
+        type,
+        transformerSubstationId
+      });
+    }
   } else {
     await insertFailedMeters({
       quantity, type, transformerSubstationId
