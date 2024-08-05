@@ -106,10 +106,16 @@ async function updateTotalMeters({
   });
 
   if (lastNotInSystemId) {
-    await updateNotInSystemOnId({
-      id: lastNotInSystemId,
-      quantity: totalMeters - inSystemTotal
-    });
+    const prevQuantity =
+      prevData.totalMeters.quantity - prevData.totalMeters.addedToSystem;
+    const actualQuantity = totalMeters - inSystemTotal;
+
+    if (!(prevQuantity === actualQuantity)) {
+      await updateNotInSystemOnId({
+        id: lastNotInSystemId,
+        quantity: actualQuantity
+      });
+    }
   } else {
     await insertNotInSystem({
       transformerSubstationId: id,
