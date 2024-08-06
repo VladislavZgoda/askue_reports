@@ -11,6 +11,7 @@ import loadPrivateData from "./.server/db-actions/loadPrivateData";
 import updatePrivateData from "./.server/db-actions/changePrivateData";
 import Form from "./Form";
 import Input from "./Input";
+import Container from "./Container";
 
 export const loader = async ({
   params
@@ -61,8 +62,7 @@ export default function ChangeData() {
         <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="БЫТ" />
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
           <Form fetcher={fetcher}>
-            <div className="join join-vertical gap-2">
-              <h2 className="join-item text-center">Всего счетчиков</h2>
+            <Container heading="Всего счетчиков">
               <Input
                 label="Количество ПУ"
                 name="totalMeters"
@@ -72,10 +72,9 @@ export default function ChangeData() {
                 label="Из них в системе"
                 name="inSystemTotal"
                 defValue={privateData.totalMeters.addedToSystem} />
-            </div>
+            </Container>
 
-            <div className="join join-vertical gap-2">
-              <h2 className="join-item text-center">Установлено за год</h2>
+            <Container heading="Установлено за год">
               <Input
                 label="Количество ПУ"
                 name="yearTotal"
@@ -85,10 +84,9 @@ export default function ChangeData() {
                 label="Из них в системе"
                 name="inSystemYear"
                 defValue={privateData.totalYearMeters.addedToSystem} />
-            </div>
+            </Container>
 
-            <div className="join join-vertical gap-2">
-              <h2 className="join-item text-center">Установлено в этом месяце</h2>
+            <Container heading="Установлено в этом месяце">
               <Input
                 label="Количество ПУ"
                 name="monthTotal"
@@ -98,15 +96,20 @@ export default function ChangeData() {
                 label="Из них в системе"
                 name="isSystemMonth"
                 defValue={privateData.totalMonthMeters.addedToSystem} />
-            </div>
+            </Container>
 
-            <div className="join join-vertical gap-5">
-              <h2 className="join-item text-center">Вышедшие из строя</h2>
+            <Container heading="Вышедшие из строя">
               <Input
                 label="Количество ПУ"
                 name="failedMeters"
                 defValue={privateData.failedMeters} />
-              
+
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+              <div></div>
+
               <button
                 type="submit"
                 className="btn btn-outline btn-accent"
@@ -115,7 +118,7 @@ export default function ChangeData() {
               >
                 Изменить данные
               </button>
-            </div>
+            </Container>
           </Form>
         </div>
 

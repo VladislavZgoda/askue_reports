@@ -226,3 +226,8 @@ export type InputType = {
   name: string;
   label: string;
 };
+
+export type ContainerType = {
+  children: React.ReactNode;
+  heading: string;
+};
