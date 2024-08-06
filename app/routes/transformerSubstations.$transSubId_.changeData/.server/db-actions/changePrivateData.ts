@@ -38,10 +38,10 @@ export default async function updatePrivateData(
 ) {
   const handledValues = handleValues(values);
   const prevData = await loadPrivateData(handledValues.id);
-  await updateTotalMeters(handledValues, prevData);
-  await updateYearMeters(handledValues, prevData);
-  await updateMonthMeters(handledValues, prevData);
-  await changeFailedMeters({
+  await handleTotalMeters(handledValues, prevData);
+  await handleYearMeters(handledValues, prevData);
+  await handleMonthMeters(handledValues, prevData);
+  await handleFailedMeters({
     quantity: handledValues.failedMeters,
     type: handledValues.type,
     transformerSubstationId: handledValues.id
@@ -73,7 +73,7 @@ function handleValues(
   return handledValues;
 }
 
-async function updateTotalMeters({
+async function handleTotalMeters({
   id, type, totalMeters, inSystemTotal, date
 }: UpdateTotalMetersType,
   prevData: PrevDataType) {
@@ -126,7 +126,7 @@ async function updateTotalMeters({
   }
 }
 
-async function updateYearMeters({
+async function handleYearMeters({
   id, type, yearTotal, inSystemYear, date, year
 }: UpdateTotalYearMetersType,
   prevData: PrevDataType) {
@@ -160,7 +160,7 @@ async function updateYearMeters({
   }
 }
 
-async function updateMonthMeters({
+async function handleMonthMeters({
   id, type, monthTotal, inSystemMonth, date, year, month
 }: UpdateTotalMonthMetersType,
   prevData: PrevDataType
@@ -197,7 +197,7 @@ async function updateMonthMeters({
   }
 }
 
-async function changeFailedMeters({
+async function handleFailedMeters({
   quantity, type, transformerSubstationId
 }: FailedMetersValues) {
   const prevValue = await selectFailedMeters({ type, transformerSubstationId });
