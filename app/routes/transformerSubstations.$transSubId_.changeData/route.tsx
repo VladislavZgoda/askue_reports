@@ -12,6 +12,7 @@ import updatePrivateData from "./.server/db-actions/changePrivateData";
 import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
+import TabPanel from "./TabPanel";
 
 export const loader = async ({
   params
@@ -59,8 +60,7 @@ export default function ChangeData() {
         id={transSub.id}
         name={transSub.name} />
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
-        <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="БЫТ" />
-        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        <TabPanel checked={true} label="БЫТ">
           <Form fetcher={fetcher}>
             <Container heading="Всего счетчиков">
               <Input
@@ -114,56 +114,36 @@ export default function ChangeData() {
                 type="submit"
                 className="btn btn-outline btn-accent"
                 name="_action"
-                value='changePrivate'
-              >
+                value='changePrivate'>
                 Изменить данные
               </button>
             </Container>
           </Form>
-        </div>
+        </TabPanel>
 
-        <input
-          type="radio"
-          name="my_tabs_2"
-          role="tab"
-          className="tab"
-          aria-label="ЮР"
-          defaultChecked />
-        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        <TabPanel checked={false} label="ЮР Sims">
           Tab content 2
-        </div>
+        </TabPanel>
 
-        <input
-          type="radio"
-          name="my_tabs_2"
-          role="tab"
-          className="tab"
-          aria-label="ОДПУ" />
-        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        <TabPanel checked={false} label="ЮР П2">
           Tab content 3
-        </div>
+        </TabPanel>
 
-        <input
-          type="radio"
-          name="my_tabs_2"
-          role="tab"
-          className="tab"
-          aria-label="Техучеты"
-          defaultChecked />
-        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        <TabPanel checked={false} label="ОДПУ Sims">
           Tab content 4
-        </div>
+        </TabPanel>
 
-        <input
-          type="radio"
-          name="my_tabs_2"
-          role="tab"
-          className="tab"
-          aria-label="Юр отключенные"
-          defaultChecked />
-        <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
+        <TabPanel checked={false} label="ОДПУ П2">
           Tab content 5
-        </div>
+        </TabPanel>
+
+        <TabPanel checked={false} label="Техучеты">
+          Tab content 6
+        </TabPanel>
+
+        <TabPanel checked={false} label="Юр Отключенные">
+          Tab content 7
+        </TabPanel>
       </div>
     </main>
   );

@@ -231,3 +231,9 @@ export type ContainerType = {
   children: React.ReactNode;
   heading: string;
 };
+
+export type TabPanelType = {
+  children: React.ReactNode;
+  label: string;
+  checked: boolean;
+};
