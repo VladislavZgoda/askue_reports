@@ -10,6 +10,7 @@ import LinkToTransSub from "~/components/LinkToTransSub";
 import loadPrivateData from "./.server/db-actions/loadPrivateData";
 import updatePrivateData from "./.server/db-actions/changePrivateData";
 import Form from "./Form";
+import Input from "./Input";
 
 export const loader = async ({
   params
@@ -55,117 +56,57 @@ export default function ChangeData() {
     <main>
       <LinkToTransSub
         id={transSub.id}
-        name={transSub.name}
-      />
+        name={transSub.name} />
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
         <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="БЫТ" />
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
           <Form fetcher={fetcher}>
             <div className="join join-vertical gap-2">
               <h2 className="join-item text-center">Всего счетчиков</h2>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Количество ПУ</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ"
-                  name="totalMeters"
-                  defaultValue={privateData.totalMeters.quantity}
-                />
-              </label>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Из них в системе</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе"
-                  name="inSystemTotal"
-                  defaultValue={privateData.totalMeters.addedToSystem}
-                />
-              </label>
+              <Input
+                label="Количество ПУ"
+                name="totalMeters"
+                defValue={privateData.totalMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="inSystemTotal"
+                defValue={privateData.totalMeters.addedToSystem} />
             </div>
 
             <div className="join join-vertical gap-2">
               <h2 className="join-item text-center">Установлено за год</h2>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Количество ПУ</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ"
-                  name="yearTotal"
-                  defaultValue={privateData.totalYearMeters.quantity}
-                />
-              </label>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Из них в системе</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе"
-                  name="inSystemYear"
-                  defaultValue={privateData.totalYearMeters.addedToSystem}
-                />
-              </label>
+              <Input
+                label="Количество ПУ"
+                name="yearTotal"
+                defValue={privateData.totalYearMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="inSystemYear"
+                defValue={privateData.totalYearMeters.addedToSystem} />
             </div>
 
             <div className="join join-vertical gap-2">
               <h2 className="join-item text-center">Установлено в этом месяце</h2>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Количество ПУ</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ"
-                  name="monthTotal"
-                  defaultValue={privateData.totalMonthMeters.quantity}
-                />
-              </label>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Из них в системе</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Из них в системе"
-                  name="isSystemMonth"
-                  defaultValue={privateData.totalMonthMeters.addedToSystem}
-                />
-              </label>
+              <Input
+                label="Количество ПУ"
+                name="monthTotal"
+                defValue={privateData.totalMonthMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="isSystemMonth"
+                defValue={privateData.totalMonthMeters.addedToSystem} />
             </div>
 
             <div className="join join-vertical gap-5">
               <h2 className="join-item text-center">Вышедшие из строя</h2>
-              <label className="form-control w-full max-w-xs join-item">
-                <div className="label">
-                  <span className="label-text">Количество ПУ</span>
-                </div>
-                <input
-                  type="number"
-                  placeholder="0"
-                  className="input input-bordered w-full max-w-xs"
-                  aria-label="Количество ПУ"
-                  name="failedMeters"
-                  defaultValue={privateData.failedMeters}
-                />
-              </label>
+              <Input
+                label="Количество ПУ"
+                name="failedMeters"
+                defValue={privateData.failedMeters} />
+              
               <button
                 type="submit"
                 className="btn btn-outline btn-accent"

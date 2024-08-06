@@ -220,3 +220,9 @@ export type FormType = {
   children: React.ReactNode;
   fetcher: FetcherWithComponents<null>;
 };
+
+export type InputType = {
+  defValue: number;
+  name: string;
+  label: string;
+};
