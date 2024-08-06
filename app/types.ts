@@ -1,5 +1,6 @@
 import type { FetcherWithComponents, FormMethod } from "@remix-run/react";
 import type { SerializeFrom } from "@remix-run/node";
+import React from "react";
 
 export type TransSubs = {
   transSubs: {
@@ -213,4 +214,9 @@ export type PrevDataType = {
     addedToSystem: number;
   };
   failedMeters: number;
+};
+
+export type FormType = {
+  children: React.ReactNode;
+  fetcher: FetcherWithComponents<null>;
 };

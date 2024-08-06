@@ -9,6 +9,7 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadPrivateData from "./.server/db-actions/loadPrivateData";
 import updatePrivateData from "./.server/db-actions/changePrivateData";
+import Form from "./Form";
 
 export const loader = async ({
   params
@@ -59,7 +60,7 @@ export default function ChangeData() {
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
         <input type="radio" name="my_tabs_2" role="tab" className="tab" aria-label="БЫТ" />
         <div role="tabpanel" className="tab-content bg-base-100 border-base-300 rounded-box p-6">
-          <fetcher.Form className="flex gap-8" method="post">
+          <Form fetcher={fetcher}>
             <div className="join join-vertical gap-2">
               <h2 className="join-item text-center">Всего счетчиков</h2>
               <label className="form-control w-full max-w-xs join-item">
@@ -174,7 +175,7 @@ export default function ChangeData() {
                 Изменить данные
               </button>
             </div>
-          </fetcher.Form>
+          </Form>
         </div>
 
         <input
