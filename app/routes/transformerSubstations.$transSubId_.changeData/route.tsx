@@ -60,6 +60,10 @@ export default function ChangeData() {
   const { transSub, privateData } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const errors = fetcher.data;
+  const formAction = fetcher.formData?.get('_action');
+  const isSubmitting = fetcher.state === 'submitting';
+  const isPrivateData = formAction === 'changePrivate';
+  const isSubmittingPrivate = isPrivateData && isSubmitting;
 
   return (
     <main>
@@ -68,7 +72,7 @@ export default function ChangeData() {
         name={transSub.name} />
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
         <TabPanel checked={true} label="БЫТ">
-          <Form fetcher={fetcher}>
+          <Form fetcher={fetcher} isSubmitting={isSubmittingPrivate}>
             <Container heading="Всего счетчиков">
               <Input
                 label="Количество ПУ"

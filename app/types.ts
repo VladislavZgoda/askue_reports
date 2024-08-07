@@ -222,7 +222,8 @@ export type FormType = {
     privateErrors: {
       [k: string]: string;
     };
-  }> | null>
+  }> | null>;
+  isSubmitting: boolean;
 };
 
 export type InputType = {
