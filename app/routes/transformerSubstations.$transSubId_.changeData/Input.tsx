@@ -11,6 +11,7 @@ export default function Input({
       <input
         type="number"
         placeholder="0"
+        min="0"
         className="input input-bordered w-full max-w-xs"
         aria-label={label}
         name={name}
