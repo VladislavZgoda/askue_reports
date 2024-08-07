@@ -16,6 +16,7 @@ export default function Input({
         aria-label={label}
         name={name}
         defaultValue={defValue}
+        required
       />
     </label>
   );
