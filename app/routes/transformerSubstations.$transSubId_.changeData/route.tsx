@@ -94,7 +94,7 @@ export default function ChangeData() {
 
               <Input
                 label="Из них в системе"
-                name="isSystemMonth"
+                name="inSystemMonth"
                 defValue={privateData.totalMonthMeters.addedToSystem} />
             </Container>
 

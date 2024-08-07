@@ -62,7 +62,7 @@ function handleValues(
     yearTotal: Number(values.yearTotal),
     inSystemYear: Number(values.inSystemYear),
     monthTotal: Number(values.monthTotal),
-    inSystemMonth: Number(values.isSystemMonth),
+    inSystemMonth: Number(values.inSystemMonth),
     failedMeters: Number(values.failedMeters),
     id: Number(values.id),
     date,
