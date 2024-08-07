@@ -13,6 +13,7 @@ import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
 import TabPanel from "./TabPanel";
+import Button from "./Button";
 import validateInput from "./.server/validation/fieldsDifference";
 
 export const loader = async ({
@@ -128,13 +129,16 @@ export default function ChangeData() {
               <div></div>
               <div></div>
 
-              <button
+              <Button
+                buttonValue="changePrivate"
+                isSubmitting={isSubmittingPrivate} />
+              {/* <button
                 type="submit"
                 className="btn btn-outline btn-accent"
                 name="_action"
                 value='changePrivate'>
                 Изменить данные
-              </button>
+              </button> */}
             </Container>
           </Form>
         </TabPanel>
