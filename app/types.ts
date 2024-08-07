@@ -218,13 +218,18 @@ export type PrevDataType = {
 
 export type FormType = {
   children: React.ReactNode;
-  fetcher: FetcherWithComponents<null>;
+  fetcher: FetcherWithComponents<SerializeFrom<{
+    privateErrors: {
+      [k: string]: string;
+    };
+  }> | null>
 };
 
 export type InputType = {
   defValue: number;
   name: string;
   label: string;
+  error: string | undefined;
 };
 
 export type ContainerType = {

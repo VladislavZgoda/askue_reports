@@ -13,6 +13,7 @@ import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
 import TabPanel from "./TabPanel";
+import validateInput from "./.server/validation/fieldsDifference";
 
 export const loader = async ({
   params
@@ -43,8 +44,13 @@ export const action = async ({
   values.id = params.transSubId;
 
   if (_action === 'changePrivate') {
-    await updatePrivateData(values);
+    const privateErrors = validateInput(values);
 
+    if (Object.keys(privateErrors).length > 0) {
+      return json({ privateErrors });
+    }
+
+    await updatePrivateData(values);
   }
 
   return null;
@@ -53,6 +59,7 @@ export const action = async ({
 export default function ChangeData() {
   const { transSub, privateData } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  const errors = fetcher.data;
 
   return (
     <main>
@@ -66,11 +73,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="totalMeters"
+                error={errors?.privateErrors?.totalDiff}
                 defValue={privateData.totalMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemTotal"
+                error={errors?.privateErrors?.totalDiff}
                 defValue={privateData.totalMeters.addedToSystem} />
             </Container>
 
@@ -78,11 +87,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="yearTotal"
+                error={errors?.privateErrors?.yearDiff}
                 defValue={privateData.totalYearMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemYear"
+                error={errors?.privateErrors?.yearDiff}
                 defValue={privateData.totalYearMeters.addedToSystem} />
             </Container>
 
@@ -90,11 +101,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="monthTotal"
+                error={errors?.privateErrors?.monthDiff}
                 defValue={privateData.totalMonthMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemMonth"
+                error={errors?.privateErrors?.monthDiff}
                 defValue={privateData.totalMonthMeters.addedToSystem} />
             </Container>
 
@@ -102,6 +115,7 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="failedMeters"
+                error={undefined}
                 defValue={privateData.failedMeters} />
 
               <div></div>
