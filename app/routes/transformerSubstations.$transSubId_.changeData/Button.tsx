@@ -16,10 +16,10 @@ export default function Button({
     )
     : (
       <button
-        type = "submit"
-        className = "btn btn-outline btn-accent"
-        name = "_action"
-        value = { buttonValue }>
+        type="submit"
+        className="btn btn-outline btn-accent"
+        name="_action"
+        value={buttonValue}>
         Изменить данные
       </button >
     );
