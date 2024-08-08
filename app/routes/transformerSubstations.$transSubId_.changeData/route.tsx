@@ -115,23 +115,22 @@ export default function ChangeData() {
                 defValue={privateData.totalMonthMeters.addedToSystem} />
             </Container>
 
-            <Container heading="Вышедшие из строя">
-              <Input
-                label="Количество ПУ"
-                name="failedMeters"
-                error={undefined}
-                defValue={privateData.failedMeters} />
+            <div className="flex flex-col gap-2">
+              <div>
+                <h2 className="text-center">Вышедшие из строя</h2>
+              </div>
+              <div className="flex flex-col h-full justify-between">
+                <Input
+                  label="Количество ПУ"
+                  name="failedMeters"
+                  error={undefined}
+                  defValue={privateData.failedMeters} />
 
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-
-              <Button
-                buttonValue="changePrivate"
-                isSubmitting={isSubmittingPrivate} />
-            </Container>
+                <Button
+                  buttonValue="changePrivate"
+                  isSubmitting={isSubmittingPrivate} />
+              </div>
+            </div>
           </Form>
         </TabPanel>
 
