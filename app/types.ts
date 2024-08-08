@@ -243,3 +243,7 @@ export type TabPanelType = {
   label: string;
   checked: boolean;
 };
+
+export type ErrorProp = {
+  error: string | undefined
+};
