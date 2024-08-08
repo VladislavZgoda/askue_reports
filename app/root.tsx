@@ -74,10 +74,9 @@ export default function App() {
     <div className="col-start-2 col-span-4 row-start-2 row-span-3">
       {navigation.state === 'loading' ? (
         <div className="flex justify-center items-center h-full">
-          <span className="loading loading-spinner text-primary size-96"></span>
+          <span className="loading loading-spinner text-primary size-72"></span>
         </div>
-      ) : ''}
-      <Outlet />
+      ): <Outlet /> }
     </div>
   );
 }
