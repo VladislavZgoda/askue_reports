@@ -32,7 +32,6 @@ export const loader = async ({
   }
 
   const privateData = await loadPrivateData(transSub.id);
-
   return json({ transSub, privateData });
 };
 
@@ -132,13 +131,6 @@ export default function ChangeData() {
               <Button
                 buttonValue="changePrivate"
                 isSubmitting={isSubmittingPrivate} />
-              {/* <button
-                type="submit"
-                className="btn btn-outline btn-accent"
-                name="_action"
-                value='changePrivate'>
-                Изменить данные
-              </button> */}
             </Container>
           </Form>
         </TabPanel>
