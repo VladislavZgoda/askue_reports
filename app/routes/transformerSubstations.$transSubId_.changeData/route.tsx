@@ -133,27 +133,27 @@ export default function ChangeData() {
           </Form>
         </TabPanel>
 
-        <TabPanel checked={false} label="ЮР Sims">
+        <TabPanel label="ЮР Sims">
           Tab content 2
         </TabPanel>
 
-        <TabPanel checked={false} label="ЮР П2">
+        <TabPanel label="ЮР П2">
           Tab content 3
         </TabPanel>
 
-        <TabPanel checked={false} label="ОДПУ Sims">
+        <TabPanel label="ОДПУ Sims">
           Tab content 4
         </TabPanel>
 
-        <TabPanel checked={false} label="ОДПУ П2">
+        <TabPanel label="ОДПУ П2">
           Tab content 5
         </TabPanel>
 
-        <TabPanel checked={false} label="Техучеты">
+        <TabPanel label="Техучеты">
           Tab content 6
         </TabPanel>
 
-        <TabPanel checked={false} label="Юр Отключенные">
+        <TabPanel label="Юр Отключенные">
           Tab content 7
         </TabPanel>
       </div>

@@ -241,7 +241,7 @@ export type ContainerType = {
 export type TabPanelType = {
   children: React.ReactNode;
   label: string;
-  checked: boolean;
+  checked?: boolean;
 };
 
 export type ErrorProp = {

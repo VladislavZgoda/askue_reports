@@ -1,7 +1,7 @@
 import type { TabPanelType } from "~/types";
 
 export default function TabPanel({
-  children, label, checked
+  children, label, checked=false
 }: TabPanelType) {
   return (
     <>
