@@ -32,7 +32,12 @@ export const loader = async ({
   }
 
   const privateData = await loadData(transSub.id, 'Быт');
-  return json({ transSub, privateData });
+  const legalSimsData = await loadData(transSub.id, 'ЮР Sims');
+  return json({
+    transSub,
+    privateData,
+    legalSimsData
+  });
 };
 
 export const action = async ({
@@ -57,7 +62,11 @@ export const action = async ({
 };
 
 export default function ChangeData() {
-  const { transSub, privateData } = useLoaderData<typeof loader>();
+  const {
+    transSub,
+    privateData,
+    legalSimsData
+  } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const errors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
