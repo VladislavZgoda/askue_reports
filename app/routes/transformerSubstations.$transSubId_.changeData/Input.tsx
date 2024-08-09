@@ -1,7 +1,7 @@
 import type { InputType } from "~/types";
 
 export default function Input({
-  defValue, name, label, error
+  defValue, name, label, error=undefined
  }: InputType) {
   return (
     <label className="form-control w-full max-w-xs join-item">

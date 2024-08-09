@@ -123,7 +123,6 @@ export default function ChangeData() {
                 <Input
                   label="Количество ПУ"
                   name="failedMeters"
-                  error={undefined}
                   defValue={privateData.failedMeters} />
 
                 <Button

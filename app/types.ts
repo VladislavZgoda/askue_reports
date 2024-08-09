@@ -230,7 +230,7 @@ export type InputType = {
   defValue: number;
   name: string;
   label: string;
-  error: string | undefined;
+  error?: string | undefined;
 };
 
 export type ContainerType = {
