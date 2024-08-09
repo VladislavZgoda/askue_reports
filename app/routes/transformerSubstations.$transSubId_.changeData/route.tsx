@@ -31,7 +31,7 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  const privateData = await loadData(transSub.id);
+  const privateData = await loadData(transSub.id, 'Быт');
   return json({ transSub, privateData });
 };
 

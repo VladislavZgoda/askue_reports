@@ -37,7 +37,7 @@ export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
-  const prevData = await loadData(handledValues.id);
+  const prevData = await loadData(handledValues.id, 'Быт');
   await handleTotalMeters(handledValues, prevData);
   await handleYearMeters(handledValues, prevData);
   await handleMonthMeters(handledValues, prevData);

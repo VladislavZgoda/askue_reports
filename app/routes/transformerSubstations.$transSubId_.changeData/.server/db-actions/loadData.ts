@@ -3,22 +3,25 @@ import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
 import type {
   LastQuantity,
   LastYearQuantity,
-  LastMonthQuantity
+  LastMonthQuantity,
+  BalanceType
 } from "~/types";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMetersTable";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMothMetersTable";
 import { selectFailedMeters } from "~/.server/db-queries/failedMetersTable";
 
-export default async function loadData(id: number) {
+export default async function loadData(
+  id: number, type: BalanceType
+) {
   const year = new Date().getFullYear();
   const argsObj: LastQuantity = {
     transformerSubstationId: id,
-    type: 'Быт'
+    type
   };
   const metersQuantity = await selectLastQuantity(argsObj) ?? 0;
   const metersNotInSystem = await selectLastNotInSystem(argsObj) ?? 0;
-  const yearMeters = await handleYearMeters(id, year);
-  const monthMeters = await handleMonthMeters(id, year);
+  const yearMeters = await handleYearMeters(id, year, type);
+  const monthMeters = await handleMonthMeters(id, year, type);
   const failedMeters = await selectFailedMeters(argsObj) ?? 0;
   const privateData = {
     totalMeters: {
@@ -33,10 +36,12 @@ export default async function loadData(id: number) {
   return privateData;
 }
 
-async function handleYearMeters (id: number, year: number) {
+async function handleYearMeters(
+  id: number, year: number, type: BalanceType
+) {
   const argsObj: LastYearQuantity = {
     transformerSubstationId: id,
-    type: 'Быт',
+    type,
     year
   };
 
@@ -49,7 +54,9 @@ async function handleYearMeters (id: number, year: number) {
   return yearQuantity;
 }
 
-async function handleMonthMeters(id: number, year: number) {
+async function handleMonthMeters(
+  id: number, year: number, type: BalanceType
+) {
   let month = String(new Date().getMonth() + 1);
   if (month.length === 1) {
     month = '0' + month;
@@ -57,7 +64,7 @@ async function handleMonthMeters(id: number, year: number) {
 
   const argsObj: LastMonthQuantity = {
     transformerSubstationId: id,
-    type: 'Быт',
+    type,
     month,
     year
   };
