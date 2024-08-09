@@ -64,6 +64,8 @@ export default function ChangeData() {
   const isSubmitting = fetcher.state === 'submitting';
   const isPrivateData = formAction === 'changePrivate';
   const isSubmittingPrivate = isPrivateData && isSubmitting;
+  const isLegalSimsData = formAction === 'changeLegalSims';
+  const isSubmittingLegalSims = isLegalSimsData && isSubmitting;
 
   return (
     <main>
@@ -134,7 +136,65 @@ export default function ChangeData() {
         </TabPanel>
 
         <TabPanel label="ЮР Sims">
-          Tab content 2
+          <Form fetcher={fetcher} isSubmitting={isSubmittingLegalSims}>
+            <Container heading="Всего счетчиков">
+              <Input
+                label="Количество ПУ"
+                name="totalMeters"
+                error={errors?.legalSimsErrors?.totalDiff}
+                defValue={legalSimsData.totalMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="inSystemTotal"
+                error={errors?.legalSimsErrors?.totalDiff}
+                defValue={legalSimsData.totalMeters.addedToSystem} />
+            </Container>
+
+            <Container heading="Установлено за год">
+              <Input
+                label="Количество ПУ"
+                name="yearTotal"
+                error={errors?.legalSimsErrors?.yearDiff}
+                defValue={legalSimsData.totalYearMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="inSystemYear"
+                error={errors?.legalSimsErrors?.yearDiff}
+                defValue={legalSimsData.totalYearMeters.addedToSystem} />
+            </Container>
+
+            <Container heading="Установлено в этом месяце">
+              <Input
+                label="Количество ПУ"
+                name="monthTotal"
+                error={errors?.legalSimsErrors?.monthDiff}
+                defValue={legalSimsData.totalMonthMeters.quantity} />
+
+              <Input
+                label="Из них в системе"
+                name="inSystemMonth"
+                error={errors?.legalSimsErrors?.monthDiff}
+                defValue={legalSimsData.totalMonthMeters.addedToSystem} />
+            </Container>
+
+            <div className="flex flex-col gap-2">
+              <div>
+                <h2 className="text-center">Вышедшие из строя</h2>
+              </div>
+              <div className="flex flex-col h-full justify-between">
+                <Input
+                  label="Количество ПУ"
+                  name="failedMeters"
+                  defValue={legalSimsData.failedMeters} />
+
+                <Button
+                  buttonValue="changeLegalSims"
+                  isSubmitting={isSubmittingLegalSims} />
+              </div>
+            </div>
+          </Form>
         </TabPanel>
 
         <TabPanel label="ЮР П2">
