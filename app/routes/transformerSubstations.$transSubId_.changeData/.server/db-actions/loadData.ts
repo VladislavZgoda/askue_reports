@@ -9,7 +9,7 @@ import { selectLastYearQuantity } from "~/.server/db-queries/newYearMetersTable"
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMothMetersTable";
 import { selectFailedMeters } from "~/.server/db-queries/failedMetersTable";
 
-export default async function loadPrivateData(id: number) {
+export default async function loadData(id: number) {
   const year = new Date().getFullYear();
   const argsObj: LastQuantity = {
     transformerSubstationId: id,

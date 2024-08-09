@@ -31,13 +31,13 @@ import {
   selectFailedMeters,
   updateFailedMeters
 } from "~/.server/db-queries/failedMetersTable";
-import loadPrivateData from "./loadPrivateData";
+import loadData from "./loadData";
 
 export default async function updatePrivateData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
-  const prevData = await loadPrivateData(handledValues.id);
+  const prevData = await loadData(handledValues.id);
   await handleTotalMeters(handledValues, prevData);
   await handleYearMeters(handledValues, prevData);
   await handleMonthMeters(handledValues, prevData);

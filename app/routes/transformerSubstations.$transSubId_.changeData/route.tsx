@@ -7,7 +7,7 @@ import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable"
 import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
-import loadPrivateData from "./.server/db-actions/loadPrivateData";
+import loadData from "./.server/db-actions/loadData";
 import updatePrivateData from "./.server/db-actions/changePrivateData";
 import Form from "./Form";
 import Input from "./Input";
@@ -31,7 +31,7 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  const privateData = await loadPrivateData(transSub.id);
+  const privateData = await loadData(transSub.id);
   return json({ transSub, privateData });
 };
 
