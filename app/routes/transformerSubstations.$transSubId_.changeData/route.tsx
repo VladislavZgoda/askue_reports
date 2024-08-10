@@ -14,6 +14,7 @@ import Input from "./Input";
 import Container from "./Container";
 import TabPanel from "./TabPanel";
 import Button from "./Button";
+import BtnInputContainer from "./BtnInputContainer";
 import validateInput from "./.server/validation/fieldsDifference";
 
 export const loader = async ({
@@ -126,21 +127,16 @@ export default function ChangeData() {
                 defValue={privateData.totalMonthMeters.addedToSystem} />
             </Container>
 
-            <div className="flex flex-col gap-2">
-              <div>
-                <h2 className="text-center">Вышедшие из строя</h2>
-              </div>
-              <div className="flex flex-col h-full justify-between">
-                <Input
-                  label="Количество ПУ"
-                  name="failedMeters"
-                  defValue={privateData.failedMeters} />
+            <BtnInputContainer>
+              <Input
+                label="Количество ПУ"
+                name="failedMeters"
+                defValue={privateData.failedMeters} />
 
-                <Button
-                  buttonValue="changePrivate"
-                  isSubmitting={isSubmittingPrivate} />
-              </div>
-            </div>
+              <Button
+                buttonValue="changePrivate"
+                isSubmitting={isSubmittingPrivate} />
+            </BtnInputContainer>
           </Form>
         </TabPanel>
 
@@ -188,21 +184,16 @@ export default function ChangeData() {
                 defValue={legalSimsData.totalMonthMeters.addedToSystem} />
             </Container>
 
-            <div className="flex flex-col gap-2">
-              <div>
-                <h2 className="text-center">Вышедшие из строя</h2>
-              </div>
-              <div className="flex flex-col h-full justify-between">
-                <Input
-                  label="Количество ПУ"
-                  name="failedMeters"
-                  defValue={legalSimsData.failedMeters} />
+            <BtnInputContainer>
+              <Input
+                label="Количество ПУ"
+                name="failedMeters"
+                defValue={legalSimsData.failedMeters} />
 
-                <Button
-                  buttonValue="changeLegalSims"
-                  isSubmitting={isSubmittingLegalSims} />
-              </div>
-            </div>
+              <Button
+                buttonValue="changeLegalSims"
+                isSubmitting={isSubmittingLegalSims} />
+            </BtnInputContainer>
           </Form>
         </TabPanel>
 

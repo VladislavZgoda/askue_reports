@@ -247,3 +247,7 @@ export type TabPanelType = {
 export type ErrorProp = {
   error: string | undefined
 };
+
+export type BtnInputContainerType = {
+  children: React.ReactNode;
+};
