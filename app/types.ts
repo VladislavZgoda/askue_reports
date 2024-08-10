@@ -219,11 +219,7 @@ export type PrevDataType = {
 export type FormType = {
   children: React.ReactNode;
   fetcher: FetcherWithComponents<SerializeFrom<{
-    privateErrors: {
-      [k: string]: string;
-    };
-  }> | SerializeFrom<{
-    legalSimsErrors: {
+    errors: {
       [k: string]: string;
     };
   }> | null>

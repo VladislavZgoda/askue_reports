@@ -16,6 +16,7 @@ import TabPanel from "./TabPanel";
 import Button from "./Button";
 import BtnInputContainer from "./BtnInputContainer";
 import validateInput from "./.server/validation/fieldsDifference";
+import { useState, useEffect } from "react";
 
 export const loader = async ({
   params
@@ -48,14 +49,13 @@ export const action = async ({
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
   values.id = params.transSubId;
+  const errors = validateInput(values);
+
+  if (Object.keys(errors).length > 0) {
+    return json({ errors });
+  }
 
   if (_action === 'changePrivate') {
-    const privateErrors = validateInput(values);
-
-    if (Object.keys(privateErrors).length > 0) {
-      return json({ privateErrors });
-    }
-
     await changeData({
       ...values,
       type: 'Быт'
@@ -63,12 +63,6 @@ export const action = async ({
   }
 
   if (_action === 'changeLegalSims') {
-    const legalSimsErrors = validateInput(values);
-
-    if (Object.keys(legalSimsErrors).length > 0) {
-      return json({ legalSimsErrors });
-    }
-
     await changeData({
       ...values,
       type: 'ЮР Sims'
@@ -85,13 +79,49 @@ export default function ChangeData() {
     legalSimsData
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
-  const errors = fetcher.data;
+  const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
   const isPrivateData = formAction === 'changePrivate';
   const isSubmittingPrivate = isPrivateData && isSubmitting;
   const isLegalSimsData = formAction === 'changeLegalSims';
   const isSubmittingLegalSims = isLegalSimsData && isSubmitting;
+  const [
+    privateErrors,
+    setPrivateErrors
+  ] = useState<{ [k: string]: string }>({});
+  const [
+    legalSimsErrors,
+    setLegalSimsErrors
+  ] = useState<{ [k: string]: string }>({});
+
+  useEffect(() => {
+    if (actionErrors?.errors && isPrivateData) {
+      setPrivateErrors(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isLegalSimsData) {
+      setLegalSimsErrors(actionErrors.errors);
+    }
+
+    if (!isSubmittingPrivate
+      && !actionErrors?.errors
+      && isPrivateData) {
+      setPrivateErrors({});
+    }
+
+    if (!isSubmittingLegalSims
+      && !actionErrors?.errors
+      && isLegalSimsData) {
+      setLegalSimsErrors({});
+    }
+  }, [
+    actionErrors?.errors,
+    isPrivateData,
+    isLegalSimsData,
+    isSubmittingPrivate,
+    isSubmittingLegalSims
+  ]);
 
   return (
     <main>
@@ -105,13 +135,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="totalMeters"
-                error={errors?.privateErrors?.totalDiff}
+                error={privateErrors?.totalDiff}
                 defValue={privateData.totalMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemTotal"
-                error={errors?.privateErrors?.totalDiff}
+                error={privateErrors?.totalDiff}
                 defValue={privateData.totalMeters.addedToSystem} />
             </Container>
 
@@ -119,13 +149,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="yearTotal"
-                error={errors?.privateErrors?.yearDiff}
+                error={privateErrors?.yearDiff}
                 defValue={privateData.totalYearMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemYear"
-                error={errors?.privateErrors?.yearDiff}
+                error={privateErrors?.yearDiff}
                 defValue={privateData.totalYearMeters.addedToSystem} />
             </Container>
 
@@ -133,13 +163,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="monthTotal"
-                error={errors?.privateErrors?.monthDiff}
+                error={privateErrors?.monthDiff}
                 defValue={privateData.totalMonthMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemMonth"
-                error={errors?.privateErrors?.monthDiff}
+                error={privateErrors?.monthDiff}
                 defValue={privateData.totalMonthMeters.addedToSystem} />
             </Container>
 
@@ -162,13 +192,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="totalMeters"
-                error={errors?.legalSimsErrors?.totalDiff}
+                error={legalSimsErrors?.totalDiff}
                 defValue={legalSimsData.totalMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemTotal"
-                error={errors?.legalSimsErrors?.totalDiff}
+                error={legalSimsErrors?.totalDiff}
                 defValue={legalSimsData.totalMeters.addedToSystem} />
             </Container>
 
@@ -176,13 +206,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="yearTotal"
-                error={errors?.legalSimsErrors?.yearDiff}
+                error={legalSimsErrors?.yearDiff}
                 defValue={legalSimsData.totalYearMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemYear"
-                error={errors?.legalSimsErrors?.yearDiff}
+                error={legalSimsErrors?.yearDiff}
                 defValue={legalSimsData.totalYearMeters.addedToSystem} />
             </Container>
 
@@ -190,13 +220,13 @@ export default function ChangeData() {
               <Input
                 label="Количество ПУ"
                 name="monthTotal"
-                error={errors?.legalSimsErrors?.monthDiff}
+                error={legalSimsErrors?.monthDiff}
                 defValue={legalSimsData.totalMonthMeters.quantity} />
 
               <Input
                 label="Из них в системе"
                 name="inSystemMonth"
-                error={errors?.legalSimsErrors?.monthDiff}
+                error={legalSimsErrors?.monthDiff}
                 defValue={legalSimsData.totalMonthMeters.addedToSystem} />
             </Container>
 
