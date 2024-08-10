@@ -222,7 +222,11 @@ export type FormType = {
     privateErrors: {
       [k: string]: string;
     };
-  }> | null>;
+  }> | SerializeFrom<{
+    legalSimsErrors: {
+      [k: string]: string;
+    };
+  }> | null>
   isSubmitting: boolean;
 };
 

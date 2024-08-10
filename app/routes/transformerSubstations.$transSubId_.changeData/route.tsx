@@ -63,6 +63,12 @@ export const action = async ({
   }
 
   if (_action === 'changeLegalSims') {
+    const legalSimsErrors = validateInput(values);
+
+    if (Object.keys(legalSimsErrors).length > 0) {
+      return json({ legalSimsErrors });
+    }
+
     await changeData({
       ...values,
       type: 'ЮР Sims'
