@@ -8,7 +8,7 @@ import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
-import updatePrivateData from "./.server/db-actions/changePrivateData";
+import changeData from "./.server/db-actions/changeData";
 import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
@@ -56,7 +56,17 @@ export const action = async ({
       return json({ privateErrors });
     }
 
-    await updatePrivateData(values);
+    await changeData({
+      ...values,
+      type: 'Быт'
+    });
+  }
+
+  if (_action === 'changeLegalSims') {
+    await changeData({
+      ...values,
+      type: 'ЮР Sims'
+    });
   }
 
   return null;

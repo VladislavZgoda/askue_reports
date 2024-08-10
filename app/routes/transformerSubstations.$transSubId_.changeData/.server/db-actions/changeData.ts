@@ -33,11 +33,13 @@ import {
 } from "~/.server/db-queries/failedMetersTable";
 import loadData from "./loadData";
 
-export default async function updatePrivateData(
+export default async function changeData(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const handledValues = handleValues(values);
-  const prevData = await loadData(handledValues.id, 'Быт');
+  const prevData = await loadData(
+    handledValues.id, handledValues.type
+  );
   await handleTotalMeters(handledValues, prevData);
   await handleYearMeters(handledValues, prevData);
   await handleMonthMeters(handledValues, prevData);
@@ -56,7 +58,7 @@ function handleValues(
   const month = date.slice(5, 7);
 
   const handledValues = {
-    type: 'Быт' as BalanceType,
+    type: values.type as BalanceType,
     totalMeters: Number(values.totalMeters),
     inSystemTotal: Number(values.inSystemTotal),
     yearTotal: Number(values.yearTotal),
