@@ -31,10 +31,13 @@ export const loader = async ({
 
   const privateData = await loadData(transSub.id, 'Быт');
   const legalSimsData = await loadData(transSub.id, 'ЮР Sims');
+  const legalP2Data = await loadData(transSub.id, 'ЮР П2');
+
   return json({
     transSub,
     privateData,
-    legalSimsData
+    legalSimsData,
+    legalP2Data
   });
 };
 
@@ -65,6 +68,13 @@ export const action = async ({
     });
   }
 
+  if (_action === 'changeLegalP2') {
+    await changeData({
+      ...values,
+      type: 'ЮР П2'
+    });
+  }
+
   return null;
 };
 
@@ -72,23 +82,37 @@ export default function ChangeData() {
   const {
     transSub,
     privateData,
-    legalSimsData
+    legalSimsData,
+    legalP2Data
   } = useLoaderData<typeof loader>();
+
   const fetcher = useFetcher<typeof action>();
   const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
+
   const isPrivateData = formAction === 'changePrivate';
   const isSubmittingPrivate = isPrivateData && isSubmitting;
+
   const isLegalSimsData = formAction === 'changeLegalSims';
   const isSubmittingLegalSims = isLegalSimsData && isSubmitting;
+
+  const isLegalP2Data = formAction === 'changeLegalP2';
+  const isSubmittingLegalP2 = isLegalP2Data && isSubmitting;
+
   const [
     privateErrors,
     setPrivateErrors
   ] = useState<{ [k: string]: string }>({});
+
   const [
     legalSimsErrors,
     setLegalSimsErrors
+  ] = useState<{ [k: string]: string }>({});
+
+  const [
+    legalP2Errors,
+    setLegalP2Errors,
   ] = useState<{ [k: string]: string }>({});
 
   useEffect(() => {
@@ -98,6 +122,10 @@ export default function ChangeData() {
 
     if (actionErrors?.errors && isLegalSimsData) {
       setLegalSimsErrors(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isLegalP2Data) {
+      setLegalP2Errors(actionErrors.errors);
     }
 
     if (!isSubmittingPrivate
@@ -111,12 +139,20 @@ export default function ChangeData() {
       && isLegalSimsData) {
       setLegalSimsErrors({});
     }
+
+    if (!isSubmittingLegalP2
+      && !actionErrors?.errors
+      && isLegalP2Data) {
+      setLegalP2Errors({});
+    }
   }, [
     actionErrors?.errors,
     isPrivateData,
     isLegalSimsData,
     isSubmittingPrivate,
-    isSubmittingLegalSims
+    isSubmittingLegalSims,
+    isLegalP2Data,
+    isSubmittingLegalP2
   ]);
 
   return (
@@ -135,9 +171,10 @@ export default function ChangeData() {
           isSubmitting={isSubmittingLegalSims} errors={legalSimsErrors}
           fetcher={fetcher} btnValue="changeLegalSims" />
 
-        <TabPanel label="ЮР П2">
-          Tab content 3
-        </TabPanel>
+        <Panel
+          label="ЮР П2" data={legalP2Data}
+          isSubmitting={isSubmittingLegalP2} errors={legalP2Errors}
+          fetcher={fetcher} btnValue="changeLegalP2" />
 
         <TabPanel label="ОДПУ Sims">
           Tab content 4
