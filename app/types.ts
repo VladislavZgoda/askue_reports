@@ -253,3 +253,33 @@ export type BtnInputContainerType = {
   children: React.ReactNode;
   errors: boolean;
 };
+
+export type PanelPropType = {
+  label: string;
+  checked?: boolean;
+  fetcher: FetcherWithComponents<SerializeFrom<{
+    errors: {
+      [k: string]: string;
+    };
+  }> | null>;
+  isSubmitting: boolean;
+  data: SerializeFrom<{
+    totalMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    totalYearMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    totalMonthMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    failedMeters: number;
+  }>;
+  errors: {
+    [k: string]: string;
+  };
+  btnValue: string;
+};

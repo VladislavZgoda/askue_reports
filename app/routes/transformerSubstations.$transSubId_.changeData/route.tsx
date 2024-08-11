@@ -9,12 +9,8 @@ import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
-import Form from "./Form";
-import Input from "./Input";
-import Container from "./Container";
 import TabPanel from "./TabPanel";
-import Button from "./Button";
-import BtnInputContainer from "./BtnInputContainer";
+import Panel from "./Panel";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
 
@@ -123,144 +119,21 @@ export default function ChangeData() {
     isSubmittingLegalSims
   ]);
 
-  const isErrors = (
-    errors: { [k: string]: string; }
-  ) => {
-    return Object.keys(errors).length > 0;
-  };
-
   return (
     <main>
       <LinkToTransSub
         id={transSub.id}
         name={transSub.name} />
       <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
-        <TabPanel checked={true} label="БЫТ">
-          <Form fetcher={fetcher} isSubmitting={isSubmittingPrivate}>
-            <Container heading="Всего счетчиков">
-              <Input
-                label="Количество ПУ"
-                name="totalMeters"
-                error={privateErrors?.totalDiff}
-                defValue={privateData.totalMeters.quantity}
-                errors={isErrors(privateErrors)} />
+        <Panel
+          label="БЫТ" checked={true} data={privateData}
+          isSubmitting={isSubmittingPrivate} errors={privateErrors}
+          fetcher={fetcher} btnValue="changePrivate" />
 
-              <Input
-                label="Из них в системе"
-                name="inSystemTotal"
-                error={privateErrors?.totalDiff}
-                defValue={privateData.totalMeters.addedToSystem}
-                errors={isErrors(privateErrors)} />
-            </Container>
-
-            <Container heading="Установлено за год">
-              <Input
-                label="Количество ПУ"
-                name="yearTotal"
-                error={privateErrors?.yearDiff}
-                defValue={privateData.totalYearMeters.quantity}
-                errors={isErrors(privateErrors)} />
-
-              <Input
-                label="Из них в системе"
-                name="inSystemYear"
-                error={privateErrors?.yearDiff}
-                defValue={privateData.totalYearMeters.addedToSystem}
-                errors={isErrors(privateErrors)} />
-            </Container>
-
-            <Container heading="Установлено в этом месяце">
-              <Input
-                label="Количество ПУ"
-                name="monthTotal"
-                error={privateErrors?.monthDiff}
-                defValue={privateData.totalMonthMeters.quantity}
-                errors={isErrors(privateErrors)} />
-
-              <Input
-                label="Из них в системе"
-                name="inSystemMonth"
-                error={privateErrors?.monthDiff}
-                defValue={privateData.totalMonthMeters.addedToSystem}
-                errors={isErrors(privateErrors)} />
-            </Container>
-
-            <BtnInputContainer errors={isErrors(privateErrors)}>
-              <Input
-                label="Количество ПУ"
-                name="failedMeters"
-                defValue={privateData.failedMeters} />
-
-              <Button
-                buttonValue="changePrivate"
-                isSubmitting={isSubmittingPrivate} />
-            </BtnInputContainer>
-          </Form>
-        </TabPanel>
-
-        <TabPanel label="ЮР Sims">
-          <Form fetcher={fetcher} isSubmitting={isSubmittingLegalSims}>
-            <Container heading="Всего счетчиков">
-              <Input
-                label="Количество ПУ"
-                name="totalMeters"
-                error={legalSimsErrors?.totalDiff}
-                defValue={legalSimsData.totalMeters.quantity}
-                errors={isErrors(legalSimsErrors)} />
-
-              <Input
-                label="Из них в системе"
-                name="inSystemTotal"
-                error={legalSimsErrors?.totalDiff}
-                defValue={legalSimsData.totalMeters.addedToSystem}
-                errors={isErrors(legalSimsErrors)} />
-            </Container>
-
-            <Container heading="Установлено за год">
-              <Input
-                label="Количество ПУ"
-                name="yearTotal"
-                error={legalSimsErrors?.yearDiff}
-                defValue={legalSimsData.totalYearMeters.quantity}
-                errors={isErrors(legalSimsErrors)} />
-
-              <Input
-                label="Из них в системе"
-                name="inSystemYear"
-                error={legalSimsErrors?.yearDiff}
-                defValue={legalSimsData.totalYearMeters.addedToSystem}
-                errors={isErrors(legalSimsErrors)} />
-            </Container>
-
-            <Container heading="Установлено в этом месяце">
-              <Input
-                label="Количество ПУ"
-                name="monthTotal"
-                error={legalSimsErrors?.monthDiff}
-                defValue={legalSimsData.totalMonthMeters.quantity}
-                errors={isErrors(legalSimsErrors)} />
-
-              <Input
-                label="Из них в системе"
-                name="inSystemMonth"
-                error={legalSimsErrors?.monthDiff}
-                defValue={legalSimsData.totalMonthMeters.addedToSystem}
-                errors={isErrors(legalSimsErrors)} />
-            </Container>
-
-            <BtnInputContainer
-              errors={isErrors(legalSimsErrors)}>
-              <Input
-                label="Количество ПУ"
-                name="failedMeters"
-                defValue={legalSimsData.failedMeters} />
-
-              <Button
-                buttonValue="changeLegalSims"
-                isSubmitting={isSubmittingLegalSims} />
-            </BtnInputContainer>
-          </Form>
-        </TabPanel>
+        <Panel
+          label="ЮР Sims" data={legalSimsData}
+          isSubmitting={isSubmittingLegalSims} errors={legalSimsErrors}
+          fetcher={fetcher} btnValue="changeLegalSims" />
 
         <TabPanel label="ЮР П2">
           Tab content 3
