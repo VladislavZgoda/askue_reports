@@ -65,24 +65,15 @@ export const action = async ({
   };
 
   if (_action === 'changePrivate') {
-    await changeData({
-      ...values,
-      type: 'Быт'
-    });
+    await mutateData('Быт');
   }
 
   if (_action === 'changeLegalSims') {
-    await changeData({
-      ...values,
-      type: 'ЮР Sims'
-    });
+    await mutateData('ЮР Sims');
   }
 
   if (_action === 'changeLegalP2') {
-    await changeData({
-      ...values,
-      type: 'ЮР П2'
-    });
+    await mutateData('ЮР П2');
   }
 
   if (_action === 'changeOdpySims') {
