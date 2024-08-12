@@ -160,7 +160,7 @@ export default function ChangeData() {
       <LinkToTransSub
         id={transSub.id}
         name={transSub.name} />
-      <div role="tablist" className="tabs tabs-lifted ml-5 mr-5">
+      <div role="tablist" className="tabs tabs-lifted ml-14 mr-14">
         <Panel
           label="БЫТ" checked={true} data={privateData}
           isSubmitting={isSubmittingPrivate} errors={privateErrors}

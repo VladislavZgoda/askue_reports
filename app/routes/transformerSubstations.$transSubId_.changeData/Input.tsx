@@ -21,7 +21,7 @@ export default function Input({
         required />
       {error ? (
         <div className="label">
-          <span className="label-text-alt text-error text-pretty w-64">
+          <span className="label-text-alt text-error text-pretty w-72 ">
             {error}
           </span>
         </div>
