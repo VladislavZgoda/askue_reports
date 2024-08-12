@@ -37,7 +37,7 @@ export default async function addNewMeters (
 
   if (quantity > added_to_system) {
     const prevNotInSystem = await checkNotInSystem(insertValues);
-    if (prevNotInSystem) {
+    if (typeof prevNotInSystem === 'number') {
       await handleUpdateNotInSystem(
         insertValues,
         prevNotInSystem
@@ -130,7 +130,7 @@ const handleInsertNewMeters = async (
 
   if (added_to_system > 0) {
     const prevMetersQuantity = await checkMetersRecord(insertValues);
-    if (prevMetersQuantity) {
+    if (typeof prevMetersQuantity === 'number') {
       await handleUpdate(
         insertValues,
         prevMetersQuantity
