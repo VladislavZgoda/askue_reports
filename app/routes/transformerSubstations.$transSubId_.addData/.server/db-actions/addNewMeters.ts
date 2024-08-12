@@ -150,7 +150,7 @@ const handleYearMeters = async (
     type, date, transformerSubstationId, year
   });
 
-  if (prevYearQuantity[0]?.quantity) {
+  if (prevYearQuantity[0]?.quantity !== undefined) {
     await updateTotalYearMeters(
       insertValues,
       prevYearQuantity[0],
@@ -220,7 +220,7 @@ const handleMonthMeters = async (
     type, date, transformerSubstationId, month, year
   });
 
-  if (prevMonthQuantity[0]?.quantity) {
+  if (prevMonthQuantity[0]?.quantity !== undefined) {
     await updateTotalMonthMeters(
       insertValues,
       prevMonthQuantity[0],
