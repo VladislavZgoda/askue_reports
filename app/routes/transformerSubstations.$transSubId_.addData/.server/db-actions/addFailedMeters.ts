@@ -12,7 +12,7 @@ export default async function addFailedMeters(
   const processedValues = handleValues(values);
   const prevValue = await selectFailedMeters(processedValues);
 
-  if (prevValue) {
+  if (prevValue !== undefined) {
     const updatedValues = {
       ...processedValues,
       quantity: processedValues.quantity + prevValue

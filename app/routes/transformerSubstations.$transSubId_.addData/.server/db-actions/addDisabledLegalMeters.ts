@@ -14,7 +14,7 @@ export default async function addDisabledLegalMeters(
     processedValues.transformerSubstationId
   );
 
-  if (prevValue) {
+  if (prevValue !== undefined) {
     const updatedValues = {
       ...processedValues,
       quantity: processedValues.quantity + prevValue

@@ -15,7 +15,7 @@ export default async function addTechnicalMeters(
       processedValues.transformerSubstationId
     );
 
-  if (prevValues[0]?.quantity) {
+  if (prevValues[0]?.quantity !== undefined) {
     const updatedValues = {
       ...processedValues,
       quantity: processedValues.quantity +
