@@ -13,6 +13,7 @@ import TabPanel from "./TabPanel";
 import Panel from "./Panel";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
+import type { BalanceType } from "~/types";
 
 export const loader = async ({
   params
@@ -32,12 +33,14 @@ export const loader = async ({
   const privateData = await loadData(transSub.id, 'Быт');
   const legalSimsData = await loadData(transSub.id, 'ЮР Sims');
   const legalP2Data = await loadData(transSub.id, 'ЮР П2');
+  const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
 
   return json({
     transSub,
     privateData,
     legalSimsData,
-    legalP2Data
+    legalP2Data,
+    odpySimsData
   });
 };
 
@@ -53,6 +56,13 @@ export const action = async ({
   if (Object.keys(errors).length > 0) {
     return json({ errors });
   }
+
+  const mutateData = async (type: BalanceType) => {
+    await changeData({
+      ...values,
+      type
+    });
+  };
 
   if (_action === 'changePrivate') {
     await changeData({
@@ -75,6 +85,10 @@ export const action = async ({
     });
   }
 
+  if (_action === 'changeOdpySims') {
+    await mutateData('ОДПУ Sims');
+  }
+
   return null;
 };
 
@@ -83,7 +97,8 @@ export default function ChangeData() {
     transSub,
     privateData,
     legalSimsData,
-    legalP2Data
+    legalP2Data,
+    odpySimsData
   } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
@@ -100,6 +115,9 @@ export default function ChangeData() {
   const isLegalP2Data = formAction === 'changeLegalP2';
   const isSubmittingLegalP2 = isLegalP2Data && isSubmitting;
 
+  const isOdpySimsData = formAction === 'changeOdpySims';
+  const isSubmittingOdpySims = isOdpySimsData && isSubmitting;
+
   const [
     privateErrors,
     setPrivateErrors
@@ -115,6 +133,11 @@ export default function ChangeData() {
     setLegalP2Errors,
   ] = useState<{ [k: string]: string }>({});
 
+  const [
+    odpySimsErrors,
+    setOdpySimsErrors
+  ] = useState<{ [k: string]: string }>({});
+
   useEffect(() => {
     if (actionErrors?.errors && isPrivateData) {
       setPrivateErrors(actionErrors.errors);
@@ -126,6 +149,10 @@ export default function ChangeData() {
 
     if (actionErrors?.errors && isLegalP2Data) {
       setLegalP2Errors(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isOdpySimsData) {
+      setOdpySimsErrors(actionErrors.errors);
     }
 
     if (!isSubmittingPrivate
@@ -145,6 +172,12 @@ export default function ChangeData() {
       && isLegalP2Data) {
       setLegalP2Errors({});
     }
+
+    if (!isSubmittingOdpySims
+      && !actionErrors?.errors
+      && isOdpySimsData) {
+      setOdpySimsErrors({});
+    }
   }, [
     actionErrors?.errors,
     isPrivateData,
@@ -152,7 +185,9 @@ export default function ChangeData() {
     isSubmittingPrivate,
     isSubmittingLegalSims,
     isLegalP2Data,
-    isSubmittingLegalP2
+    isSubmittingLegalP2,
+    isOdpySimsData,
+    isSubmittingOdpySims
   ]);
 
   return (
@@ -176,9 +211,10 @@ export default function ChangeData() {
           isSubmitting={isSubmittingLegalP2} errors={legalP2Errors}
           fetcher={fetcher} btnValue="changeLegalP2" />
 
-        <TabPanel label="ОДПУ Sims">
-          Tab content 4
-        </TabPanel>
+        <Panel
+          label="ОДПУ Sims" data={odpySimsData}
+          isSubmitting={isSubmittingOdpySims} errors={odpySimsErrors}
+          fetcher={fetcher} btnValue="changeOdpySims" />
 
         <TabPanel label="ОДПУ П2">
           Tab content 5
