@@ -204,7 +204,7 @@ async function handleFailedMeters({
 }: FailedMetersValues) {
   const prevValue = await selectFailedMeters({ type, transformerSubstationId });
 
-  if (prevValue) {
+  if (prevValue !== undefined) {
     const isEqual = prevValue === quantity;
 
     if (!isEqual) {
