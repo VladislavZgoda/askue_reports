@@ -34,13 +34,15 @@ export const loader = async ({
   const legalSimsData = await loadData(transSub.id, 'ЮР Sims');
   const legalP2Data = await loadData(transSub.id, 'ЮР П2');
   const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
+  const odpyP2Data = await loadData(transSub.id, 'ОДПУ П2');
 
   return json({
     transSub,
     privateData,
     legalSimsData,
     legalP2Data,
-    odpySimsData
+    odpySimsData,
+    odpyP2Data
   });
 };
 
@@ -80,6 +82,10 @@ export const action = async ({
     await mutateData('ОДПУ Sims');
   }
 
+  if (_action === 'changeOdpyP2') {
+    await mutateData('ОДПУ П2');
+  }
+
   return null;
 };
 
@@ -89,7 +95,8 @@ export default function ChangeData() {
     privateData,
     legalSimsData,
     legalP2Data,
-    odpySimsData
+    odpySimsData,
+    odpyP2Data
   } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
@@ -108,6 +115,9 @@ export default function ChangeData() {
 
   const isOdpySimsData = formAction === 'changeOdpySims';
   const isSubmittingOdpySims = isOdpySimsData && isSubmitting;
+
+  const isOdpyP2Data = formAction === 'changeOdpyP2';
+  const isSubmittingOdpyP2 = isOdpyP2Data && isSubmitting;
 
   const [
     privateErrors,
@@ -129,6 +139,11 @@ export default function ChangeData() {
     setOdpySimsErrors
   ] = useState<{ [k: string]: string }>({});
 
+  const [
+    odpyP2Errors,
+    setOdpyP2Errors
+  ] = useState<{ [k: string]: string }>({});
+
   useEffect(() => {
     if (actionErrors?.errors && isPrivateData) {
       setPrivateErrors(actionErrors.errors);
@@ -144,6 +159,10 @@ export default function ChangeData() {
 
     if (actionErrors?.errors && isOdpySimsData) {
       setOdpySimsErrors(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isOdpyP2Data) {
+      setOdpyP2Errors(actionErrors.errors);
     }
 
     if (!isSubmittingPrivate
@@ -169,6 +188,12 @@ export default function ChangeData() {
       && isOdpySimsData) {
       setOdpySimsErrors({});
     }
+
+    if (!isSubmittingOdpyP2 
+      && !actionErrors?.errors 
+      && isOdpyP2Data) {
+      setOdpyP2Errors({});
+    }
   }, [
     actionErrors?.errors,
     isPrivateData,
@@ -178,7 +203,9 @@ export default function ChangeData() {
     isLegalP2Data,
     isSubmittingLegalP2,
     isOdpySimsData,
-    isSubmittingOdpySims
+    isSubmittingOdpySims,
+    isOdpyP2Data,
+    isSubmittingOdpyP2
   ]);
 
   return (
@@ -207,9 +234,10 @@ export default function ChangeData() {
           isSubmitting={isSubmittingOdpySims} errors={odpySimsErrors}
           fetcher={fetcher} btnValue="changeOdpySims" />
 
-        <TabPanel label="ОДПУ П2">
-          Tab content 5
-        </TabPanel>
+        <Panel 
+          label="ОДПУ П2" data={odpyP2Data} 
+          isSubmitting={isSubmittingOdpyP2} errors={odpyP2Errors} 
+          fetcher={fetcher} btnValue="changeOdpyP2" />
 
         <TabPanel label="Техучеты">
           Tab content 6
