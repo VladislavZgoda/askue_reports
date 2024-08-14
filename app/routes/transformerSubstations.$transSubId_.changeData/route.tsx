@@ -11,9 +11,16 @@ import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
 import Panel from "./Panel";
+import Form from "./Form";
+import Input from "./Input";
+import Container from "./Container";
+import Button from "./Button";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
 import type { BalanceType } from "~/types";
+import loadTechMeters from "./.server/db-actions/loadTechMeters";
+import changeTechMeters from "./.server/db-actions/changeTechMeters";
+import { isErrors } from "~/helpers/checkErrors";
 
 export const loader = async ({
   params
@@ -35,6 +42,7 @@ export const loader = async ({
   const legalP2Data = await loadData(transSub.id, 'ЮР П2');
   const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
   const odpyP2Data = await loadData(transSub.id, 'ОДПУ П2');
+  const techMetersData = await loadTechMeters(transSub.id);
 
   return json({
     transSub,
@@ -42,7 +50,8 @@ export const loader = async ({
     legalSimsData,
     legalP2Data,
     odpySimsData,
-    odpyP2Data
+    odpyP2Data,
+    techMetersData
   });
 };
 
@@ -86,6 +95,10 @@ export const action = async ({
     await mutateData('ОДПУ П2');
   }
 
+  if (_action === 'changeTechMeters') {
+    await changeTechMeters(values);
+  }
+
   return null;
 };
 
@@ -96,7 +109,8 @@ export default function ChangeData() {
     legalSimsData,
     legalP2Data,
     odpySimsData,
-    odpyP2Data
+    odpyP2Data,
+    techMetersData
   } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
@@ -118,6 +132,9 @@ export default function ChangeData() {
 
   const isOdpyP2Data = formAction === 'changeOdpyP2';
   const isSubmittingOdpyP2 = isOdpyP2Data && isSubmitting;
+
+  const isTechMetersData = formAction === 'changeTechMeters';
+  const isSubmittingTechMeters = isTechMetersData && isSubmitting;
 
   const [
     privateErrors,
@@ -144,6 +161,11 @@ export default function ChangeData() {
     setOdpyP2Errors
   ] = useState<{ [k: string]: string }>({});
 
+  const [
+    techMetersErrors,
+    setTechMetersErrors
+  ] = useState<{ [k: string]: string }>({});
+
   useEffect(() => {
     if (actionErrors?.errors && isPrivateData) {
       setPrivateErrors(actionErrors.errors);
@@ -163,6 +185,10 @@ export default function ChangeData() {
 
     if (actionErrors?.errors && isOdpyP2Data) {
       setOdpyP2Errors(actionErrors.errors);
+    }
+
+    if (actionErrors?.errors && isTechMetersData) {
+      setTechMetersErrors(actionErrors.errors);
     }
 
     if (!isSubmittingPrivate
@@ -189,10 +215,16 @@ export default function ChangeData() {
       setOdpySimsErrors({});
     }
 
-    if (!isSubmittingOdpyP2 
-      && !actionErrors?.errors 
+    if (!isSubmittingOdpyP2
+      && !actionErrors?.errors
       && isOdpyP2Data) {
       setOdpyP2Errors({});
+    }
+
+    if (!isSubmittingTechMeters
+      && !actionErrors?.errors
+      && isTechMetersData) {
+      setTechMetersErrors({});
     }
   }, [
     actionErrors?.errors,
@@ -205,7 +237,9 @@ export default function ChangeData() {
     isOdpySimsData,
     isSubmittingOdpySims,
     isOdpyP2Data,
-    isSubmittingOdpyP2
+    isSubmittingOdpyP2,
+    isTechMetersData,
+    isSubmittingTechMeters
   ]);
 
   return (
@@ -234,13 +268,38 @@ export default function ChangeData() {
           isSubmitting={isSubmittingOdpySims} errors={odpySimsErrors}
           fetcher={fetcher} btnValue="changeOdpySims" />
 
-        <Panel 
-          label="ОДПУ П2" data={odpyP2Data} 
-          isSubmitting={isSubmittingOdpyP2} errors={odpyP2Errors} 
+        <Panel
+          label="ОДПУ П2" data={odpyP2Data}
+          isSubmitting={isSubmittingOdpyP2} errors={odpyP2Errors}
           fetcher={fetcher} btnValue="changeOdpyP2" />
 
         <TabPanel label="Техучеты">
-          Tab content 6
+          <Form
+            fetcher={fetcher}
+            isSubmitting={isSubmittingTechMeters}>
+
+            <Container heading="Всего счетчиков">
+              <Input
+                label="Количество ПУ"
+                name="quantity"
+                error={techMetersErrors?.techDiff}
+                defValue={techMetersData.quantity}
+                errors={isErrors(techMetersErrors)} />
+
+              <Input
+                label="Из них под напряжением"
+                name="underVoltage"
+                error={techMetersErrors?.techDiff}
+                defValue={techMetersData.addedToSystem}
+                errors={isErrors(techMetersErrors)} />
+            </Container>
+
+            <div className="h-full mt-auto">
+              <Button
+                isSubmitting={isSubmittingTechMeters}
+                buttonValue="changeTechMeters" />
+            </div>
+          </Form>
         </TabPanel>
 
         <TabPanel label="Юр Отключенные">

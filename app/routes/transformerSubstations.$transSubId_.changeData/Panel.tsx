@@ -4,18 +4,13 @@ import Container from "./Container";
 import TabPanel from "./TabPanel";
 import Button from "./Button";
 import BtnInputContainer from "./BtnInputContainer";
+import { isErrors } from "~/helpers/checkErrors";
 import type { PanelPropType } from "~/types";
 
 export default function Panel({
   label, errors, data, checked = false,
   fetcher, isSubmitting, btnValue
 }: PanelPropType) {
-  const isErrors = (
-    errors: { [k: string]: string; }
-  ) => {
-    return Object.keys(errors).length > 0;
-  };
-
   return (
     <TabPanel checked={checked} label={label}>
       <Form fetcher={fetcher} isSubmitting={isSubmitting}>
