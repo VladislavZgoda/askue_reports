@@ -16,7 +16,7 @@ export default async function changeTechMeters(
   const prevValues =
     await selectTechnicalMeters(transformerSubstationId);
 
-  if (prevValues[0]?.quantity !== 0) {
+  if (prevValues[0]?.quantity !== undefined) {
     const isEqual = prevValues[0].quantity === quantity
       && prevValues[0].underVoltage === underVoltage;
 
