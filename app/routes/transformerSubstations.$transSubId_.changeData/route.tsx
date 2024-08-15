@@ -21,6 +21,8 @@ import type { BalanceType } from "~/types";
 import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/helpers/checkErrors";
+import loadDisabledLegalMeters from "./.server/db-actions/loadDisabledLegalMeters";
+import changeDisabledMeters from "./.server/db-actions/changeDisabledMeters";
 
 export const loader = async ({
   params
@@ -43,6 +45,7 @@ export const loader = async ({
   const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
   const odpyP2Data = await loadData(transSub.id, 'ОДПУ П2');
   const techMetersData = await loadTechMeters(transSub.id);
+  const disabledMetersData = await loadDisabledLegalMeters(transSub.id);
 
   return json({
     transSub,
@@ -51,7 +54,8 @@ export const loader = async ({
     legalP2Data,
     odpySimsData,
     odpyP2Data,
-    techMetersData
+    techMetersData,
+    disabledMetersData
   });
 };
 
@@ -99,6 +103,10 @@ export const action = async ({
     await changeTechMeters(values);
   }
 
+  if (_action === 'changeDisabledMeters') {
+    await changeDisabledMeters(values);
+  }
+
   return null;
 };
 
@@ -110,7 +118,8 @@ export default function ChangeData() {
     legalP2Data,
     odpySimsData,
     odpyP2Data,
-    techMetersData
+    techMetersData,
+    disabledMetersData
   } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
@@ -135,6 +144,9 @@ export default function ChangeData() {
 
   const isTechMetersData = formAction === 'changeTechMeters';
   const isSubmittingTechMeters = isTechMetersData && isSubmitting;
+
+  const isDisabledMetersData = formAction === 'changeDisabledMeters';
+  const isSubmittingDisabledMeters = isDisabledMetersData && isSubmitting;
 
   const [
     privateErrors,
@@ -294,7 +306,7 @@ export default function ChangeData() {
                 errors={isErrors(techMetersErrors)} />
             </Container>
 
-            <div className={`h-full mt-auto 
+            <div className={`h-full mt-auto
               ${isErrors(techMetersErrors) ? 'mb-12' : ''}`}>
 
               <Button
@@ -305,7 +317,24 @@ export default function ChangeData() {
         </TabPanel>
 
         <TabPanel label="Юр Отключенные">
-          Tab content 7
+          <Form
+            fetcher={fetcher}
+            isSubmitting={isSubmittingDisabledMeters}>
+
+            <div className="flex flex-col justify-between gap-10">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-center">Количество отключенных</h2>
+                <Input
+                  label="Количество ПУ"
+                  name="quantity"
+                  defValue={disabledMetersData} />
+              </div>
+
+              <Button
+                isSubmitting={isSubmittingDisabledMeters}
+                buttonValue="changeDisabledMeters"/>
+            </div>
+          </Form>
         </TabPanel>
       </div>
     </main>
