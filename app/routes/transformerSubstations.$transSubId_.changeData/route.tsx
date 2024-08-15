@@ -294,7 +294,9 @@ export default function ChangeData() {
                 errors={isErrors(techMetersErrors)} />
             </Container>
 
-            <div className="h-full mt-auto">
+            <div className={`h-full mt-auto 
+              ${isErrors(techMetersErrors) ? 'mb-12' : ''}`}>
+
               <Button
                 isSubmitting={isSubmittingTechMeters}
                 buttonValue="changeTechMeters" />
