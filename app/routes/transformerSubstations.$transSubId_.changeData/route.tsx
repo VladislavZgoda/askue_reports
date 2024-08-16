@@ -63,6 +63,7 @@ export const action = async ({
   request, params
 }: ActionFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
+  
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
   values.id = params.transSubId;
@@ -79,32 +80,28 @@ export const action = async ({
     });
   };
 
-  if (_action === 'changePrivate') {
-    await mutateData('Быт');
-  }
-
-  if (_action === 'changeLegalSims') {
-    await mutateData('ЮР Sims');
-  }
-
-  if (_action === 'changeLegalP2') {
-    await mutateData('ЮР П2');
-  }
-
-  if (_action === 'changeOdpySims') {
-    await mutateData('ОДПУ Sims');
-  }
-
-  if (_action === 'changeOdpyP2') {
-    await mutateData('ОДПУ П2');
-  }
-
-  if (_action === 'changeTechMeters') {
-    await changeTechMeters(values);
-  }
-
-  if (_action === 'changeDisabledMeters') {
-    await changeDisabledMeters(values);
+  switch (_action) {
+    case 'changePrivate':
+      await mutateData('Быт');
+      break;
+    case 'changeLegalSims':
+      await mutateData('ЮР Sims');
+      break;
+    case 'changeLegalP2':
+      await mutateData('ЮР П2');
+      break;
+    case 'changeOdpySims':
+      await mutateData('ОДПУ Sims');
+      break;
+    case 'changeOdpyP2':
+      await mutateData('ОДПУ П2');
+      break;
+    case 'changeTechMeters':
+      await changeTechMeters(values);
+      break;
+    case 'changeDisabledMeters':
+      await changeDisabledMeters(values);
+      break;
   }
 
   return null;
