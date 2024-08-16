@@ -360,7 +360,7 @@ export default function ChangeData() {
 
               <Button
                 isSubmitting={isSubmittingDisabledMeters}
-                buttonValue="changeDisabledMeters"/>
+                buttonValue="changeDisabledMeters" />
             </div>
           </Form>
         </TabPanel>
@@ -368,7 +368,7 @@ export default function ChangeData() {
 
       <Toast
         isVisible={isVisible}
-        message="Данные успешно обновлены."/>
+        message="Данные успешно обновлены." />
     </main>
   );
 }
