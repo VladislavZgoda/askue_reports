@@ -51,7 +51,7 @@ export const action = async ({
   request, params
 }: ActionFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
-  
+
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
 
@@ -126,48 +126,56 @@ export const action = async ({
 export default function AddData() {
   const { transSub, logMessages } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
-  
+
   const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
-  
-  const isNewMetersAction = formAction === 'addNewMeters';
-  const isSubmittingNewMeters = isNewMetersAction && isSubmitting;
 
-  const isTechnicalMetersAction = formAction === 'addTechnicalMeters';
-  const isSubmittingTechnicalMeters = isTechnicalMetersAction && isSubmitting;
-  
-  const isDisabledMetersAction = formAction === 'addDisabledLegalMeters';
-  const isSubmittingDisabledLegalMeters = isDisabledMetersAction && isSubmitting;
+  const checkWhatForm = (formBtnName: string) => {
+    return formAction === formBtnName;
+  };
 
-  const isFailedMetersAction = formAction === 'addFailedMeters';
-  const isSubmittingFailedMeters = isFailedMetersAction && isSubmitting;
-  
+  const checkFormSubmit = (dataType: boolean) => {
+    return dataType && isSubmitting;
+  };
+
+  const isNewMetersAction = checkWhatForm('addNewMeters');
+  const isSubmittingNewMeters = checkFormSubmit(isNewMetersAction);
+
+  const isTechnicalMetersAction = checkWhatForm('addTechnicalMeters');
+  const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
+
+  const isDisabledMetersAction = checkWhatForm('addDisabledLegalMeters');
+  const isSubmittingDisabledLegalMeters = checkFormSubmit(isDisabledMetersAction);
+
+  const isFailedMetersAction = checkWhatForm('addFailedMeters');
+  const isSubmittingFailedMeters = checkFormSubmit(isFailedMetersAction);
+
   const newMetesRef = useRef<HTMLFormElement>(null);
   const technicalMetersRef = useRef<HTMLFormElement>(null);
   const disabledMetersRef = useRef<HTMLFormElement>(null);
   const failedMetersRef = useRef<HTMLFormElement>(null);
-  
+
   const [
     errNewMeters,
     setErrNewMeters
   ] = useState<{ [k: string]: string }>({});
-  
+
   const [
     errTechnicalMeters,
     setErrTechnicalMeters
   ] = useState<{ [k: string]: string }>({});
-  
+
   const [
     errDisabledMeters,
     setErrDisabledMeters
   ] = useState<{ [k: string]: string }>({});
-  
+
   const [
     errFailedMeters,
     setErrFailedMeters
   ] = useState<{ [k: string]: string }>({});
-  
+
   const [isVisible, setIsVisible] = useState(false);
 
   const handleIsVisible = () => {
@@ -261,7 +269,7 @@ export default function AddData() {
               errNewMeters?.newMeters
               || errNewMeters?.difference
             } />
-          
+
           <NumberInput
             labelName='Из них добавлено в систему'
             inputName='addedToSystem'
@@ -269,7 +277,7 @@ export default function AddData() {
               errNewMeters?.addedToSystem
               || errNewMeters?.difference
             } />
-  
+
           <SelectInput error={errNewMeters?.type} />
           <DateInput labelText='Дата' inputName='date' />
           <SubmitButton
@@ -328,7 +336,7 @@ export default function AddData() {
           isSubmitting={isSubmittingFailedMeters}
           h2Title='Добавить вышедшие из строя ПУ'
           formID='addFailedMeters'>
-          
+
           <NumberInput
             labelName='Количество вышедших из строя ПУ'
             inputName='brokenMeters'
@@ -353,7 +361,7 @@ export default function AddData() {
             <div
               className="collapse-content bg-primary text-primary-content
                peer-checked:bg-secondary peer-checked:text-secondary-content">
-              
+
               <ul>
                 {logMessages.map(message =>
                   <li key={message.id}>
