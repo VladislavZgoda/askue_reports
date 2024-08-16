@@ -15,6 +15,7 @@ import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
 import Button from "./Button";
+import Toast from "~/components/Toast";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
 import type { BalanceType } from "~/types";
@@ -183,6 +184,15 @@ export default function ChangeData() {
     setTechMetersErrors
   ] = useState<{ [k: string]: string }>({});
 
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handleIsVisible = () => {
+    setIsVisible(true);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 5000);
+  };
+
   useEffect(() => {
     if (actionErrors?.errors && isPrivateData) {
       setPrivateErrors(actionErrors.errors);
@@ -212,36 +222,47 @@ export default function ChangeData() {
       && !actionErrors?.errors
       && isPrivateData) {
       setPrivateErrors({});
+      handleIsVisible();
     }
 
     if (!isSubmittingLegalSims
       && !actionErrors?.errors
       && isLegalSimsData) {
       setLegalSimsErrors({});
+      handleIsVisible();
     }
 
     if (!isSubmittingLegalP2
       && !actionErrors?.errors
       && isLegalP2Data) {
       setLegalP2Errors({});
+      handleIsVisible();
     }
 
     if (!isSubmittingOdpySims
       && !actionErrors?.errors
       && isOdpySimsData) {
       setOdpySimsErrors({});
+      handleIsVisible();
     }
 
     if (!isSubmittingOdpyP2
       && !actionErrors?.errors
       && isOdpyP2Data) {
       setOdpyP2Errors({});
+      handleIsVisible();
     }
 
     if (!isSubmittingTechMeters
       && !actionErrors?.errors
       && isTechMetersData) {
       setTechMetersErrors({});
+      handleIsVisible();
+    }
+
+    if (!isSubmittingDisabledMeters
+      && isDisabledMetersData) {
+      handleIsVisible();
     }
   }, [
     actionErrors?.errors,
@@ -256,7 +277,9 @@ export default function ChangeData() {
     isOdpyP2Data,
     isSubmittingOdpyP2,
     isTechMetersData,
-    isSubmittingTechMeters
+    isSubmittingTechMeters,
+    isDisabledMetersData,
+    isSubmittingDisabledMeters
   ]);
 
   return (
@@ -342,6 +365,10 @@ export default function ChangeData() {
           </Form>
         </TabPanel>
       </div>
+
+      <Toast
+        isVisible={isVisible}
+        message="Данные успешно обновлены."/>
     </main>
   );
 }
