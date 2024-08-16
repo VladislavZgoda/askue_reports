@@ -26,6 +26,7 @@ import validateInputFailedMeters from './.server/validation/failedMetersInput';
 import { useEffect, useRef, useState } from 'react';
 import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
+import Toast from '~/components/Toast';
 
 export const loader = async ({
   params
@@ -374,14 +375,9 @@ export default function AddData() {
         ) : null}
       </section>
 
-      <div className={`toast toast-top toast-end
-          ${isVisible ? 'visible' : 'invisible'}`
-        }>
-
-        <div className="alert alert-success">
-          <span>Данные успешно добавлены.</span>
-        </div>
-      </div>
+      <Toast
+        isVisible={isVisible}
+        message='Данные успешно добавлены.' />
     </main>
   );
 }

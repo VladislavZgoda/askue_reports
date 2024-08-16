@@ -283,3 +283,8 @@ export type PanelPropType = {
   };
   btnValue: string;
 };
+
+export type ToastPropType = {
+  isVisible: boolean;
+  message: string;
+};
