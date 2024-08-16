@@ -38,52 +38,44 @@ export default function TransformerSubstation() {
 
   return (
     <main className='m-2'>
-      <section
-        className='flex justify-between w-[60%]'
-      >
+      <section className='flex justify-between w-[60%]'>
         <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1">
           <li>
             <h2 className="menu-title">{transSub.name}</h2>
             <ul>
               <li>
-                <NavigateForm 
+                <NavigateForm
                   actionName='addData'
                   btnText='Добавить данные'
                   onDelete={undefined}
-                  methodType='get'
-                 />
+                  methodType='get' />
               </li>
               <li>
-                <NavigateForm 
+                <NavigateForm
                   actionName='changeData'
                   btnText='Изменить данные'
                   onDelete={undefined}
-                  methodType='get'
-                 />
+                  methodType='get' />
               </li>
               <li>
-                <NavigateForm 
+                <NavigateForm
                   actionName='edit'
                   btnText='Переименовать ТП'
                   onDelete={undefined}
-                  methodType='get'
-                 />
+                  methodType='get' />
               </li>
               <li>
                 <NavigateForm
                   actionName='destroy'
                   btnText='Удалить ТП'
                   onDelete={onDelete}
-                  methodType='post'
-                />
+                  methodType='post' />
               </li>
             </ul>
           </li>
         </ul>
 
-        <Form
-          className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'
-        >
+        <Form className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'>
           <p>Выберете даты для данных</p>
           <DateInput labelText='БЫТ' inputName='privateDate' />
           <DateInput labelText='ЮР' inputName='legalDate' />
