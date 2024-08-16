@@ -48,10 +48,10 @@ export const loader = async ({
 };
 
 export const action = async ({
-  request,
-  params
+  request, params
 }: ActionFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
+  
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
 
@@ -126,37 +126,48 @@ export const action = async ({
 export default function AddData() {
   const { transSub, logMessages } = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
+  
   const actionErrors = fetcher.data;
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
+  
   const isNewMetersAction = formAction === 'addNewMeters';
-  const isTechnicalMetersAction = formAction === 'addTechnicalMeters';
-  const isDisabledMetersAction = formAction === 'addDisabledLegalMeters';
-  const isFailedMetersAction = formAction === 'addFailedMeters';
   const isSubmittingNewMeters = isNewMetersAction && isSubmitting;
+
+  const isTechnicalMetersAction = formAction === 'addTechnicalMeters';
   const isSubmittingTechnicalMeters = isTechnicalMetersAction && isSubmitting;
+  
+  const isDisabledMetersAction = formAction === 'addDisabledLegalMeters';
   const isSubmittingDisabledLegalMeters = isDisabledMetersAction && isSubmitting;
+
+  const isFailedMetersAction = formAction === 'addFailedMeters';
   const isSubmittingFailedMeters = isFailedMetersAction && isSubmitting;
+  
   const newMetesRef = useRef<HTMLFormElement>(null);
   const technicalMetersRef = useRef<HTMLFormElement>(null);
   const disabledMetersRef = useRef<HTMLFormElement>(null);
   const failedMetersRef = useRef<HTMLFormElement>(null);
+  
   const [
     errNewMeters,
     setErrNewMeters
   ] = useState<{ [k: string]: string }>({});
+  
   const [
     errTechnicalMeters,
     setErrTechnicalMeters
   ] = useState<{ [k: string]: string }>({});
+  
   const [
     errDisabledMeters,
     setErrDisabledMeters
   ] = useState<{ [k: string]: string }>({});
+  
   const [
     errFailedMeters,
     setErrFailedMeters
   ] = useState<{ [k: string]: string }>({});
+  
   const [isVisible, setIsVisible] = useState(false);
 
   const handleIsVisible = () => {
@@ -233,8 +244,7 @@ export default function AddData() {
     <main>
       <LinkToTransSub
         id={transSub.id}
-        name={transSub.name}
-      />
+        name={transSub.name}/>
 
       <div className='flex justify-around'>
         <FetcherForm
@@ -242,30 +252,29 @@ export default function AddData() {
           metesRef={newMetesRef}
           isSubmitting={isSubmittingNewMeters}
           h2Title='Добавить новые потребительские ПУ'
-          formID='addNewMeters'
-        >
+          formID='addNewMeters'>
+
           <NumberInput
             labelName='Количество новых ПУ'
             inputName='newMeters'
             error={
               errNewMeters?.newMeters
               || errNewMeters?.difference
-            }
-          />
+            } />
+          
           <NumberInput
             labelName='Из них добавлено в систему'
             inputName='addedToSystem'
             error={
               errNewMeters?.addedToSystem
               || errNewMeters?.difference
-            }
-          />
+            } />
+  
           <SelectInput error={errNewMeters?.type} />
           <DateInput labelText='Дата' inputName='date' />
           <SubmitButton
             buttonValue='addNewMeters'
-            isSubmitting={isSubmittingNewMeters}
-          />
+            isSubmitting={isSubmittingNewMeters} />
         </FetcherForm>
 
         <FetcherForm
@@ -273,28 +282,27 @@ export default function AddData() {
           metesRef={technicalMetersRef}
           isSubmitting={isSubmittingTechnicalMeters}
           h2Title='Добавить техучеты'
-          formID='addTechnicalMeters'
-        >
+          formID='addTechnicalMeters'>
+
           <NumberInput
             labelName='Количество Техучетов'
             inputName='techMeters'
             error={
               errTechnicalMeters?.techMeters
               || errTechnicalMeters?.techDif
-            }
-          />
+            } />
+
           <NumberInput
             labelName='Из них под напряжением'
             inputName='underVoltage'
             error={
               errTechnicalMeters?.underVoltage
               || errTechnicalMeters?.techDif
-            }
-          />
+            } />
+
           <SubmitButton
             buttonValue='addTechnicalMeters'
-            isSubmitting={isSubmittingTechnicalMeters}
-          />
+            isSubmitting={isSubmittingTechnicalMeters} />
         </FetcherForm>
 
         <FetcherForm
@@ -302,17 +310,16 @@ export default function AddData() {
           metesRef={disabledMetersRef}
           isSubmitting={isSubmittingDisabledLegalMeters}
           h2Title='Добавить ЮР отключенные'
-          formID='addDisabledLegalMeters'
-        >
+          formID='addDisabledLegalMeters'>
+
           <NumberInput
             labelName='Количество отключенных ПУ'
             inputName='disabledMeters'
-            error={errDisabledMeters?.disabledMeters}
-          />
+            error={errDisabledMeters?.disabledMeters} />
+
           <SubmitButton
             buttonValue='addDisabledLegalMeters'
-            isSubmitting={isSubmittingDisabledLegalMeters}
-          />
+            isSubmitting={isSubmittingDisabledLegalMeters} />
         </FetcherForm>
 
         <FetcherForm
@@ -320,18 +327,17 @@ export default function AddData() {
           metesRef={failedMetersRef}
           isSubmitting={isSubmittingFailedMeters}
           h2Title='Добавить вышедшие из строя ПУ'
-          formID='addFailedMeters'
-        >
+          formID='addFailedMeters'>
+          
           <NumberInput
             labelName='Количество вышедших из строя ПУ'
             inputName='brokenMeters'
-            error={errFailedMeters?.brokenMeters}
-          />
+            error={errFailedMeters?.brokenMeters} />
+
           <SelectInput error={errFailedMeters?.failedType} />
           <SubmitButton
             buttonValue='addFailedMeters'
-            isSubmitting={isSubmittingFailedMeters}
-          />
+            isSubmitting={isSubmittingFailedMeters} />
         </FetcherForm>
       </div>
 
@@ -341,14 +347,13 @@ export default function AddData() {
             <input type="checkbox" className="peer" />
             <div
               className="collapse-title bg-primary text-primary-content
-              peer-checked:bg-secondary peer-checked:text-secondary-content"
-            >
+              peer-checked:bg-secondary peer-checked:text-secondary-content">
               Нажмите, чтобы показать/скрыть лог
             </div>
             <div
               className="collapse-content bg-primary text-primary-content
-               peer-checked:bg-secondary peer-checked:text-secondary-content"
-            >
+               peer-checked:bg-secondary peer-checked:text-secondary-content">
+              
               <ul>
                 {logMessages.map(message =>
                   <li key={message.id}>
@@ -361,11 +366,10 @@ export default function AddData() {
         ) : null}
       </section>
 
-      <div
-        className={`toast toast-top toast-end
+      <div className={`toast toast-top toast-end
           ${isVisible ? 'visible' : 'invisible'}`
-        }
-      >
+        }>
+
         <div className="alert alert-success">
           <span>Данные успешно добавлены.</span>
         </div>
