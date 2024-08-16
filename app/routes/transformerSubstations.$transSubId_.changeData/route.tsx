@@ -63,7 +63,7 @@ export const action = async ({
   request, params
 }: ActionFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
-  
+
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
   values.id = params.transSubId;
@@ -124,26 +124,34 @@ export default function ChangeData() {
   const formAction = fetcher.formData?.get('_action');
   const isSubmitting = fetcher.state === 'submitting';
 
-  const isPrivateData = formAction === 'changePrivate';
-  const isSubmittingPrivate = isPrivateData && isSubmitting;
+  const checkWhatForm = (formBtnName: string) => {
+    return formAction === formBtnName;
+  };
 
-  const isLegalSimsData = formAction === 'changeLegalSims';
-  const isSubmittingLegalSims = isLegalSimsData && isSubmitting;
+  const checkFormSubmit = (dataType: boolean) => {
+    return dataType && isSubmitting;
+  };
 
-  const isLegalP2Data = formAction === 'changeLegalP2';
-  const isSubmittingLegalP2 = isLegalP2Data && isSubmitting;
+  const isPrivateData = checkWhatForm('changePrivate');
+  const isSubmittingPrivate = checkFormSubmit(isPrivateData);
 
-  const isOdpySimsData = formAction === 'changeOdpySims';
-  const isSubmittingOdpySims = isOdpySimsData && isSubmitting;
+  const isLegalSimsData = checkWhatForm('changeLegalSims');
+  const isSubmittingLegalSims = checkFormSubmit(isLegalSimsData);
 
-  const isOdpyP2Data = formAction === 'changeOdpyP2';
-  const isSubmittingOdpyP2 = isOdpyP2Data && isSubmitting;
+  const isLegalP2Data = checkWhatForm('changeLegalP2');
+  const isSubmittingLegalP2 = checkFormSubmit(isLegalP2Data);
 
-  const isTechMetersData = formAction === 'changeTechMeters';
-  const isSubmittingTechMeters = isTechMetersData && isSubmitting;
+  const isOdpySimsData = checkWhatForm('changeOdpySims');
+  const isSubmittingOdpySims = checkFormSubmit(isOdpySimsData);
 
-  const isDisabledMetersData = formAction === 'changeDisabledMeters';
-  const isSubmittingDisabledMeters = isDisabledMetersData && isSubmitting;
+  const isOdpyP2Data = checkWhatForm('changeOdpyP2');
+  const isSubmittingOdpyP2 = checkFormSubmit(isOdpyP2Data);
+
+  const isTechMetersData = checkWhatForm('changeTechMeters');
+  const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
+
+  const isDisabledMetersData = checkWhatForm('changeDisabledMeters');
+  const isSubmittingDisabledMeters = checkFormSubmit(isDisabledMetersData);
 
   const [
     privateErrors,
