@@ -1,6 +1,6 @@
 export default function StatTable() {
   return (
-    <div className="overflow-auto max-h-[50vh] mt-5">
+    <div className="overflow-auto max-h-[50vh] mt-5 mb-5">
       <table className="table">
         <thead className="sticky top-0 bg-base-200">
           <tr className="text-lg">
