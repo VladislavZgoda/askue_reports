@@ -124,7 +124,7 @@ export const selectMetersOnDate = async ({
   type,
   date,
   transformerSubstationId
-}: CheckRecordValues): Promise<number | undefined> => {
+}: CheckRecordValues) => {
   const record = await db
     .select({
       quantity: ElectricityMetersTable.quantity
@@ -139,5 +139,5 @@ export const selectMetersOnDate = async ({
       )
     );
 
-  return record[0]?.quantity;
+  return record[0]?.quantity ?? 0;
 };
