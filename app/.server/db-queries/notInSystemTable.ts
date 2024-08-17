@@ -6,7 +6,7 @@ import type {
   LastQuantity,
   UpdateOnIdType
 } from "~/types";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, lte } from "drizzle-orm";
 
 export const insertNotInSystem = async ({
   quantity,
@@ -122,4 +122,26 @@ export const updateNotInSystemOnId = async ({
     .where(
       eq(NotInSystem.id, id)
     );
+};
+
+export const selectNotInSystemOnDate = async ({
+  type,
+  date,
+  transformerSubstationId
+}: CheckRecordValues) => {
+  const record = await db
+    .select({
+      quantity: NotInSystem.quantity
+    })
+    .from(NotInSystem)
+    .where(
+      and(
+        eq(NotInSystem.transformerSubstationId,
+          transformerSubstationId),
+        lte(NotInSystem.date, date),
+        eq(NotInSystem.type, type)
+      )
+    );
+
+  return record[0]?.quantity ?? 0;
 };
