@@ -6,7 +6,7 @@ import type {
   LastQuantity,
   UpdateOnIdType
 } from "~/types";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, lte } from "drizzle-orm";
 
 export const insertNewMeters = async ({
   quantity,
@@ -118,4 +118,26 @@ export const updateRecordOnId = async ({
     .where(
       eq(ElectricityMetersTable.id, id),
     );
+};
+
+export const selectMetersOnDate = async ({
+  type,
+  date,
+  transformerSubstationId
+}: CheckRecordValues): Promise<number | undefined> => {
+  const record = await db
+    .select({
+      quantity: ElectricityMetersTable.quantity
+    })
+    .from(ElectricityMetersTable)
+    .where(
+      and(
+        eq(ElectricityMetersTable.transformerSubstationId,
+          transformerSubstationId),
+        lte(ElectricityMetersTable.date, date),
+        eq(ElectricityMetersTable.type, type)
+      )
+    );
+
+  return record[0]?.quantity;
 };
