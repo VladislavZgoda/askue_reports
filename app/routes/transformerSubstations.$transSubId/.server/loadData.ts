@@ -1,4 +1,4 @@
-import type { BalanceType } from "~/types";
+import type { BalanceType, DbDataType } from "~/types";
 import todayDate from "~/helpers/getDate";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
@@ -8,9 +8,9 @@ import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable
 
 type LoadStateTableType = {
   id: number;
-  privateDate: string;
-  legalDate: string;
-  odpyDate: string;
+  privateDate?: string;
+  legalDate?: string;
+  odpyDate?: string;
 };
 
 export default async function loadData({
@@ -39,13 +39,6 @@ function handleValues(
     date, type
   };
 }
-
-type DbDataType = {
-  inSystem: number;
-  notInSystem: number;
-  failedMeters: number;
-  disabledMeters?: number;
-};
 
 async function getDataFromDb(
   id: number, date: string, type: BalanceType

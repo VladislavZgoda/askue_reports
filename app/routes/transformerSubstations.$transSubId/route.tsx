@@ -6,6 +6,7 @@ import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
 import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
+import loadData from './.server/loadData';
 
 export const loader = async ({
   params
@@ -22,11 +23,13 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  return json({ transSub });
+  const data = await loadData({ id: transSub.id })
+
+  return json({ transSub, data });
 };
 
 export default function TransformerSubstation() {
-  const { transSub } = useLoaderData<typeof loader>();
+  const { transSub, data } = useLoaderData<typeof loader>();
   const onDelete = (e: React.FormEvent) => {
     const response = confirm(
       'Подтвердите удаление.'
@@ -84,7 +87,7 @@ export default function TransformerSubstation() {
       </section>
 
       <section className='mt-2 w-[60%]'>
-        <StatTable />
+        <StatTable data={data} />
       </section>
     </main>
   );

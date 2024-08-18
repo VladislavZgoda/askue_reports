@@ -288,3 +288,10 @@ export type ToastPropType = {
   isVisible: boolean;
   message: string;
 };
+
+export type DbDataType = {
+  inSystem: number;
+  notInSystem: number;
+  failedMeters: number;
+  disabledMeters?: number;
+};
