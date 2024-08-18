@@ -1,5 +1,4 @@
 import type { BalanceType, DbDataType } from "~/types";
-import todayDate from "~/helpers/getDate";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectFailedMeters } from "~/.server/db-queries/failedMetersTable";
@@ -8,16 +7,13 @@ import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable
 
 type LoadStateTableType = {
   id: number;
-  privateDate?: string;
-  legalDate?: string;
-  odpyDate?: string;
+  privateDate: string;
+  legalDate: string;
+  odpyDate: string;
 };
 
 export default async function loadData({
-  id,
-  privateDate = todayDate(),
-  legalDate = todayDate(),
-  odpyDate = todayDate()
+  id, privateDate, legalDate, odpyDate
 }: LoadStateTableType) {
   const data = {
     private: await getDataFromDb(id, privateDate, 'Быт'),

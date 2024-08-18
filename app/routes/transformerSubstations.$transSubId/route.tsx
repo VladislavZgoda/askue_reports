@@ -1,15 +1,16 @@
 import { json } from '@remix-run/node';
 import type { LoaderFunctionArgs } from '@remix-run/node';
-import { Form, useLoaderData } from '@remix-run/react';
+import { Form, useLoaderData, useSubmit } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
 import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
+import todayDate from "~/helpers/getDate";
 
 export const loader = async ({
-  params
+  params, request
 }: LoaderFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
 
@@ -23,13 +24,27 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  const data = await loadData({ id: transSub.id })
+  const url = new URL(request.url);
+  const privateDate = url.searchParams.get('privateDate');
+  const legalDate = url.searchParams.get('legalDate');
+  const odpyDate = url.searchParams.get('odpyDate');
+
+  const loadValues = {
+    id: transSub.id,
+    privateDate: privateDate ?? todayDate(),
+    legalDate: legalDate ?? todayDate(),
+    odpyDate: odpyDate ?? todayDate()
+  };
+
+  const data = await loadData(loadValues);
 
   return json({ transSub, data });
 };
 
 export default function TransformerSubstation() {
   const { transSub, data } = useLoaderData<typeof loader>();
+  const submit = useSubmit();
+
   const onDelete = (e: React.FormEvent) => {
     const response = confirm(
       'Подтвердите удаление.'
@@ -78,7 +93,12 @@ export default function TransformerSubstation() {
           </li>
         </ul>
 
-        <Form className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'>
+        <Form
+          className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'
+          onChange={(e) => {
+            submit(e.currentTarget);
+          }}>
+
           <p>Выберете даты для данных</p>
           <DateInput labelText='БЫТ' inputName='privateDate' />
           <DateInput labelText='ЮР' inputName='legalDate' />
