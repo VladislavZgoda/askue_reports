@@ -2,7 +2,8 @@ import {
   insertNewMeters,
   checkMetersRecord,
   updateMetersRecord,
-  selectLastQuantity
+  selectLastQuantity,
+  getNewMetersIds
 } from "~/.server/db-queries/electricityMetersTable";
 import type {
   InsertMetersValues,
