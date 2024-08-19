@@ -187,3 +187,14 @@ export async function getQuantityForInsert ({
 
   return record[0]?.quantity;
 }
+
+export async function getQuantityOnID(id: number) {
+  const record = await db
+    .select({ quantity: ElectricityMetersTable.quantity })
+    .from(ElectricityMetersTable)
+    .where(eq(
+      ElectricityMetersTable.id, id
+    ));
+
+  return record[0].quantity;
+}
