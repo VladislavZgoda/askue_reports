@@ -51,7 +51,7 @@ async function getDataFromDb(
     data.disabledMeters =
       await selectDisabledLegalMeters(
         values.transformerSubstationId
-      );
+      ) ?? 0;
   }
 
   return data;
