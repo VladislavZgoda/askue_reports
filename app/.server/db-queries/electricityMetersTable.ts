@@ -136,8 +136,9 @@ export const selectMetersOnDate = async ({
           transformerSubstationId),
         lte(ElectricityMetersTable.date, date),
         eq(ElectricityMetersTable.type, type)
-      )
-    );
+      ))
+    .orderBy(desc(ElectricityMetersTable.date))
+    .limit(1);
 
   return record[0]?.quantity ?? 0;
 };
