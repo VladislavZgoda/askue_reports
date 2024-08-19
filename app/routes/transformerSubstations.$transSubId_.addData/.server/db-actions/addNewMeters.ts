@@ -5,9 +5,9 @@ import {
   selectLastQuantity
 } from "~/.server/db-queries/electricityMetersTable";
 import type {
-  ActionValues,
   InsertMetersValues,
-  TotalMeters
+  TotalMeters,
+  BalanceType
 } from "~/types";
 import {
   insertYearMeters,
@@ -28,6 +28,14 @@ import {
   selectLastNotInSystem
 } from "~/.server/db-queries/notInSystemTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+
+type ActionValues = {
+  transSubId: string;
+  newMeters: string;
+  addedToSystem: string;
+  type: BalanceType;
+  date: string;
+};
 
 export default async function addNewMeters (
   values: ActionValues

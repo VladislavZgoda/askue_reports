@@ -35,14 +35,6 @@ export type NameForInput = {
 
 export type BalanceType = 'Быт' | 'ЮР Sims' | 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2';
 
-export type ActionValues = {
-  transSubId: string;
-  newMeters: string;
-  addedToSystem: string;
-  type: BalanceType;
-  date: string;
-};
-
 export type MetersValues = {
   quantity: number,
   type: BalanceType,
