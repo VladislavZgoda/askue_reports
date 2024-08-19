@@ -41,8 +41,7 @@ export const updateNotInSystem = async ({
           transformerSubstationId),
         eq(NotInSystem.date, date),
         eq(NotInSystem.type, type)
-      )
-    );
+      ));
 };
 
 export const checkNotInSystem = async ({
@@ -61,8 +60,7 @@ export const checkNotInSystem = async ({
           transformerSubstationId),
         eq(NotInSystem.date, date),
         eq(NotInSystem.type, type)
-      )
-    );
+      ));
 
   return record[0]?.quantity;
 };
@@ -81,8 +79,7 @@ export const selectLastNotInSystem = async ({
         eq(NotInSystem.transformerSubstationId,
           transformerSubstationId),
         eq(NotInSystem.type, type)
-      )
-    )
+      ))
     .orderBy(desc(NotInSystem.date))
     .limit(1);
 
@@ -103,8 +100,7 @@ export const getLastNotInSystemId = async({
         eq(NotInSystem.transformerSubstationId,
           transformerSubstationId),
         eq(NotInSystem.type, type)
-      )
-    )
+      ))
     .orderBy(desc(NotInSystem.date))
     .limit(1);
 
@@ -140,8 +136,9 @@ export const selectNotInSystemOnDate = async ({
           transformerSubstationId),
         lte(NotInSystem.date, date),
         eq(NotInSystem.type, type)
-      )
-    );
+      ))
+    .orderBy(desc(NotInSystem.date))
+    .limit(1);
 
   return record[0]?.quantity ?? 0;
 };
