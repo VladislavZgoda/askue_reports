@@ -2,9 +2,10 @@ import {
   insertNewMeters,
   checkMetersRecord,
   updateMetersRecord,
-  selectLastQuantity,
   getNewMetersIds,
-  getQuantityForInsert
+  getQuantityForInsert,
+  getQuantityOnID,
+  updateRecordOnId
 } from "~/.server/db-queries/electricityMetersTable";
 import type {
   InsertMetersValues,
@@ -66,40 +67,7 @@ export default async function addNewMeters (
   await addMessageToLog(insertValues);
 }
 
-const handleInsert = async (
-  insertValues: InsertMetersValues
-) => {
-  const {
-    quantity,
-    type,
-    transformerSubstationId,
-  } = insertValues;
-  const lastQuantity = await selectLastQuantity({
-    transformerSubstationId, type
-  }) ?? 0;
-
-  await insertNewMeters({
-    ...insertValues,
-    quantity: quantity + lastQuantity
-  });
-};
-
-const handleUpdate = async (
-  insertValues: InsertMetersValues,
-  prevMetersQuantity: number
-) => {
-  const { quantity } = insertValues;
-  const updatedQuantity = quantity + prevMetersQuantity;
-
-  await updateMetersRecord({
-    ...insertValues,
-    quantity: updatedQuantity
-  });
-};
-
-const handleInsertValues = (
-  values: ActionValues
-) => {
+function handleInsertValues(values: ActionValues) {
   return {
     quantity: Number(values.newMeters),
     added_to_system: Number(values.addedToSystem),
@@ -107,7 +75,68 @@ const handleInsertValues = (
     date: values.date,
     transformerSubstationId: Number(values.transSubId)
   };
-};
+}
+
+async function handleInsert(
+  insertValues: InsertMetersValues
+) {
+  const lastQuantity = await getQuantityForInsert(insertValues);
+
+  await insertNewMeters({
+    ...insertValues,
+    quantity: insertValues.quantity + lastQuantity
+  });
+
+
+}
+
+async function handleUpdate(
+  insertValues: InsertMetersValues,
+  prevMetersQuantity: number
+) {
+  const { quantity } = insertValues;
+  const updatedQuantity = quantity + prevMetersQuantity;
+
+  await updateMetersRecord({
+    ...insertValues,
+    quantity: updatedQuantity
+  });
+}
+
+async function updateNextMetersRecords(
+  insertValues: InsertMetersValues
+) {
+  const ids = await getNewMetersIds(insertValues);
+
+  if (ids.length > 0) {
+    ids.forEach(async ({ id }) => {
+      const quantity = await getQuantityOnID(id);
+
+      await updateRecordOnId({
+        id,
+        quantity: quantity + insertValues.quantity
+      });
+    });
+  }
+}
+
+async function handleInsertNewMeters(
+  insertValues: InsertMetersValues
+) {
+  const { added_to_system } = insertValues;
+
+  if (added_to_system > 0) {
+    const prevMetersQuantity = await checkMetersRecord(insertValues);
+
+    if (typeof prevMetersQuantity === 'number') {
+      await handleUpdate(insertValues, prevMetersQuantity);
+    } else {
+      await handleInsert(insertValues);
+    }
+
+    await updateNextMetersRecords(insertValues);
+  }
+}
 
 const handleInsertNotInSystem = async (
   insertValues: InsertMetersValues
@@ -131,24 +160,6 @@ const handleUpdateNotInSystem = async (
     ...insertValues,
     quantity: updatedQuantity,
   });
-};
-
-const handleInsertNewMeters = async (
-  insertValues: InsertMetersValues
-) => {
-  const { added_to_system } = insertValues;
-
-  if (added_to_system > 0) {
-    const prevMetersQuantity = await checkMetersRecord(insertValues);
-    if (typeof prevMetersQuantity === 'number') {
-      await handleUpdate(
-        insertValues,
-        prevMetersQuantity
-      );
-    } else {
-      await handleInsert(insertValues);
-    }
-  }
 };
 
 const handleYearMeters = async (
