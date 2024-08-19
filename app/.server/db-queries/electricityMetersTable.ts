@@ -4,9 +4,10 @@ import type {
   MetersValues,
   CheckRecordValues,
   LastQuantity,
-  UpdateOnIdType
+  UpdateOnIdType,
+  BalanceType
 } from "~/types";
-import { eq, and, desc, lte, gt } from "drizzle-orm";
+import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
 export const insertNewMeters = async ({
   quantity,
@@ -156,4 +157,33 @@ export async function getNewMetersIds({
     ));
 
   return ids;
+}
+
+type QuantityForInsert = {
+  transformerSubstationId: number;
+  type: BalanceType;
+  date: string;
+};
+
+export async function getQuantityForInsert ({
+  transformerSubstationId,
+  date,
+  type
+}: QuantityForInsert) {
+  const record = await db
+    .select({
+      quantity: ElectricityMetersTable.quantity
+    })
+    .from(ElectricityMetersTable)
+    .where(
+      and(
+        eq(ElectricityMetersTable.transformerSubstationId,
+          transformerSubstationId),
+        eq(ElectricityMetersTable.type, type),
+        lt(ElectricityMetersTable.date, date)
+    ))
+    .orderBy(desc(ElectricityMetersTable.date))
+    .limit(1);
+
+  return record[0]?.quantity;
 }
