@@ -1,8 +1,14 @@
-import type { DateInputType } from "~/types";
+import todayDate from "~/helpers/getDate";
 
-const DateInput = ({ 
-  labelText, inputName
- }: DateInputType) => {
+type DateInputType = {
+  labelText: string;
+  inputName: string;
+  defValue?: string;
+};
+
+export default function DateInput({ 
+  labelText, inputName, defValue
+ }: DateInputType) {
   return (
     <label className="form-control w-full max-w-xs">
       <div className="label">
@@ -17,17 +23,9 @@ const DateInput = ({
           className='input input-bordered w-full max-w-xs'
           aria-label={labelText}
           name={inputName}
-          defaultValue={todayDate()}
+          defaultValue={defValue || todayDate()}
           required
         />
     </label>
   );
-};
-
-const todayDate = () => {
-  const date = new Date().toLocaleDateString('en-CA');
-  
-  return date;
-};
-
-export default DateInput;
+}

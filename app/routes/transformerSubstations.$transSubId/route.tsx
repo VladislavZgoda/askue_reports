@@ -38,11 +38,16 @@ export const loader = async ({
 
   const data = await loadData(loadValues);
 
-  return json({ transSub, data });
+  return json({ transSub, data, loadValues });
 };
 
 export default function TransformerSubstation() {
-  const { transSub, data } = useLoaderData<typeof loader>();
+  const { 
+    transSub, 
+    data, 
+    loadValues 
+  } = useLoaderData<typeof loader>();
+
   const submit = useSubmit();
 
   const onDelete = (e: React.FormEvent) => {
@@ -100,9 +105,20 @@ export default function TransformerSubstation() {
           }}>
 
           <p>Выберете даты для данных</p>
-          <DateInput labelText='БЫТ' inputName='privateDate' />
-          <DateInput labelText='ЮР' inputName='legalDate' />
-          <DateInput labelText='ОДПУ' inputName='odpyDate' />
+          <DateInput 
+            labelText='БЫТ' 
+            inputName='privateDate' 
+            defValue={loadValues.privateDate} />
+
+          <DateInput 
+            labelText='ЮР' 
+            inputName='legalDate' 
+            defValue={loadValues.legalDate} />
+
+          <DateInput 
+          labelText='ОДПУ' 
+          inputName='odpyDate' 
+          defValue={loadValues.odpyDate} />
         </Form>
       </section>
 
