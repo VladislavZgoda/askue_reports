@@ -282,3 +282,9 @@ export type DbDataType = {
   failedMeters: number;
   disabledMeters?: number;
 };
+
+export type QuantityForInsert = {
+  transformerSubstationId: number;
+  type: BalanceType;
+  date: string;
+};

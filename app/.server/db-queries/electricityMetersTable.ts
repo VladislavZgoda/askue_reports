@@ -5,7 +5,7 @@ import type {
   CheckRecordValues,
   LastQuantity,
   UpdateOnIdType,
-  BalanceType
+  QuantityForInsert
 } from "~/types";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
@@ -154,12 +154,6 @@ export async function getNewMetersIds({
 
   return ids;
 }
-
-type QuantityForInsert = {
-  transformerSubstationId: number;
-  type: BalanceType;
-  date: string;
-};
 
 export async function getQuantityForInsert ({
   transformerSubstationId,
