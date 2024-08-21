@@ -10,7 +10,9 @@ import {
 import type {
   InsertMetersValues,
   TotalMeters,
-  BalanceType
+  BalanceType,
+  CheckRecordValues,
+  UpdateOnIdType
 } from "~/types";
 import {
   insertYearMeters,
@@ -106,16 +108,47 @@ async function handleUpdate(
   });
 }
 
-async function updateNextMetersRecords(
-  insertValues: InsertMetersValues
-) {
-  const ids = await getNewMetersIds(insertValues);
+// async function updateNextMetersRecords(
+//   insertValues: InsertMetersValues
+// ) {
+//   const ids = await getNewMetersIds(insertValues);
+
+//   if (ids.length > 0) {
+//     ids.forEach(async ({ id }) => {
+//       const quantity = await getQuantityOnID(id);
+
+//       await updateRecordOnId({
+//         id,
+//         quantity: quantity + insertValues.quantity
+//       });
+//     });
+//   }
+// }
+
+type NextRecords = {
+  insertValues: InsertMetersValues,
+  getIdsFunc: ({
+    type, date, transformerSubstationId
+  }: CheckRecordValues) => Promise<{
+    id: number;
+  }[]>,
+  getQuantityFunc: (id: number) => Promise<number>,
+  updateFunc: ({ id, quantity }: UpdateOnIdType) => Promise<void>,
+};
+
+async function updateNextRecords({
+  insertValues,
+  getIdsFunc,
+  getQuantityFunc,
+  updateFunc
+}: NextRecords) {
+  const ids = await getIdsFunc(insertValues);
 
   if (ids.length > 0) {
     ids.forEach(async ({ id }) => {
-      const quantity = await getQuantityOnID(id);
+      const quantity = await getQuantityFunc(id);
 
-      await updateRecordOnId({
+      await updateFunc({
         id,
         quantity: quantity + insertValues.quantity
       });
@@ -137,7 +170,12 @@ async function handleInsertNewMeters(
       await handleInsert(insertValues);
     }
 
-    await updateNextMetersRecords(insertValues);
+    await updateNextRecords({
+      insertValues,
+      getIdsFunc: getNewMetersIds,
+      getQuantityFunc: getQuantityOnID,
+      updateFunc: updateRecordOnId
+    });
   }
 }
 
