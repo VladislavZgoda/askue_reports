@@ -83,8 +83,6 @@ async function handleInsert(
     ...insertValues,
     quantity: insertValues.quantity + lastQuantity
   });
-
-
 }
 
 async function handleUpdate(

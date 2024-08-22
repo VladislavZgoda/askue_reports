@@ -9,12 +9,12 @@ import type {
 } from "~/types";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
-export const insertNotInSystem = async ({
+export async function insertNotInSystem({
   quantity,
   type,
   date,
   transformerSubstationId
-}: MetersValues) => {
+}: MetersValues){
   await db
     .insert(NotInSystem)
     .values({
@@ -23,126 +23,117 @@ export const insertNotInSystem = async ({
       date,
       transformerSubstationId
     });
-};
+}
 
-export const updateNotInSystem = async ({
+export async function updateNotInSystem({
   quantity,
   type,
   date,
   transformerSubstationId
-}: MetersValues) => {
+}: MetersValues){
   const updated_at = new Date();
 
   await db
     .update(NotInSystem)
     .set({ quantity, updated_at })
-    .where(
-      and(
-        eq(NotInSystem.transformerSubstationId,
-          transformerSubstationId),
-        eq(NotInSystem.date, date),
-        eq(NotInSystem.type, type)
-      ));
-};
+    .where(and(
+      eq(NotInSystem.transformerSubstationId,
+        transformerSubstationId),
+      eq(NotInSystem.date, date),
+      eq(NotInSystem.type, type)
+    ));
+}
 
-export const checkNotInSystem = async ({
+export async function checkNotInSystem({
   type,
   date,
   transformerSubstationId
-}: CheckRecordValues): Promise<number | undefined> => {
+}: CheckRecordValues): Promise<number | undefined>{
   const record = await db
     .select({
       quantity: NotInSystem.quantity
     })
     .from(NotInSystem)
-    .where(
-      and(
-        eq(NotInSystem.transformerSubstationId,
-          transformerSubstationId),
-        eq(NotInSystem.date, date),
-        eq(NotInSystem.type, type)
-      ));
+    .where(and(
+      eq(NotInSystem.transformerSubstationId,
+        transformerSubstationId),
+      eq(NotInSystem.date, date),
+      eq(NotInSystem.type, type)
+    ));
 
   return record[0]?.quantity;
-};
+}
 
-export const selectLastNotInSystem = async ({
-  transformerSubstationId,
-  type
-}: LastQuantity): Promise<number | undefined> => {
+export async function selectLastNotInSystem({
+  transformerSubstationId, type
+}: LastQuantity): Promise<number | undefined>{
   const record = await db
     .select({
       quantity: NotInSystem.quantity
     })
     .from(NotInSystem)
-    .where(
-      and(
-        eq(NotInSystem.transformerSubstationId,
-          transformerSubstationId),
-        eq(NotInSystem.type, type)
-      ))
+    .where(and(
+      eq(NotInSystem.transformerSubstationId,
+        transformerSubstationId),
+      eq(NotInSystem.type, type)
+    ))
     .orderBy(desc(NotInSystem.date))
     .limit(1);
 
   return record[0]?.quantity;
-};
+}
 
-export const getLastNotInSystemId = async({
-  transformerSubstationId,
-  type
-}: LastQuantity): Promise<number | undefined> => {
+export async function getLastNotInSystemId({
+  transformerSubstationId, type
+}: LastQuantity): Promise<number | undefined>{
   const recordId = await db
     .select({
       id: NotInSystem.id
     })
     .from(NotInSystem)
-    .where(
-      and(
-        eq(NotInSystem.transformerSubstationId,
-          transformerSubstationId),
-        eq(NotInSystem.type, type)
-      ))
+    .where(and(
+      eq(NotInSystem.transformerSubstationId,
+        transformerSubstationId),
+      eq(NotInSystem.type, type)
+    ))
     .orderBy(desc(NotInSystem.date))
     .limit(1);
 
   return recordId[0]?.id;
-};
+}
 
-export const updateNotInSystemOnId = async ({
+export async function updateNotInSystemOnId({
   id, quantity
- }: UpdateOnIdType) => {
+ }: UpdateOnIdType){
   const updated_at = new Date();
 
   await db
     .update(NotInSystem)
     .set({ quantity, updated_at })
-    .where(
-      eq(NotInSystem.id, id)
-    );
-};
+    .where(eq(NotInSystem.id, id));
+}
 
-export const selectNotInSystemOnDate = async ({
+export async function selectNotInSystemOnDate({
   type,
   date,
   transformerSubstationId
-}: CheckRecordValues) => {
+}: CheckRecordValues){
   const record = await db
     .select({
       quantity: NotInSystem.quantity
     })
     .from(NotInSystem)
-    .where(
-      and(
-        eq(NotInSystem.transformerSubstationId,
-          transformerSubstationId),
-        lte(NotInSystem.date, date),
-        eq(NotInSystem.type, type)
-      ))
+    .where(and(
+      eq(NotInSystem.transformerSubstationId,
+        transformerSubstationId),
+      lte(NotInSystem.date, date),
+      eq(NotInSystem.type, type)
+    ))
     .orderBy(desc(NotInSystem.date))
     .limit(1);
 
   return record[0]?.quantity ?? 0;
-};
+}
 
 export async function getNotInSystemIds({
   type,
