@@ -184,16 +184,16 @@ async function handleInsertNewMeters(
   }
 }
 
-const handleInsertNotInSystem = async (
+async function handleInsertNotInSystem(
   insertValues: InsertMetersValues
-) => {
+){
   const lastQuantity = await getNotInSystemForInsert(insertValues);
   const updatedQuantity = insertValues.quantity + lastQuantity;
   await insertNotInSystem({
     ...insertValues,
     quantity: updatedQuantity
   });
-};
+}
 
 const handleYearMeters = async (
   insertValues: InsertMetersValues
