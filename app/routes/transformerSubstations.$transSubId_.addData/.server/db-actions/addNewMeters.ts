@@ -30,10 +30,10 @@ import {
   insertNotInSystem,
   updateNotInSystem,
   checkNotInSystem,
-  selectLastNotInSystem,
   getNotInSystemIds,
   getNotInSystemOnID,
-  getNotInSystemForInsert
+  getNotInSystemForInsert,
+  updateNotInSystemOnId
 } from "~/.server/db-queries/notInSystemTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
@@ -52,15 +52,7 @@ export default async function addNewMeters (
   const { quantity, added_to_system } = insertValues;
 
   if (quantity > added_to_system) {
-    const prevNotInSystem = await checkNotInSystem(insertValues);
-    if (typeof prevNotInSystem === 'number') {
-      await handleUpdateNotInSystem(
-        insertValues,
-        prevNotInSystem
-      );
-    } else {
-      await handleInsertNotInSystem(insertValues);
-    }
+    await handleNotInSystem(insertValues);
   }
 
   await handleYearMeters(insertValues);
@@ -108,25 +100,8 @@ async function handleUpdate(
   });
 }
 
-// async function updateNextMetersRecords(
-//   insertValues: InsertMetersValues
-// ) {
-//   const ids = await getNewMetersIds(insertValues);
-
-//   if (ids.length > 0) {
-//     ids.forEach(async ({ id }) => {
-//       const quantity = await getQuantityOnID(id);
-
-//       await updateRecordOnId({
-//         id,
-//         quantity: quantity + insertValues.quantity
-//       });
-//     });
-//   }
-// }
-
 type NextRecords = {
-  insertValues: InsertMetersValues,
+  values: InsertMetersValues,
   getIdsFunc: ({
     type, date, transformerSubstationId
   }: CheckRecordValues) => Promise<{
@@ -137,12 +112,12 @@ type NextRecords = {
 };
 
 async function updateNextRecords({
-  insertValues,
+  values,
   getIdsFunc,
   getQuantityFunc,
   updateFunc
 }: NextRecords) {
-  const ids = await getIdsFunc(insertValues);
+  const ids = await getIdsFunc(values);
 
   if (ids.length > 0) {
     ids.forEach(async ({ id }) => {
@@ -150,10 +125,42 @@ async function updateNextRecords({
 
       await updateFunc({
         id,
-        quantity: quantity + insertValues.quantity
+        quantity: quantity + values.quantity
       });
     });
   }
+}
+
+async function handleNotInSystem(
+  insertValues: InsertMetersValues
+) {
+  const prevNotInSystem = await checkNotInSystem(insertValues);
+  const { quantity, added_to_system } = insertValues;
+  const updatedQuantity = quantity - added_to_system;
+
+  if (typeof prevNotInSystem === 'number') {
+    await updateNotInSystem({
+      ...insertValues,
+      quantity: updatedQuantity + prevNotInSystem,
+    });
+  } else {
+    await handleInsertNotInSystem({
+      ...insertValues,
+      quantity: updatedQuantity
+    });
+  }
+
+  const updatedValues = {
+    ...insertValues,
+    quantity: updatedQuantity
+  };
+
+  await updateNextRecords({
+    values: updatedValues,
+    getIdsFunc: getNotInSystemIds,
+    getQuantityFunc: getNotInSystemOnID,
+    updateFunc: updateNotInSystemOnId
+  });
 }
 
 async function handleInsertNewMeters(
@@ -171,7 +178,7 @@ async function handleInsertNewMeters(
     }
 
     await updateNextRecords({
-      insertValues,
+      values: insertValues,
       getIdsFunc: getNewMetersIds,
       getQuantityFunc: getQuantityOnID,
       updateFunc: updateRecordOnId
@@ -182,24 +189,11 @@ async function handleInsertNewMeters(
 const handleInsertNotInSystem = async (
   insertValues: InsertMetersValues
 ) => {
-  const { quantity, added_to_system } = insertValues;
-  const lastQuantity = await selectLastNotInSystem(insertValues) ?? 0;
-  const updatedQuantity = (quantity - added_to_system) + lastQuantity;
+  const lastQuantity = await getNotInSystemForInsert(insertValues);
+  const updatedQuantity = insertValues.quantity + lastQuantity;
   await insertNotInSystem({
     ...insertValues,
     quantity: updatedQuantity
-  });
-};
-
-const handleUpdateNotInSystem = async (
-  insertValues: InsertMetersValues,
-  prevNotInSystem: number
-) => {
-  const { quantity, added_to_system } = insertValues;
-  const updatedQuantity = (quantity - added_to_system) + prevNotInSystem;
-  await updateNotInSystem({
-    ...insertValues,
-    quantity: updatedQuantity,
   });
 };
 
