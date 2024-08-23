@@ -18,7 +18,8 @@ import {
   insertYearMeters,
   selectLastYearQuantity,
   selectYearQuantity,
-  updateYearMeters
+  updateYearMeters,
+  getYearIds
 } from "~/.server/db-queries/newYearMetersTable";
 import {
   insertMonthMeters,
