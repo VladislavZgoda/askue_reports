@@ -8,7 +8,7 @@ import type {
   UpdateMonthOnIdType
 } from "~/types";
 
-export const insertMonthMeters = async ({
+export async function insertMonthMeters({
   quantity,
   added_to_system,
   type,
@@ -16,7 +16,7 @@ export const insertMonthMeters = async ({
   transformerSubstationId,
   month,
   year
-}: MonthMetersValues) => {
+}: MonthMetersValues){
   await db
   .insert(NewMonthMetersTable)
   .values({
@@ -28,15 +28,15 @@ export const insertMonthMeters = async ({
     month,
     year
   });
-};
+}
 
-export const selectMonthQuantity = async ({
+export async function selectMonthQuantity({
   type,
   date,
   transformerSubstationId,
   month,
   year
-}: SelectMonthQuantity) => {
+}: SelectMonthQuantity){
   const monthQuantity = await db
   .select({
     quantity: NewMonthMetersTable.quantity,
@@ -53,14 +53,14 @@ export const selectMonthQuantity = async ({
   ));
 
   return monthQuantity;
-};
+}
 
-export const selectLastMonthQuantity = async ({
+export async function selectLastMonthQuantity({
   type,
   transformerSubstationId,
   month,
   year
-}: LastMonthQuantity) => {
+}: LastMonthQuantity){
   const monthQuantity = await db
     .select({
       quantity: NewMonthMetersTable.quantity,
@@ -78,9 +78,9 @@ export const selectLastMonthQuantity = async ({
     .limit(1);
 
   return monthQuantity;
-};
+}
 
-export const updateMonthMeters = async ({
+export async function updateMonthMeters({
   quantity,
   added_to_system,
   type,
@@ -88,7 +88,7 @@ export const updateMonthMeters = async ({
   transformerSubstationId,
   month,
   year
-}: MonthMetersValues) => {
+}: MonthMetersValues){
   const updated_at = new Date();
 
   await db
@@ -102,14 +102,14 @@ export const updateMonthMeters = async ({
       eq(NewMonthMetersTable.month, month),
       eq(NewMonthMetersTable.year, year)
     ));
-};
+}
 
-export const getLastMonthId = async ({
+export async function getLastMonthId({
   type,
   transformerSubstationId,
   month,
   year
-}: LastMonthQuantity): Promise<number | undefined> => {
+}: LastMonthQuantity): Promise<number | undefined>{
   const recordId = await db
     .select({ id: NewMonthMetersTable.id })
     .from(NewMonthMetersTable)
@@ -124,18 +124,18 @@ export const getLastMonthId = async ({
     .limit(1);
 
   return recordId[0]?.id
-};
+}
 
-export const updateMonthOnId = async ({
+export async function updateMonthOnId({
   id, quantity, added_to_system
-}: UpdateMonthOnIdType) => {
+}: UpdateMonthOnIdType){
   const updated_at = new Date();
 
   await db
     .update(NewMonthMetersTable)
     .set({ quantity, added_to_system, updated_at })
     .where(eq(NewMonthMetersTable.id, id))
-};
+}
 
 export async function getMonthIds({
   type,
