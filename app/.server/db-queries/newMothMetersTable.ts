@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { NewMonthMetersTable } from "../schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, gt, lt } from "drizzle-orm";
 import type {
   MonthMetersValues,
   SelectMonthQuantity,
@@ -126,7 +126,7 @@ export const getLastMonthId = async ({
   return recordId[0]?.id
 };
 
-export const updateLastMonthOnId = async ({
+export const updateMonthOnId = async ({
   id, quantity, added_to_system
 }: UpdateMonthOnIdType) => {
   const updated_at = new Date();
@@ -136,3 +136,66 @@ export const updateLastMonthOnId = async ({
     .set({ quantity, added_to_system, updated_at })
     .where(eq(NewMonthMetersTable.id, id))
 };
+
+export async function getMonthIds({
+  type,
+  date,
+  transformerSubstationId,
+  month,
+  year
+}: SelectMonthQuantity) {
+  const ids = await db
+    .select({ id: NewMonthMetersTable.id })
+    .from(NewMonthMetersTable)
+    .where(and(
+      gt(NewMonthMetersTable.date, date),
+      eq(NewMonthMetersTable.type, type),
+      eq(NewMonthMetersTable.month, month),
+      eq(NewMonthMetersTable.year, year),
+      eq(NewMonthMetersTable.transformerSubstationId,
+        transformerSubstationId)
+    ));
+
+  return ids;
+}
+
+export async function getMonthMetersOnID(id: number) {
+  const record = await db
+    .select({
+      quantity: NewMonthMetersTable.quantity,
+      added_to_system: NewMonthMetersTable.added_to_system
+    })
+    .from(NewMonthMetersTable)
+    .where(eq(
+      NewMonthMetersTable.id, id
+    ));
+
+  return record[0];
+}
+
+export async function getMonthMetersForInsert({
+  type,
+  date,
+  transformerSubstationId,
+  month,
+  year
+}: SelectMonthQuantity) {
+  const record = await db
+    .select({
+      quantity: NewMonthMetersTable.quantity,
+      added_to_system: NewMonthMetersTable.added_to_system
+    })
+    .from(NewMonthMetersTable)
+    .where(and(
+      eq(NewMonthMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      eq(NewMonthMetersTable.type, type),
+      eq(NewMonthMetersTable.month, month),
+      eq(NewMonthMetersTable.year, year),
+      lt(NewMonthMetersTable.date, date)
+    ))
+    .orderBy(desc(NewMonthMetersTable.date))
+    .limit(1);
+
+  return record;
+}

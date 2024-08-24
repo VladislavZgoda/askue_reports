@@ -23,7 +23,7 @@ import {
 } from "~/.server/db-queries/newYearMetersTable";
 import {
   getLastMonthId,
-  updateLastMonthOnId,
+  updateMonthOnId,
   insertMonthMeters
 } from "~/.server/db-queries/newMothMetersTable";
 import {
@@ -180,7 +180,7 @@ async function handleMonthMeters({
       && inSystemMonth === prevValues.addedToSystem;
 
     if (!isEqual) {
-      await updateLastMonthOnId({
+      await updateMonthOnId({
         id: lastMonthId,
         quantity: monthTotal,
         added_to_system: inSystemMonth
