@@ -8,14 +8,14 @@ import type {
 } from "~/types";
 import { eq, and, desc, gt, lt } from "drizzle-orm";
 
-export const insertYearMeters = async ({
+export async function insertYearMeters({
   quantity,
   added_to_system,
   type,
   date,
   transformerSubstationId,
   year
-}: YearMetersValues) => {
+}: YearMetersValues){
   await db
   .insert(NewYearMetersTable)
   .values({
@@ -26,14 +26,14 @@ export const insertYearMeters = async ({
     transformerSubstationId,
     year
   });
-};
+}
 
-export const selectYearQuantity = async ({
+export async function selectYearQuantity({
   type,
   date,
   transformerSubstationId,
   year
-}: SelectYearQuantity) => {
+}: SelectYearQuantity){
   const yearQuantity = await db
   .select({
     quantity: NewYearMetersTable.quantity,
@@ -49,13 +49,13 @@ export const selectYearQuantity = async ({
   ));
 
   return yearQuantity;
-};
+}
 
-export const selectLastYearQuantity = async ({
+export async function selectLastYearQuantity({
   type,
   transformerSubstationId,
   year
-}: LastYearQuantity) => {
+}: LastYearQuantity){
   const yearQuantity = await db
     .select({
       quantity: NewYearMetersTable.quantity,
@@ -72,16 +72,16 @@ export const selectLastYearQuantity = async ({
     .limit(1);
 
   return yearQuantity;
-};
+}
 
-export const updateYearMeters = async ({
+export async function updateYearMeters({
   quantity,
   added_to_system,
   type,
   date,
   transformerSubstationId,
   year
-}: YearMetersValues) => {
+}: YearMetersValues){
   const updated_at = new Date();
 
   await db
@@ -94,13 +94,13 @@ export const updateYearMeters = async ({
        transformerSubstationId),
       eq(NewYearMetersTable.year, year)
     ));
-};
+}
 
-export const getLastYearId = async ({
+export async function getLastYearId({
   type,
   transformerSubstationId,
   year
-}: LastYearQuantity): Promise<number | undefined> => {
+}: LastYearQuantity): Promise<number | undefined>{
   const recordId = await db
     .select({ id: NewYearMetersTable.id })
     .from(NewYearMetersTable)
@@ -114,18 +114,18 @@ export const getLastYearId = async ({
     .limit(1);
 
   return recordId[0]?.id;
-};
+}
 
-export const updateYearOnId = async ({
+export async function updateYearOnId({
   id, quantity, added_to_system
-}: UpdateYearOnIdType) => {
+}: UpdateYearOnIdType){
   const updated_at = new Date();
 
   await db
     .update(NewYearMetersTable)
     .set({ quantity, added_to_system, updated_at })
     .where(eq(NewYearMetersTable.id, id));
-};
+}
 
 export async function getYearIds({
   type,
