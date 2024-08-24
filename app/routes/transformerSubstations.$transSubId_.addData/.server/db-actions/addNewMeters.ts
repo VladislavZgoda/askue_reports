@@ -19,7 +19,10 @@ import {
   selectLastYearQuantity,
   selectYearQuantity,
   updateYearMeters,
-  getYearIds
+  getYearIds,
+  getYearMetersOnID,
+  updateYearOnId,
+  getYearMetersForInsert
 } from "~/.server/db-queries/newYearMetersTable";
 import {
   insertMonthMeters,

@@ -18,7 +18,7 @@ import {
 } from "~/.server/db-queries/notInSystemTable";
 import {
   getLastYearId,
-  updateLastYearOnId,
+  updateYearOnId,
   insertYearMeters
 } from "~/.server/db-queries/newYearMetersTable";
 import {
@@ -144,7 +144,7 @@ async function handleYearMeters({
       && inSystemYear === prevValues.addedToSystem;
 
     if (!isEqual) {
-      await updateLastYearOnId({
+      await updateYearOnId({
         id: lastYearId,
         quantity: yearTotal,
         added_to_system: inSystemYear

@@ -6,7 +6,7 @@ import type {
   LastYearQuantity,
   UpdateYearOnIdType
 } from "~/types";
-import { eq, and, desc, gt } from "drizzle-orm";
+import { eq, and, desc, gt, lt } from "drizzle-orm";
 
 export const insertYearMeters = async ({
   quantity,
@@ -116,7 +116,7 @@ export const getLastYearId = async ({
   return recordId[0]?.id;
 };
 
-export const updateLastYearOnId = async ({
+export const updateYearOnId = async ({
   id, quantity, added_to_system
 }: UpdateYearOnIdType) => {
   const updated_at = new Date();
@@ -145,4 +145,43 @@ export async function getYearIds({
     ));
 
   return ids;
+}
+
+export async function getYearMetersOnID(id: number) {
+  const record = await db
+    .select({
+      quantity: NewYearMetersTable.quantity,
+      added_to_system: NewYearMetersTable.added_to_system
+    })
+    .from(NewYearMetersTable)
+    .where(eq(
+      NewYearMetersTable.id, id
+    ));
+
+  return record[0];
+}
+
+export async function getYearMetersForInsert({
+  type,
+  date,
+  transformerSubstationId,
+  year
+}: SelectYearQuantity) {
+  const record = await db
+    .select({
+      quantity: NewYearMetersTable.quantity,
+      added_to_system: NewYearMetersTable.added_to_system
+    })
+    .from(NewYearMetersTable)
+    .where(and(
+      eq(NewYearMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      eq(NewYearMetersTable.type, type),
+      eq(NewYearMetersTable.year, year),
+      lt(NewYearMetersTable.date, date)
+    ))
+    .orderBy(desc(NewYearMetersTable.date))
+    .limit(1);
+
+  return record;
 }
