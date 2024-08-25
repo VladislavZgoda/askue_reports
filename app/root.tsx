@@ -8,7 +8,8 @@ import {
   useRouteLoaderData,
   useRouteError,
   isRouteErrorResponse,
-  useNavigation
+  useNavigation,
+  useMatches
 } from "@remix-run/react";
 import type {
   LinksFunction,
@@ -43,6 +44,8 @@ export const Layout = ({
   children: React.ReactNode
   }) => {
   const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
+  const matches = useMatches();
+  const isLoginPage = matches[1]?.id === 'routes/login';
 
   return (
     <html lang="ru" data-theme='retro'>
@@ -54,11 +57,14 @@ export const Layout = ({
         <title>Отчеты АСКУЭ</title>
       </head>
       <body
-        className="font-sans box-border grid h-
-        grid-cols-[24rem_1fr_1fr_1fr_1fr]
-        grid-rows-[1fr_2fr_2fr_2fr_3rem]"
-      >
-        <MainLayout transSubs={data?.transSubs} q={data.q} />
+        className={`${!isLoginPage
+          ? "font-sans box-border grid h-grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
+          : 'font-sans bg-base-200 box-border'}`}>
+
+        {!isLoginPage
+          ? <MainLayout transSubs={data?.transSubs} q={data.q} />
+          : null}
+
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -69,9 +75,14 @@ export const Layout = ({
 
 export default function App() {
   const navigation = useNavigation();
+  const matches = useMatches();
 
   return(
-    <div className="col-start-2 col-span-4 row-start-2 row-span-3">
+    <div className={
+      `${matches[1]?.id !== 'routes/login'
+        ? 'col-start-2 col-span-4 row-start-2 row-span-3'
+        : 'h-screen w-screen flex justify-center items-center'}`}>
+
       {navigation.state === 'loading' ? (
         <div className="flex justify-center items-center h-full">
           <span className="loading loading-spinner text-primary size-72"></span>
