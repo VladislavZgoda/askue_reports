@@ -1,21 +1,18 @@
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session";
 import { FormStrategy } from "remix-auth-form";
-import loginUser from '../helpers/loginUser';
+import { selectUserId } from "../db-queries/users";
 
-type User = {
-  userId: string;
-};
-
-export const authenticator = new Authenticator<User>(sessionStorage);
+export const authenticator = new Authenticator<string>(sessionStorage);
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
-    const userLogin = form.get('userLogin');
-    const password = form.get('password');
-    const user = await loginUser(userLogin, password);
+    const userLogin = form.get('userLogin') as string;
+    const password = form.get('password') as string;
 
-    return user;
+    const user = await selectUserId(userLogin, password);
+
+    return user[0]?.userId;
   }),
   'user-login'
 );
