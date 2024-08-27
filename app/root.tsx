@@ -58,7 +58,7 @@ export const Layout = ({
       </head>
       <body
         className={`${!isLoginPage
-          ? "font-sans box-border grid h-grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
+          ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
           : 'font-sans bg-base-200 box-border'}`}>
 
         {!isLoginPage
