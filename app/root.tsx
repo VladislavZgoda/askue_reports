@@ -45,7 +45,7 @@ export const Layout = ({
   }) => {
   const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
   const matches = useMatches();
-  const isLoginPage = matches[1]?.id === 'routes/login';
+  const routes = ['routes/$', 'routes/login'];
 
   return (
     <html lang="ru" data-theme='retro'>
@@ -57,11 +57,11 @@ export const Layout = ({
         <title>Отчеты АСКУЭ</title>
       </head>
       <body
-        className={`${!isLoginPage
+        className={`${!routes.includes(matches[1]?.id)
           ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
           : 'font-sans bg-base-200 box-border'}`}>
 
-        {!isLoginPage
+        {!routes.includes(matches[1]?.id)
           ? <MainLayout transSubs={data?.transSubs} q={data.q} />
           : null}
 
@@ -76,10 +76,11 @@ export const Layout = ({
 export default function App() {
   const navigation = useNavigation();
   const matches = useMatches();
+  const routes = ['routes/$', 'routes/login'];
 
   return(
     <div className={
-      `${matches[1]?.id !== 'routes/login'
+      `${!routes.includes(matches[1]?.id)
         ? 'col-start-2 col-span-4 row-start-2 row-span-3'
         : 'h-screen w-screen flex justify-center items-center'}`}>
 
