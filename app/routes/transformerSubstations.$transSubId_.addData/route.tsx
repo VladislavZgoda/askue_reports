@@ -27,9 +27,10 @@ import { useEffect, useRef, useState } from 'react';
 import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
 import Toast from '~/components/Toast';
+import { authenticator } from '~/.server/services/auth';
 
 export const loader = async ({
-  params
+  params, request
 }: LoaderFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
 
@@ -42,6 +43,10 @@ export const loader = async ({
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
   }
+
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
 
   const logMessages = await selectMessages(params.transSubId);
 

@@ -14,13 +14,14 @@ import {
   updateTransSub
 } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
-import { 
+import {
   checkNameConstrains,
-  checkNameLength 
+  checkNameLength
 } from "~/.server/helpers/validateInput";
+import { authenticator } from "~/.server/services/auth";
 
 export const loader = async ({
-  params
+  params, request
 }: LoaderFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
 
@@ -34,6 +35,10 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
+
   return json({ transSub });
 };
 
@@ -45,7 +50,7 @@ export const action = async ({
   const formData = await request.formData();
   const name = String(formData.get('name'));
   const errNameLength = checkNameLength(name);
-  
+
   if (errNameLength) {
     return errNameLength;
   }

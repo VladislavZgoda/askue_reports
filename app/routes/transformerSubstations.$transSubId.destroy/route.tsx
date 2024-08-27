@@ -1,7 +1,14 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { deleteTransSub } from "~/.server/db-queries/transformerSubstationTable";
+import { authenticator } from "~/.server/services/auth";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
+}
 
 export const action = async ({
   params,

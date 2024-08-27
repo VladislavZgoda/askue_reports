@@ -8,6 +8,7 @@ import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
 import todayDate from "~/helpers/getDate";
+import { authenticator } from '~/.server/services/auth';
 
 export const loader = async ({
   params, request
@@ -17,6 +18,10 @@ export const loader = async ({
   if (!Number(params.transSubId)) {
     throw new Response('Not Found', { status: 404 });
   }
+
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
 
   const transSub = await selectTransSub(params.transSubId);
 
@@ -42,10 +47,10 @@ export const loader = async ({
 };
 
 export default function TransformerSubstation() {
-  const { 
-    transSub, 
-    data, 
-    loadValues 
+  const {
+    transSub,
+    data,
+    loadValues
   } = useLoaderData<typeof loader>();
 
   const submit = useSubmit();
@@ -105,19 +110,19 @@ export default function TransformerSubstation() {
           }}>
 
           <p>Выберете даты для данных</p>
-          <DateInput 
-            labelText='БЫТ' 
-            inputName='privateDate' 
+          <DateInput
+            labelText='БЫТ'
+            inputName='privateDate'
             defValue={loadValues.privateDate} />
 
-          <DateInput 
-            labelText='ЮР' 
-            inputName='legalDate' 
+          <DateInput
+            labelText='ЮР'
+            inputName='legalDate'
             defValue={loadValues.legalDate} />
 
-          <DateInput 
-          labelText='ОДПУ' 
-          inputName='odpyDate' 
+          <DateInput
+          labelText='ОДПУ'
+          inputName='odpyDate'
           defValue={loadValues.odpyDate} />
         </Form>
       </section>

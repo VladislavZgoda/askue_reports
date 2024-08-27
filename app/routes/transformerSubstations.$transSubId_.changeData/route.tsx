@@ -24,9 +24,10 @@ import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/helpers/checkErrors";
 import loadDisabledLegalMeters from "./.server/db-actions/loadDisabledLegalMeters";
 import changeDisabledMeters from "./.server/db-actions/changeDisabledMeters";
+import { authenticator } from "~/.server/services/auth";
 
 export const loader = async ({
-  params
+  params, request
 }: LoaderFunctionArgs) => {
   invariant(params.transSubId, 'Expected params.transSubId');
 
@@ -39,6 +40,10 @@ export const loader = async ({
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
   }
+
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
 
   const privateData = await loadData(transSub.id, 'Быт');
   const legalSimsData = await loadData(transSub.id, 'ЮР Sims');

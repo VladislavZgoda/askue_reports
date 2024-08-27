@@ -2,14 +2,21 @@ import {
   useActionData,
   useNavigation
 } from "@remix-run/react";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect } from "@remix-run/node";
 import { insertNewTS } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
-import { 
+import {
   checkNameConstrains,
-  checkNameLength 
+  checkNameLength
 } from "~/.server/helpers/validateInput";
+import { authenticator } from "~/.server/services/auth";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  return await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
+}
 
 
 export const action = async ({
@@ -17,7 +24,7 @@ export const action = async ({
   const formData = await request.formData();
   const name = String(formData.get('name'));
   const errNameLength = checkNameLength(name);
-  
+
   if (errNameLength) {
     return errNameLength;
   }
