@@ -28,30 +28,31 @@ const Header = () => {
           rounded-xl gap-14'
         >
           <li>
-            <a
-              href="#"
-              role="button"
-              className="btn btn-info btn-outline md:btn-wide
-              btn-xs sm:btn-sm md:btn-md lg:btn-lg"
-            >
-              Сформировать отчеты
-            </a>
+            <div>
+              <a href="#" role="button"
+                className="btn btn-info btn-outline md:btn-wide
+                btn-xs sm:btn-sm md:btn-md lg:btn-lg">
+                Сформировать отчеты
+              </a>
+            </div>       
           </li>
           <li >
-            <a
-              href="#"
-              role="button"
+            <div>
+            <a href="#" role="button"
               className="btn btn-info btn-outline md:btn-wide
-              btn-xs sm:btn-sm md:btn-md lg:btn-lg"
-            >
+              btn-xs sm:btn-sm md:btn-md lg:btn-lg">
               Просмотр данных
             </a>
+            </div>
+            
           </li>
           <li>
-            <Form action='logout' method='post'
-                  className="btn btn-error btn-outline md:btn-wide
-                  btn-xs sm:btn-sm md:btn-md lg:btn-lg">
-                <button type='submit'>Выйти</button> 
+            <Form action='logout' method='post'>
+                <button type='submit'
+                        className="btn btn-error btn-outline md:btn-wide
+                        btn-xs sm:btn-sm md:btn-md lg:btn-lg">
+                  Выйти
+                </button> 
             </Form>
           </li>
         </menu>
