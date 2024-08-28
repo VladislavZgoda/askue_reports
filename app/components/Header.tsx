@@ -1,5 +1,5 @@
 import logo from '../../images/logo.svg';
-import { Link } from '@remix-run/react';
+import { Link, Form } from '@remix-run/react';
 
 const Header = () => {
   return (
@@ -48,14 +48,11 @@ const Header = () => {
             </a>
           </li>
           <li>
-            <a
-              href="#"
-              role="button"
-              className="btn btn-error btn-outline md:btn-wide
-              btn-xs sm:btn-sm md:btn-md lg:btn-lg"
-            >
-              Выйти
-            </a>
+            <Form action='logout' method='post'
+                  className="btn btn-error btn-outline md:btn-wide
+                  btn-xs sm:btn-sm md:btn-md lg:btn-lg">
+                <button type='submit'>Выйти</button> 
+            </Form>
           </li>
         </menu>
       </nav>
