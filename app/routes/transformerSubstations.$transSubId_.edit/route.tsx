@@ -18,7 +18,7 @@ import {
   checkNameConstrains,
   checkNameLength
 } from "~/.server/helpers/validateInput";
-import { authenticator } from "~/.server/services/auth";
+import { isNotAuthenticated } from "~/.server/services/auth";
 
 export const loader = async ({
   params, request
@@ -35,9 +35,7 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login"
-  });
+  await isNotAuthenticated(request);
 
   return json({ transSub });
 };

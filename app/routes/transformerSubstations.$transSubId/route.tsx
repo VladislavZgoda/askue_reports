@@ -8,7 +8,7 @@ import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
 import todayDate from "~/helpers/getDate";
-import { authenticator } from '~/.server/services/auth';
+import { isNotAuthenticated } from '~/.server/services/auth';
 
 export const loader = async ({
   params, request
@@ -19,9 +19,7 @@ export const loader = async ({
     throw new Response('Not Found', { status: 404 });
   }
 
-  await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login"
-  });
+  await isNotAuthenticated(request);
 
   const transSub = await selectTransSub(params.transSubId);
 

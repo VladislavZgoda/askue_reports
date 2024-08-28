@@ -21,8 +21,14 @@ authenticator.use(
         cause: "userNotFound",
       });
     }
-      
+
     return user[0].userId;
   }),
   'user-login'
 );
+
+export async function isNotAuthenticated(request: Request) {
+  await authenticator.isAuthenticated(request, {
+    failureRedirect: "/login"
+  });
+}

@@ -10,12 +10,10 @@ import {
   checkNameConstrains,
   checkNameLength
 } from "~/.server/helpers/validateInput";
-import { authenticator } from "~/.server/services/auth";
+import { isNotAuthenticated } from "~/.server/services/auth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login"
-  });
+  return await isNotAuthenticated(request);
 }
 
 
