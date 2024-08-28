@@ -11,13 +11,25 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export async function action({ request }: ActionFunctionArgs) {
+  const requestClone = request.clone();
+
   try {
     return await authenticator.authenticate('user-login', request, {
       successRedirect: "/",
     });
   } catch (error) {
     if (error instanceof AuthorizationError) {
-      return json({ error: error.message });
+      const formData = await requestClone.formData();
+      const userLogin = formData.get('userLogin');
+      const password = formData.get('password');
+
+      return json({
+        error: error.message,
+        values: {
+          userLogin,
+          password
+        }
+      });
     } else if (error instanceof Response) {
       // Возвращает response 302
       return error;
@@ -26,7 +38,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Login() {
-  const loginError = useActionData<typeof action>();
+  const loginData = useActionData<typeof action>();
 
   return (
     <main className="flex flex-col items-center gap-5 w-full">
@@ -42,15 +54,16 @@ export default function Login() {
             <input
               type="text"
               placeholder="логин"
-              className={`input input-bordered ${loginError?.error && 'input-error'}`}
+              className={`input input-bordered ${loginData?.error && 'input-error'}`}
               id="login"
               name="userLogin"
+              defaultValue={loginData?.error && loginData.values.userLogin}
               required />
-            {loginError?.error && (
+            {loginData?.error && (
               <div className="label">
-                <span className="label-text-alt text-error">{loginError.error}</span>
+                <span className="label-text-alt text-error">{loginData.error}</span>
               </div>
-            )}        
+            )}
           </div>
           <div className="form-control">
             <label htmlFor="password" className="label">
@@ -59,15 +72,16 @@ export default function Login() {
             <input
               type="password"
               placeholder="пароль"
-              className={`input input-bordered ${loginError?.error && 'input-error'}`}
+              className={`input input-bordered ${loginData?.error && 'input-error'}`}
               id="password"
               name="password"
+              defaultValue={loginData?.error && loginData.values.password}
               required />
-            {loginError?.error && (
+            {loginData?.error && (
               <div className="label">
-                <span className="label-text-alt text-error">{loginError.error}</span>
+                <span className="label-text-alt text-error">{loginData.error}</span>
               </div>
-            )}   
+            )}
           </div>
           <div className="form-control mt-6">
             <button className="btn btn-primary" type="submit">
@@ -76,6 +90,6 @@ export default function Login() {
           </div>
         </Form>
       </div>
-    </main>  
+    </main>
   );
 }
