@@ -19,13 +19,13 @@ export default function Input({
         name={name}
         defaultValue={defValue}
         required />
-      {error ? (
+      {error && (
         <div className="label">
-          <span className="label-text-alt text-error text-pretty w-72 ">
+          <span className="label-text-alt text-error text-pretty w-72">
             {error}
           </span>
         </div>
-      ) : null}
+      )}
     </label>
   );
 }
