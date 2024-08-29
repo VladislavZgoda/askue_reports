@@ -1,10 +1,10 @@
 import type { NameForInput } from "~/types";
 
-const NumberInput = ({ 
+export default function NumberInput({ 
   labelName,
   inputName,
   error
- }: NameForInput) => {
+ }: NameForInput) {
   return (
     <label className="form-control w-full max-w-xs">
       <div className="label">
@@ -21,13 +21,11 @@ const NumberInput = ({
         aria-label={labelName}
         name={inputName}
       />
-      {error ? (
+      {error && (
         <div className="label">
           <span className="label-text-alt text-error">{error}</span>
         </div>
-      ) : null}
+      )}
     </label>
   );
-};
-
-export default NumberInput;
+}
