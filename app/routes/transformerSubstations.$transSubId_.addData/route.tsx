@@ -354,7 +354,7 @@ export default function AddData() {
       </div>
 
       <section className='w-96 mt-8 ml-auto mr-auto mb-8'>
-        {logMessages.length > 0 ? (
+        {logMessages.length > 0 && (
           <div className="bg-base-200 collapse">
             <input type="checkbox" className="peer" />
             <div
@@ -375,7 +375,7 @@ export default function AddData() {
               </ul>
             </div>
           </div>
-        ) : null}
+        )}
       </section>
 
       <Toast
