@@ -1,8 +1,8 @@
 import type { ErrorProp } from "~/types";
 
-const SelectInput = ({
+export default function SelectInput({
   error
-}: ErrorProp) => {
+}: ErrorProp){
   return (
     <label className="form-control w-full max-w-xs">
       <div className="label">
@@ -23,13 +23,11 @@ const SelectInput = ({
         <option value='ОДПУ Sims'>ОДПУ Sims</option>
         <option value='ОДПУ П2'>ОДПУ П2</option>
       </select>
-      {error ? (
+      {error && (
         <div className="label">
           <span className="label-text-alt text-error">{error}</span>
         </div>
-      ) : null}
+      )}
     </label>
   );
-};
-
-export default SelectInput;
+}
