@@ -28,7 +28,7 @@ authenticator.use(
 );
 
 export async function isNotAuthenticated(request: Request) {
-  await authenticator.isAuthenticated(request, {
+  return await authenticator.isAuthenticated(request, {
     failureRedirect: "/login"
   });
 }
