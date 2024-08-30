@@ -18,11 +18,11 @@ export default function Header() {
         <menu className='menu menu-horizontal bg-base-200 w-full rounded-xl gap-14'>
           <li>
             <div>
-              <a href="#" role="button"
+              <Link to="/generate-reports" role="button"
                 className="btn btn-info btn-outline md:btn-wide
                 btn-xs sm:btn-sm md:btn-md lg:btn-lg">
                 Сформировать отчеты
-              </a>
+              </Link>
             </div>
           </li>
           <li >
