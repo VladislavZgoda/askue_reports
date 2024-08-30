@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { authenticator } from "~/.server/services/auth";
 import { json } from "@remix-run/node";
 import { AuthorizationError } from "remix-auth";
@@ -39,13 +39,16 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Login() {
   const loginData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === 'submitting';
 
   return (
     <main className="flex flex-col items-center gap-5 w-full">
       <h1 className="text-4xl font-bold underline text-success">
         Отчеты АСКУЭ
       </h1>
-      <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+      <fieldset disabled={isSubmitting}
+        className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <Form className="card-body" method="post">
           <div className="form-control">
             <label htmlFor="login" className="label">
@@ -84,12 +87,24 @@ export default function Login() {
             )}
           </div>
           <div className="form-control mt-6">
-            <button className="btn btn-primary" type="submit">
-              Войти
-            </button>
+            {isSubmitting
+              ? (
+                <i
+                  className="btn btn-outline btn-secondary btn-active not-italic"
+                  role="button"
+                  tabIndex={0}>
+                  <span className="loading loading-spinner"></span>
+                  Проверка...
+                </i>
+              )
+              : (
+                <button className="btn btn-primary" type="submit">
+                  Войти
+                </button>
+              )}
           </div>
         </Form>
-      </div>
+      </fieldset>
     </main>
   );
 }

@@ -61,7 +61,7 @@ export const Layout = ({
           ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
           : 'font-sans bg-base-200 box-border'}`}>
 
-        {!routes.includes(matches[1]?.id) 
+        {!routes.includes(matches[1]?.id)
         && <MainLayout transSubs={data?.transSubs} q={data.q} />}
 
         {children}
