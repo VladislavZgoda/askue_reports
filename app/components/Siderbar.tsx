@@ -7,7 +7,7 @@ import {
 import type { TransSubs } from "~/types";
 import { useEffect, useState } from 'react';
 
-const Siderbar = ({ transSubs, q }: TransSubs) => {
+export default function Siderbar({ transSubs, q }: TransSubs) {
   const [query, setQuery] = useState(q || '');
   const submit = useSubmit();
   const navigation = useNavigation();
@@ -59,11 +59,9 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
 
   return (
     <div
-      className="col-span-1 row-start-2 row-span-3
-       border-r-2 border-neutral"
-    >
+      className="col-span-1 row-start-2 row-span-3 border-r-2 border-neutral">
       <div className="flex p-3 items-center flex-col justify-between
-            border-b-2 border-neutral h-36 flex-initial">
+           border-b-2 border-neutral h-36 flex-initial">
         <Form
           role="search"
           onChange={(e) => {
@@ -71,12 +69,9 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
             submit(e.currentTarget, {
               replace: !isFirstSearch
             });
-          }}
-        >
+          }}>
           <label className="input input-bordered input-info flex items-center gap-2">
-            <input
-              type="search"
-              className="grow"
+            <input type="search" className="grow"
               placeholder="Поиск ТП"
               aria-label="Поиск ТП"
               name="q"
@@ -104,8 +99,7 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
         <Form method="post" className="flex-initial">
           <button
             type="submit"
-            className="btn  btn-xs sm:btn-sm md:btn-md btn-outline w-52"
-          >
+            className="btn btn-xs sm:btn-sm md:btn-md btn-outline w-52">
             Добавить ТП
           </button>
         </Form>
@@ -117,6 +111,4 @@ const Siderbar = ({ transSubs, q }: TransSubs) => {
       </nav>
     </div>
   );
-};
-
-export default Siderbar;
+}
