@@ -35,7 +35,7 @@ export async function loader({
 }
 
 export function action() {
-  return redirect('/transformerSubstations/new');
+  return redirect('/transformer-substations/new');
 }
 
 export function Layout({

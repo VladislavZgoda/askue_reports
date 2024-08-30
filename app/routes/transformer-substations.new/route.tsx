@@ -17,8 +17,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 
-export const action = async ({
-  request }: ActionFunctionArgs) => {
+export async function action({
+  request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const name = String(formData.get('name'));
   const errNameLength = checkNameLength(name);
@@ -29,6 +29,7 @@ export const action = async ({
 
   try {
     const transSub = await insertNewTS(name);
+
     return redirect(`/transformerSubstations/${transSub.id}`);
   } catch (error) {
     const err = checkNameConstrains(error, name);
@@ -38,12 +39,12 @@ export const action = async ({
       throw error;
     }
   }
-};
+}
 
 export default function CreateNewTransformerSubstation() {
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const formAction = '/transformerSubstations/new';
+  const formAction = '/transformer-substations/new';
   const isSubmitting =
     navigation.formAction === formAction;
 
@@ -53,8 +54,7 @@ export default function CreateNewTransformerSubstation() {
       isSubmitting={isSubmitting}
       actionData={actionData}
       formAction={formAction}
-      buttonNames={{ submitName: 'Создание...', idleName: 'Создать' }}
-    />
+      buttonNames={{ submitName: 'Создание...', idleName: 'Создать' }} />
   );
 }
 
