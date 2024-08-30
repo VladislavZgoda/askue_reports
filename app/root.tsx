@@ -25,24 +25,24 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export const loader = async ({
+export async function loader({
   request
-}: LoaderFunctionArgs) => {
+}: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get('q');
   const transSubs = await selectTransSubs(q);
   return json({ transSubs, q });
-};
+}
 
-export const action = () => {
+export function action() {
   return redirect('/transformerSubstations/new');
-};
+}
 
-export const Layout = ({
+export function Layout({
   children
 }: {
   children: React.ReactNode
-  }) => {
+}) {
   const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
   const matches = useMatches();
   const routes = ['routes/$', 'routes/login'];
@@ -70,7 +70,7 @@ export const Layout = ({
       </body>
     </html>
   );
-};
+}
 
 export default function App() {
   const navigation = useNavigation();
@@ -92,7 +92,7 @@ export default function App() {
   );
 }
 
-export const ErrorBoundary = () => {
+export function ErrorBoundary() {
   const error = useRouteError();
 
   if (isRouteErrorResponse(error)) {
@@ -114,4 +114,4 @@ export const ErrorBoundary = () => {
   } else {
     return <h1>Unknown Error</h1>;
   }
-};
+}
