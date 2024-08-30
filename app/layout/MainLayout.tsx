@@ -3,7 +3,7 @@ import Siderbar from "~/components/Siderbar";
 import Footer from "~/components/Footer";
 import type { TransSubs } from "~/types";
 
-const MainLayout = (props: TransSubs) => {
+export default function MainLayout(props: TransSubs) {
   return (
     <>
       <Header />
@@ -11,6 +11,4 @@ const MainLayout = (props: TransSubs) => {
       <Footer />
     </>
   );
-};
-
-export default MainLayout;
+}
