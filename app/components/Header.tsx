@@ -23,15 +23,15 @@ export default function Header() {
                 btn-xs sm:btn-sm md:btn-md lg:btn-lg">
                 Сформировать отчеты
               </a>
-            </div>       
+            </div>
           </li>
           <li >
             <div>
-              <a href="#" role="button"
+              <Link to="/view-data"
                 className="btn btn-info btn-outline md:btn-wide
                 btn-xs sm:btn-sm md:btn-md lg:btn-lg">
                 Просмотр данных
-              </a>
+              </Link>
             </div>
           </li>
           <li>
@@ -40,7 +40,7 @@ export default function Header() {
                 className="btn btn-error btn-outline md:btn-wide
                 btn-xs sm:btn-sm md:btn-md lg:btn-lg">
                 Выйти
-              </button> 
+              </button>
             </Form>
           </li>
         </menu>
