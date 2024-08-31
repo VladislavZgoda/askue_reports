@@ -1,4 +1,4 @@
-
+import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstationTable";
 
 type LoadDates = {
   privateDate: string;
@@ -9,5 +9,5 @@ type LoadDates = {
 export default async function loadData({
   privateDate, legalDate, odpyDate
 }: LoadDates) {
-  
+  const transSubs = await selectAllTransSubs();
 }

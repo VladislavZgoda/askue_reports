@@ -65,3 +65,12 @@ export async function updateTransSub(
     .set({ name, updated_at })
     .where(eq(TransformerSubstationTable.id, Number(id)))
 }
+
+export async function selectAllTransSubs() {
+  return await db
+    .select({
+      id: TransformerSubstationTable.id,
+      name: TransformerSubstationTable.name
+    })
+    .from(TransformerSubstationTable)
+}
