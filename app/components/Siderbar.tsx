@@ -35,7 +35,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
         .map(transSub =>
           <li key={transSub.id} className="mb-1.5">
             <NavLink
-              to={`/transformerSubstations/${transSub.id}`}
+              to={`/transformer-substations/${transSub.id}`}
               className={({ isActive, isPending }) =>
                 isActive
                   ? 'btn btn-info btn-active btn-wide text-base'

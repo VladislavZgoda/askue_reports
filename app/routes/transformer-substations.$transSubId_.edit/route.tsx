@@ -55,7 +55,7 @@ export const action = async ({
 
   try {
     await updateTransSub(params.transSubId, name);
-    return redirect(`/transformerSubstations/${params.transSubId}`);
+    return redirect(`/transformer-substations/${params.transSubId}`);
   } catch (error) {
     const err = checkNameConstrains(error, name);
     if (err) {
@@ -70,7 +70,7 @@ export default function EditTransformerSubstation() {
   const { transSub } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const formAction = `/transformerSubstations/${transSub.id}/edit`;
+  const formAction = `/transformer-substations/${transSub.id}/edit`;
   const isSubmitting =
     navigation.formAction === formAction;
 

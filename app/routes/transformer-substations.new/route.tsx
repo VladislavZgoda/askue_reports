@@ -30,7 +30,7 @@ export async function action({
   try {
     const transSub = await insertNewTS(name);
 
-    return redirect(`/transformerSubstations/${transSub.id}`);
+    return redirect(`/transformer-substations/${transSub.id}`);
   } catch (error) {
     const err = checkNameConstrains(error, name);
     if (err) {
