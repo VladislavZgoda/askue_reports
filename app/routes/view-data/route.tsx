@@ -4,6 +4,7 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import todayDate from "~/helpers/getDate";
 import { json } from '@remix-run/node';
+import loadData from "./.server/loadData";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await isNotAuthenticated(request);
@@ -19,7 +20,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
     odpyDate: odpyDate ?? todayDate()
   };
 
-  return json({ loadValues });
+  const data = await loadData(loadValues);
+
+  return json({ loadValues, data });
 }
 
 
