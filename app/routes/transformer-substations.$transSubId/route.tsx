@@ -71,14 +71,14 @@ export default function TransformerSubstation() {
             <ul>
               <li>
                 <NavigateForm
-                  actionName='addData'
+                  actionName='add-data'
                   btnText='Добавить данные'
                   onDelete={undefined}
                   methodType='get' />
               </li>
               <li>
                 <NavigateForm
-                  actionName='changeData'
+                  actionName='change-data'
                   btnText='Изменить данные'
                   onDelete={undefined}
                   methodType='get' />
