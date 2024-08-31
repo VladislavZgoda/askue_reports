@@ -1,5 +1,5 @@
 import logo from '../../images/logo.svg';
-import { Link, Form } from '@remix-run/react';
+import { Link, Form, NavLink } from '@remix-run/react';
 
 export default function Header() {
   return (
@@ -18,20 +18,20 @@ export default function Header() {
         <menu className='menu menu-horizontal bg-base-200 w-full rounded-xl gap-14'>
           <li>
             <div>
-              <Link to="/generate-reports" role="button"
-                className="btn btn-info btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg">
+              <NavLink to="/generate-reports" role="button"
+                className={({ isActive }) => `btn btn-info btn-outline md:btn-wide
+                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && 'btn-active'}`}>
                 Сформировать отчеты
-              </Link>
+              </NavLink>
             </div>
           </li>
           <li >
             <div>
-              <Link to="/view-data"
-                className="btn btn-info btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg">
+              <NavLink to="/view-data"
+                className={({isActive}) => `btn btn-info btn-outline md:btn-wide
+                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && 'btn-active'}`}>
                 Просмотр данных
-              </Link>
+              </NavLink>
             </div>
           </li>
           <li>
