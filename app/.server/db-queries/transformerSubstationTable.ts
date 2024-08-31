@@ -3,9 +3,7 @@ import { TransformerSubstationTable } from "../schema";
 import { eq, ilike } from 'drizzle-orm';
 import { searchString } from "../helpers/mutateString";
 
-export const insertNewTS = async (
-  name: string
-) => {
+export async function insertNewTS(name: string) {
   const transSub = await db
     .insert(TransformerSubstationTable)
     .values({ name })
@@ -15,11 +13,11 @@ export const insertNewTS = async (
     });
 
   return transSub[0];
-};
+}
 
-export const selectTransSubs = async (
+export async function selectTransSubs(
   searchParam: string | null
-) => {
+) {
   try {
     const q = searchString(searchParam);
 
@@ -37,11 +35,9 @@ export const selectTransSubs = async (
       cause: 'Cannot connect to db'
     });
   }
-};
+}
 
-export const selectTransSub = async (
-  id: string
-) => {
+export async function selectTransSub(id: string) {
   const transSubs = await db
     .select({
       id: TransformerSubstationTable.id,
@@ -51,22 +47,21 @@ export const selectTransSub = async (
     .where(eq(TransformerSubstationTable.id, Number(id)));
 
   return transSubs[0];
-};
+}
 
-export const deleteTransSub = async (id: string) => {
+export async function deleteTransSub(id: string) {
   await db
     .delete(TransformerSubstationTable)
     .where(eq(TransformerSubstationTable.id, Number(id)));
-};
+}
 
-export const updateTransSub = async (
-  id: string,
-  name: string
-) => {
+export async function updateTransSub(
+  id: string, name: string
+) {
   const updated_at = new Date();
 
   await db
     .update(TransformerSubstationTable)
     .set({ name, updated_at })
     .where(eq(TransformerSubstationTable.id, Number(id)))
-};
+}
