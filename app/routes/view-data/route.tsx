@@ -29,7 +29,29 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function ViewData() {
   const submit = useSubmit();
 
-  const { loadValues } = useLoaderData<typeof loader>();
+  const { loadValues, data } = useLoaderData<typeof loader>();
+
+  const transSubs = Object.keys(data).sort((a, b) =>
+    a.localeCompare(b, undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    })
+  );
+
+  const tableRows = transSubs.map((transSub, index) => 
+    <tr key={data[transSub].id} className="hover">
+      <th>{index + 1}</th>
+      <td>{transSub}</td>
+      <td>{data[transSub].private}</td>
+      <td>{data[transSub].legal}</td>
+      <td>{data[transSub].odpy}</td>
+      <td>{data[transSub].notInSystem}</td>
+      <td>
+        {data[transSub].private + data[transSub].legal 
+        + data[transSub].odpy + data[transSub].notInSystem}
+      </td>
+    </tr>
+  );
 
   return (
     <main>
@@ -43,9 +65,9 @@ export default function ViewData() {
         <DateInput labelText="ОДПУ" inputName="odpyDate" defValue={loadValues.odpyDate} />
       </Form>
 
-      <div className="overflow-x-auto w-[70%] mr-auto ml-auto mt-5">
+      <div className="overflow-x-auto w-[70%] max-h-[80vh] mr-auto ml-auto mt-5 mb-5">
         <table className="table table-lg">
-          <thead>
+          <thead className="sticky top-0 bg-base-200">
             <tr>
               <th></th>
               <th>ТП</th>
@@ -57,19 +79,10 @@ export default function ViewData() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <th>1</th>
-              <td>ТП-1</td>
-              <td>1</td>
-              <td>2</td>
-              <td>3</td>
-              <td>4</td>
-              <td>10</td>
-            </tr>
+            {tableRows}
           </tbody>
         </table>
       </div>
     </main>
-
   );
 }

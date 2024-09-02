@@ -86,12 +86,13 @@ export default async function loadData({
       });
 
       data[name] = {
+        id,
         private: privateMeters,
         legal: legalMetersSims + legalMetersP2,
         odpy: odpyMetersSims + odpyMetersP2,
         notInSystem: notInSystemPrivate + notInSystemLegalSims
           + notInSystemLegalP2 + notInSystemOdpySims
-          + notInSystemOdpyP2
+          + notInSystemOdpyP2,
       };
     })
   );
