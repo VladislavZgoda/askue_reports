@@ -21,78 +21,80 @@ export default async function loadData({
 
   const data: DataType = {};
 
-  await Promise.all(transSubs.map(async ({ id, name }) => {
-    const transformerSubstationId = id;
+  await Promise.all(
+    transSubs.map(async ({ id, name }) => {
+      const transformerSubstationId = id;
 
-    const privateMeters = selectMetersOnDate({
-      type: 'Быт',
-      date: privateDate,
-      transformerSubstationId
-    });
+      const privateMeters = await selectMetersOnDate({
+        type: 'Быт',
+        date: privateDate,
+        transformerSubstationId
+      });
 
-    const legalMetersSims = selectMetersOnDate({
-      type: 'ЮР Sims',
-      date: legalDate,
-      transformerSubstationId
-    });
+      const legalMetersSims = await selectMetersOnDate({
+        type: 'ЮР Sims',
+        date: legalDate,
+        transformerSubstationId
+      });
 
-    const legalMetersP2 = selectMetersOnDate({
-      type: 'ЮР П2',
-      date: legalDate,
-      transformerSubstationId
-    });
+      const legalMetersP2 = await selectMetersOnDate({
+        type: 'ЮР П2',
+        date: legalDate,
+        transformerSubstationId
+      });
 
-    const odpyMetersSims = selectMetersOnDate({
-      type: 'ОДПУ Sims',
-      date: odpyDate,
-      transformerSubstationId
-    });
+      const odpyMetersSims = await selectMetersOnDate({
+        type: 'ОДПУ Sims',
+        date: odpyDate,
+        transformerSubstationId
+      });
 
-    const odpyMetersP2 = selectMetersOnDate({
-      type: 'ОДПУ П2',
-      date: odpyDate,
-      transformerSubstationId
-    });
+      const odpyMetersP2 = await selectMetersOnDate({
+        type: 'ОДПУ П2',
+        date: odpyDate,
+        transformerSubstationId
+      });
 
-    const notInSystemPrivate = selectNotInSystemOnDate({
-      type: 'Быт',
-      date: privateDate,
-      transformerSubstationId
-    });
+      const notInSystemPrivate = await selectNotInSystemOnDate({
+        type: 'Быт',
+        date: privateDate,
+        transformerSubstationId
+      });
 
-    const notInSystemLegalSims = selectNotInSystemOnDate({
-      type: 'ЮР Sims',
-      date: legalDate,
-      transformerSubstationId
-    });
+      const notInSystemLegalSims = await selectNotInSystemOnDate({
+        type: 'ЮР Sims',
+        date: legalDate,
+        transformerSubstationId
+      });
 
-    const notInSystemLegalP2 = selectNotInSystemOnDate({
-      type: 'ЮР П2',
-      date: legalDate,
-      transformerSubstationId
-    });
+      const notInSystemLegalP2 = await selectNotInSystemOnDate({
+        type: 'ЮР П2',
+        date: legalDate,
+        transformerSubstationId
+      });
 
-    const notInSystemOdpySims = selectNotInSystemOnDate({
-      type: 'ОДПУ Sims',
-      date: odpyDate,
-      transformerSubstationId
-    });
+      const notInSystemOdpySims = await selectNotInSystemOnDate({
+        type: 'ОДПУ Sims',
+        date: odpyDate,
+        transformerSubstationId
+      });
 
-    const notInSystemOdpyP2 = selectNotInSystemOnDate({
-      type: 'ОДПУ П2',
-      date: odpyDate,
-      transformerSubstationId
-    });
+      const notInSystemOdpyP2 = await selectNotInSystemOnDate({
+        type: 'ОДПУ П2',
+        date: odpyDate,
+        transformerSubstationId
+      });
 
-    data[name] = {
-      private: await privateMeters,
-      legal: await legalMetersSims + await legalMetersP2,
-      odpy: await odpyMetersSims + await odpyMetersP2,
-      notInSystem: await notInSystemPrivate + await notInSystemLegalSims
-        + await notInSystemLegalP2 + await notInSystemOdpySims
-        + await notInSystemOdpyP2
-    };
-  }));
+      data[name] = {
+        private: privateMeters,
+        legal: legalMetersSims + legalMetersP2,
+        odpy: odpyMetersSims + odpyMetersP2,
+        notInSystem: notInSystemPrivate + notInSystemLegalSims
+          + notInSystemLegalP2 + notInSystemOdpySims
+          + notInSystemOdpyP2
+      };
+    })
+  );
 
   return data;
 }
