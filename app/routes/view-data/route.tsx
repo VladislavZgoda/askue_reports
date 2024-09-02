@@ -53,9 +53,18 @@ export default function ViewData() {
     </tr>
   );
 
+  const totalInSystem = transSubs.reduce((sum, transSub) => 
+    sum + data[transSub].private + data[transSub].legal 
+    + data[transSub].odpy, 0
+  );
+
+  const totalCount = transSubs.reduce((sum, transSub) => 
+    sum + data[transSub].notInSystem, 0
+  ) + totalInSystem;
+
   return (
-    <main>
-      <Form className="mt-5 flex justify-between w-[70%] mr-auto ml-auto"
+    <main className="w-[70%] mr-auto ml-auto">
+      <Form className="mt-5 flex justify-between"
         onChange={(e) => {
           submit(e.currentTarget);
         }}
@@ -65,7 +74,7 @@ export default function ViewData() {
         <DateInput labelText="ОДПУ" inputName="odpyDate" defValue={loadValues.odpyDate} />
       </Form>
 
-      <div className="overflow-x-auto w-[70%] max-h-[80vh] mr-auto ml-auto mt-5 mb-5">
+      <div className="overflow-x-auto max-h-[70vh] mt-5 mb-10">
         <table className="table table-lg">
           <thead className="sticky top-0 bg-base-200">
             <tr>
@@ -82,6 +91,15 @@ export default function ViewData() {
             {tableRows}
           </tbody>
         </table>
+      </div>
+
+      <div className="mb-5 flex flex-col items-end">
+        <p>
+          Всего с возможностью опроса через ПО: <span className="font-bold">{totalInSystem}</span>
+        </p>
+        <p className="mt-2">
+          Общее количество ТУ с возможностью опроса: <span className="font-bold">{totalCount}</span>
+        </p>
       </div>
     </main>
   );
