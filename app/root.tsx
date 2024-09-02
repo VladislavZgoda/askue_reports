@@ -62,7 +62,7 @@ export function Layout({
           : 'font-sans bg-base-200 box-border'}`}>
 
         {!routes.includes(matches[1]?.id)
-        && <MainLayout transSubs={data?.transSubs} q={data.q} />}
+        && <MainLayout transSubs={data?.transSubs} q={data?.q} />}
 
         {children}
         <ScrollRestoration />
@@ -97,7 +97,7 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error)) {
     return (
-      <div>
+      <div className="text-error text-2xl ml-5 mt-5">
         <h1>
           {error.status} {error.statusText}
         </h1>
@@ -106,7 +106,7 @@ export function ErrorBoundary() {
     );
   } else if (error instanceof Error) {
     return (
-      <div>
+      <div className="text-error text-2xl ml-5 mt-5">
         <h1>{ error.name }</h1>
         <p>{error.message}</p>
       </div>
