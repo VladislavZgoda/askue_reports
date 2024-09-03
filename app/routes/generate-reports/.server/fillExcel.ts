@@ -9,15 +9,17 @@ type FormDates = {
 export default async function fillExcel(dates: FormDates) {
   const excel = new exceljs.Workbook();
 
-  const templatePath = 'app/routes/generate-reports/.server/workbooks/private_sector.xlsx';
-  const copyPath = 'app/routes/generate-reports/.server/filled-reports/private_sector.xlsx';
+  const path = 'app/routes/generate-reports/.server/';
+
+  const templatePath = path + 'workbooks/private_sector.xlsx';
+  const savePath = path + 'filled-reports/private_sector.xlsx';
 
   const privateSectorWB = await excel.xlsx.readFile(templatePath);
   const privateSectorSheet = privateSectorWB.worksheets[0];
 
   privateSectorSheet.getCell('B3').value = 2;
 
-  await excel.xlsx.writeFile(copyPath);
+  await excel.xlsx.writeFile(savePath);
 
   // privateSectorSheet.getColumn('A').eachCell(
   //   (cell, rowNumber) => {
