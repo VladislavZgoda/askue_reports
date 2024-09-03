@@ -1,15 +1,19 @@
 import exceljs from 'exceljs';
 import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTable';
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
+import fs from 'fs';
+import path from 'path';
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
 };
 
 export default async function fillExcel(dates: FormDates) {
-  const excel = new exceljs.Workbook();
-
   const path = 'app/routes/generate-reports/.server/';
+
+  cleanUp(path);
+
+  const excel = new exceljs.Workbook();
 
   const templatePath = path + 'workbooks/private_sector.xlsx';
   const savePath = path + 'filled-reports/private_sector.xlsx';
@@ -26,4 +30,22 @@ export default async function fillExcel(dates: FormDates) {
   //     console.log(cell.value, rowNumber);
   //   }
   // );
+}
+
+function cleanUp(dirPath: string) {
+  const directory = dirPath + 'filled-reports/';
+
+  if (fs.existsSync(directory)) {
+    fs.readdir(directory, (err, files) => {
+      if (err) throw err;
+
+      for (const file of files) {
+        fs.unlink(path.join(directory, file), (err) => {
+          if (err) throw err;
+        });
+      }
+    });
+  } else {
+    fs.mkdirSync(directory);
+   }
 }
