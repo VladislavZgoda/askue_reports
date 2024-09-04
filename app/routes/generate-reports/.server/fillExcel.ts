@@ -47,5 +47,5 @@ function cleanUp(dirPath: string) {
     });
   } else {
     fs.mkdirSync(directory);
-   }
+  }
 }
