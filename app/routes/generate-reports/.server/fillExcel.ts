@@ -3,6 +3,7 @@ import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTa
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
 import fs from 'fs';
 import path from 'path';
+import type { BalanceType } from '~/types';
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
@@ -13,6 +14,8 @@ export default async function fillExcel(dates: FormDates) {
 
   cleanUp(path);
 
+  const transSubs = await selectAllTransSubs();
+
   const excel = new exceljs.Workbook();
 
   const templatePath = path + 'workbooks/private_sector.xlsx';
@@ -20,16 +23,31 @@ export default async function fillExcel(dates: FormDates) {
 
   const privateSectorWB = await excel.xlsx.readFile(templatePath);
   const privateSectorSheet = privateSectorWB.worksheets[0];
+  
+  const privateMeters = await selectMeters(
+    transSubs, 'Быт', dates.privateDate
+  );
+  
 
-  privateSectorSheet.getCell('B3').value = 2;
+  privateSectorSheet.getColumn('A').eachCell(
+    (cell, rowNumber) => {
+      const transSub = String(cell.value).trim();
+
+      if (!transSub.startsWith('ТП')) return;
+      
+      if (transSub in privateMeters) {
+        privateSectorSheet
+          .getCell('B' + rowNumber)
+          .value = privateMeters[transSub];
+      } else {
+        privateSectorSheet
+          .getCell('B' + rowNumber)
+          .value = 0;
+      }
+    }
+  );
 
   await excel.xlsx.writeFile(savePath);
-
-  // privateSectorSheet.getColumn('A').eachCell(
-  //   (cell, rowNumber) => {
-  //     console.log(cell.value, rowNumber);
-  //   }
-  // );
 }
 
 function cleanUp(dirPath: string) {
@@ -48,4 +66,29 @@ function cleanUp(dirPath: string) {
   } else {
     fs.mkdirSync(directory);
   }
+}
+
+type TransSubs = {
+  id: number;
+  name: string;
+}[];
+
+async function selectMeters(
+  transSubs: TransSubs, 
+  type: BalanceType, 
+  date: FormDataEntryValue,
+) {
+  const meters: {[k: string]: number} = {};
+
+  for (const transSub of transSubs) {
+    const quantity = await selectMetersOnDate({
+      type,
+      date: date as string,
+      transformerSubstationId: transSub.id
+    });
+
+    meters[transSub.name] = quantity;
+  }
+
+  return meters;
 }
