@@ -1,6 +1,7 @@
 import exceljs from 'exceljs';
 import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTable';
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
+import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
 import fs from 'fs';
 import path from 'path';
 import type { BalanceType } from '~/types';
@@ -24,8 +25,15 @@ export default async function fillExcel(dates: FormDates) {
     transSubs, dates.legalDate
   );
 
+  const notInSystem = await getNotInSystem(
+    transSubs, dates
+  );
+  
   await handlePrivateSector(path, privateMeters);
-  await handleReport(path, privateMeters, legalMeters);
+  
+  await handleReport({
+    path, privateMeters, legalMeters, notInSystem
+  });
 }
 
 function cleanUp(dirPath: string) {
@@ -101,11 +109,16 @@ async function handlePrivateSector(
   await excel.xlsx.writeFile(savePath);
 }
 
-async function handleReport(
+type ReportType = {
   path: string, 
   privateMeters: Meters,
-  legalMeters: DifferentMeters
-) {
+  legalMeters: DifferentMeters,
+  notInSystem: Meters
+}
+
+async function handleReport({
+  path, privateMeters, legalMeters, notInSystem
+}: ReportType) {
   const excel = new exceljs.Workbook();
 
   const templatePath = path + 'workbooks/report.xlsx';
@@ -126,11 +139,13 @@ async function handleReport(
         + legalMeters['p2'][transSub]) || 0;
 
       const p2 = legalMeters['p2'][transSub] ?? 0;
+      const notInSystemMeters = notInSystem[transSub] ?? 0;
 
       reportSheet.getCell('H' + rowNumber).value = privateM + legalM;  
       reportSheet.getCell('I' + rowNumber).value = privateM;
       reportSheet.getCell('J' + rowNumber).value = legalM;        
       reportSheet.getCell('K' + rowNumber).value = p2;
+      reportSheet.getCell('P' + rowNumber).value = notInSystemMeters;
     }
   );
 
@@ -154,5 +169,56 @@ async function selectLegalMeters(
     sims, p2
   };
   
+  return meters;
+}
+
+async function selectNotInSystem(
+  transSubs: TransSubs, 
+  type: BalanceType, 
+  date: FormDataEntryValue,
+) {
+  const meters: Meters = {};
+
+  for (const transSub of transSubs) {
+    const quantity = await selectNotInSystemOnDate({
+      type,
+      date: date as string,
+      transformerSubstationId: transSub.id
+    });
+
+    meters[transSub.name] = quantity;
+  }
+
+  return meters;
+}
+
+async function getNotInSystem(
+  transSubs: TransSubs,
+  dates: FormDates
+) {
+  const privateMeters = await selectNotInSystem(
+    transSubs, 'Быт', dates.privateDate
+  );
+
+  const legalMetersSims = await selectNotInSystem(
+    transSubs, 'ЮР Sims', dates.legalDate
+  );
+
+  const legalMetersP2 = await selectNotInSystem(
+    transSubs, 'ЮР П2', dates.legalDate
+  );
+
+  const meters: Meters = {};
+
+  for (const transSub of transSubs) {
+    const name = transSub.name;
+
+    const privateM = privateMeters[name];
+    const legalSims = legalMetersSims[name];
+    const legalP2 = legalMetersP2[name];
+
+    meters[name] = privateM + legalSims + legalP2;
+  }
+
   return meters;
 }
