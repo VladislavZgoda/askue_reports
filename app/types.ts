@@ -106,7 +106,7 @@ export type DisabledLegalMetersAction = {
 export type DisabledLegalMetersValues = {
   quantity: number,
   transformerSubstationId: number
-}
+};
 
 export interface FailedMetersValues extends DisabledLegalMetersValues {
   type: BalanceType
