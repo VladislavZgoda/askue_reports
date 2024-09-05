@@ -104,7 +104,7 @@ async function handlePrivateSector(
 async function handleReport(
   path: string, 
   privateMeters: Meters,
-  legalMeters: Meters
+  legalMeters: DifferentMeters
 ) {
   const excel = new exceljs.Workbook();
 
@@ -130,6 +130,11 @@ async function handleReport(
   await excel.xlsx.writeFile(savePath);
 }
 
+type DifferentMeters = {
+  sims: Meters;
+  p2: Meters;
+};
+
 async function selectLegalMeters(
   transSubs: TransSubs,
   date: FormDataEntryValue,
@@ -137,11 +142,9 @@ async function selectLegalMeters(
   const sims = await selectMeters(transSubs, 'ЮР Sims', date);
   const p2 = await selectMeters(transSubs, 'ЮР П2', date);
 
-  const meters: Meters = {};
-
-  for (const transSub of Object.keys(sims)) {
-    meters[transSub] = sims[transSub] + p2[transSub];
-  }
+  const meters: DifferentMeters = {
+    sims, p2
+  };
   
   return meters;
 }
