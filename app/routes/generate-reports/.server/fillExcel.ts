@@ -20,8 +20,12 @@ export default async function fillExcel(dates: FormDates) {
     transSubs, 'Быт', dates.privateDate
   );
 
+  const legalMeters = await selectLegalMeters(
+    transSubs, dates.legalDate
+  );
+
   await handlePrivateSector(path, privateMeters);
-  await handleReport(path, privateMeters);
+  await handleReport(path, privateMeters, legalMeters);
 }
 
 function cleanUp(dirPath: string) {
@@ -99,7 +103,8 @@ async function handlePrivateSector(
 
 async function handleReport(
   path: string, 
-  privateMeters: Meters
+  privateMeters: Meters,
+  legalMeters: Meters
 ) {
   const excel = new exceljs.Workbook();
 
@@ -123,4 +128,20 @@ async function handleReport(
   );
 
   await excel.xlsx.writeFile(savePath);
+}
+
+async function selectLegalMeters(
+  transSubs: TransSubs,
+  date: FormDataEntryValue,
+) {
+  const sims = await selectMeters(transSubs, 'ЮР Sims', date);
+  const p2 = await selectMeters(transSubs, 'ЮР П2', date);
+
+  const meters: Meters = {};
+
+  for (const transSub of Object.keys(sims)) {
+    meters[transSub] = sims[transSub] + p2[transSub];
+  }
+  
+  return meters;
 }
