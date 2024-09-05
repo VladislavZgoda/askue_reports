@@ -85,16 +85,10 @@ async function handlePrivateSector(
       const transSub = String(cell.value).trim();
 
       if (!transSub.startsWith('ТП')) return;
-      
-      if (transSub in privateMeters) {
-        privateSectorSheet
+
+      privateSectorSheet
           .getCell('B' + rowNumber)
-          .value = privateMeters[transSub];
-      } else {
-        privateSectorSheet
-          .getCell('B' + rowNumber)
-          .value = 0;
-      }
+          .value = privateMeters[transSub] ?? 0;
     }
   );
 
