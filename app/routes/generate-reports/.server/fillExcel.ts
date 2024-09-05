@@ -84,7 +84,6 @@ async function handlePrivateSector(
 
   const privateSectorWB = await excel.xlsx.readFile(templatePath);
   const privateSectorSheet = privateSectorWB.worksheets[0];
-  privateSectorSheet.removeConditionalFormatting('');
   
   privateSectorSheet.getColumn('A').eachCell(
     (cell, rowNumber) => {
@@ -93,11 +92,12 @@ async function handlePrivateSector(
       if (!transSub.startsWith('ТП')) return;
 
       privateSectorSheet
-          .getCell('B' + rowNumber)
-          .value = privateMeters[transSub] ?? 0;
+        .getCell('B' + rowNumber)
+        .value = privateMeters[transSub] ?? 0;
     }
   );
 
+  privateSectorSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
 
@@ -113,7 +113,6 @@ async function handleReport(
 
   const reportWB = await excel.xlsx.readFile(templatePath);
   const reportSheet = reportWB.worksheets[0];
-  reportSheet.removeConditionalFormatting('');
 
   reportSheet.getColumn('B').eachCell(
     (cell, rowNumber) => {
@@ -121,12 +120,21 @@ async function handleReport(
 
       if (!transSub.startsWith('ТП')) return;
 
-      reportSheet
-          .getCell('I' + rowNumber)
-          .value = privateMeters[transSub] ?? 0;
+      const privateM = privateMeters[transSub] ?? 0;
+      
+      const legalM = (legalMeters['sims'][transSub] 
+        + legalMeters['p2'][transSub]) || 0;
+
+      const p2 = legalMeters['p2'][transSub] ?? 0;
+
+      reportSheet.getCell('H' + rowNumber).value = privateM + legalM;  
+      reportSheet.getCell('I' + rowNumber).value = privateM;
+      reportSheet.getCell('J' + rowNumber).value = legalM;        
+      reportSheet.getCell('K' + rowNumber).value = p2;
     }
   );
 
+  reportSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
 
