@@ -20,7 +20,8 @@ export default async function fillExcel(dates: FormDates) {
     transSubs, 'Быт', dates.privateDate
   );
 
-  await handlePrivateSector(path, privateMeters)
+  await handlePrivateSector(path, privateMeters);
+  await handleReport(path, privateMeters);
 }
 
 function cleanUp(dirPath: string) {
@@ -79,6 +80,7 @@ async function handlePrivateSector(
 
   const privateSectorWB = await excel.xlsx.readFile(templatePath);
   const privateSectorSheet = privateSectorWB.worksheets[0];
+  privateSectorSheet.removeConditionalFormatting('');
   
   privateSectorSheet.getColumn('A').eachCell(
     (cell, rowNumber) => {
@@ -88,6 +90,34 @@ async function handlePrivateSector(
 
       privateSectorSheet
           .getCell('B' + rowNumber)
+          .value = privateMeters[transSub] ?? 0;
+    }
+  );
+
+  await excel.xlsx.writeFile(savePath);
+}
+
+async function handleReport(
+  path: string, 
+  privateMeters: Meters
+) {
+  const excel = new exceljs.Workbook();
+
+  const templatePath = path + 'workbooks/report.xlsx';
+  const savePath = path + 'filled-reports/report.xlsx';
+
+  const reportWB = await excel.xlsx.readFile(templatePath);
+  const reportSheet = reportWB.worksheets[0];
+  reportSheet.removeConditionalFormatting('');
+
+  reportSheet.getColumn('B').eachCell(
+    (cell, rowNumber) => {
+      const transSub = String(cell.value).trim();
+
+      if (!transSub.startsWith('ТП')) return;
+
+      reportSheet
+          .getCell('I' + rowNumber)
           .value = privateMeters[transSub] ?? 0;
     }
   );
