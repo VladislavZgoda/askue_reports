@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { NewMonthMetersTable } from "../schema";
-import { eq, and, desc, gt, lt } from "drizzle-orm";
+import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
 import type {
   MonthMetersValues,
   SelectMonthQuantity,
@@ -198,4 +198,31 @@ export async function getMonthMetersForInsert({
     .limit(1);
 
   return record;
+}
+
+export async function selectMonthMetersOnDate({
+  type,
+  date,
+  transformerSubstationId,
+  month,
+  year
+}: SelectMonthQuantity) {
+  const record = await db
+    .select({
+      quantity: NewMonthMetersTable.quantity,
+      added_to_system: NewMonthMetersTable.added_to_system
+    })
+    .from(NewMonthMetersTable)
+    .where(and(
+      eq(NewMonthMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      lte(NewMonthMetersTable.date, date),
+      eq(NewMonthMetersTable.type, type),
+      eq(NewMonthMetersTable.month, month),
+      eq(NewMonthMetersTable.year, year)
+    ))
+    .orderBy(desc(NewMonthMetersTable.date))
+    .limit(1);
+
+  return record[0];
 }
