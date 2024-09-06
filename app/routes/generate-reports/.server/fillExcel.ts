@@ -2,7 +2,7 @@ import exceljs from 'exceljs';
 import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTable';
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
 import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
-import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable'; 
+import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable';
 import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
 import fs from 'fs';
 import path from 'path';
@@ -30,11 +30,11 @@ export default async function fillExcel(dates: FormDates) {
   const notInSystem = await getNotInSystem(
     transSubs, dates
   );
-  
+
   await handlePrivateSector(path, privateMeters);
-  
+
   await handleReport({
-    path, privateMeters, 
+    path, privateMeters,
     legalMeters, notInSystem,
     transSubs, dates
   });
@@ -66,8 +66,8 @@ type TransSubs = {
 type Meters = { [k: string]: number };
 
 async function selectMeters(
-  transSubs: TransSubs, 
-  type: BalanceType, 
+  transSubs: TransSubs,
+  type: BalanceType,
   date: FormDataEntryValue,
 ) {
   const meters: Meters = {};
@@ -86,7 +86,7 @@ async function selectMeters(
 }
 
 async function handlePrivateSector(
-  path: string, 
+  path: string,
   privateMeters: Meters
 ) {
   const excel = new exceljs.Workbook();
@@ -96,7 +96,7 @@ async function handlePrivateSector(
 
   const privateSectorWB = await excel.xlsx.readFile(templatePath);
   const privateSectorSheet = privateSectorWB.worksheets[0];
-  
+
   privateSectorSheet.getColumn('A').eachCell(
     (cell, rowNumber) => {
       const transSub = String(cell.value).trim();
@@ -114,16 +114,16 @@ async function handlePrivateSector(
 }
 
 type ReportType = {
-  path: string, 
+  path: string,
   privateMeters: Meters,
   legalMeters: DifferentMeters,
   notInSystem: Meters,
-  transSubs: TransSubs, 
+  transSubs: TransSubs,
   dates: FormDates
 }
 
 async function handleReport({
-  path, privateMeters, 
+  path, privateMeters,
   legalMeters, notInSystem,
   transSubs, dates
 }: ReportType) {
@@ -135,7 +135,15 @@ async function handleReport({
   const reportWB = await excel.xlsx.readFile(templatePath);
   const reportSheet = reportWB.worksheets[0];
 
-  const yearMeters = await getYearMeters(transSubs, dates); 
+  const yearMeters = await selectPeriodMeters({
+    transSubs, dates,
+    func: selectYearMeters
+  });
+
+  const monthMeters = await selectPeriodMeters({
+    transSubs, dates,
+    func: selectMonthMeters
+  });
 
   reportSheet.getColumn('B').eachCell(
     (cell, rowNumber) => {
@@ -144,8 +152,8 @@ async function handleReport({
       if (!transSub.startsWith('ТП')) return;
 
       const privateM = privateMeters[transSub] ?? 0;
-      
-      const legalM = (legalMeters['sims'][transSub] 
+
+      const legalM = (legalMeters['sims'][transSub]
         + legalMeters['p2'][transSub]) || 0;
 
       const p2 = legalMeters['p2'][transSub] ?? 0;
@@ -154,13 +162,18 @@ async function handleReport({
       const yearQuantity = yearMeters[transSub]?.quantity ?? 0;
       const yearInSystem = yearMeters[transSub]?.added_to_system ?? 0;
 
-      reportSheet.getCell('H' + rowNumber).value = privateM + legalM;  
+      const monthQuantity = monthMeters[transSub]?.quantity ?? 0;
+      const monthInSystem = monthMeters[transSub]?.added_to_system ?? 0;
+
+      reportSheet.getCell('H' + rowNumber).value = privateM + legalM;
       reportSheet.getCell('I' + rowNumber).value = privateM;
-      reportSheet.getCell('J' + rowNumber).value = legalM;        
+      reportSheet.getCell('J' + rowNumber).value = legalM;
       reportSheet.getCell('K' + rowNumber).value = p2;
       reportSheet.getCell('P' + rowNumber).value = notInSystemMeters;
       reportSheet.getCell('Q' + rowNumber).value = yearQuantity;
       reportSheet.getCell('R' + rowNumber).value = yearInSystem;
+      reportSheet.getCell('S' + rowNumber).value = monthQuantity;
+      reportSheet.getCell('T' + rowNumber).value = monthInSystem;
     }
   );
 
@@ -183,13 +196,13 @@ async function selectLegalMeters(
   const meters: DifferentMeters = {
     sims, p2
   };
-  
+
   return meters;
 }
 
 async function selectNotInSystem(
-  transSubs: TransSubs, 
-  type: BalanceType, 
+  transSubs: TransSubs,
+  type: BalanceType,
   date: FormDataEntryValue,
 ) {
   const meters: Meters = {};
@@ -250,8 +263,8 @@ type PeriodMeters = {
 };
 
 async function selectYearMeters(
-  transSubs: TransSubs, 
-  type: BalanceType, 
+  transSubs: TransSubs,
+  type: BalanceType,
   date: FormDataEntryValue,
 ) {
   const meters: PeriodMeters = {};
@@ -272,19 +285,54 @@ async function selectYearMeters(
   return meters;
 }
 
-async function getYearMeters(
+function cutOutMonth(date: FormDataEntryValue) {
+  return String(date).slice(5, 7);
+}
+
+async function selectMonthMeters(
   transSubs: TransSubs,
-  dates: FormDates
+  type: BalanceType,
+  date: FormDataEntryValue,
 ) {
-  const privateMeters = await selectYearMeters(
+  const meters: PeriodMeters = {};
+
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
+
+  for (const transSub of transSubs) {
+    const data = await selectMonthMetersOnDate({
+      type,
+      date: date as string,
+      transformerSubstationId: transSub.id,
+      month,
+      year
+    });
+
+    meters[transSub.name] = data;
+  }
+
+  return meters;
+}
+
+type SelectPeriodMeters = {
+  transSubs: TransSubs,
+  dates: FormDates,
+  func: (transSubs: TransSubs, type: BalanceType,
+    date: FormDataEntryValue) => Promise<PeriodMeters>
+};
+
+async function selectPeriodMeters({
+  transSubs, dates, func
+}: SelectPeriodMeters) {
+  const privateMeters = await func(
     transSubs, 'Быт', dates.privateDate
   );
 
-  const legalMetersSims = await selectYearMeters(
+  const legalMetersSims = await func(
     transSubs, 'ЮР Sims', dates.legalDate
   );
 
-  const legalMetersP2 = await selectYearMeters(
+  const legalMetersP2 = await func(
     transSubs, 'ЮР П2', dates.legalDate
   );
 
@@ -297,12 +345,12 @@ async function getYearMeters(
     const legalSims = legalMetersSims[name];
     const legalP2 = legalMetersP2[name];
 
-    const quantity = (privateM?.quantity ?? 0) 
-    + (legalSims?.quantity ?? 0) + (legalP2?.quantity ?? 0);
+    const quantity = (privateM?.quantity ?? 0)
+      + (legalSims?.quantity ?? 0) + (legalP2?.quantity ?? 0);
 
     const added_to_system = (privateM?.added_to_system ?? 0)
-    + (legalSims?.added_to_system ?? 0) + (legalP2?.added_to_system ?? 0);
-    
+      + (legalSims?.added_to_system ?? 0) + (legalP2?.added_to_system ?? 0);
+
     meters[name] = { quantity, added_to_system };
   }
 
