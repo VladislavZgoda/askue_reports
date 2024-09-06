@@ -2,6 +2,8 @@ import exceljs from 'exceljs';
 import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTable';
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
 import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
+import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable'; 
+import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
 import fs from 'fs';
 import path from 'path';
 import type { BalanceType } from '~/types';
@@ -32,7 +34,9 @@ export default async function fillExcel(dates: FormDates) {
   await handlePrivateSector(path, privateMeters);
   
   await handleReport({
-    path, privateMeters, legalMeters, notInSystem
+    path, privateMeters, 
+    legalMeters, notInSystem,
+    transSubs, dates
   });
 }
 
@@ -113,11 +117,15 @@ type ReportType = {
   path: string, 
   privateMeters: Meters,
   legalMeters: DifferentMeters,
-  notInSystem: Meters
+  notInSystem: Meters,
+  transSubs: TransSubs, 
+  dates: FormDates
 }
 
 async function handleReport({
-  path, privateMeters, legalMeters, notInSystem
+  path, privateMeters, 
+  legalMeters, notInSystem,
+  transSubs, dates
 }: ReportType) {
   const excel = new exceljs.Workbook();
 
@@ -126,6 +134,8 @@ async function handleReport({
 
   const reportWB = await excel.xlsx.readFile(templatePath);
   const reportSheet = reportWB.worksheets[0];
+
+  const yearMeters = await getYearMeters(transSubs, dates); 
 
   reportSheet.getColumn('B').eachCell(
     (cell, rowNumber) => {
@@ -141,11 +151,16 @@ async function handleReport({
       const p2 = legalMeters['p2'][transSub] ?? 0;
       const notInSystemMeters = notInSystem[transSub] ?? 0;
 
+      const yearQuantity = yearMeters[transSub]?.quantity ?? 0;
+      const yearInSystem = yearMeters[transSub]?.added_to_system ?? 0;
+
       reportSheet.getCell('H' + rowNumber).value = privateM + legalM;  
       reportSheet.getCell('I' + rowNumber).value = privateM;
       reportSheet.getCell('J' + rowNumber).value = legalM;        
       reportSheet.getCell('K' + rowNumber).value = p2;
       reportSheet.getCell('P' + rowNumber).value = notInSystemMeters;
+      reportSheet.getCell('Q' + rowNumber).value = yearQuantity;
+      reportSheet.getCell('R' + rowNumber).value = yearInSystem;
     }
   );
 
@@ -218,6 +233,77 @@ async function getNotInSystem(
     const legalP2 = legalMetersP2[name];
 
     meters[name] = privateM + legalSims + legalP2;
+  }
+
+  return meters;
+}
+
+function cutOutYear(date: FormDataEntryValue) {
+  return Number(date.slice(0, 4));
+}
+
+type PeriodMeters = {
+  [k: string]: {
+    quantity: number;
+    added_to_system: number;
+  };
+};
+
+async function selectYearMeters(
+  transSubs: TransSubs, 
+  type: BalanceType, 
+  date: FormDataEntryValue,
+) {
+  const meters: PeriodMeters = {};
+
+  const year = cutOutYear(date);
+
+  for (const transSub of transSubs) {
+    const data = await selectYearMetersOnDate({
+      type,
+      date: date as string,
+      transformerSubstationId: transSub.id,
+      year
+    });
+
+    meters[transSub.name] = data;
+  }
+
+  return meters;
+}
+
+async function getYearMeters(
+  transSubs: TransSubs,
+  dates: FormDates
+) {
+  const privateMeters = await selectYearMeters(
+    transSubs, 'Быт', dates.privateDate
+  );
+
+  const legalMetersSims = await selectYearMeters(
+    transSubs, 'ЮР Sims', dates.legalDate
+  );
+
+  const legalMetersP2 = await selectYearMeters(
+    transSubs, 'ЮР П2', dates.legalDate
+  );
+
+  const meters: PeriodMeters = {};
+
+  for (const transSub of transSubs) {
+    const name = transSub.name;
+
+    const privateM = privateMeters[name];
+    const legalSims = legalMetersSims[name];
+    const legalP2 = legalMetersP2[name];
+
+    const quantity = (privateM?.quantity ?? 0) 
+    + (legalSims?.quantity ?? 0) + (legalP2?.quantity ?? 0);
+
+    const added_to_system = (privateM?.added_to_system ?? 0)
+    + (legalSims?.added_to_system ?? 0) + (legalP2?.added_to_system ?? 0);
+    
+    meters[name] = { quantity, added_to_system };
   }
 
   return meters;
