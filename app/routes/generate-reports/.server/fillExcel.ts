@@ -6,7 +6,7 @@ import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable'
 import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
 import fs from 'fs';
 import path from 'path';
-import type { BalanceType } from '~/types';
+import type { BalanceType, CheckRecordValues } from '~/types';
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
@@ -19,15 +19,18 @@ export default async function fillExcel(dates: FormDates) {
 
   const transSubs = await selectAllTransSubs();
 
-  const privateMeters = await selectMeters(
-    transSubs, 'Быт', dates.privateDate
-  );
+  const privateMeters = await selectMeters({
+    transSubs,
+    type: 'Быт',
+    date: dates.privateDate,
+    func: selectMetersOnDate
+  });
 
   const legalMeters = await selectLegalMeters(
     transSubs, dates.legalDate
   );
 
-  const notInSystem = await getNotInSystem(
+  const notInSystem = await selectNotInSystem(
     transSubs, dates
   );
 
@@ -65,15 +68,21 @@ type TransSubs = {
 
 type Meters = { [k: string]: number };
 
-async function selectMeters(
+type SelectMeters = {
   transSubs: TransSubs,
   type: BalanceType,
   date: FormDataEntryValue,
-) {
+  func: ({ type, date, transformerSubstationId }
+    : CheckRecordValues) => Promise<number>;
+};
+
+async function selectMeters({
+  transSubs, type, date, func
+}: SelectMeters) {
   const meters: Meters = {};
 
   for (const transSub of transSubs) {
-    const quantity = await selectMetersOnDate({
+    const quantity = await func({
       type,
       date: date as string,
       transformerSubstationId: transSub.id
@@ -190,8 +199,19 @@ async function selectLegalMeters(
   transSubs: TransSubs,
   date: FormDataEntryValue,
 ) {
-  const sims = await selectMeters(transSubs, 'ЮР Sims', date);
-  const p2 = await selectMeters(transSubs, 'ЮР П2', date);
+  const sims = await selectMeters({
+    transSubs,
+    type: 'ЮР Sims',
+    date,
+    func: selectMetersOnDate
+  });
+
+  const p2 = await selectMeters({
+    transSubs,
+    type: 'ЮР П2',
+    date,
+    func: selectMetersOnDate
+  });
 
   const meters: DifferentMeters = {
     sims, p2
@@ -202,39 +222,28 @@ async function selectLegalMeters(
 
 async function selectNotInSystem(
   transSubs: TransSubs,
-  type: BalanceType,
-  date: FormDataEntryValue,
-) {
-  const meters: Meters = {};
-
-  for (const transSub of transSubs) {
-    const quantity = await selectNotInSystemOnDate({
-      type,
-      date: date as string,
-      transformerSubstationId: transSub.id
-    });
-
-    meters[transSub.name] = quantity;
-  }
-
-  return meters;
-}
-
-async function getNotInSystem(
-  transSubs: TransSubs,
   dates: FormDates
 ) {
-  const privateMeters = await selectNotInSystem(
-    transSubs, 'Быт', dates.privateDate
-  );
+  const privateMeters = await selectMeters({
+    transSubs,
+    type: 'Быт',
+    date: dates.privateDate,
+    func: selectNotInSystemOnDate
+  });
 
-  const legalMetersSims = await selectNotInSystem(
-    transSubs, 'ЮР Sims', dates.legalDate
-  );
+  const legalMetersSims = await selectMeters({
+    transSubs,
+    type: 'ЮР Sims',
+    date: dates.legalDate,
+    func: selectNotInSystemOnDate
+  });
 
-  const legalMetersP2 = await selectNotInSystem(
-    transSubs, 'ЮР П2', dates.legalDate
-  );
+  const legalMetersP2 = await selectMeters({
+    transSubs,
+    type: 'ЮР П2',
+    date: dates.legalDate,
+    func: selectNotInSystemOnDate
+  });
 
   const meters: Meters = {};
 
