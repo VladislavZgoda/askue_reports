@@ -146,12 +146,11 @@ async function handleReport({
 
   const yearMeters = await selectPeriodMeters({
     transSubs, dates,
-    func: selectYearMeters
   });
 
   const monthMeters = await selectPeriodMeters({
     transSubs, dates,
-    func: selectMonthMeters
+    periodType: 'month'
   });
 
   reportSheet.getColumn('B').eachCell(
@@ -264,6 +263,10 @@ function cutOutYear(date: FormDataEntryValue) {
   return Number(date.slice(0, 4));
 }
 
+function cutOutMonth(date: FormDataEntryValue) {
+  return String(date).slice(5, 7);
+}
+
 type PeriodMeters = {
   [k: string]: {
     quantity: number;
@@ -271,51 +274,54 @@ type PeriodMeters = {
   };
 };
 
-async function selectYearMeters(
-  transSubs: TransSubs,
-  type: BalanceType,
-  date: FormDataEntryValue,
-) {
-  const meters: PeriodMeters = {};
+type FuncArgs = {
+  type: BalanceType;
+  date: string;
+  year: number;
+};
 
-  const year = cutOutYear(date);
+type GetPeriodMeters = {
+  transSubs: TransSubs;
+  type: BalanceType;
+  date: FormDataEntryValue;
+  periodType?: 'month';
+};
 
-  for (const transSub of transSubs) {
-    const data = await selectYearMetersOnDate({
-      type,
-      date: date as string,
-      transformerSubstationId: transSub.id,
-      year
-    });
-
-    meters[transSub.name] = data;
-  }
-
-  return meters;
-}
-
-function cutOutMonth(date: FormDataEntryValue) {
-  return String(date).slice(5, 7);
-}
-
-async function selectMonthMeters(
-  transSubs: TransSubs,
-  type: BalanceType,
-  date: FormDataEntryValue,
-) {
+async function getPeriodMeters({
+  transSubs,
+  type,
+  date,
+  periodType
+}: GetPeriodMeters) {
   const meters: PeriodMeters = {};
 
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
 
+  const args: FuncArgs = {
+    type,
+    date: date as string,
+    year
+  };
+
+  let data: {
+    quantity: number;
+    added_to_system: number;
+  };
+
   for (const transSub of transSubs) {
-    const data = await selectMonthMetersOnDate({
-      type,
-      date: date as string,
-      transformerSubstationId: transSub.id,
-      month,
-      year
-    });
+    if (periodType === 'month') {
+      data = await selectMonthMetersOnDate({
+        transformerSubstationId: transSub.id,
+        month,
+        ...args
+      });
+    } else {
+      data = await selectYearMetersOnDate({
+        transformerSubstationId: transSub.id,
+        ...args
+      });
+    }
 
     meters[transSub.name] = data;
   }
@@ -326,24 +332,32 @@ async function selectMonthMeters(
 type SelectPeriodMeters = {
   transSubs: TransSubs,
   dates: FormDates,
-  func: (transSubs: TransSubs, type: BalanceType,
-    date: FormDataEntryValue) => Promise<PeriodMeters>
+  periodType?: 'month';
 };
 
 async function selectPeriodMeters({
-  transSubs, dates, func
+  transSubs, dates, periodType
 }: SelectPeriodMeters) {
-  const privateMeters = await func(
-    transSubs, 'Быт', dates.privateDate
-  );
+  const privateMeters = await getPeriodMeters({
+    transSubs,
+    type: 'Быт',
+    date: dates.privateDate,
+    periodType
+  });
 
-  const legalMetersSims = await func(
-    transSubs, 'ЮР Sims', dates.legalDate
-  );
+  const legalMetersSims = await getPeriodMeters({
+    transSubs,
+    type: 'ЮР Sims',
+    date: dates.legalDate,
+    periodType
+  });
 
-  const legalMetersP2 = await func(
-    transSubs, 'ЮР П2', dates.legalDate
-  );
+  const legalMetersP2 = await getPeriodMeters({
+    transSubs,
+    type: 'ЮР П2',
+    date: dates.legalDate,
+    periodType
+  });
 
   const meters: PeriodMeters = {};
 
