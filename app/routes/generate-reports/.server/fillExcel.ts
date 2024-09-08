@@ -34,12 +34,14 @@ export default async function fillExcel(dates: FormDates) {
     transSubs, dates
   );
 
+  const odpy = await calculateOdpy(dates.odpyDate, transSubs);
+
   await handlePrivateSector(path, privateMeters);
 
   await handleReport({
     path, privateMeters,
     legalMeters, notInSystem,
-    transSubs, dates
+    transSubs, dates, odpy
   });
 }
 
@@ -123,18 +125,19 @@ async function handlePrivateSector(
 }
 
 type ReportType = {
-  path: string,
-  privateMeters: Meters,
-  legalMeters: DifferentMeters,
-  notInSystem: Meters,
-  transSubs: TransSubs,
-  dates: FormDates
+  path: string;
+  privateMeters: Meters;
+  legalMeters: DifferentMeters;
+  notInSystem: Meters;
+  transSubs: TransSubs;
+  dates: FormDates;
+  odpy: Odpy;
 }
 
 async function handleReport({
   path, privateMeters,
   legalMeters, notInSystem,
-  transSubs, dates
+  transSubs, dates, odpy
 }: ReportType) {
   const excel = new exceljs.Workbook();
 
@@ -378,4 +381,104 @@ async function selectPeriodMeters({
   }
 
   return meters;
+}
+
+type Odpy = {
+  quantity: number;
+  notInSystem: number;
+  year: {
+    quantity: number;
+    added_to_system: number;
+  };
+  month: {
+    quantity: number;
+    added_to_system: number;
+  };
+};
+
+async function calculateOdpy(
+  date: FormDataEntryValue,
+  transSubs: TransSubs
+) {
+
+  const odpyData = {
+    quantity: 0,
+    notInSystem: 0,
+    year: {
+      quantity: 0,
+      added_to_system: 0
+    },
+    month: {
+      quantity: 0,
+      added_to_system: 0
+    },
+  };
+
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
+
+  for (const transSub of transSubs) {
+    const quantitySims = await selectMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ Sims',
+      date: date as string
+    });
+
+    const quantityP2 = await selectMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ П2',
+      date: date as string
+    });
+
+    const notInSystemSims = await selectNotInSystemOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ Sims',
+      date: date as string
+    });
+
+    const notInSystemP2 = await selectNotInSystemOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ П2',
+      date: date as string
+    });
+
+    const yearSims = await selectYearMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ Sims',
+      date: date as string,
+      year
+    });
+
+    const yearP2 = await selectYearMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ П2',
+      date: date as string,
+      year
+    });
+
+    const monthSims = await selectMonthMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ Sims',
+      date: date as string,
+      month,
+      year
+    });
+
+    const monthP2 = await selectMonthMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type: 'ОДПУ П2',
+      date: date as string,
+      month,
+      year
+    });
+
+    odpyData.quantity += quantitySims + quantityP2;
+    odpyData.notInSystem += notInSystemSims + notInSystemP2;
+    odpyData.year.quantity += (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
+    odpyData.year.added_to_system += (yearSims?.added_to_system ?? 0) + (yearP2?.added_to_system ?? 0);
+    odpyData.month.quantity += (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
+    odpyData.month.added_to_system += (monthSims?.added_to_system ?? 0) + (monthP2?.added_to_system ?? 0);
+  }
+
+  return odpyData;
 }
