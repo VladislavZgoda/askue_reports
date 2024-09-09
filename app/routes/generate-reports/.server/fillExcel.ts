@@ -69,6 +69,11 @@ async function handlePrivateSector(
     }
   );
 
+  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
+  privateSectorSheet.getRow(155).eachCell(
+    (cell) => cell.model.result = undefined
+  );
+
   // Без этой строки файл будет повреждён.
   privateSectorSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
