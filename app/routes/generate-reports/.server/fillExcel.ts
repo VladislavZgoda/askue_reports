@@ -43,6 +43,11 @@ export default async function fillExcel(dates: FormDates) {
     legalMeters, notInSystem,
     transSubs, dates, odpy
   });
+
+  await handleSupplementThree({
+    path, privateMeters, odpy,
+    legalMeters, transSubs, dates
+  });
 }
 
 async function handlePrivateSector(
@@ -157,6 +162,75 @@ async function handleReport({
 
   // Без этой строки файл будет повреждён, не объяснимо но факт.
   reportSheet.removeConditionalFormatting('');
+  await excel.xlsx.writeFile(savePath);
+}
+
+type SupplementThree = {
+  path: string;
+  privateMeters: Meters;
+  legalMeters: DifferentMeters;
+  odpy: Odpy;
+  transSubs: TransSubs;
+  dates: FormDates;
+};
+
+async function handleSupplementThree({
+  path, privateMeters, legalMeters,
+  odpy, dates, transSubs
+}: SupplementThree) {
+  const excel = new exceljs.Workbook();
+
+  const templatePath = path + 'workbooks/supplement_three.xlsx';
+  const savePath = path + 'filled-reports/supplement_three.xlsx';
+
+  const workbook = await excel.xlsx.readFile(templatePath);
+  const sheet =  workbook.worksheets[2];
+
+  const notInSystemPrivate = await selectMeters({
+    transSubs,
+    type: 'Быт',
+    date: dates.privateDate as string,
+    func: selectNotInSystemOnDate
+  });
+
+  const privateSum = calculateSum(privateMeters);
+  const privateNotInSystemSum = calculateSum(notInSystemPrivate);
+
+  sheet.getCell('D29').value = privateSum + privateNotInSystemSum;
+  sheet.getCell('E29').value = privateSum;
+
+  const notInSystemSims = await selectMeters({
+    transSubs,
+    type: 'ЮР Sims',
+    date: dates.legalDate as string,
+    func: selectNotInSystemOnDate
+  });
+
+  const notInSystemP2 = await selectMeters({
+    transSubs,
+    type: 'ЮР П2',
+    date: dates.legalDate as string,
+    func: selectNotInSystemOnDate
+  });
+  
+  const legalSum = calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
+  const legalNotInSystemSum = calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
+
+  sheet.getCell('F29').value = legalSum + legalNotInSystemSum;
+  sheet.getCell('G29').value = legalSum;
+
+  sheet.getCell('H29').value = odpy.quantity + odpy.notInSystem;
+  sheet.getCell('I29').value = odpy.quantity;
+
+  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
+  sheet.getRow(29).eachCell(
+    (cell) => cell.model.result = undefined
+  );
+
+  sheet.getRow(33).eachCell(
+    (cell) => cell.model.result = undefined
+  );
+
   await excel.xlsx.writeFile(savePath);
 }
 
@@ -500,4 +574,14 @@ async function calculateOdpy(
   }
 
   return odpyData;
+}
+
+function calculateSum(meters: Meters) {
+  let sum = 0;
+
+  for (const key of Object.keys(meters)) {
+    sum += meters[key];
+  }
+
+  return sum;
 }
