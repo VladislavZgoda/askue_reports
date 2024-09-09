@@ -45,57 +45,6 @@ export default async function fillExcel(dates: FormDates) {
   });
 }
 
-function cleanUp(dirPath: string) {
-  const directory = dirPath + 'filled-reports/';
-
-  if (fs.existsSync(directory)) {
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      for (const file of files) {
-        fs.unlink(path.join(directory, file), (err) => {
-          if (err) throw err;
-        });
-      }
-    });
-  } else {
-    fs.mkdirSync(directory);
-  }
-}
-
-type TransSubs = {
-  id: number;
-  name: string;
-}[];
-
-type Meters = { [k: string]: number };
-
-type SelectMeters = {
-  transSubs: TransSubs,
-  type: BalanceType,
-  date: FormDataEntryValue,
-  func: ({ type, date, transformerSubstationId }
-    : CheckRecordValues) => Promise<number>;
-};
-
-async function selectMeters({
-  transSubs, type, date, func
-}: SelectMeters) {
-  const meters: Meters = {};
-
-  for (const transSub of transSubs) {
-    const quantity = await func({
-      type,
-      date: date as string,
-      transformerSubstationId: transSub.id
-    });
-
-    meters[transSub.name] = quantity;
-  }
-
-  return meters;
-}
-
 async function handlePrivateSector(
   path: string,
   privateMeters: Meters
@@ -204,6 +153,57 @@ async function handleReport({
   // Без этой строки файл будет повреждён, не объяснимо но факт.
   reportSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
+}
+
+function cleanUp(dirPath: string) {
+  const directory = dirPath + 'filled-reports/';
+
+  if (fs.existsSync(directory)) {
+    fs.readdir(directory, (err, files) => {
+      if (err) throw err;
+
+      for (const file of files) {
+        fs.unlink(path.join(directory, file), (err) => {
+          if (err) throw err;
+        });
+      }
+    });
+  } else {
+    fs.mkdirSync(directory);
+  }
+}
+
+type TransSubs = {
+  id: number;
+  name: string;
+}[];
+
+type Meters = { [k: string]: number };
+
+type SelectMeters = {
+  transSubs: TransSubs,
+  type: BalanceType,
+  date: FormDataEntryValue,
+  func: ({ type, date, transformerSubstationId }
+    : CheckRecordValues) => Promise<number>;
+};
+
+async function selectMeters({
+  transSubs, type, date, func
+}: SelectMeters) {
+  const meters: Meters = {};
+
+  for (const transSub of transSubs) {
+    const quantity = await func({
+      type,
+      date: date as string,
+      transformerSubstationId: transSub.id
+    });
+
+    meters[transSub.name] = quantity;
+  }
+
+  return meters;
 }
 
 type DifferentMeters = {
