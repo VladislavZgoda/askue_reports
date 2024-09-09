@@ -120,6 +120,7 @@ async function handlePrivateSector(
     }
   );
 
+  // Без этой строки файл будет повреждён.
   privateSectorSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
@@ -188,6 +189,19 @@ async function handleReport({
     }
   );
 
+  reportSheet.getCell('H265').value = odpy.quantity;
+  reportSheet.getCell('P265').value = odpy.notInSystem;
+  reportSheet.getCell('Q265').value = odpy.year.quantity;
+  reportSheet.getCell('R265').value = odpy.year.added_to_system;
+  reportSheet.getCell('S265').value = odpy.month.quantity;
+  reportSheet.getCell('T265').value = odpy.month.added_to_system;
+
+  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
+  reportSheet.getRow(267).eachCell(
+    (cell) => cell.model.result = undefined
+  );
+
+  // Без этой строки файл будет повреждён, не объяснимо но факт.
   reportSheet.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
