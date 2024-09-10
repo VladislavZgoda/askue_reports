@@ -1,7 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import fillExcel from "./.server/fillExcel";
+import writeExcel from "./.server/writeExcel";
 import createArchive from "./.server/createArchive";
 import { useEffect } from "react";
 
@@ -9,7 +9,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const dates = Object.fromEntries(formData);
 
-  await fillExcel(dates);
+  await writeExcel(dates);
   await createArchive();
   
   return true;

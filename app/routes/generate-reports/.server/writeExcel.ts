@@ -12,7 +12,7 @@ type FormDates = {
   [k: string]: FormDataEntryValue;
 };
 
-export default async function fillExcel(dates: FormDates) {
+export default async function writeExcel(dates: FormDates) {
   const path = 'app/routes/generate-reports/.server/';
 
   cleanUp(path);
