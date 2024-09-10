@@ -4,3 +4,4 @@ node_modules
 /build
 .env
 app/routes/generate-reports/.server/filled-reports/
+app/routes/generate-reports/.server/reports-archive/
