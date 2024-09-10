@@ -12,7 +12,7 @@ export async function action({ request }: ActionFunctionArgs) {
   await writeExcel(dates);
   await createArchive();
   
-  return true;
+  return Math.random() * 1000;
 }
 
 export default function GenerateReports() {
