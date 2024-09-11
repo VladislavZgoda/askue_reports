@@ -28,26 +28,50 @@ export default async function parseExcel() {
     }
   };
 
-  wsPrivate.getColumn('N').eachCell(
+  parseSheet(wsPrivate, data.private);
+  parseSheet(wsLegal, data.legal);
+  
+  wsOdpy.getColumn('N').eachCell(
     (cell, rowNumber) => {
       const transSub = String(cell.value);
 
       if (!transSub.startsWith('ТП-')) return;
 
-      if (!Object.prototype.hasOwnProperty.call(data.private, transSub)) {
-        data.private[transSub] = 0;
-      }
-
-      const readingSource = String(wsPrivate.getCell('M' + rowNumber).value);
+      const readingSource = String(wsOdpy.getCell('M' + rowNumber).value);
 
       if (readingSource.toLowerCase() === 'ридер') {
-        data.private.rider += 1;
+        data.odpy.rider += 1;
       } else {
-        data.private[transSub] += 1;
-        data.private.total += 1;
+        data.odpy.total += 1;
       }
     }
   );
 
  return data;
+}
+
+function parseSheet(
+  ws: exceljs.Worksheet,
+  data: { [k: string]: number }
+) {
+  ws.getColumn('N').eachCell(
+    (cell, rowNumber) => {
+      const transSub = String(cell.value);
+
+      if (!transSub.startsWith('ТП-')) return;
+
+      if (!Object.prototype.hasOwnProperty.call(data, transSub)) {
+        data[transSub] = 0;
+      }
+
+      const readingSource = String(ws.getCell('M' + rowNumber).value);
+
+      if (readingSource.toLowerCase() === 'ридер') {
+        data.rider += 1;
+      } else {
+        data[transSub] += 1;
+        data.total += 1;
+      }
+    }
+  );
 }
