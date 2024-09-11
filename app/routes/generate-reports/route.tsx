@@ -1,7 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import writeExcel from "./.server/writeExcel";
+import writeDbData from "./.server/writeDbData";
 import createArchive from "./.server/createArchive";
 import { useEffect } from "react";
 import {
@@ -29,13 +29,13 @@ export async function action({ request }: ActionFunctionArgs) {
       createMemoryUploadHandler()
     )
   );
-  
+
   const dates = Object.fromEntries(formData);
   delete dates.upload;
-  
-  await writeExcel(dates);
+
+  await writeDbData(dates);
   await createArchive();
-  
+
   return Math.random() * 1000;
 }
 
@@ -46,12 +46,12 @@ export default function GenerateReports() {
   const download = () => {
     const link = document.createElement('a');
     link.href = '/download';
-    
+
     link.setAttribute(
       'download',
       `Отчеты.zip`,
     );
-    
+
     document.body.appendChild(link);
     link.click();
     link.parentNode?.removeChild(link);
@@ -64,10 +64,10 @@ export default function GenerateReports() {
   return (
     <main className="mt-5 ml-10">
       <p className="mb-3 ml-6">Выберите даты для балансных групп</p>
-      
-      <fetcher.Form 
-        className="flex flex-col w-80 gap-2" 
-        method="post" 
+
+      <fetcher.Form
+        className="flex flex-col w-80 gap-2"
+        method="post"
         encType="multipart/form-data">
 
         <DateInput labelText="Быт" inputName="privateDate" />
@@ -81,12 +81,12 @@ export default function GenerateReports() {
             </span>
           </div>
           <input
-            aria-label="Добавить данные из приложения №9" 
-            type="file" 
-            name="upload" 
+            aria-label="Добавить данные из приложения №9"
+            type="file"
+            name="upload"
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
         </label>
-        
+
         <button className="btn btn-outline btn-primary mt-4" type="submit">
           Сформировать
         </button>

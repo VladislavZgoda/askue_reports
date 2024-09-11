@@ -12,7 +12,7 @@ type FormDates = {
   [k: string]: FormDataEntryValue;
 };
 
-export default async function writeExcel(dates: FormDates) {
+export default async function writeDbData(dates: FormDates) {
   const path = 'app/routes/generate-reports/.server/';
 
   cleanUp(path);
@@ -212,7 +212,7 @@ async function handleSupplementThree({
     date: dates.legalDate as string,
     func: selectNotInSystemOnDate
   });
-  
+
   const legalSum = calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
   const legalNotInSystemSum = calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
 

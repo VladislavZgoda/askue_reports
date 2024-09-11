@@ -1,10 +1,8 @@
 import exceljs from 'exceljs';
-import fs from 'fs';
-import path from 'path';
 
 export default async function parseExcel() {
   const excel = new exceljs.Workbook();
-  
+
   const wb = await excel.xlsx.readFile(
     'app/routes/generate-reports/.server/uploaded-excel/supplement_nine.xlsx'
   );
@@ -30,10 +28,10 @@ export default async function parseExcel() {
 
   parseSheet(wsPrivate, data.private);
   parseSheet(wsLegal, data.legal);
-  
+
   wsOdpy.getColumn('N').eachCell(
     (cell, rowNumber) => {
-      const transSub = String(cell.value);
+      const transSub = String(cell.value).trim();
 
       if (!transSub.startsWith('ТП-')) return;
 
