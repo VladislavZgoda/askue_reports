@@ -21,7 +21,7 @@ export async function action({ request }: ActionFunctionArgs) {
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
           );
         },
-        directory: './app/routes/generate-reports/.server/upload-excel',
+        directory: './app/routes/generate-reports/.server/uploaded-excel',
         avoidFileConflicts: false,
         file: () => 'supplement_nine.xlsx',
         maxPartSize: 10 * 1024 * 1024,

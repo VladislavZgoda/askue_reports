@@ -5,4 +5,4 @@ node_modules
 .env
 app/routes/generate-reports/.server/filled-reports/
 app/routes/generate-reports/.server/reports-archive/
-/app/routes/generate-reports/.server/upload-excel
+/app/routes/generate-reports/.server/uploaded-excel
