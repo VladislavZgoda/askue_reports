@@ -1,8 +1,6 @@
 import { useFetcher } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import writeDbData from "./.server/writeDbData";
-import createArchive from "./.server/createArchive";
 import { useEffect } from "react";
 import {
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
@@ -10,6 +8,7 @@ import {
   unstable_createFileUploadHandler as createFileUploadHandler,
   unstable_composeUploadHandlers as composeUploadHandlers,
 } from "@remix-run/node";
+import composeReports from "./.server/composeReports";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await parseMultipartFormData(
@@ -33,8 +32,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const dates = Object.fromEntries(formData);
   delete dates.upload;
 
-  await writeDbData(dates);
-  await createArchive();
+  await composeReports(dates);
 
   return Math.random() * 1000;
 }
