@@ -4,6 +4,7 @@ import writeParsedData from "./writeParsedData";
 import fsp from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
+import validateExcel from "./validateExcel";
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
@@ -16,7 +17,8 @@ export default async function composeReports(dates: FormDates) {
 
   await writeDbData(dates);
 
-  if (await doesFileExist(partPath)) await writeParsedData();
+  if (await doesFileExist(partPath)
+    && await validateExcel()) await writeParsedData();
 
   await createArchive();
 
@@ -50,7 +52,7 @@ async function cleanUp(partPath: string) {
   const dirUploadedExcel = partPath + 'uploaded-excel/';
 
   deleteFiles(dirFilledReports);
-  
+
   if (await doesFileExist(partPath)) deleteFiles(dirUploadedExcel);
 }
 
