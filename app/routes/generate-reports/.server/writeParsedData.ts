@@ -32,9 +32,20 @@ async function handleReport(
 
       if (!transSub.startsWith('ТП')) return;
 
+      const quantityPrivate = data.private[transSub] ?? 0;
+      const quantityLegal = data.legal[transSub] ?? 0;
+      const total = quantityPrivate + quantityLegal;
 
+      ws.getCell('L' + rowNumber).value = total;
+      ws.getCell('M' + rowNumber).model.result = undefined;
     }
   );
+
+  ws.getCell('L265').value = data.odpy.total;
+  ws.getCell('M265').model.result = undefined;
+
+  ws.getCell('L266').value = data.odpy.rider + data.private.rider + data.legal.rider;
+  ws.getCell('M266').model.result = undefined;
 
   await excel.xlsx.writeFile(filePath);
 }
