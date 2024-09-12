@@ -4,8 +4,6 @@ import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable'
 import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
 import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable';
 import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
-import fs from 'fs';
-import path from 'path';
 import type { BalanceType, CheckRecordValues } from '~/types';
 
 type FormDates = {
@@ -14,8 +12,6 @@ type FormDates = {
 
 export default async function writeDbData(dates: FormDates) {
   const path = 'app/routes/generate-reports/.server/';
-
-  cleanUp(path);
 
   const transSubs = await selectAllTransSubs();
 
@@ -232,24 +228,6 @@ async function handleSupplementThree({
   );
 
   await excel.xlsx.writeFile(savePath);
-}
-
-function cleanUp(dirPath: string) {
-  const directory = dirPath + 'filled-reports/';
-
-  if (fs.existsSync(directory)) {
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      for (const file of files) {
-        fs.unlink(path.join(directory, file), (err) => {
-          if (err) throw err;
-        });
-      }
-    });
-  } else {
-    fs.mkdirSync(directory);
-  }
 }
 
 type TransSubs = {
