@@ -151,6 +151,9 @@ async function handleReport({
     (cell) => cell.model.result = undefined
   );
 
+  ws.getCell('H268').model.result = undefined;
+  ws.getCell('H269').model.result = undefined;
+
   // Без этой строки файл будет повреждён, не объяснимо но факт.
   ws.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
