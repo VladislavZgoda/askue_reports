@@ -55,6 +55,18 @@ async function handleSupplementThree(
   path: string,
   excel: exceljs.Workbook
 ) {
+  const filePath = path + 'supplement_three.xlsx';
 
+  const wb = await excel.xlsx.readFile(filePath);
+  const ws = wb.worksheets[2];
 
+  ws.getCell('K29').value = data.private.total;
+  ws.getCell('L29').value = data.legal.total;
+  ws.getCell('M29').value = data.odpy.total;
+
+  ws.getCell('N29').value = data.private.rider;
+  ws.getCell('O29').value = data.legal.rider;
+  ws.getCell('P29').value = data.odpy.rider;
+
+  await excel.xlsx.writeFile(filePath);
 }
