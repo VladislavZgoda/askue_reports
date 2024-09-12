@@ -5,12 +5,14 @@ import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
 import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable';
 import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
 import type { BalanceType, CheckRecordValues } from '~/types';
+import { cutOutMonth, cutOutYear } from '~/.server/helpers/stringFunctions';
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
 };
 
 export default async function writeDbData(dates: FormDates) {
+  const excel = new exceljs.Workbook();
   const path = 'app/routes/generate-reports/.server/';
 
   const transSubs = await selectAllTransSubs();
@@ -26,57 +28,49 @@ export default async function writeDbData(dates: FormDates) {
     transSubs, dates.legalDate
   );
 
-  const notInSystem = await selectNotInSystem(
-    transSubs, dates
-  );
-
   const odpy = await calculateOdpy(dates.odpyDate, transSubs);
 
-  await handlePrivateSector(path, privateMeters);
+  await handlePrivateSector(path, privateMeters, excel);
 
   await handleReport({
-    path, privateMeters,
-    legalMeters, notInSystem,
-    transSubs, dates, odpy
+    path, privateMeters, legalMeters,
+    transSubs, dates, odpy, excel
   });
 
   await handleSupplementThree({
-    path, privateMeters, odpy,
+    path, privateMeters, odpy, excel,
     legalMeters, transSubs, dates
   });
 }
 
 async function handlePrivateSector(
   path: string,
-  privateMeters: Meters
+  privateMeters: Meters,
+  excel: exceljs.Workbook
 ) {
-  const excel = new exceljs.Workbook();
-
   const templatePath = path + 'workbooks/private_sector.xlsx';
   const savePath = path + 'filled-reports/private_sector.xlsx';
 
-  const privateSectorWB = await excel.xlsx.readFile(templatePath);
-  const privateSectorSheet = privateSectorWB.worksheets[0];
+  const wb = await excel.xlsx.readFile(templatePath);
+  const ws = wb.worksheets[0];
 
-  privateSectorSheet.getColumn('A').eachCell(
+  ws.getColumn('A').eachCell(
     (cell, rowNumber) => {
       const transSub = String(cell.value).trim();
 
       if (!transSub.startsWith('ТП')) return;
 
-      privateSectorSheet
-        .getCell('B' + rowNumber)
-        .value = privateMeters[transSub] ?? 0;
+      ws.getCell('B' + rowNumber).value = privateMeters[transSub] ?? 0;
     }
   );
 
   // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  privateSectorSheet.getRow(155).eachCell(
+  ws.getRow(155).eachCell(
     (cell) => cell.model.result = undefined
   );
 
   // Без этой строки файл будет повреждён.
-  privateSectorSheet.removeConditionalFormatting('');
+  ws.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
 
@@ -84,24 +78,25 @@ type ReportType = {
   path: string;
   privateMeters: Meters;
   legalMeters: DifferentMeters;
-  notInSystem: Meters;
   transSubs: TransSubs;
   dates: FormDates;
   odpy: Odpy;
+  excel: exceljs.Workbook;
 }
 
 async function handleReport({
-  path, privateMeters,
-  legalMeters, notInSystem,
-  transSubs, dates, odpy
+  path, privateMeters, legalMeters, 
+  transSubs, dates, odpy, excel
 }: ReportType) {
-  const excel = new exceljs.Workbook();
-
   const templatePath = path + 'workbooks/report.xlsx';
   const savePath = path + 'filled-reports/report.xlsx';
 
-  const reportWB = await excel.xlsx.readFile(templatePath);
-  const reportSheet = reportWB.worksheets[0];
+  const wb = await excel.xlsx.readFile(templatePath);
+  const ws = wb.worksheets[0];
+
+  const notInSystem = await selectNotInSystem(
+    transSubs, dates
+  );
 
   const yearMeters = await selectPeriodMeters({
     transSubs, dates,
@@ -112,7 +107,7 @@ async function handleReport({
     periodType: 'month'
   });
 
-  reportSheet.getColumn('B').eachCell(
+  ws.getColumn('B').eachCell(
     (cell, rowNumber) => {
       const transSub = String(cell.value).trim();
 
@@ -132,32 +127,32 @@ async function handleReport({
       const monthQuantity = monthMeters[transSub]?.quantity ?? 0;
       const monthInSystem = monthMeters[transSub]?.added_to_system ?? 0;
 
-      reportSheet.getCell('H' + rowNumber).value = privateM + legalM;
-      reportSheet.getCell('I' + rowNumber).value = privateM;
-      reportSheet.getCell('J' + rowNumber).value = legalM;
-      reportSheet.getCell('K' + rowNumber).value = p2;
-      reportSheet.getCell('P' + rowNumber).value = notInSystemMeters;
-      reportSheet.getCell('Q' + rowNumber).value = yearQuantity;
-      reportSheet.getCell('R' + rowNumber).value = yearInSystem;
-      reportSheet.getCell('S' + rowNumber).value = monthQuantity;
-      reportSheet.getCell('T' + rowNumber).value = monthInSystem;
+      ws.getCell('H' + rowNumber).value = privateM + legalM;
+      ws.getCell('I' + rowNumber).value = privateM;
+      ws.getCell('J' + rowNumber).value = legalM;
+      ws.getCell('K' + rowNumber).value = p2;
+      ws.getCell('P' + rowNumber).value = notInSystemMeters;
+      ws.getCell('Q' + rowNumber).value = yearQuantity;
+      ws.getCell('R' + rowNumber).value = yearInSystem;
+      ws.getCell('S' + rowNumber).value = monthQuantity;
+      ws.getCell('T' + rowNumber).value = monthInSystem;
     }
   );
 
-  reportSheet.getCell('H265').value = odpy.quantity;
-  reportSheet.getCell('P265').value = odpy.notInSystem;
-  reportSheet.getCell('Q265').value = odpy.year.quantity;
-  reportSheet.getCell('R265').value = odpy.year.added_to_system;
-  reportSheet.getCell('S265').value = odpy.month.quantity;
-  reportSheet.getCell('T265').value = odpy.month.added_to_system;
+  ws.getCell('H265').value = odpy.quantity;
+  ws.getCell('P265').value = odpy.notInSystem;
+  ws.getCell('Q265').value = odpy.year.quantity;
+  ws.getCell('R265').value = odpy.year.added_to_system;
+  ws.getCell('S265').value = odpy.month.quantity;
+  ws.getCell('T265').value = odpy.month.added_to_system;
 
   // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  reportSheet.getRow(267).eachCell(
+  ws.getRow(267).eachCell(
     (cell) => cell.model.result = undefined
   );
 
   // Без этой строки файл будет повреждён, не объяснимо но факт.
-  reportSheet.removeConditionalFormatting('');
+  ws.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
 }
 
@@ -168,19 +163,18 @@ type SupplementThree = {
   odpy: Odpy;
   transSubs: TransSubs;
   dates: FormDates;
+  excel: exceljs.Workbook
 };
 
 async function handleSupplementThree({
   path, privateMeters, legalMeters,
-  odpy, dates, transSubs
+  odpy, dates, transSubs, excel
 }: SupplementThree) {
-  const excel = new exceljs.Workbook();
-
   const templatePath = path + 'workbooks/supplement_three.xlsx';
   const savePath = path + 'filled-reports/supplement_three.xlsx';
 
-  const workbook = await excel.xlsx.readFile(templatePath);
-  const sheet =  workbook.worksheets[2];
+  const wb = await excel.xlsx.readFile(templatePath);
+  const ws =  wb.worksheets[2];
 
   const notInSystemPrivate = await selectMeters({
     transSubs,
@@ -192,8 +186,8 @@ async function handleSupplementThree({
   const privateSum = calculateSum(privateMeters);
   const privateNotInSystemSum = calculateSum(notInSystemPrivate);
 
-  sheet.getCell('D29').value = privateSum + privateNotInSystemSum;
-  sheet.getCell('E29').value = privateSum;
+  ws.getCell('D29').value = privateSum + privateNotInSystemSum;
+  ws.getCell('E29').value = privateSum;
 
   const notInSystemSims = await selectMeters({
     transSubs,
@@ -212,18 +206,18 @@ async function handleSupplementThree({
   const legalSum = calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
   const legalNotInSystemSum = calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
 
-  sheet.getCell('F29').value = legalSum + legalNotInSystemSum;
-  sheet.getCell('G29').value = legalSum;
+  ws.getCell('F29').value = legalSum + legalNotInSystemSum;
+  ws.getCell('G29').value = legalSum;
 
-  sheet.getCell('H29').value = odpy.quantity + odpy.notInSystem;
-  sheet.getCell('I29').value = odpy.quantity;
+  ws.getCell('H29').value = odpy.quantity + odpy.notInSystem;
+  ws.getCell('I29').value = odpy.quantity;
 
   // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  sheet.getRow(29).eachCell(
+  ws.getRow(29).eachCell(
     (cell) => cell.model.result = undefined
   );
 
-  sheet.getRow(33).eachCell(
+  ws.getRow(33).eachCell(
     (cell) => cell.model.result = undefined
   );
 
@@ -333,14 +327,6 @@ async function selectNotInSystem(
   return meters;
 }
 
-function cutOutYear(date: FormDataEntryValue) {
-  return Number(date.slice(0, 4));
-}
-
-function cutOutMonth(date: FormDataEntryValue) {
-  return String(date).slice(5, 7);
-}
-
 type PeriodMeters = {
   [k: string]: {
     quantity: number;
@@ -369,8 +355,8 @@ async function getPeriodMeters({
 }: GetPeriodMeters) {
   const meters: PeriodMeters = {};
 
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
+  const year = cutOutYear(String(date));
+  const month = cutOutMonth(String(date));
 
   const args: FuncArgs = {
     type,
@@ -485,8 +471,8 @@ async function calculateOdpy(
     },
   };
 
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
+  const year = cutOutYear(String(date));
+  const month = cutOutMonth(String(date));
 
   for (const transSub of transSubs) {
     const quantitySims = await selectMetersOnDate({

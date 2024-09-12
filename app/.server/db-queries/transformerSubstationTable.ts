@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
 import { eq, ilike } from 'drizzle-orm';
-import { searchString } from "../helpers/mutateString";
+import { searchString } from "../helpers/stringFunctions";
 
 export async function insertNewTS(name: string) {
   const transSub = await db
