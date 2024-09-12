@@ -64,10 +64,7 @@ async function handlePrivateSector(
     }
   );
 
-  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  ws.getRow(155).eachCell(
-    (cell) => cell.model.result = undefined
-  );
+  resetResult(ws, 155);
 
   // Без этой строки файл будет повреждён.
   ws.removeConditionalFormatting('');
@@ -146,10 +143,7 @@ async function handleReport({
   ws.getCell('S265').value = odpy.month.quantity;
   ws.getCell('T265').value = odpy.month.added_to_system;
 
-  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  ws.getRow(267).eachCell(
-    (cell) => cell.model.result = undefined
-  );
+  resetResult(ws, 267);
 
   ws.getCell('H268').model.result = undefined;
   ws.getCell('H269').model.result = undefined;
@@ -215,16 +209,17 @@ async function handleSupplementThree({
   ws.getCell('H29').value = odpy.quantity + odpy.notInSystem;
   ws.getCell('I29').value = odpy.quantity;
 
-  // Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
-  ws.getRow(29).eachCell(
-    (cell) => cell.model.result = undefined
-  );
-
-  ws.getRow(33).eachCell(
-    (cell) => cell.model.result = undefined
-  );
+  resetResult(ws, 29);
+  resetResult(ws, 33);
 
   await excel.xlsx.writeFile(savePath);
+}
+
+// Сбросить результат формул, чтобы при открытие файла значение пересчиталось.
+function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
+  ws.getRow(rowNumber).eachCell(
+    (cell) => cell.model.result = undefined
+  );
 }
 
 type TransSubs = {
