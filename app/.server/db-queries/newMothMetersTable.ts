@@ -1,11 +1,12 @@
 import { db } from "../db";
 import { NewMonthMetersTable } from "../schema";
-import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
+import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 import type {
   MonthMetersValues,
   SelectMonthQuantity,
   LastMonthQuantity,
-  UpdateMonthOnIdType
+  UpdateMonthOnIdType,
+  BalanceType
 } from "~/types";
 
 export async function insertMonthMeters({
@@ -220,6 +221,38 @@ export async function selectMonthMetersOnDate({
       eq(NewMonthMetersTable.type, type),
       eq(NewMonthMetersTable.month, month),
       eq(NewMonthMetersTable.year, year)
+    ))
+    .orderBy(desc(NewMonthMetersTable.date))
+    .limit(1);
+
+  return record[0];
+}
+
+type monthPeriod = {
+  type: BalanceType;
+  firstDate: string;
+  lastDate: string;
+  transformerSubstationId: number;
+};
+
+export async function selectMonthPeriodMeters({
+  type,
+  firstDate,
+  lastDate,
+  transformerSubstationId
+}: monthPeriod) {
+  const record = await db
+    .select({
+      quantity: NewMonthMetersTable.quantity,
+      added_to_system: NewMonthMetersTable.added_to_system
+    })
+    .from(NewMonthMetersTable)
+    .where(and(
+      eq(NewMonthMetersTable.transformerSubstationId,
+        transformerSubstationId),
+      lte(NewMonthMetersTable.date, lastDate),
+      gte(NewMonthMetersTable.date, firstDate),
+      eq(NewMonthMetersTable.type, type),
     ))
     .orderBy(desc(NewMonthMetersTable.date))
     .limit(1);
