@@ -9,6 +9,7 @@ import {
   unstable_composeUploadHandlers as composeUploadHandlers,
 } from "@remix-run/node";
 import composeReports from "./.server/composeReports";
+import DateInputWithoutDef from "./DateInputWithoutDef";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await parseMultipartFormData(
@@ -61,16 +62,26 @@ export default function GenerateReports() {
 
   return (
     <main className="mt-5 ml-10">
-      <p className="mb-3 ml-6">Выберите даты для балансных групп</p>
+      <p className="mb-3 font-bold">Выберите даты для балансных групп</p>
 
       <fetcher.Form
-        className="flex flex-col w-80 gap-2"
+        className="flex flex-col w-[30vw] gap-6"
         method="post"
         encType="multipart/form-data">
 
-        <DateInput labelText="Быт" inputName="privateDate" />
-        <DateInput labelText="Юр" inputName="legalDate" />
-        <DateInput labelText="ОДПУ" inputName="odpyDate" />
+        <div className="flex flex-row gap-16 flex-auto">
+          <div className="flex-auto">
+            <DateInput labelText="Быт" inputName="privateDate" />
+            <DateInput labelText="Юр" inputName="legalDate" />
+            <DateInput labelText="ОДПУ" inputName="odpyDate" />
+          </div>
+
+          <div className="flex-auto">
+            <DateInputWithoutDef labelText="Быт прошлый месяц" inputName="privateMonth" />
+            <DateInputWithoutDef labelText="Юр прошлый месяц" inputName="legalMonth" />
+            <DateInputWithoutDef labelText="ОДПУ прошлый месяц" inputName="odpyMonth" />
+          </div>
+        </div>
 
         <label className="form-control w-full max-w-xs">
           <div className="label">
