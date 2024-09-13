@@ -44,6 +44,7 @@ import {
   updateNotInSystemOnId
 } from "~/.server/db-queries/notInSystemTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+import { cutOutMonth, cutOutYear } from "~/.server/helpers/stringFunctions";
 
 type ActionValues = {
   transSubId: string;
@@ -207,7 +208,7 @@ async function handleYearMeters(
   insertValues: InsertMetersValues
 ) {
   const { type, date, transformerSubstationId } = insertValues;
-  const year = Number(date.slice(0, 4));
+  const year = cutOutYear(date);
   const prevYearQuantity = await selectYearQuantity({
     type, date, transformerSubstationId, year
   });
@@ -301,8 +302,8 @@ async function handleMonthMeters(
   insertValues: InsertMetersValues
 ) {
   const { type, date, transformerSubstationId } = insertValues;
-  const year = Number(date.slice(0, 4));
-  const month = date.slice(5, 7);
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
   const prevMonthQuantity = await selectMonthQuantity({
     type, date, transformerSubstationId, month, year
   });
