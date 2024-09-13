@@ -32,6 +32,7 @@ import {
   updateFailedMeters
 } from "~/.server/db-queries/failedMetersTable";
 import loadData from "./loadData";
+import { cutOutMonth, cutOutYear } from "~/.server/helpers/stringFunctions";
 
 export default async function changeData(
   values: { [k: string]: FormDataEntryValue }
@@ -54,8 +55,8 @@ function handleValues(
   values: { [k: string]: FormDataEntryValue }
 ) {
   const date = new Date().toLocaleDateString('en-CA');
-  const year = Number(date.slice(0, 4));
-  const month = date.slice(5, 7);
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
 
   const handledValues = {
     type: values.type as BalanceType,
