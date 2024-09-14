@@ -234,18 +234,27 @@ export async function selectMonthMeters(
     periodType: 'month'
   });
 
-  if (dates?.privateMonth) {
+  if (dates?.privateMonth
+    && checkDates(String(dates.privateDate), String(String(dates.privateMonth)))) {
     const date = String(dates.privateMonth)
     await addPreviousMonth(transSubs, meters, date, 'Быт');
   }
 
-  if (dates?.legalMonth) {
+  if (dates?.legalMonth
+    && checkDates(String(dates.legalDate), String(String(dates.legalMonth)))) {
     const date = String(dates.legalMonth)
     await addPreviousMonth(transSubs, meters, date, 'ЮР Sims');
     await addPreviousMonth(transSubs, meters, date, 'ЮР П2')
   }
 
   return meters;
+}
+
+function checkDates(currentMonth: string, previousMonth: string) {
+  const difference = Number(cutOutMonth(currentMonth))
+    - Number(cutOutMonth(previousMonth));
+
+  return difference === 1;
 }
 
 async function addPreviousMonth(
