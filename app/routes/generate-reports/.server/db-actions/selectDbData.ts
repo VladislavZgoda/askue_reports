@@ -1,7 +1,10 @@
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
 import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
 import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable';
-import { selectMonthMetersOnDate } from '~/.server/db-queries/newMothMetersTable';
+import {
+  selectMonthMetersOnDate,
+  selectMonthPeriodMeters
+} from '~/.server/db-queries/newMothMetersTable';
 import type { BalanceType, CheckRecordValues } from '~/types';
 import { cutOutMonth, cutOutYear } from '~/.server/helpers/stringFunctions';
 import type { FormDates } from '../writeDbData';
@@ -220,6 +223,79 @@ export async function selectPeriodMeters({
   }
 
   return meters;
+}
+
+export async function selectMonthMeters(
+  transSubs: TransSubs,
+  dates: FormDates
+) {
+  const meters = await selectPeriodMeters({
+    transSubs, dates,
+    periodType: 'month'
+  });
+
+  if (dates?.privateMonth) {
+    const date = String(dates.privateMonth)
+    await addLastMonth(transSubs, meters, date, 'Быт');
+  }
+
+  if (dates?.legalMonth) {
+    const date = String(dates.legalMonth)
+    await addLastMonth(transSubs, meters, date, 'ЮР Sims');
+    await addLastMonth(transSubs, meters, date, 'ЮР П2')
+  }
+
+  return meters;
+}
+
+async function addLastMonth(
+  transSubs: TransSubs,
+  meters: PeriodMeters,
+  date: string,
+  type: BalanceType
+) {
+
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
+  const lastMonthDatePrivate = selectLastMonthDate(year, Number(month));
+
+  for (const transSub of transSubs) {
+    const periodMeters = await selectMonthPeriodMeters({
+      type,
+      firstDate: date,
+      lastDate: lastMonthDatePrivate,
+      transformerSubstationId: transSub.id
+    });
+
+    if (typeof periodMeters === 'undefined') continue;
+
+    const metersBeforeFirstDate = await selectMonthMetersOnDate({
+      transformerSubstationId: transSub.id,
+      type,
+      date: date,
+      month,
+      year
+    });
+
+    const quantity = periodMeters.quantity
+      - (metersBeforeFirstDate?.quantity ?? 0);
+
+    const addedToSystem = periodMeters.added_to_system
+      - (metersBeforeFirstDate?.added_to_system ?? 0);
+
+    meters[transSub.name].quantity += quantity;
+    meters[transSub.name].added_to_system += addedToSystem;
+  }
+}
+
+function selectLastMonthDate(year: number, month: number) {
+  // Первый месяц имеет индекс 0,
+  // поэтому month здесь это следующий месяц, а не текущий.
+  // При передаче 0 в "date?: number" даст последний день предыдущего месяца.
+  const lastDayOfMonth = new Date(year, month, 0)
+    .toLocaleDateString('en-CA');
+
+  return lastDayOfMonth;
 }
 
 export type Odpy = {

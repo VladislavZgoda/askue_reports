@@ -2,18 +2,19 @@ import exceljs from 'exceljs';
 import { selectAllTransSubs } from '~/.server/db-queries/transformerSubstationTable';
 import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
 import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
-import { 
-  selectMeters, 
+import {
+  selectMeters,
   selectLegalMeters,
   calculateOdpy,
   selectPeriodMeters,
-  selectNotInSystem
+  selectNotInSystem,
+  selectMonthMeters
 } from './db-actions/selectDbData';
-import type { 
+import type {
   Meters,
   Odpy,
   DifferentMeters,
-  TransSubs 
+  TransSubs
 } from './db-actions/selectDbData';
 
 export type FormDates = {
@@ -91,7 +92,7 @@ type ReportType = {
 }
 
 async function handleReport({
-  path, privateMeters, legalMeters, 
+  path, privateMeters, legalMeters,
   transSubs, dates, odpy, excel
 }: ReportType) {
   const templatePath = path + 'workbooks/report.xlsx';
@@ -108,10 +109,9 @@ async function handleReport({
     transSubs, dates,
   });
 
-  const monthMeters = await selectPeriodMeters({
+  const monthMeters = await selectMonthMeters(
     transSubs, dates,
-    periodType: 'month'
-  });
+  );
 
   ws.getColumn('B').eachCell(
     (cell, rowNumber) => {
