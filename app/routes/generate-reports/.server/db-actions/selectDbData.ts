@@ -236,19 +236,19 @@ export async function selectMonthMeters(
 
   if (dates?.privateMonth) {
     const date = String(dates.privateMonth)
-    await addLastMonth(transSubs, meters, date, 'Быт');
+    await addPreviousMonth(transSubs, meters, date, 'Быт');
   }
 
   if (dates?.legalMonth) {
     const date = String(dates.legalMonth)
-    await addLastMonth(transSubs, meters, date, 'ЮР Sims');
-    await addLastMonth(transSubs, meters, date, 'ЮР П2')
+    await addPreviousMonth(transSubs, meters, date, 'ЮР Sims');
+    await addPreviousMonth(transSubs, meters, date, 'ЮР П2')
   }
 
   return meters;
 }
 
-async function addLastMonth(
+async function addPreviousMonth(
   transSubs: TransSubs,
   meters: PeriodMeters,
   date: string,
