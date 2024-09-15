@@ -13,7 +13,7 @@ export default function Panel({
 }: PanelPropType) {
   return (
     <TabPanel checked={checked} label={label}>
-      <Form fetcher={fetcher} isSubmitting={isSubmitting}>
+      <Form fetcher={fetcher}>
         <Container heading="Всего счетчиков">
           <Input
             label="Количество ПУ"

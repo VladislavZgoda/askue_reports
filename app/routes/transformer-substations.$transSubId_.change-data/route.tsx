@@ -1,7 +1,4 @@
-import type {
-  LoaderFunctionArgs,
-  ActionFunctionArgs
-} from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import { json } from "@remix-run/node";
@@ -317,9 +314,7 @@ export default function ChangeData() {
           fetcher={fetcher} btnValue="changeOdpyP2" />
 
         <TabPanel label="Техучеты">
-          <Form
-            fetcher={fetcher}
-            isSubmitting={isSubmittingTechMeters}>
+          <Form fetcher={fetcher}>
 
             <Container heading="Всего счетчиков">
               <Input
@@ -348,9 +343,7 @@ export default function ChangeData() {
         </TabPanel>
 
         <TabPanel label="Юр Отключенные">
-          <Form
-            fetcher={fetcher}
-            isSubmitting={isSubmittingDisabledMeters}>
+          <Form fetcher={fetcher}>
 
             <div className="flex flex-col justify-between gap-10">
               <div className="flex flex-col gap-2">
