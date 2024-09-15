@@ -38,7 +38,7 @@ export default async function writeDbData(dates: FormDates) {
     transSubs, dates.legalDate
   );
 
-  const odpy = await calculateOdpy(dates.odpyDate, transSubs);
+  const odpy = await calculateOdpy(dates, transSubs);
 
   await handlePrivateSector(path, privateMeters, excel);
 
