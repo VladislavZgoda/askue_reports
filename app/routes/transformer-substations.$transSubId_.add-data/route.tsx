@@ -1,12 +1,6 @@
 import { json } from '@remix-run/node';
-import type {
-  LoaderFunctionArgs,
-  ActionFunctionArgs
-} from '@remix-run/node';
-import {
-  useLoaderData,
-  useFetcher,
-} from '@remix-run/react';
+import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import { useLoaderData, useFetcher } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import DateInput from '~/components/DateInput';
@@ -262,9 +256,7 @@ export default function AddData() {
         <FetcherForm
           fetcher={fetcher}
           metesRef={newMetesRef}
-          isSubmitting={isSubmittingNewMeters}
-          h2Title='Добавить новые потребительские ПУ'
-          formID='addNewMeters'>
+          h2Title='Добавить новые потребительские ПУ'>
 
           <NumberInput
             labelName='Количество новых ПУ'
@@ -292,9 +284,7 @@ export default function AddData() {
         <FetcherForm
           fetcher={fetcher}
           metesRef={technicalMetersRef}
-          isSubmitting={isSubmittingTechnicalMeters}
-          h2Title='Добавить техучеты'
-          formID='addTechnicalMeters'>
+          h2Title='Добавить техучеты'>
 
           <NumberInput
             labelName='Количество Техучетов'
@@ -320,9 +310,7 @@ export default function AddData() {
         <FetcherForm
           fetcher={fetcher}
           metesRef={disabledMetersRef}
-          isSubmitting={isSubmittingDisabledLegalMeters}
-          h2Title='Добавить ЮР отключенные'
-          formID='addDisabledLegalMeters'>
+          h2Title='Добавить ЮР отключенные'>
 
           <NumberInput
             labelName='Количество отключенных ПУ'
@@ -337,9 +325,7 @@ export default function AddData() {
         <FetcherForm
           fetcher={fetcher}
           metesRef={failedMetersRef}
-          isSubmitting={isSubmittingFailedMeters}
-          h2Title='Добавить вышедшие из строя ПУ'
-          formID='addFailedMeters'>
+          h2Title='Добавить вышедшие из строя ПУ'>
 
           <NumberInput
             labelName='Количество вышедших из строя ПУ'

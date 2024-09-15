@@ -124,19 +124,6 @@ export type SubmitButtonValues = {
   isSubmitting: boolean;
 };
 
-export type FetcherFormType = {
-  children: React.ReactNode;
-  fetcher: FetcherWithComponents<SerializeFrom<{
-    errors: {
-      [k: string]: string;
-    };
-  }> | null>;
-  isSubmitting: boolean;
-  metesRef: React.RefObject<HTMLFormElement>;
-  h2Title: string;
-  formID: string;
-};
-
 export type LinkType = {
   id: number;
   name: string;

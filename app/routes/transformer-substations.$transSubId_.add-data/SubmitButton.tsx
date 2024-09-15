@@ -1,30 +1,17 @@
 import type { SubmitButtonValues } from "~/types";
 
-const SubmitButton = ({
+export default function SubmitButton({
   buttonValue,
   isSubmitting
-}: SubmitButtonValues) => {
-  const btn = isSubmitting
-    ? (
-      <i
-        className="btn btn-outline btn-success btn-active not-italic"
-        role="button"
-        tabIndex={0}>
-        <span className="loading loading-spinner"></span>
-        Запись...
-      </i>
-    )
-    : (
-      <button
-        className="btn btn-outline btn-success mt-auto"
-        type='submit'
-        name='_action'
-        value={buttonValue}>
-        Добавить
-      </button>
-    );
-
-  return btn;
-};
-
-export default SubmitButton;
+}: SubmitButtonValues) {
+  return (
+    <button
+      className={`btn btn-outline btn-success mt-auto ${isSubmitting && 'btn-active'}`}
+      type={isSubmitting ? 'button' : 'submit'}
+      name='_action'
+      value={buttonValue}>
+      {isSubmitting && (<span className="loading loading-spinner"></span>)}
+      {isSubmitting ? 'Запись...' : 'Добавить'}
+    </button>
+  );
+}
