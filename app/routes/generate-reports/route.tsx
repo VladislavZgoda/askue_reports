@@ -1,7 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   unstable_createMemoryUploadHandler as createMemoryUploadHandler,
   unstable_parseMultipartFormData as parseMultipartFormData,
@@ -41,6 +41,8 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
   const afterAction = fetcher.data;
+  const isSubmitting = fetcher.state === 'submitting';
+  const formRef = useRef<HTMLFormElement>(null);
 
   const download = () => {
     const link = document.createElement('a');
@@ -60,6 +62,10 @@ export default function GenerateReports() {
     if (afterAction) download();
   }, [afterAction]);
 
+  useEffect(() => {
+    if (!isSubmitting) formRef.current?.reset();
+  }, [isSubmitting]);
+
   return (
     <main className="mt-5 ml-10">
       <p className="mb-3 font-bold">Выберите даты для балансных групп</p>
@@ -67,7 +73,8 @@ export default function GenerateReports() {
       <fetcher.Form
         className="flex flex-col w-[30vw] gap-6"
         method="post"
-        encType="multipart/form-data">
+        encType="multipart/form-data"
+        ref={formRef}>
 
         <div className="flex flex-row gap-16 flex-auto">
           <div className="flex-auto">
@@ -96,8 +103,10 @@ export default function GenerateReports() {
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
         </label>
 
-        <button className="btn btn-outline btn-primary mt-4" type="submit">
-          Сформировать
+        <button className={`btn btn-outline btn-primary mt-4 ${isSubmitting && 'btn-active'}`}
+          type={isSubmitting ? 'button' : 'submit'}>
+          {isSubmitting && (<span className="loading loading-spinner"></span>)}
+          {isSubmitting ? 'Создание...' : 'Сформировать'}
         </button>
       </fetcher.Form>
     </main>
