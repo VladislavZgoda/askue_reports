@@ -21,13 +21,11 @@ export async function action({ request }: ActionFunctionArgs) {
     if (error instanceof AuthorizationError) {
       const formData = await requestClone.formData();
       const userLogin = formData.get('userLogin');
-      const password = formData.get('password');
 
       return json({
         error: error.message,
         values: {
-          userLogin,
-          password
+          userLogin
         }
       });
     } else if (error instanceof Response) {
@@ -47,8 +45,7 @@ export default function Login() {
       <h1 className="text-4xl font-bold underline text-success">
         Отчеты АСКУЭ
       </h1>
-      <fieldset disabled={isSubmitting}
-        className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+      <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <Form className="card-body" method="post">
           <div className="form-control">
             <label htmlFor="login" className="label">
@@ -78,33 +75,18 @@ export default function Login() {
               className={`input input-bordered ${loginData?.error && 'input-error'}`}
               id="password"
               name="password"
-              defaultValue={loginData?.error && loginData.values.password}
               required />
-            {loginData?.error && (
-              <div className="label">
-                <span className="label-text-alt text-error">{loginData.error}</span>
-              </div>
-            )}
           </div>
           <div className="form-control mt-6">
-            {isSubmitting
-              ? (
-                <i
-                  className="btn btn-outline btn-secondary btn-active not-italic"
-                  role="button"
-                  tabIndex={0}>
-                  <span className="loading loading-spinner"></span>
-                  Проверка...
-                </i>
-              )
-              : (
-                <button className="btn btn-primary" type="submit">
-                  Войти
-                </button>
-              )}
+            <button 
+              className={isSubmitting ? "btn btn-outline btn-secondary btn-active" : "btn btn-primary"} 
+              type={isSubmitting ? "button" : "submit"}>
+              {isSubmitting && <span className="loading loading-spinner"></span>}
+              {isSubmitting ? 'Проверка...' : 'Войти'}
+            </button> 
           </div>
         </Form>
-      </fieldset>
+      </div>
     </main>
   );
 }
