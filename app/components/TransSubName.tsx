@@ -15,9 +15,7 @@ export default function TransSubName({
       className="flex flex-initial items-center justify-center h-full text-3xl">
       <Form method="post" action={formAction}
         className="flex p-8 h-2/5 w-3/5 flex-initial bg-neutral-content rounded-lg">
-        <fieldset
-          className="flex flex-col justify-evenly items-center w-full h-full flex-initial"
-          disabled={isSubmitting}>
+        <div className="flex flex-col justify-evenly items-center w-full h-full flex-initial">
           <div className="form-control w-full max-w-xs">
             <label className="label" htmlFor="name">
               <span className="label-text">Наименование</span>
@@ -44,7 +42,7 @@ export default function TransSubName({
           </div>
           <div className="flex flex-initial justify-evenly w-full text-white font-semibold">
             <button
-              type="submit"
+              type={isSubmitting ? "button" : "submit"}
               className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg">
               {isSubmitting && <span className="loading loading-spinner"></span>}
               {isSubmitting ? `${buttonNames.submitName}` : `${buttonNames.idleName}`}
@@ -55,7 +53,7 @@ export default function TransSubName({
               Назад
             </button>
           </div>
-        </fieldset>
+        </div>
       </Form>
     </main>
   );
