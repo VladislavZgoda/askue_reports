@@ -10,7 +10,7 @@ export default function SubmitButton({
       type={isSubmitting ? 'button' : 'submit'}
       name='_action'
       value={buttonValue}>
-      {isSubmitting && (<span className="loading loading-spinner"></span>)}
+      {isSubmitting && <span className="loading loading-spinner"></span>}
       {isSubmitting ? 'Запись...' : 'Добавить'}
     </button>
   );

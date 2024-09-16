@@ -10,7 +10,7 @@ export default function Button({
       className={`btn btn-outline btn-accent ${isSubmitting && 'btn-active'}`}
       name="_action"
       value={buttonValue}>
-      {isSubmitting && (<span className="loading loading-spinner"></span>)}
+      {isSubmitting && <span className="loading loading-spinner"></span>}
       {isSubmitting ? 'Изменение...' : 'Изменить данные'}
     </button >
   );
