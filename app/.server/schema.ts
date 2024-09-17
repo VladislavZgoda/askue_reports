@@ -76,6 +76,12 @@ export const NewYearMetersTable =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { 
+      yearForeignKey: index('year_foreign_key')
+      .on(table.transformerSubstationId),
+      yearTypeIndex: index('year_type_index').on(table.type),
+    };
   });
 
 export const NewMonthMetersTable =
@@ -99,6 +105,12 @@ export const NewMonthMetersTable =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { 
+      monthForeignKey: index('month_foreign_key')
+      .on(table.transformerSubstationId),
+      monthTypeIndex: index('month_type_index').on(table.type),
+    };
   });
 
 export const NotInSystem =
@@ -119,6 +131,12 @@ export const NotInSystem =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { 
+      notInSystemForeignKey: index('not_in_system_foreign_key')
+      .on(table.transformerSubstationId),
+      notInSystemTypeIndex: index('not_in_system_type_index').on(table.type),
+    };
   });
 
 export const MetersActionLog =
@@ -189,6 +207,12 @@ export const FailedMeters =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { 
+      transSubsIdIndex: index('failed_meters_foreign_key')
+      .on(table.transformerSubstationId),
+      failedMetersTypeIndex: index('failed_meters_type_index').on(table.type),
+    };
   });
 
 export const Users =
