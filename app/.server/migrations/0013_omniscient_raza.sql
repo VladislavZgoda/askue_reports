@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "id_index" ON "transformerSubstation" USING btree ("name");

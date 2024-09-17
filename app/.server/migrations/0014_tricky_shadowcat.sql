@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS "transformerSubstation_id_index" ON "electricityMeters" USING btree ("transformerSubstation");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "type_index" ON "electricityMeters" USING btree ("balanceType");

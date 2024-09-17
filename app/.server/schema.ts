@@ -6,7 +6,8 @@ import {
   timestamp,
   varchar,
   date,
-  text
+  text,
+  index
 } from 'drizzle-orm/pg-core';
 
 export const TransformerSubstationTable =
@@ -21,6 +22,8 @@ export const TransformerSubstationTable =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { idIndex: index('id_index').on(table.name) };
   });
 
 export const BalanceType = pgEnum('balanceType', [
@@ -45,6 +48,12 @@ export const ElectricityMetersTable =
       withTimezone: true,
       mode: 'date',
     }).defaultNow().notNull(),
+  }, (table) => {
+    return { 
+      transformerSubstationIdIndex: index('transformerSubstation_id_index')
+      .on(table.transformerSubstationId),
+      typeIndex: index('type_index').on(table.type),
+    };
   });
 
 export const NewYearMetersTable =
