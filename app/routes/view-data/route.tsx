@@ -53,10 +53,19 @@ export default function ViewData() {
     </tr>
   );
 
-  const totalInSystem = transSubs.reduce((sum, transSub) => 
-    sum + data[transSub].private + data[transSub].legal 
-    + data[transSub].odpy, 0
+  const privateTotal = transSubs.reduce((sum, transSub) => 
+    sum + data[transSub].private , 0
   );
+
+  const legalTotal = transSubs.reduce((sum, transSub) => 
+    sum + data[transSub].legal , 0
+  );
+
+  const odpyTotal = transSubs.reduce((sum, transSub) => 
+    sum + data[transSub].odpy , 0
+  );
+
+  const totalInSystem = privateTotal + legalTotal + odpyTotal;
 
   const totalCount = transSubs.reduce((sum, transSub) => 
     sum + data[transSub].notInSystem, 0
@@ -93,11 +102,20 @@ export default function ViewData() {
         </table>
       </div>
 
-      <div className="mb-5 flex flex-col items-end">
+      <div className="mb-5 flex flex-col items-end gap-1">
+        <p>
+          Всего БЫТ: <span className="font-bold">{privateTotal}</span>
+        </p>
+        <p>
+          Всего ЮР: <span className="font-bold">{legalTotal}</span>
+        </p>
+        <p>
+          Всего ОДПУ: <span className="font-bold">{odpyTotal}</span>
+        </p>
         <p>
           Всего с возможностью опроса через ПО: <span className="font-bold">{totalInSystem}</span>
         </p>
-        <p className="mt-2">
+        <p>
           Общее количество ТУ с возможностью опроса: <span className="font-bold">{totalCount}</span>
         </p>
       </div>
