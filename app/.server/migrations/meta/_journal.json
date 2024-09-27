@@ -120,6 +120,13 @@
       "when": 1726572645593,
       "tag": "0016_jazzy_inhumans",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1727422296104,
+      "tag": "0017_quiet_manta",
+      "breakpoints": true
     }
   ]
 }

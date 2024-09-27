@@ -10,7 +10,7 @@ export const checkNameConstrains = (
     return json({ error, name });
   } else if (error instanceof Error
     && error.message.includes('character varying')) {
-    const error = `Максимальная длина наименования - 8 символов.`
+    const error = `Максимальная длина наименования - 15 символов.`
     return json({ error, name });
   }
 };

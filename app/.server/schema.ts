@@ -13,7 +13,7 @@ import {
 export const TransformerSubstationTable =
   pgTable('transformerSubstation', {
     id: serial('id').primaryKey(),
-    name: varchar('name', { length: 8 }).unique().notNull(),
+    name: varchar('name', { length: 15 }).unique().notNull(),
     created_at: timestamp('created_at', {
       withTimezone: true,
       mode: 'date'
