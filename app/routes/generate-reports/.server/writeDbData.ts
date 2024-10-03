@@ -59,7 +59,7 @@ async function handlePrivateSector(
   excel: exceljs.Workbook
 ) {
   const templatePath = path + 'workbooks/private_sector.xlsx';
-  const savePath = path + 'filled-reports/private_sector.xlsx';
+  const savePath = path + 'filled-reports/Развитие ЧС.xlsx';
 
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
@@ -96,7 +96,7 @@ async function handleReport({
   transSubs, dates, odpy, excel
 }: ReportType) {
   const templatePath = path + 'workbooks/report.xlsx';
-  const savePath = path + 'filled-reports/report.xlsx';
+  const savePath = path + 'filled-reports/Отчет по дистанционным съемам.xlsx';
 
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
@@ -177,7 +177,7 @@ async function handleSupplementThree({
   odpy, dates, transSubs, excel
 }: SupplementThree) {
   const templatePath = path + 'workbooks/supplement_three.xlsx';
-  const savePath = path + 'filled-reports/supplement_three.xlsx';
+  const savePath = path + 'filled-reports/Приложение №3.xlsx';
 
   const wb = await excel.xlsx.readFile(templatePath);
   const ws =  wb.worksheets[2];

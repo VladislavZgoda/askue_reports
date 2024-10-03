@@ -21,7 +21,7 @@ async function handleReport(
   path: string,
   excel: exceljs.Workbook
 ) {
-  const filePath = path + 'report.xlsx';
+  const filePath = path + 'Отчет по дистанционным съемам.xlsx';
 
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[0];
@@ -55,7 +55,7 @@ async function handleSupplementThree(
   path: string,
   excel: exceljs.Workbook
 ) {
-  const filePath = path + 'supplement_three.xlsx';
+  const filePath = path + 'Приложение №3.xlsx';
 
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[2];
