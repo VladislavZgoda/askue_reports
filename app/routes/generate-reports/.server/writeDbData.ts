@@ -71,6 +71,8 @@ async function handlePrivateSector(
       if (!transSub.startsWith('ТП')) return;
 
       ws.getCell('B' + rowNumber).value = privateMeters[transSub] ?? 0;
+      ws.getCell('G' + rowNumber).model.result = undefined;
+      ws.getCell('H' + rowNumber).model.result = undefined;
     }
   );
 
@@ -142,6 +144,7 @@ async function handleReport({
       ws.getCell('R' + rowNumber).value = yearInSystem;
       ws.getCell('S' + rowNumber).value = monthQuantity;
       ws.getCell('T' + rowNumber).value = monthInSystem;
+      ws.getCell('O' + rowNumber).model.result = undefined;
     }
   );
 
