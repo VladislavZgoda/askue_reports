@@ -23,7 +23,7 @@ export const TransformerSubstationTable =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { idIndex: index('id_index').on(table.id) };
+    return [index('id_index').on(table.id)];
   });
 
 export const BalanceType = pgEnum('balanceType', [
@@ -49,12 +49,11 @@ export const ElectricityMetersTable =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      transformerSubstationIdIndex: index('transformerSubstation_id_index')
-      .on(table.transformerSubstationId),
-      typeIndex: index('type_index').on(table.type),
-      dateIndex: index('date_index').on(table.date),
-    };
+    return [
+      index('transformerSubstation_id_index').on(table.transformerSubstationId),
+      index('type_index').on(table.type),
+      index('date_index').on(table.date),
+    ];
   });
 
 export const NewYearMetersTable =
@@ -78,13 +77,12 @@ export const NewYearMetersTable =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      yearForeignKey: index('year_foreign_key')
-      .on(table.transformerSubstationId),
-      yearTypeIndex: index('year_type_index').on(table.type),
-      yearDateIndex: index('year_date_index').on(table.date),
-      yearIndex: index('year_index').on(table.year),
-    };
+    return [
+      index('year_foreign_key').on(table.transformerSubstationId),
+      index('year_type_index').on(table.type),
+      index('year_date_index').on(table.date),
+      index('year_index').on(table.year),
+    ];
   });
 
 export const NewMonthMetersTable =
@@ -109,14 +107,13 @@ export const NewMonthMetersTable =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      monthForeignKey: index('month_foreign_key')
-      .on(table.transformerSubstationId),
-      monthTypeIndex: index('month_type_index').on(table.type),
-      monthDateIndex: index('month_date_index').on(table.date),
-      monthIndex: index('month_index').on(table.month),
-      monthYearIndex: index('month_year_index').on(table.year),
-    };
+    return [
+      index('month_foreign_key').on(table.transformerSubstationId),
+      index('month_type_index').on(table.type),
+      index('month_date_index').on(table.date),
+      index('month_index').on(table.month),
+      index('month_year_index').on(table.year),
+    ];
   });
 
 export const NotInSystem =
@@ -138,12 +135,11 @@ export const NotInSystem =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      notInSystemForeignKey: index('not_in_system_foreign_key')
-      .on(table.transformerSubstationId),
-      notInSystemTypeIndex: index('not_in_system_type_index').on(table.type),
-      notInSystemDateIndex: index('not_in_system_date_index').on(table.date)
-    };
+    return [
+      index('not_in_system_foreign_key').on(table.transformerSubstationId),
+      index('not_in_system_type_index').on(table.type),
+      index('not_in_system_date_index').on(table.date)
+    ];
   });
 
 export const MetersActionLog =
@@ -159,10 +155,9 @@ export const MetersActionLog =
       mode: 'date'
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      logForeignKey: index('log_foreign_key')
-      .on(table.transformerSubstationId),
-    };
+    return [
+      index('log_foreign_key').on(table.transformerSubstationId),
+    ];
   });
 
 export const TechnicalMeters =
@@ -220,11 +215,10 @@ export const FailedMeters =
       mode: 'date',
     }).defaultNow().notNull(),
   }, (table) => {
-    return { 
-      transSubsIdIndex: index('failed_meters_foreign_key')
-      .on(table.transformerSubstationId),
-      failedMetersTypeIndex: index('failed_meters_type_index').on(table.type),
-    };
+    return [
+      index('failed_meters_foreign_key').on(table.transformerSubstationId),
+      index('failed_meters_type_index').on(table.type),
+    ];
   });
 
 export const Users =
