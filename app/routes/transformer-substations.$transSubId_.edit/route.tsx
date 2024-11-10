@@ -2,7 +2,7 @@ import type {
   LoaderFunctionArgs,
   ActionFunctionArgs
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   useLoaderData,
   useActionData,
@@ -37,7 +37,7 @@ export const loader = async ({
 
   await isNotAuthenticated(request);
 
-  return json({ transSub });
+  return transSub;
 };
 
 export const action = async ({
@@ -67,7 +67,7 @@ export const action = async ({
 };
 
 export default function EditTransformerSubstation() {
-  const { transSub } = useLoaderData<typeof loader>();
+  const transSub = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const formAction = `/transformer-substations/${transSub.id}/edit`;
