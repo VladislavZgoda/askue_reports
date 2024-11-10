@@ -3,7 +3,6 @@ import DateInput from "~/components/DateInput";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import todayDate from "~/helpers/getDate";
-import { json } from '@remix-run/node';
 import loadData from "./.server/loadData";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -22,7 +21,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const data = await loadData(loadValues);
 
-  return json({ loadValues, data });
+  return { loadValues, data };
 }
 
 
@@ -38,7 +37,7 @@ export default function ViewData() {
     })
   );
 
-  const tableRows = transSubs.map((transSub, index) => 
+  const tableRows = transSubs.map((transSub, index) =>
     <tr key={data[transSub].id} className="hover">
       <th>{index + 1}</th>
       <td>{transSub}</td>
@@ -47,27 +46,27 @@ export default function ViewData() {
       <td>{data[transSub].odpy}</td>
       <td>{data[transSub].notInSystem}</td>
       <td>
-        {data[transSub].private + data[transSub].legal 
+        {data[transSub].private + data[transSub].legal
         + data[transSub].odpy + data[transSub].notInSystem}
       </td>
     </tr>
   );
 
-  const privateTotal = transSubs.reduce((sum, transSub) => 
+  const privateTotal = transSubs.reduce((sum, transSub) =>
     sum + data[transSub].private , 0
   );
 
-  const legalTotal = transSubs.reduce((sum, transSub) => 
+  const legalTotal = transSubs.reduce((sum, transSub) =>
     sum + data[transSub].legal , 0
   );
 
-  const odpyTotal = transSubs.reduce((sum, transSub) => 
+  const odpyTotal = transSubs.reduce((sum, transSub) =>
     sum + data[transSub].odpy , 0
   );
 
   const totalInSystem = privateTotal + legalTotal + odpyTotal;
 
-  const totalCount = transSubs.reduce((sum, transSub) => 
+  const totalCount = transSubs.reduce((sum, transSub) =>
     sum + data[transSub].notInSystem, 0
   ) + totalInSystem;
 
