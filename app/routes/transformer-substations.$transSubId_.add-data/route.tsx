@@ -1,4 +1,3 @@
-import { json } from '@remix-run/node';
 import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
 import { useLoaderData, useFetcher } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
@@ -42,7 +41,7 @@ export const loader = async ({
 
   const logMessages = await selectMessages(params.transSubId);
 
-  return json({ transSub, logMessages });
+  return { transSub, logMessages };
 };
 
 export const action = async ({
@@ -57,7 +56,7 @@ export const action = async ({
     const errors = validateInputNewMeters(values);
 
     if (Object.keys(errors).length > 0) {
-      return json({ errors });
+      return { errors };
     }
 
     const data = {
@@ -75,7 +74,7 @@ export const action = async ({
     const errors = validateInputTechnicalMeters(values);
 
     if (Object.keys(errors).length > 0) {
-      return json({ errors });
+      return { errors };
     }
 
     const data = {
@@ -91,7 +90,7 @@ export const action = async ({
     const errors = validateInputDisabledMeters(values);
 
     if (Object.keys(errors).length > 0) {
-      return json({ errors });
+      return { errors };
     }
 
     const data = {
@@ -106,7 +105,7 @@ export const action = async ({
     const errors = validateInputFailedMeters(values);
 
     if (Object.keys(errors).length > 0) {
-      return json({ errors });
+      return { errors };
     }
 
     const data = {
