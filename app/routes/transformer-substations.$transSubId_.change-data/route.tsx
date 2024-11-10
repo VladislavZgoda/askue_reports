@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import { json } from "@remix-run/node";
 import { useLoaderData, useFetcher } from "@remix-run/react";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
@@ -48,7 +47,7 @@ export const loader = async ({
   const techMetersData = await loadTechMeters(transSub.id);
   const disabledMetersData = await loadDisabledLegalMeters(transSub.id);
 
-  return json({
+  return {
     transSub,
     privateData,
     legalSimsData,
@@ -57,7 +56,7 @@ export const loader = async ({
     odpyP2Data,
     techMetersData,
     disabledMetersData
-  });
+  };
 };
 
 export const action = async ({
@@ -71,7 +70,7 @@ export const action = async ({
   const errors = validateInput(values);
 
   if (Object.keys(errors).length > 0) {
-    return json({ errors });
+    return { errors };
   }
 
   const mutateData = async (type: BalanceType) => {
