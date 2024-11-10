@@ -1,7 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { authenticator } from "~/.server/services/auth";
-import { json } from "@remix-run/node";
 import { AuthorizationError } from "remix-auth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -22,12 +21,12 @@ export async function action({ request }: ActionFunctionArgs) {
       const formData = await requestClone.formData();
       const userLogin = formData.get('userLogin');
 
-      return json({
+      return {
         error: error.message,
         values: {
           userLogin
         }
-      });
+      };
     } else if (error instanceof Response) {
       // Возвращает response 302
       return error;
@@ -78,12 +77,12 @@ export default function Login() {
               required />
           </div>
           <div className="form-control mt-6">
-            <button 
-              className={isSubmitting ? "btn btn-outline btn-secondary btn-active" : "btn btn-primary"} 
+            <button
+              className={isSubmitting ? "btn btn-outline btn-secondary btn-active" : "btn btn-primary"}
               type={isSubmitting ? "button" : "submit"}>
               {isSubmitting && <span className="loading loading-spinner"></span>}
               {isSubmitting ? 'Проверка...' : 'Войти'}
-            </button> 
+            </button>
           </div>
         </Form>
       </div>
