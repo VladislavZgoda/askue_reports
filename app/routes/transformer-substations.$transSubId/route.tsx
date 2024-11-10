@@ -1,4 +1,3 @@
-import { json } from '@remix-run/node';
 import type { LoaderFunctionArgs } from '@remix-run/node';
 import { Form, useLoaderData, useSubmit } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
@@ -41,7 +40,7 @@ export const loader = async ({
 
   const data = await loadData(loadValues);
 
-  return json({ transSub, data, loadValues });
+  return { transSub, data, loadValues };
 };
 
 export default function TransformerSubstation() {
