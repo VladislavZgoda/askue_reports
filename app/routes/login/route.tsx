@@ -53,6 +53,7 @@ export default function Login() {
             <input
               type="text"
               placeholder="логин"
+              autoComplete="username"
               className={`input input-bordered ${loginData?.error && 'input-error'}`}
               id="login"
               name="userLogin"
@@ -71,6 +72,7 @@ export default function Login() {
             <input
               type="password"
               placeholder="пароль"
+              autoComplete="current-password"
               className={`input input-bordered ${loginData?.error && 'input-error'}`}
               id="password"
               name="password"
