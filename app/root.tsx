@@ -16,7 +16,6 @@ import type {
   SerializeFrom,
   LoaderFunctionArgs
 } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import MainLayout from "./layout/MainLayout";
 import { selectTransSubs } from "./.server/db-queries/transformerSubstationTable";
@@ -31,7 +30,7 @@ export async function loader({
   const url = new URL(request.url);
   const q = url.searchParams.get('q');
   const transSubs = await selectTransSubs(q);
-  return json({ transSubs, q });
+  return { transSubs, q };
 }
 
 export function action() {
