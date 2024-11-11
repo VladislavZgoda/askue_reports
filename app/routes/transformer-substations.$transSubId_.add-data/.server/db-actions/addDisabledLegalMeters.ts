@@ -1,10 +1,14 @@
-import type { DisabledLegalMetersAction } from "~/types";
 import {
   insertDisabledLegalMeters,
   selectDisabledLegalMeters,
   updateDisabledLegalMeters
  } from "~/.server/db-queries/disabledLegalMetersTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+
+export type DisabledLegalMetersAction = {
+  transSubId: string;
+  disabledMeters: string;
+};
 
 export default async function addDisabledLegalMeters(
   values: DisabledLegalMetersAction
