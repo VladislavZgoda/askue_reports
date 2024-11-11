@@ -11,11 +11,7 @@ import {
   useNavigation,
   useMatches
 } from "@remix-run/react";
-import type {
-  LinksFunction,
-  SerializeFrom,
-  LoaderFunctionArgs
-} from "@remix-run/node";
+import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
 import stylesheet from "~/tailwind.css?url";
 import MainLayout from "./layout/MainLayout";
 import { selectTransSubs } from "./.server/db-queries/transformerSubstationTable";
@@ -42,7 +38,7 @@ export function Layout({
 }: {
   children: React.ReactNode
 }) {
-  const data = useRouteLoaderData('root') as SerializeFrom<typeof loader>;
+  const data = useRouteLoaderData<typeof loader>('root');
   const matches = useMatches();
   const routes = ['routes/$', 'routes/login'];
 
