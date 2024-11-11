@@ -190,16 +190,6 @@ export type PrevDataType = {
   failedMeters: number;
 };
 
-export type FormType = {
-  children: React.ReactNode;
-  fetcher: FetcherWithComponents<SerializeFrom<{
-    errors: {
-      [k: string]: string;
-    };
-  }> | null>
-  isSubmitting: boolean;
-};
-
 export type InputType = {
   defValue: number;
   name: string;
