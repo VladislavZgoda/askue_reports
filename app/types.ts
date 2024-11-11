@@ -145,11 +145,6 @@ export type InputType = {
   errors?: boolean;
 };
 
-export type ContainerType = {
-  children: React.ReactNode;
-  heading: string;
-};
-
 export type ErrorProp = {
   error: string | undefined
 };

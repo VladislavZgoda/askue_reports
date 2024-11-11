@@ -1,4 +1,9 @@
-import type { ContainerType } from "~/types";
+import React from "react";
+
+type ContainerType = {
+  children: React.ReactNode;
+  heading: string;
+};
 
 export default function Container({
   children, heading
