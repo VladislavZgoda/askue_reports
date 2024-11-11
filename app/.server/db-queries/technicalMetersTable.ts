@@ -1,7 +1,12 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { TechnicalMeters } from "../schema";
-import type { TechnicalMetersValues } from "~/types";
+
+type TechnicalMetersValues = {
+  quantity: number,
+  underVoltage: number,
+  transformerSubstationId: number
+};
 
 export const insertTechnicalMeters = async ({
   quantity,
