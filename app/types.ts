@@ -1,4 +1,4 @@
-import type { FetcherWithComponents, FormMethod } from "@remix-run/react";
+import type { FormMethod } from "@remix-run/react";
 import React from "react";
 
 export type TransSubs = {
@@ -215,36 +215,6 @@ export type ErrorProp = {
 export type BtnInputContainerType = {
   children: React.ReactNode;
   errors: boolean;
-};
-
-export type PanelPropType = {
-  label: string;
-  checked?: boolean;
-  fetcher: FetcherWithComponents<{
-    errors: {
-      [k: string]: string;
-    };
-  } | null>;
-  isSubmitting: boolean;
-  data: {
-    totalMeters: {
-      quantity: number;
-      addedToSystem: number;
-    };
-    totalYearMeters: {
-      quantity: number;
-      addedToSystem: number;
-    };
-    totalMonthMeters: {
-      quantity: number;
-      addedToSystem: number;
-    };
-    failedMeters: number;
-  };
-  errors: {
-    [k: string]: string;
-  };
-  btnValue: string;
 };
 
 export type ToastPropType = {

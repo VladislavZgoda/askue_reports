@@ -5,7 +5,37 @@ import TabPanel from "./TabPanel";
 import Button from "./Button";
 import BtnInputContainer from "./BtnInputContainer";
 import { isErrors } from "~/helpers/checkErrors";
-import type { PanelPropType } from "~/types";
+import type { FetcherWithComponents } from "@remix-run/react";
+
+type PanelPropType = {
+  label: string;
+  checked?: boolean;
+  fetcher: FetcherWithComponents<{
+    errors: {
+      [k: string]: string;
+    };
+  } | null>;
+  isSubmitting: boolean;
+  data: {
+    totalMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    totalYearMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    totalMonthMeters: {
+      quantity: number;
+      addedToSystem: number;
+    };
+    failedMeters: number;
+  };
+  errors: {
+    [k: string]: string;
+  };
+  btnValue: string;
+};
 
 export default function Panel({
   label, errors, data, checked = false,
