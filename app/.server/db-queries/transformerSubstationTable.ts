@@ -30,7 +30,7 @@ export async function selectTransSubs(
       .where(ilike(TransformerSubstationTable.name, q));
 
     return transSubs;
-  } catch (error) {
+  } catch {
     throw new Error('DB is not available', {
       cause: 'Cannot connect to db'
     });
