@@ -1,4 +1,3 @@
-import type { FormMethod } from "@remix-run/react";
 import React from "react";
 
 export type TransSubs = {
@@ -98,13 +97,6 @@ export type FailedMetersAction = {
 export type SubmitButtonValues = {
   buttonValue: string;
   isSubmitting: boolean;
-};
-
-export type NavigateFormType = {
-  actionName: string;
-  btnText: string;
-  onDelete: ((e: React.FormEvent) => void) | undefined;
-  methodType: FormMethod;
 };
 
 export type UpdateOnIdType = {
