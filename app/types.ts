@@ -1,5 +1,3 @@
-import React from "react";
-
 export type TransSubs = {
   transSubs: {
     id: number;
@@ -143,11 +141,6 @@ export type InputType = {
   label: string;
   error?: string | undefined;
   errors?: boolean;
-};
-
-export type BtnInputContainerType = {
-  children: React.ReactNode;
-  errors: boolean;
 };
 
 export type ToastPropType = {

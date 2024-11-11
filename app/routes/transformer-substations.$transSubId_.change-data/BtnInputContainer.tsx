@@ -1,4 +1,9 @@
-import type { BtnInputContainerType } from "~/types";
+import React from "react";
+
+type BtnInputContainerType = {
+  children: React.ReactNode;
+  errors: boolean;
+};
 
 export default function BtnInputContainer({
   children, errors
