@@ -1,6 +1,10 @@
-import type { NameForInput } from "~/types";
+type NameForInput = {
+  labelName: string;
+  inputName: string;
+  error: string | undefined;
+};
 
-export default function NumberInput({ 
+export default function NumberInput({
   labelName,
   inputName,
   error
