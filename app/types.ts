@@ -1,5 +1,4 @@
 import type { FetcherWithComponents, FormMethod } from "@remix-run/react";
-import type { SerializeFrom } from "@remix-run/node";
 import React from "react";
 
 export type TransSubs = {
@@ -221,13 +220,13 @@ export type BtnInputContainerType = {
 export type PanelPropType = {
   label: string;
   checked?: boolean;
-  fetcher: FetcherWithComponents<SerializeFrom<{
+  fetcher: FetcherWithComponents<{
     errors: {
       [k: string]: string;
     };
-  }> | null>;
+  } | null>;
   isSubmitting: boolean;
-  data: SerializeFrom<{
+  data: {
     totalMeters: {
       quantity: number;
       addedToSystem: number;
@@ -241,7 +240,7 @@ export type PanelPropType = {
       addedToSystem: number;
     };
     failedMeters: number;
-  }>;
+  };
   errors: {
     [k: string]: string;
   };
