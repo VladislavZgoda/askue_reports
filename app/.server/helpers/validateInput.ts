@@ -1,5 +1,3 @@
-import { json } from "@remix-run/react";
-
 export const checkNameConstrains = (
   error: unknown,
   name: string
@@ -7,11 +5,11 @@ export const checkNameConstrains = (
   if (error instanceof Error
       && error.message.includes('name_unique')) {
     const error = `Наименование ${name} уже существует.`
-    return json({ error, name });
+    return { error, name };
   } else if (error instanceof Error
     && error.message.includes('character varying')) {
     const error = `Максимальная длина наименования - 15 символов.`
-    return json({ error, name });
+    return { error, name };
   }
 };
 
@@ -20,6 +18,6 @@ export const checkNameLength = (
 ) => {
   if (name.length < 3) {
     const error = 'Длина наименования должна быть не меньше 3 символов.'
-    return json({ error, name });
+    return { error, name };
   }
 };
