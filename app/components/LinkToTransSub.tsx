@@ -1,5 +1,9 @@
 import { Link } from "@remix-run/react";
-import type { LinkType } from "~/types";
+
+type LinkType = {
+  id: number;
+  name: string;
+};
 
 export default function LinkToTransSub({
   id, name

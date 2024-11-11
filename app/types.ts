@@ -100,11 +100,6 @@ export type SubmitButtonValues = {
   isSubmitting: boolean;
 };
 
-export type LinkType = {
-  id: number;
-  name: string;
-};
-
 export type NavigateFormType = {
   actionName: string;
   btnText: string;
