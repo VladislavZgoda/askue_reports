@@ -79,12 +79,6 @@ export type TotalMeters = {
   added_to_system: number;
 };
 
-export type TechnicalMetersAction = {
-  transSubId: string;
-  techMeters: string;
-  underVoltage: string;
-};
-
 export type TechnicalMetersValues = {
   quantity: number,
   underVoltage: number,

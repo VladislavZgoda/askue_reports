@@ -1,10 +1,15 @@
-import type { TechnicalMetersAction } from "~/types";
 import {
   insertTechnicalMeters,
   selectTechnicalMeters,
   updateTechnicalMeters
 } from "~/.server/db-queries/technicalMetersTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+
+type TechnicalMetersAction = {
+  transSubId: string;
+  techMeters: string;
+  underVoltage: string;
+};
 
 export default async function addTechnicalMeters(
   values: TechnicalMetersAction
