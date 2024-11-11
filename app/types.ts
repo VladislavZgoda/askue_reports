@@ -150,12 +150,6 @@ export type ContainerType = {
   heading: string;
 };
 
-export type TabPanelType = {
-  children: React.ReactNode;
-  label: string;
-  checked?: boolean;
-};
-
 export type ErrorProp = {
   error: string | undefined
 };

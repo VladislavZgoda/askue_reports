@@ -1,4 +1,8 @@
-import type { TabPanelType } from "~/types";
+type TabPanelType = {
+  children: React.ReactNode;
+  label: string;
+  checked?: boolean;
+};
 
 export default function TabPanel({
   children, label, checked=false
