@@ -137,22 +137,6 @@ export type UpdateTotalMonthMetersType = {
   inSystemMonth: number;
 };
 
-export type PrevDataType = {
-  totalMeters: {
-    quantity: number;
-    addedToSystem: number;
-  };
-  totalYearMeters: {
-    quantity: number;
-    addedToSystem: number;
-  };
-  totalMonthMeters: {
-    quantity: number;
-    addedToSystem: number;
-  };
-  failedMeters: number;
-};
-
 export type InputType = {
   defValue: number;
   name: string;
