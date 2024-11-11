@@ -143,11 +143,6 @@ export type InputType = {
   errors?: boolean;
 };
 
-export type ToastPropType = {
-  isVisible: boolean;
-  message: string;
-};
-
 export type DbDataType = {
   inSystem: number;
   notInSystem: number;

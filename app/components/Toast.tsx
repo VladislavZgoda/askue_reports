@@ -1,4 +1,7 @@
-import type { ToastPropType } from "~/types";
+type ToastPropType = {
+  isVisible: boolean;
+  message: string;
+};
 
 export default function Toast({
   isVisible, message
