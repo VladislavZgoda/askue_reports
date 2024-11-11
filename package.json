@@ -13,8 +13,10 @@
     "db:migrate": "tsx app/.server/migrate.ts"
   },
   "dependencies": {
+    "@remix-run/fs-routes": "^2.14.0",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.11.2",
+    "@remix-run/route-config": "^2.14.0",
     "@remix-run/serve": "^2.11.2",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.0",
