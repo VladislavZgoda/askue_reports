@@ -1,8 +1,7 @@
-import type { SerializeFrom } from "@remix-run/node";
 import type { DbDataType } from "~/types";
 
 type DataProp = {
-  data: SerializeFrom<{
+  data: {
     private: DbDataType;
     legalSims: DbDataType;
     legalP2: DbDataType;
@@ -12,7 +11,7 @@ type DataProp = {
       quantity: number;
       underVoltage: number;
     };
-  }>
+  }
 };
 
 type ConvertedDataType = {
