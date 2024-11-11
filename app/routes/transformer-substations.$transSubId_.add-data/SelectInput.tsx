@@ -1,4 +1,6 @@
-import type { ErrorProp } from "~/types";
+type ErrorProp = {
+  error: string | undefined
+};
 
 export default function SelectInput({
   error

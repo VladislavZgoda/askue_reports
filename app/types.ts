@@ -145,10 +145,6 @@ export type InputType = {
   errors?: boolean;
 };
 
-export type ErrorProp = {
-  error: string | undefined
-};
-
 export type BtnInputContainerType = {
   children: React.ReactNode;
   errors: boolean;
