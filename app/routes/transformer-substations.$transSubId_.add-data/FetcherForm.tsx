@@ -1,13 +1,12 @@
 import type { FetcherWithComponents } from "@remix-run/react";
-import type { SerializeFrom } from "@remix-run/node";
 
 type FetcherFormType = {
   children: React.ReactNode;
-  fetcher: FetcherWithComponents<SerializeFrom<{
+  fetcher: FetcherWithComponents<{
     errors: {
       [k: string]: string;
     };
-  }> | null>;
+  } | null>;
   metesRef: React.RefObject<HTMLFormElement>;
   h2Title: string;
 };
