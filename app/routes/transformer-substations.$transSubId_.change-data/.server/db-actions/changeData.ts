@@ -31,7 +31,7 @@ import {
   updateFailedMeters
 } from "~/.server/db-queries/failedMetersTable";
 import loadData from "./loadData";
-import { cutOutMonth, cutOutYear } from "~/.server/helpers/stringFunctions";
+import { cutOutMonth, cutOutYear } from "~/.server/utils/stringFunctions";
 
 export default async function changeData(
   values: { [k: string]: FormDataEntryValue }

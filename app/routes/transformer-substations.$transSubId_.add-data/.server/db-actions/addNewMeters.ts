@@ -44,7 +44,7 @@ import {
   updateNotInSystemOnId
 } from "~/.server/db-queries/notInSystemTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
-import { cutOutMonth, cutOutYear } from "~/.server/helpers/stringFunctions";
+import { cutOutMonth, cutOutYear } from "~/.server/utils/stringFunctions";
 
 type ActionValues = {
   transSubId: string;

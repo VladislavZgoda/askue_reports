@@ -17,7 +17,7 @@ import TransSubName from "~/components/TransSubName";
 import {
   checkNameConstrains,
   checkNameLength
-} from "~/.server/helpers/validateInput";
+} from "~/.server/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
 
 export const loader = async ({
