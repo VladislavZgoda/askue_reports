@@ -29,7 +29,9 @@ export default function Header() {
             <div>
               <NavLink to="/view-data"
                 className={({isActive}) => `btn btn-info btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && 'btn-active'}`}>
+                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && 'btn-active'}`}
+                prefetch='intent'
+              >
                 Просмотр данных
               </NavLink>
             </div>
