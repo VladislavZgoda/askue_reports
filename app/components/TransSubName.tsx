@@ -1,5 +1,21 @@
 import { Form, useNavigate } from "@remix-run/react";
-import type { TransSubName } from "~/types";
+
+type TransSubNameArgs = {
+  transSub: {
+    id: number;
+    name: string;
+  } | undefined,
+  isSubmitting: boolean,
+  actionData: {
+    error: string;
+    name: string;
+  } | undefined,
+  formAction: string,
+  buttonNames: {
+    submitName: string;
+    idleName: string;
+  }
+};
 
 export default function TransSubName({
   transSub,
@@ -7,7 +23,7 @@ export default function TransSubName({
   actionData,
   formAction,
   buttonNames
-}: TransSubName) {
+}: TransSubNameArgs) {
   const navigate = useNavigate();
 
   return (

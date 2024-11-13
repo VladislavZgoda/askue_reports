@@ -6,23 +6,6 @@ export type TransSubs = {
   q: string | null | undefined
 };
 
-export type TransSubName = {
-  transSub: {
-    id: number;
-    name: string;
-  } | undefined,
-  isSubmitting: boolean,
-  actionData: {
-    error: string;
-    name: string;
-  } | undefined,
-  formAction: string,
-  buttonNames: {
-    submitName: string;
-    idleName: string;
-  }
-};
-
 export type BalanceType = 'Быт' | 'ЮР Sims' | 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2';
 
 export type MetersValues = {
