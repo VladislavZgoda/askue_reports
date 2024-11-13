@@ -2,7 +2,7 @@ import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { isNotAuthenticated } from '~/.server/services/auth';
-import todayDate from "~/helpers/getDate";
+import todayDate from "~/utils/getDate";
 import loadData from "./.server/loadData";
 
 export async function loader({ request }: LoaderFunctionArgs) {

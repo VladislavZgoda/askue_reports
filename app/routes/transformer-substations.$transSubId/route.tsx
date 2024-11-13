@@ -6,7 +6,7 @@ import StatTable from './StatTable';
 import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
-import todayDate from "~/helpers/getDate";
+import todayDate from "~/utils/getDate";
 import { isNotAuthenticated } from '~/.server/services/auth';
 
 export const loader = async ({

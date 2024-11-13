@@ -17,7 +17,7 @@ import { useState, useEffect } from "react";
 import type { BalanceType } from "~/types";
 import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
-import { isErrors } from "~/helpers/checkErrors";
+import { isErrors } from "~/utils/checkErrors";
 import loadDisabledLegalMeters from "./.server/db-actions/loadDisabledLegalMeters";
 import changeDisabledMeters from "./.server/db-actions/changeDisabledMeters";
 import { isNotAuthenticated } from "~/.server/services/auth";

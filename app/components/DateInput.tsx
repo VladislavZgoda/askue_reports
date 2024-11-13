@@ -1,4 +1,4 @@
-import todayDate from "~/helpers/getDate";
+import todayDate from "~/utils/getDate";
 
 type DateInputType = {
   labelText: string;
@@ -6,7 +6,7 @@ type DateInputType = {
   defValue?: string;
 };
 
-export default function DateInput({ 
+export default function DateInput({
   labelText, inputName, defValue
  }: DateInputType) {
   return (

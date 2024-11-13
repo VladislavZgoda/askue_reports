@@ -4,7 +4,7 @@ import Container from "./Container";
 import TabPanel from "./TabPanel";
 import Button from "./Button";
 import BtnInputContainer from "./BtnInputContainer";
-import { isErrors } from "~/helpers/checkErrors";
+import { isErrors } from "~/utils/checkErrors";
 import type { FetcherWithComponents } from "@remix-run/react";
 
 type PanelPropType = {
