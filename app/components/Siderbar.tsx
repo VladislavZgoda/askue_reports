@@ -36,6 +36,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
           <li key={transSub.id} className="mb-1.5">
             <NavLink
               to={`/transformer-substations/${transSub.id}`}
+              prefetch="intent"
               className={({ isActive, isPending }) =>
                 isActive
                   ? 'btn btn-info btn-active btn-wide text-base'
