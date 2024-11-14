@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from '@remix-run/node';
 import { useLoaderData, useFetcher } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
@@ -21,6 +21,12 @@ import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
 import Toast from '~/components/Toast';
 import { isNotAuthenticated } from '~/.server/services/auth';
+
+// В firefox не работает link prefetch без заголовка для кеша
+// ns_binding_aborted
+export const headers: HeadersFunction = () => ({
+  "Cache-Control": "max-age=10"
+});
 
 export const loader = async ({
   params, request
