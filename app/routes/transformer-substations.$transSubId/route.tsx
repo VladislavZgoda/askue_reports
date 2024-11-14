@@ -1,4 +1,4 @@
-import type { LoaderFunctionArgs } from '@remix-run/node';
+import type { LoaderFunctionArgs, HeadersFunction } from '@remix-run/node';
 import { Form, useLoaderData, useSubmit } from '@remix-run/react';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
@@ -8,6 +8,12 @@ import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
 import todayDate from "~/utils/getDate";
 import { isNotAuthenticated } from '~/.server/services/auth';
+
+// В firefox не работает link prefetch без заголовка для кеша
+// ns_binding_aborted
+export const headers: HeadersFunction = () => ({
+  "Cache-Control": "max-age=10"
+});
 
 export const loader = async ({
   params, request

@@ -1,9 +1,15 @@
 import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
-import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs, HeadersFunction } from "@remix-run/node";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import todayDate from "~/utils/getDate";
 import loadData from "./.server/loadData";
+
+// В firefox не работает link prefetch без заголовка для кеша
+// ns_binding_aborted
+export const headers: HeadersFunction = () => ({
+  "Cache-Control": "max-age=10"
+});
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await isNotAuthenticated(request);
