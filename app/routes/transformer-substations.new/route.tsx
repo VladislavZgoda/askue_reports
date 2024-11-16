@@ -9,7 +9,7 @@ import TransSubName from "~/components/TransSubName";
 import {
   checkNameConstrains,
   checkNameLength
-} from "~/.server/utils/validateInput";
+} from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
