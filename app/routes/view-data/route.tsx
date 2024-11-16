@@ -1,15 +1,13 @@
 import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { LoaderFunctionArgs, HeadersFunction } from "@remix-run/node";
+import { data } from "@remix-run/node";
+import crypto from 'crypto';
 import { isNotAuthenticated } from '~/.server/services/auth';
 import todayDate from "~/utils/getDate";
 import loadData from "./.server/loadData";
 
-// В firefox не работает link prefetch без заголовка для кеша
-// ns_binding_aborted
-export const headers: HeadersFunction = () => ({
-  "Cache-Control": "max-age=10"
-});
+export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await isNotAuthenticated(request);
@@ -25,18 +23,37 @@ export async function loader({ request }: LoaderFunctionArgs) {
     odpyDate: odpyDate ?? todayDate()
   };
 
-  const data = await loadData(loadValues);
+  const transSubData = await loadData(loadValues);
 
-  return { loadValues, data };
+  const hash = crypto
+    .createHash('md5')
+    .update(JSON.stringify({ loadValues, transSubData }))
+    .digest('hex');
+
+  const etag = request.headers.get('If-None-Match');
+
+  if (etag === hash) {
+    return new Response(undefined, { status: 304 }) as unknown as {
+      loadValues: typeof loadValues,
+      transSubData: typeof transSubData,
+    };
+  }
+
+  return data({ loadValues, transSubData }, {
+    headers: {
+      "Cache-Control": "no-cache",
+      "Etag": hash
+    }
+  });
 }
 
 
 export default function ViewData() {
   const submit = useSubmit();
 
-  const { loadValues, data } = useLoaderData<typeof loader>();
+  const { loadValues, transSubData } = useLoaderData<typeof loader>();
 
-  const transSubs = Object.keys(data).sort((a, b) =>
+  const transSubs = Object.keys(transSubData).sort((a, b) =>
     a.localeCompare(b, undefined, {
       numeric: true,
       sensitivity: 'base'
@@ -44,36 +61,36 @@ export default function ViewData() {
   );
 
   const tableRows = transSubs.map((transSub, index) =>
-    <tr key={data[transSub].id} className="hover">
+    <tr key={transSubData[transSub].id} className="hover">
       <th>{index + 1}</th>
       <td>{transSub}</td>
-      <td>{data[transSub].private}</td>
-      <td>{data[transSub].legal}</td>
-      <td>{data[transSub].odpy}</td>
-      <td>{data[transSub].notInSystem}</td>
+      <td>{transSubData[transSub].private}</td>
+      <td>{transSubData[transSub].legal}</td>
+      <td>{transSubData[transSub].odpy}</td>
+      <td>{transSubData[transSub].notInSystem}</td>
       <td>
-        {data[transSub].private + data[transSub].legal
-        + data[transSub].odpy + data[transSub].notInSystem}
+        {transSubData[transSub].private + transSubData[transSub].legal
+          + transSubData[transSub].odpy + transSubData[transSub].notInSystem}
       </td>
     </tr>
   );
 
   const privateTotal = transSubs.reduce((sum, transSub) =>
-    sum + data[transSub].private , 0
+    sum + transSubData[transSub].private , 0
   );
 
   const legalTotal = transSubs.reduce((sum, transSub) =>
-    sum + data[transSub].legal , 0
+    sum + transSubData[transSub].legal , 0
   );
 
   const odpyTotal = transSubs.reduce((sum, transSub) =>
-    sum + data[transSub].odpy , 0
+    sum + transSubData[transSub].odpy , 0
   );
 
   const totalInSystem = privateTotal + legalTotal + odpyTotal;
 
   const totalCount = transSubs.reduce((sum, transSub) =>
-    sum + data[transSub].notInSystem, 0
+    sum + transSubData[transSub].notInSystem, 0
   ) + totalInSystem;
 
   return (
