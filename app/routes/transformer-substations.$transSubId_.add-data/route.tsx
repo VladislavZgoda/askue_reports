@@ -21,12 +21,10 @@ import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
 import Toast from '~/components/Toast';
 import { isNotAuthenticated } from '~/.server/services/auth';
+import { data } from "@remix-run/node";
+import createEtagHash from "~/utils/etagHash";
 
-// В firefox не работает link prefetch без заголовка для кеша
-// ns_binding_aborted
-export const headers: HeadersFunction = () => ({
-  "Cache-Control": "max-age=10"
-});
+export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
@@ -47,7 +45,22 @@ export const loader = async ({
 
   const logMessages = await selectMessages(params.transSubId);
 
-  return { transSub, logMessages };
+  const hash = createEtagHash({ transSub, logMessages });
+  const etag = request.headers.get('If-None-Match');
+
+  if (etag === hash) {
+    return new Response(undefined, { status: 304 }) as unknown as {
+      transSub: typeof transSub,
+      logMessages: typeof logMessages,
+    };
+  }
+
+  return data({ transSub, logMessages }, {
+    headers: {
+      "Cache-Control": "no-cache",
+      "Etag": hash
+    }
+  });
 };
 
 export const action = async ({
