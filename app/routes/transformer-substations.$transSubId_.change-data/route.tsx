@@ -21,12 +21,10 @@ import { isErrors } from "~/utils/checkErrors";
 import loadDisabledLegalMeters from "./.server/db-actions/loadDisabledLegalMeters";
 import changeDisabledMeters from "./.server/db-actions/changeDisabledMeters";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import { data } from "@remix-run/node";
+import createEtagHash from "~/utils/etagHash";
 
-// В firefox не работает link prefetch без заголовка для кеша
-// ns_binding_aborted
-export const headers: HeadersFunction = () => ({
-  "Cache-Control": "max-age=10"
-});
+export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
@@ -53,7 +51,7 @@ export const loader = async ({
   const techMetersData = await loadTechMeters(transSub.id);
   const disabledMetersData = await loadDisabledLegalMeters(transSub.id);
 
-  return {
+  const hash = createEtagHash({
     transSub,
     privateData,
     legalSimsData,
@@ -62,7 +60,38 @@ export const loader = async ({
     odpyP2Data,
     techMetersData,
     disabledMetersData
-  };
+  });
+
+  const etag = request.headers.get('If-None-Match');
+
+  if (etag === hash) {
+    return new Response(undefined, { status: 304 }) as unknown as {
+      transSub: typeof transSub,
+      privateData: typeof privateData,
+      legalSimsData: typeof legalSimsData,
+      legalP2Data: typeof legalP2Data,
+      odpySimsData: typeof odpySimsData,
+      odpyP2Data: typeof odpyP2Data,
+      techMetersData: typeof techMetersData,
+      disabledMetersData: typeof disabledMetersData
+    };
+  }
+
+  return data({
+    transSub,
+    privateData,
+    legalSimsData,
+    legalP2Data,
+    odpySimsData,
+    odpyP2Data,
+    techMetersData,
+    disabledMetersData
+  }, {
+    headers: {
+      "Cache-Control": "no-cache",
+      "Etag": hash
+    }
+  });
 };
 
 export const action = async ({
