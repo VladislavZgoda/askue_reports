@@ -2,7 +2,7 @@ import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { LoaderFunctionArgs, HeadersFunction } from "@remix-run/node";
 import { data } from "@remix-run/node";
-import crypto from 'crypto';
+import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import todayDate from "~/utils/getDate";
 import loadData from "./.server/loadData";
@@ -25,11 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const transSubData = await loadData(loadValues);
 
-  const hash = crypto
-    .createHash('md5')
-    .update(JSON.stringify({ loadValues, transSubData }))
-    .digest('hex');
-
+  const hash = createEtagHash({ loadValues, transSubData });
   const etag = request.headers.get('If-None-Match');
 
   if (etag === hash) {
