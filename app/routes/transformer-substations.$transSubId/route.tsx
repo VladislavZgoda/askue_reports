@@ -8,12 +8,10 @@ import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
 import todayDate from "~/utils/getDate";
 import { isNotAuthenticated } from '~/.server/services/auth';
+import createEtagHash from '~/utils/etagHash';
+import { data } from "@remix-run/node";
 
-// В firefox не работает link prefetch без заголовка для кеша
-// ns_binding_aborted
-export const headers: HeadersFunction = () => ({
-  "Cache-Control": "max-age=10"
-});
+export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
@@ -44,17 +42,30 @@ export const loader = async ({
     odpyDate: odpyDate ?? todayDate()
   };
 
-  const data = await loadData(loadValues);
+  const transSubData = await loadData(loadValues);
 
-  return { transSub, data, loadValues };
+  const hash = createEtagHash({ transSub, transSubData, loadValues });
+
+  const etag = request.headers.get('If-None-Match');
+
+  if (etag === hash) {
+    return new Response(undefined, { status: 304 }) as unknown as {
+      loadValues: typeof loadValues,
+      transSub: typeof transSub,
+      transSubData: typeof transSubData
+    };
+  }
+
+  return data({ transSub, transSubData, loadValues }, {
+    headers: {
+      "Cache-Control": "no-cache",
+      "Etag": hash
+    }
+  });
 };
 
 export default function TransformerSubstation() {
-  const {
-    transSub,
-    data,
-    loadValues
-  } = useLoaderData<typeof loader>();
+  const { transSub, transSubData, loadValues } = useLoaderData<typeof loader>();
 
   const submit = useSubmit();
 
@@ -131,7 +142,7 @@ export default function TransformerSubstation() {
       </section>
 
       <section className='mt-2 w-[60%]'>
-        <StatTable data={data} />
+        <StatTable data={transSubData} />
       </section>
     </main>
   );
