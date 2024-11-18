@@ -9,13 +9,9 @@ import addNewMeters from './.server/db-actions/addNewMeters';
 import type { BalanceType } from '~/types';
 import { selectMessages } from '~/.server/db-queries/metersActionLogTable';
 import addTechnicalMeters from './.server/db-actions/addTechnicalMeters';
-import addDisabledLegalMeters from './.server/db-actions/addDisabledLegalMeters';
-import addFailedMeters from './.server/db-actions/addFailedMeters';
 import SubmitButton from './SubmitButton';
 import validateInputNewMeters from './.server/validation/newMetersInput';
 import validateInputTechnicalMeters from './.server/validation/technicalMetersInput';
-import validateInputDisabledMeters from './.server/validation/disabledMetersInput';
-import validateInputFailedMeters from './.server/validation/failedMetersInput';
 import { useEffect, useRef, useState } from 'react';
 import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
@@ -105,37 +101,6 @@ export const action = async ({
     await addTechnicalMeters(data);
   }
 
-  if (_action === 'addDisabledLegalMeters') {
-    const errors = validateInputDisabledMeters(values);
-
-    if (Object.keys(errors).length > 0) {
-      return { errors };
-    }
-
-    const data = {
-      transSubId: params.transSubId,
-      disabledMeters: values.disabledMeters as string
-    };
-
-    await addDisabledLegalMeters(data);
-  }
-
-  if (_action === 'addFailedMeters') {
-    const errors = validateInputFailedMeters(values);
-
-    if (Object.keys(errors).length > 0) {
-      return { errors };
-    }
-
-    const data = {
-      transSubId: params.transSubId,
-      type: values.type as BalanceType,
-      brokenMeters: values.brokenMeters as string
-    };
-
-    await addFailedMeters(data);
-  }
-
   return null;
 };
 
@@ -161,16 +126,8 @@ export default function AddData() {
   const isTechnicalMetersAction = checkWhatForm('addTechnicalMeters');
   const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
 
-  const isDisabledMetersAction = checkWhatForm('addDisabledLegalMeters');
-  const isSubmittingDisabledLegalMeters = checkFormSubmit(isDisabledMetersAction);
-
-  const isFailedMetersAction = checkWhatForm('addFailedMeters');
-  const isSubmittingFailedMeters = checkFormSubmit(isFailedMetersAction);
-
   const newMetesRef = useRef<HTMLFormElement>(null);
   const technicalMetersRef = useRef<HTMLFormElement>(null);
-  const disabledMetersRef = useRef<HTMLFormElement>(null);
-  const failedMetersRef = useRef<HTMLFormElement>(null);
 
   const [
     errNewMeters,
@@ -180,16 +137,6 @@ export default function AddData() {
   const [
     errTechnicalMeters,
     setErrTechnicalMeters
-  ] = useState<{ [k: string]: string }>({});
-
-  const [
-    errDisabledMeters,
-    setErrDisabledMeters
-  ] = useState<{ [k: string]: string }>({});
-
-  const [
-    errFailedMeters,
-    setErrFailedMeters
   ] = useState<{ [k: string]: string }>({});
 
   const [isVisible, setIsVisible] = useState(false);
@@ -218,22 +165,6 @@ export default function AddData() {
       handleIsVisible();
     }
 
-    if (!isSubmittingDisabledLegalMeters
-      && !actionErrors?.errors
-      && isDisabledMetersAction) {
-      disabledMetersRef.current?.reset();
-      setErrDisabledMeters({});
-      handleIsVisible();
-    }
-
-    if (!isSubmittingFailedMeters
-      && !actionErrors?.errors
-      && isFailedMetersAction) {
-      failedMetersRef.current?.reset();
-      setErrFailedMeters({});
-      handleIsVisible();
-    }
-
     if (actionErrors?.errors
       && isNewMetersAction) {
       setErrNewMeters(actionErrors.errors);
@@ -243,24 +174,10 @@ export default function AddData() {
       && isTechnicalMetersAction) {
       setErrTechnicalMeters(actionErrors.errors);
     }
-
-    if (actionErrors?.errors
-      && isDisabledMetersAction) {
-      setErrDisabledMeters(actionErrors.errors);
-    }
-
-    if (actionErrors?.errors
-      && isFailedMetersAction) {
-      setErrFailedMeters(actionErrors.errors);
-    }
   }, [isSubmittingNewMeters,
       isSubmittingTechnicalMeters,
-      isSubmittingDisabledLegalMeters,
-      isSubmittingFailedMeters,
       isNewMetersAction,
       isTechnicalMetersAction,
-      isDisabledMetersAction,
-      isFailedMetersAction,
       actionErrors?.errors,
     ]);
 
@@ -270,7 +187,7 @@ export default function AddData() {
         id={transSub.id}
         name={transSub.name}/>
 
-      <div className='flex justify-around'>
+      <div className='flex ml-6 gap-x-8'>
         <FetcherForm
           fetcher={fetcher}
           metesRef={newMetesRef}
@@ -325,62 +242,31 @@ export default function AddData() {
             isSubmitting={isSubmittingTechnicalMeters} />
         </FetcherForm>
 
-        <FetcherForm
-          fetcher={fetcher}
-          metesRef={disabledMetersRef}
-          h2Title='Добавить ЮР отключенные'>
-
-          <NumberInput
-            labelName='Количество отключенных ПУ'
-            inputName='disabledMeters'
-            error={errDisabledMeters?.disabledMeters} />
-
-          <SubmitButton
-            buttonValue='addDisabledLegalMeters'
-            isSubmitting={isSubmittingDisabledLegalMeters} />
-        </FetcherForm>
-
-        <FetcherForm
-          fetcher={fetcher}
-          metesRef={failedMetersRef}
-          h2Title='Добавить вышедшие из строя ПУ'>
-
-          <NumberInput
-            labelName='Количество вышедших из строя ПУ'
-            inputName='brokenMeters'
-            error={errFailedMeters?.brokenMeters} />
-
-          <SelectInput error={errFailedMeters?.failedType} />
-          <SubmitButton
-            buttonValue='addFailedMeters'
-            isSubmitting={isSubmittingFailedMeters} />
-        </FetcherForm>
-      </div>
-
-      <section className='w-96 mt-8 ml-auto mr-auto mb-8'>
-        {logMessages.length > 0 && (
-          <div className="bg-base-200 collapse">
-            <input type="checkbox" className="peer" />
-            <div
-              className="collapse-title bg-primary text-primary-content
+        <section className='w-96'>
+          {logMessages.length > 0 && (
+            <div className="bg-base-200 collapse">
+              <input type="checkbox" className="peer" />
+              <div
+                className="collapse-title bg-primary text-primary-content
               peer-checked:bg-secondary peer-checked:text-secondary-content">
-              Нажмите, чтобы показать/скрыть лог
-            </div>
-            <div
-              className="collapse-content bg-primary text-primary-content
+                Нажмите, чтобы показать/скрыть лог
+              </div>
+              <div
+                className="collapse-content bg-primary text-primary-content
                peer-checked:bg-secondary peer-checked:text-secondary-content">
 
-              <ul>
-                {logMessages.map(message =>
-                  <li key={message.id}>
-                    {message.message}
-                  </li>
-                )}
-              </ul>
+                <ul>
+                  {logMessages.map(message =>
+                    <li key={message.id}>
+                      {message.message}
+                    </li>
+                  )}
+                </ul>
+              </div>
             </div>
-          </div>
-        )}
-      </section>
+          )}
+        </section>
+      </div>
 
       <Toast
         isVisible={isVisible}

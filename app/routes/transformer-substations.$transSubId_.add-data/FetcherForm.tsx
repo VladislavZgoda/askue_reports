@@ -18,7 +18,7 @@ export default function FetcherForm({
   h2Title,
 }: FetcherFormType) {
   return (
-    <div className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg'>
+    <div className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80'>
 
       <h2>{h2Title}</h2>
 
