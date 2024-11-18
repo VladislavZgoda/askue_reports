@@ -69,11 +69,6 @@ export interface FailedMetersValues extends DisabledLegalMetersValues {
 }
 
 export type FindFailedMeters = LastQuantity;
-export type FailedMetersAction = {
-  transSubId: string;
-  brokenMeters: string;
-  type: BalanceType;
-};
 
 export type SubmitButtonValues = {
   buttonValue: string;
