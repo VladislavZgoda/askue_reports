@@ -121,11 +121,9 @@ export type InputType = {
   errors?: boolean;
 };
 
-export type DbDataType = {
+export type DbData = {
   inSystem: number;
   notInSystem: number;
-  failedMeters: number;
-  disabledMeters?: number;
 };
 
 export type QuantityForInsert = {

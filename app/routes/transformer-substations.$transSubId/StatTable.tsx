@@ -1,12 +1,12 @@
-import type { DbDataType } from "~/types";
+import type { DbData } from "~/types";
 
 type DataProp = {
   data: {
-    private: DbDataType;
-    legalSims: DbDataType;
-    legalP2: DbDataType;
-    odpySims: DbDataType;
-    odpyP2: DbDataType;
+    private: DbData;
+    legalSims: DbData;
+    legalP2: DbData;
+    odpySims: DbData;
+    odpyP2: DbData;
     techMeters: {
       quantity: number;
       underVoltage: number;
@@ -55,8 +55,6 @@ export default function StatTable({ data }: DataProp) {
 
   const inSystemTotal = reducer(convertedData, 'inSystem');
 
-  const failedTotal = reducer(convertedData, 'failedMeters');
-
   return (
     <div className="overflow-auto max-h-[50vh] mt-5 mb-5">
       <table className="table">
@@ -94,12 +92,6 @@ export default function StatTable({ data }: DataProp) {
           </tr>
 
           <tr className="hover">
-            <th>5</th>
-            <td>БЫТ вышедшие из строя</td>
-            <td>{data.private.failedMeters}</td>
-          </tr>
-
-          <tr className="hover">
             <th>6</th>
             <td>ЮР Sims всего</td>
             <td>{legalSimsTotal}</td>
@@ -109,12 +101,6 @@ export default function StatTable({ data }: DataProp) {
             <th>7</th>
             <td>ЮР Sims в системе</td>
             <td>{data.legalSims.inSystem}</td>
-          </tr>
-
-          <tr className="hover">
-            <th>8</th>
-            <td>ЮР SIMS вышедшие из строя</td>
-            <td>{data.legalSims.failedMeters}</td>
           </tr>
 
           <tr className="hover">
@@ -130,18 +116,6 @@ export default function StatTable({ data }: DataProp) {
           </tr>
 
           <tr className="hover">
-            <th>11</th>
-            <td>ЮР П2 вышедшие из строя</td>
-            <td>{data.legalP2.failedMeters}</td>
-          </tr>
-
-          <tr className="hover">
-            <th>12</th>
-            <td>ЮР П2 отключенные</td>
-            <td>{data.legalP2.disabledMeters}</td>
-          </tr>
-
-          <tr className="hover">
             <th>13</th>
             <td>ОДПУ Sims всего</td>
             <td>{odpySimsTotal}</td>
@@ -151,12 +125,6 @@ export default function StatTable({ data }: DataProp) {
             <th>14</th>
             <td>ОДПУ Sims в системе</td>
             <td>{data.odpySims.inSystem}</td>
-          </tr>
-
-          <tr className="hover">
-            <th>15</th>
-            <td>ОДПУ SIMS вышедшие из строя</td>
-            <td>{data.odpySims.failedMeters}</td>
           </tr>
 
           <tr className="hover">
@@ -172,12 +140,6 @@ export default function StatTable({ data }: DataProp) {
           </tr>
 
           <tr className="hover">
-            <th>17</th>
-            <td>ОДПУ П2 вышедшие из строя</td>
-            <td>{data.odpyP2.failedMeters}</td>
-          </tr>
-
-          <tr className="hover">
             <th>18</th>
             <td>Всего коммерческих ПУ</td>
             <td>{totalMeters}</td>
@@ -186,9 +148,7 @@ export default function StatTable({ data }: DataProp) {
           <tr className="hover">
             <th>19</th>
             <td>Всего коммерческих ПУ в работе</td>
-            <td>
-              {inSystemTotal - failedTotal - (data.legalP2?.disabledMeters ?? 0)}
-            </td>
+            <td>{inSystemTotal}</td>
           </tr>
         </tbody>
       </table>

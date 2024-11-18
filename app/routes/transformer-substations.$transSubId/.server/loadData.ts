@@ -1,11 +1,9 @@
-import type { BalanceType, DbDataType } from "~/types";
+import type { BalanceType, DbData } from "~/types";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
-import { selectFailedMeters } from "~/.server/db-queries/failedMetersTable";
-import { selectDisabledLegalMeters } from "~/.server/db-queries/disabledLegalMetersTable";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 
-type LoadStateTableType = {
+type LoadData = {
   id: number;
   privateDate: string;
   legalDate: string;
@@ -14,7 +12,7 @@ type LoadStateTableType = {
 
 export default async function loadData({
   id, privateDate, legalDate, odpyDate
-}: LoadStateTableType) {
+}: LoadData) {
   const data = {
     private: await getDataFromDb(id, privateDate, 'Быт'),
     legalSims: await getDataFromDb(id, legalDate, 'ЮР Sims'),
@@ -41,18 +39,10 @@ async function getDataFromDb(
 ) {
   const values = handleValues(id, date, type);
 
-  const data: DbDataType = {
+  const data: DbData = {
     inSystem: await selectMetersOnDate(values),
     notInSystem: await selectNotInSystemOnDate(values),
-    failedMeters: await selectFailedMeters(values) ?? 0,
   };
-
-  if (type === 'ЮР П2') {
-    data.disabledMeters =
-      await selectDisabledLegalMeters(
-        values.transformerSubstationId
-      ) ?? 0;
-  }
 
   return data;
 }
