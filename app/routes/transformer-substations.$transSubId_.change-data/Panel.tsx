@@ -3,11 +3,11 @@ import Input from "./Input";
 import Container from "./Container";
 import TabPanel from "./TabPanel";
 import Button from "./Button";
-import BtnInputContainer from "./BtnInputContainer";
+import BtnContainer from "./BtnContainer";
 import { isErrors } from "~/utils/checkErrors";
 import type { FetcherWithComponents } from "@remix-run/react";
 
-type PanelPropType = {
+type PanelProp = {
   label: string;
   checked?: boolean;
   fetcher: FetcherWithComponents<{
@@ -29,7 +29,6 @@ type PanelPropType = {
       quantity: number;
       addedToSystem: number;
     };
-    failedMeters: number;
   };
   errors: {
     [k: string]: string;
@@ -40,7 +39,7 @@ type PanelPropType = {
 export default function Panel({
   label, errors, data, checked = false,
   fetcher, isSubmitting, btnValue
-}: PanelPropType) {
+}: PanelProp) {
   return (
     <TabPanel checked={checked} label={label}>
       <Form fetcher={fetcher}>
@@ -92,16 +91,12 @@ export default function Panel({
             errors={isErrors(errors)} />
         </Container>
 
-        <BtnInputContainer errors={isErrors(errors)}>
-          <Input
-            label="Количество ПУ"
-            name="failedMeters"
-            defValue={data.failedMeters} />
-
+        <BtnContainer errors={isErrors(errors)}>
           <Button
             buttonValue={btnValue}
-            isSubmitting={isSubmitting} />
-        </BtnInputContainer>
+            isSubmitting={isSubmitting}
+          />
+        </BtnContainer>
       </Form>
     </TabPanel>
   );

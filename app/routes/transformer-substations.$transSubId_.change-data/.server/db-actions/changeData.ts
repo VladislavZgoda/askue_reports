@@ -3,7 +3,6 @@ import type {
   UpdateTotalMetersType,
   UpdateTotalYearMetersType,
   UpdateTotalMonthMetersType,
-  FailedMetersValues,
 } from "~/types";
 import {
   getLastRecordId,
@@ -25,11 +24,6 @@ import {
   updateMonthOnId,
   insertMonthMeters
 } from "~/.server/db-queries/newMothMetersTable";
-import {
-  insertFailedMeters,
-  selectFailedMeters,
-  updateFailedMeters
-} from "~/.server/db-queries/failedMetersTable";
 import loadData from "./loadData";
 import { cutOutMonth, cutOutYear } from "~/utils/stringFunctions";
 
@@ -43,11 +37,6 @@ export default async function changeData(
   await handleTotalMeters(handledValues, prevData);
   await handleYearMeters(handledValues, prevData);
   await handleMonthMeters(handledValues, prevData);
-  await handleFailedMeters({
-    quantity: handledValues.failedMeters,
-    type: handledValues.type,
-    transformerSubstationId: handledValues.id
-  });
 }
 
 function handleValues(
@@ -75,7 +64,7 @@ function handleValues(
   return handledValues;
 }
 
-type PrevDataType = {
+type PrevData = {
   totalMeters: {
     quantity: number;
     addedToSystem: number;
@@ -88,13 +77,12 @@ type PrevDataType = {
     quantity: number;
     addedToSystem: number;
   };
-  failedMeters: number;
 };
 
 async function handleTotalMeters({
   id, type, totalMeters, inSystemTotal, date
 }: UpdateTotalMetersType,
-  prevData: PrevDataType) {
+  prevData: PrevData) {
   const lastMetersQuantityId = await getLastRecordId({
     transformerSubstationId: id,
     type
@@ -147,7 +135,7 @@ async function handleTotalMeters({
 async function handleYearMeters({
   id, type, yearTotal, inSystemYear, date, year
 }: UpdateTotalYearMetersType,
-  prevData: PrevDataType) {
+  prevData: PrevData) {
   const lastYearId = await getLastYearId({
     transformerSubstationId: id,
     type,
@@ -181,7 +169,7 @@ async function handleYearMeters({
 async function handleMonthMeters({
   id, type, monthTotal, inSystemMonth, date, year, month
 }: UpdateTotalMonthMetersType,
-  prevData: PrevDataType
+  prevData: PrevData
   ) {
   const lastMonthId = await getLastMonthId({
     transformerSubstationId: id,
@@ -211,28 +199,6 @@ async function handleMonthMeters({
       date,
       year,
       month
-    });
-  }
-}
-
-async function handleFailedMeters({
-  quantity, type, transformerSubstationId
-}: FailedMetersValues) {
-  const prevValue = await selectFailedMeters({ type, transformerSubstationId });
-
-  if (prevValue !== undefined) {
-    const isEqual = prevValue === quantity;
-
-    if (!isEqual) {
-      await updateFailedMeters({
-        quantity,
-        type,
-        transformerSubstationId
-      });
-    }
-  } else {
-    await insertFailedMeters({
-      quantity, type, transformerSubstationId
     });
   }
 }

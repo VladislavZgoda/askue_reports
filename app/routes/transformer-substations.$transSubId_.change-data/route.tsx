@@ -11,6 +11,7 @@ import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
 import Button from "./Button";
+import BtnContainer from "./BtnContainer";
 import Toast from "~/components/Toast";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
@@ -18,8 +19,6 @@ import type { BalanceType } from "~/types";
 import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";
-import loadDisabledLegalMeters from "./.server/db-actions/loadDisabledLegalMeters";
-import changeDisabledMeters from "./.server/db-actions/changeDisabledMeters";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
@@ -49,7 +48,6 @@ export const loader = async ({
   const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
   const odpyP2Data = await loadData(transSub.id, 'ОДПУ П2');
   const techMetersData = await loadTechMeters(transSub.id);
-  const disabledMetersData = await loadDisabledLegalMeters(transSub.id);
 
   const hash = createEtagHash({
     transSub,
@@ -59,7 +57,6 @@ export const loader = async ({
     odpySimsData,
     odpyP2Data,
     techMetersData,
-    disabledMetersData
   });
 
   const etag = request.headers.get('If-None-Match');
@@ -73,7 +70,6 @@ export const loader = async ({
       odpySimsData: typeof odpySimsData,
       odpyP2Data: typeof odpyP2Data,
       techMetersData: typeof techMetersData,
-      disabledMetersData: typeof disabledMetersData
     };
   }
 
@@ -85,7 +81,6 @@ export const loader = async ({
     odpySimsData,
     odpyP2Data,
     techMetersData,
-    disabledMetersData
   }, {
     headers: {
       "Cache-Control": "no-cache",
@@ -134,9 +129,6 @@ export const action = async ({
     case 'changeTechMeters':
       await changeTechMeters(values);
       break;
-    case 'changeDisabledMeters':
-      await changeDisabledMeters(values);
-      break;
   }
 
   return null;
@@ -151,7 +143,6 @@ export default function ChangeData() {
     odpySimsData,
     odpyP2Data,
     techMetersData,
-    disabledMetersData
   } = useLoaderData<typeof loader>();
 
   const fetcher = useFetcher<typeof action>();
@@ -184,9 +175,6 @@ export default function ChangeData() {
 
   const isTechMetersData = checkWhatForm('changeTechMeters');
   const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
-
-  const isDisabledMetersData = checkWhatForm('changeDisabledMeters');
-  const isSubmittingDisabledMeters = checkFormSubmit(isDisabledMetersData);
 
   const [
     privateErrors,
@@ -293,11 +281,6 @@ export default function ChangeData() {
       setTechMetersErrors({});
       handleIsVisible();
     }
-
-    if (!isSubmittingDisabledMeters
-      && isDisabledMetersData) {
-      handleIsVisible();
-    }
   }, [
     actionErrors?.errors,
     isPrivateData,
@@ -312,93 +295,80 @@ export default function ChangeData() {
     isSubmittingOdpyP2,
     isTechMetersData,
     isSubmittingTechMeters,
-    isDisabledMetersData,
-    isSubmittingDisabledMeters
   ]);
 
   return (
     <main>
       <LinkToTransSub
         id={transSub.id}
-        name={transSub.name} />
+        name={transSub.name}
+      />
+
       <div role="tablist" className="tabs tabs-lifted ml-14 mr-14">
         <Panel
           label="БЫТ" checked={true} data={privateData}
           isSubmitting={isSubmittingPrivate} errors={privateErrors}
-          fetcher={fetcher} btnValue="changePrivate" />
+          fetcher={fetcher} btnValue="changePrivate"
+        />
 
         <Panel
           label="ЮР Sims" data={legalSimsData}
           isSubmitting={isSubmittingLegalSims} errors={legalSimsErrors}
-          fetcher={fetcher} btnValue="changeLegalSims" />
+          fetcher={fetcher} btnValue="changeLegalSims"
+        />
 
         <Panel
           label="ЮР П2" data={legalP2Data}
           isSubmitting={isSubmittingLegalP2} errors={legalP2Errors}
-          fetcher={fetcher} btnValue="changeLegalP2" />
+          fetcher={fetcher} btnValue="changeLegalP2"
+        />
 
         <Panel
           label="ОДПУ Sims" data={odpySimsData}
           isSubmitting={isSubmittingOdpySims} errors={odpySimsErrors}
-          fetcher={fetcher} btnValue="changeOdpySims" />
+          fetcher={fetcher} btnValue="changeOdpySims"
+        />
 
         <Panel
           label="ОДПУ П2" data={odpyP2Data}
           isSubmitting={isSubmittingOdpyP2} errors={odpyP2Errors}
-          fetcher={fetcher} btnValue="changeOdpyP2" />
+          fetcher={fetcher} btnValue="changeOdpyP2"
+        />
 
         <TabPanel label="Техучеты">
           <Form fetcher={fetcher}>
-
             <Container heading="Всего счетчиков">
               <Input
                 label="Количество ПУ"
                 name="quantity"
                 error={techMetersErrors?.techDiff}
                 defValue={techMetersData.quantity}
-                errors={isErrors(techMetersErrors)} />
+                errors={isErrors(techMetersErrors)}
+              />
 
               <Input
                 label="Из них под напряжением"
                 name="underVoltage"
                 error={techMetersErrors?.techDiff}
                 defValue={techMetersData.addedToSystem}
-                errors={isErrors(techMetersErrors)} />
+                errors={isErrors(techMetersErrors)}
+              />
             </Container>
 
-            <div className={`h-full mt-auto
-              ${isErrors(techMetersErrors) ? 'mb-12' : ''}`}>
-
+            <BtnContainer errors={isErrors(techMetersErrors)}>
               <Button
                 isSubmitting={isSubmittingTechMeters}
-                buttonValue="changeTechMeters" />
-            </div>
-          </Form>
-        </TabPanel>
-
-        <TabPanel label="Юр Отключенные">
-          <Form fetcher={fetcher}>
-
-            <div className="flex flex-col justify-between gap-10">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-center">Количество отключенных</h2>
-                <Input
-                  label="Количество ПУ"
-                  name="quantity"
-                  defValue={disabledMetersData} />
-              </div>
-
-              <Button
-                isSubmitting={isSubmittingDisabledMeters}
-                buttonValue="changeDisabledMeters" />
-            </div>
+                buttonValue="changeTechMeters"
+              />
+            </BtnContainer>
           </Form>
         </TabPanel>
       </div>
 
       <Toast
         isVisible={isVisible}
-        message="Данные успешно обновлены." />
+        message="Данные успешно обновлены."
+      />
     </main>
   );
 }

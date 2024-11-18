@@ -1,18 +1,10 @@
 import { selectLastQuantity } from "~/.server/db-queries/electricityMetersTable";
 import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
-import type {
-  LastQuantity,
-  LastYearQuantity,
-  LastMonthQuantity,
-  BalanceType
-} from "~/types";
+import type { LastQuantity, LastYearQuantity, LastMonthQuantity, BalanceType } from "~/types";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMetersTable";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMothMetersTable";
-import { selectFailedMeters } from "~/.server/db-queries/failedMetersTable";
 
-export default async function loadData(
-  id: number, type: BalanceType
-) {
+export default async function loadData(id: number, type: BalanceType) {
   const year = new Date().getFullYear();
 
   const argsObj: LastQuantity = {
@@ -24,7 +16,6 @@ export default async function loadData(
   const metersNotInSystem = await selectLastNotInSystem(argsObj) ?? 0;
   const yearMeters = await handleYearMeters(id, year, type);
   const monthMeters = await handleMonthMeters(id, year, type);
-  const failedMeters = await selectFailedMeters(argsObj) ?? 0;
 
   const data = {
     totalMeters: {
@@ -33,7 +24,6 @@ export default async function loadData(
     },
     totalYearMeters: yearMeters,
     totalMonthMeters: monthMeters,
-    failedMeters
   };
 
   return data;
