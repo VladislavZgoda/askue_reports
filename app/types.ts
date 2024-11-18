@@ -59,17 +59,6 @@ export type TotalMeters = {
   added_to_system: number;
 };
 
-export type DisabledLegalMetersValues = {
-  quantity: number,
-  transformerSubstationId: number
-};
-
-export interface FailedMetersValues extends DisabledLegalMetersValues {
-  type: BalanceType
-}
-
-export type FindFailedMeters = LastQuantity;
-
 export type SubmitButtonValues = {
   buttonValue: string;
   isSubmitting: boolean;

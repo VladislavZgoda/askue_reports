@@ -179,48 +179,6 @@ export const TechnicalMeters =
     }).defaultNow().notNull(),
   });
 
-export const DisabledLegalMeters =
-  pgTable('disabledLegalMeters', {
-    id: serial('id').primaryKey(),
-    quantity: integer('quantity').notNull(),
-    transformerSubstationId: integer('transformerSubstation')
-      .references(() => TransformerSubstationTable.id, {
-        'onDelete': 'cascade'
-      }).notNull(),
-    created_at: timestamp('created_at', {
-      withTimezone: true,
-      mode: 'date'
-    }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', {
-      withTimezone: true,
-      mode: 'date',
-    }).defaultNow().notNull(),
-  });
-
-export const FailedMeters =
-  pgTable('failedMeters', {
-    id: serial('id').primaryKey(),
-    quantity: integer('quantity').notNull(),
-    type: BalanceType('balanceType').notNull(),
-    transformerSubstationId: integer('transformerSubstation')
-      .references(() => TransformerSubstationTable.id, {
-        'onDelete': 'cascade'
-      }).notNull(),
-    created_at: timestamp('created_at', {
-      withTimezone: true,
-      mode: 'date'
-    }).defaultNow().notNull(),
-    updated_at: timestamp('updated_at', {
-      withTimezone: true,
-      mode: 'date',
-    }).defaultNow().notNull(),
-  }, (table) => {
-    return [
-      index('failed_meters_foreign_key').on(table.transformerSubstationId),
-      index('failed_meters_type_index').on(table.type),
-    ];
-  });
-
 export const Users =
   pgTable('users', {
     id: serial('id').primaryKey(),
