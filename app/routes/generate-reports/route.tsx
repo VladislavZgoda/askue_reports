@@ -10,6 +10,7 @@ import {
 } from "@remix-run/node";
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
+import SelectMonth from "./SelectMonth";
 import todayDate from "~/utils/getDate";
 import { cutOutYear } from "~/utils/stringFunctions";
 
@@ -82,7 +83,7 @@ export default function GenerateReports() {
         encType="multipart/form-data"
         ref={formRef}>
 
-        <div className="flex flex-row gap-16 flex-auto">
+        <section className="flex flex-row gap-16 flex-auto">
           <div className="flex-auto">
             <DateInput labelText="Быт" inputName="privateDate" />
             <DateInput labelText="Юр" inputName="legalDate" />
@@ -94,7 +95,7 @@ export default function GenerateReports() {
             <DateInputWithoutDef labelText="Юр прошлый месяц" inputName="legalMonth" />
             <DateInputWithoutDef labelText="ОДПУ прошлый месяц" inputName="odpyMonth" />
           </div>
-        </div>
+        </section>
 
         <label className="form-control w-full max-w-xs">
           <div className="label">
@@ -110,34 +111,7 @@ export default function GenerateReports() {
         </label>
 
         <section className="flex gap-8">
-          <label className="form-control w-full max-w-xs">
-            <div className="label">
-              <span className="label-text">
-                Выберете месяц для заголовков таблиц Excel
-              </span>
-            </div>
-            <select
-              className="select select-bordered"
-              aria-label='Выберете балансовую принадлежность'
-              name='month'
-              defaultValue=""
-              required
-            >
-              <option value="" disabled>Выбрать</option>
-              <option>Январь</option>
-              <option>Февраль</option>
-              <option>Март</option>
-              <option>Апрель</option>
-              <option>Май</option>
-              <option>Июнь</option>
-              <option>Июль</option>
-              <option>Август</option>
-              <option>Сентябрь</option>
-              <option>Октябрь</option>
-              <option>Ноябрь</option>
-              <option>Декабрь</option>
-            </select>
-          </label>
+          <SelectMonth />
 
           <label className="form-control w-full max-w-xs">
             <div className="label">
