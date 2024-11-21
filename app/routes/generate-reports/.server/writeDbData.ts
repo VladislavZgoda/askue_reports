@@ -160,6 +160,9 @@ async function handleReport({
   ws.getCell('H268').model.result = undefined;
   ws.getCell('H269').model.result = undefined;
 
+  ws.getCell('A4').value = 'Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" ' +
+    `по работе систем  дистанционного съема показаний за ${dates.month} ${dates.year} года`;
+
   // Без этой строки файл будет повреждён, не объяснимо но факт.
   ws.removeConditionalFormatting('');
   await excel.xlsx.writeFile(savePath);
@@ -223,6 +226,8 @@ async function handleSupplementThree({
 
   resetResult(ws, 29);
   resetResult(ws, 33);
+
+  ws.getCell('A2').value = `Отчетная форма за ${dates.month} ${dates.year}`;
 
   await excel.xlsx.writeFile(savePath);
 }

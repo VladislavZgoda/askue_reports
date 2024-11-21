@@ -10,6 +10,8 @@ import {
 } from "@remix-run/node";
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
+import todayDate from "~/utils/getDate";
+import { cutOutYear } from "~/utils/stringFunctions";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await parseMultipartFormData(
@@ -31,6 +33,8 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 
   const dates = Object.fromEntries(formData);
+  console.log(dates);
+
   delete dates.upload;
 
   await composeReports(dates);
@@ -43,6 +47,8 @@ export default function GenerateReports() {
   const afterAction = fetcher.data;
   const isSubmitting = fetcher.state === 'submitting';
   const formRef = useRef<HTMLFormElement>(null);
+
+  const year = cutOutYear(todayDate());
 
   const download = () => {
     const link = document.createElement('a');
@@ -102,6 +108,56 @@ export default function GenerateReports() {
             name="upload"
             accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
         </label>
+
+        <section className="flex gap-8">
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">
+                Выберете месяц для заголовков таблиц Excel
+              </span>
+            </div>
+            <select
+              className="select select-bordered"
+              aria-label='Выберете балансовую принадлежность'
+              name='month'
+              defaultValue=""
+              required
+            >
+              <option value="" disabled>Выбрать</option>
+              <option>Январь</option>
+              <option>Февраль</option>
+              <option>Март</option>
+              <option>Апрель</option>
+              <option>Май</option>
+              <option>Июнь</option>
+              <option>Июль</option>
+              <option>Август</option>
+              <option>Сентябрь</option>
+              <option>Октябрь</option>
+              <option>Ноябрь</option>
+              <option>Декабрь</option>
+            </select>
+          </label>
+
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">
+                Выберете год для заголовков таблиц Excel
+              </span>
+            </div>
+            <select
+              className="select select-bordered"
+              aria-label='Выберете балансовую принадлежность'
+              defaultValue=""
+              name='year'
+              required
+            >
+              <option value="" disabled>Выбрать</option>
+              <option>{year - 1}</option>
+              <option>{year}</option>
+            </select>
+          </label>
+        </section>
 
         <button className={`btn btn-outline btn-primary mt-4 ${isSubmitting && 'btn-active'}`}
           type={isSubmitting ? 'button' : 'submit'}>
