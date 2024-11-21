@@ -19,6 +19,7 @@ import Toast from '~/components/Toast';
 import { isNotAuthenticated } from '~/.server/services/auth';
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
+import Log from './Log';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
@@ -242,35 +243,13 @@ export default function AddData() {
             isSubmitting={isSubmittingTechnicalMeters} />
         </FetcherForm>
 
-        <section className='w-96'>
-          {logMessages.length > 0 && (
-            <div className="bg-base-200 collapse">
-              <input type="checkbox" className="peer" />
-              <div
-                className="collapse-title bg-primary text-primary-content
-              peer-checked:bg-secondary peer-checked:text-secondary-content">
-                Нажмите, чтобы показать/скрыть лог
-              </div>
-              <div
-                className="collapse-content bg-primary text-primary-content
-               peer-checked:bg-secondary peer-checked:text-secondary-content">
-
-                <ul>
-                  {logMessages.map(message =>
-                    <li key={message.id}>
-                      {message.message}
-                    </li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          )}
-        </section>
+        <Log logMessages={logMessages} />
       </div>
 
       <Toast
         isVisible={isVisible}
-        message='Данные успешно добавлены.' />
+        message='Данные успешно добавлены.'
+      />
     </main>
   );
 }
