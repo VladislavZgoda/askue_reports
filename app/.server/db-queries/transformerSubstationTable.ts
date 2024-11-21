@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
 import { eq, ilike } from 'drizzle-orm';
-import { searchString } from "../../utils/stringFunctions";
+import composeSearchString from "~/utils/searchString";
 
 export async function insertNewTS(name: string) {
   const transSub = await db
@@ -19,7 +19,7 @@ export async function selectTransSubs(
   searchParam: string | null
 ) {
   try {
-    const q = searchString(searchParam);
+    const q = composeSearchString(searchParam);
 
     const transSubs = await db
       .select({
