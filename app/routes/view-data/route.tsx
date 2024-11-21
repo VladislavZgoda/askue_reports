@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, HeadersFunction } from "@remix-run/node";
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from '~/.server/services/auth';
-import todayDate from "~/utils/getDate";
+import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;

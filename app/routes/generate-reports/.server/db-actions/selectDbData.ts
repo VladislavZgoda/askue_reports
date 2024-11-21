@@ -6,7 +6,7 @@ import {
   selectMonthPeriodMeters
 } from '~/.server/db-queries/newMothMetersTable';
 import type { BalanceType, CheckRecordValues } from '~/types';
-import { cutOutMonth, cutOutYear } from '~/utils/stringFunctions';
+import { cutOutMonth, cutOutYear } from '~/utils/dateFunctions';
 import type { FormDates } from '../writeDbData';
 
 export type TransSubs = {

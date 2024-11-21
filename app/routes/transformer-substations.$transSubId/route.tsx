@@ -6,7 +6,7 @@ import StatTable from './StatTable';
 import NavigateForm from './NavigateForm';
 import DateInput from '~/components/DateInput';
 import loadData from './.server/loadData';
-import todayDate from "~/utils/getDate";
+import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from '~/utils/etagHash';
 import { data } from "@remix-run/node";

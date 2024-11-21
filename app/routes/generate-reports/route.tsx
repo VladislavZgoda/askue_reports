@@ -11,8 +11,7 @@ import {
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
-import todayDate from "~/utils/getDate";
-import { cutOutYear } from "~/utils/stringFunctions";
+import { todayDate, cutOutYear } from "~/utils/dateFunctions";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await parseMultipartFormData(

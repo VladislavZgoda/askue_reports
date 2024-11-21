@@ -25,7 +25,7 @@ import {
   insertMonthMeters
 } from "~/.server/db-queries/newMothMetersTable";
 import loadData from "./loadData";
-import { cutOutMonth, cutOutYear } from "~/utils/stringFunctions";
+import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 export default async function changeData(
   values: { [k: string]: FormDataEntryValue }

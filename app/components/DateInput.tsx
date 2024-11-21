@@ -1,4 +1,4 @@
-import todayDate from "~/utils/getDate";
+import { todayDate } from "~/utils/dateFunctions";
 
 type DateInputType = {
   labelText: string;
