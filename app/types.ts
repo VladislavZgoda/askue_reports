@@ -9,50 +9,50 @@ export type TransSubs = {
 export type BalanceType = 'Быт' | 'ЮР Sims' | 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2';
 
 export type MetersValues = {
-  quantity: number,
-  type: BalanceType,
-  date: string,
-  transformerSubstationId: number
+  quantity: number;
+  type: BalanceType;
+  date: string;
+  transformerSubstationId: number;
 };
 
-export interface InsertMetersValues extends MetersValues {
-  added_to_system: number
-}
+export type InsertMetersValues = MetersValues & {
+  added_to_system: number;
+};
 
-export interface YearMetersValues extends InsertMetersValues {
-  year: number
-}
+export type YearMetersValues = InsertMetersValues & {
+  year: number;
+};
 
-export interface MonthMetersValues extends YearMetersValues {
-  month: string
-}
+export type MonthMetersValues = YearMetersValues & {
+  month: string;
+};
 
 export type CheckRecordValues = {
-  type: BalanceType,
-  date: string,
-  transformerSubstationId: number
+  type: BalanceType;
+  date: string;
+  transformerSubstationId: number;
 };
 
-export interface SelectYearQuantity extends CheckRecordValues {
-  year: number
-}
+export type SelectYearQuantity = CheckRecordValues & {
+  year: number;
+};
 
-export interface SelectMonthQuantity extends SelectYearQuantity {
-  month: string
-}
+export type SelectMonthQuantity = SelectYearQuantity & {
+  month: string;
+};
 
 export type LastQuantity = {
-  transformerSubstationId: number,
-  type: BalanceType
+  transformerSubstationId: number;
+  type: BalanceType;
 };
 
-export interface LastYearQuantity extends LastQuantity {
-  year: number
-}
+export type LastYearQuantity = LastQuantity & {
+  year: number;
+};
 
-export interface LastMonthQuantity extends LastYearQuantity {
-  month: string
-}
+export type LastMonthQuantity = LastYearQuantity & {
+  month: string;
+};
 
 export type TotalMeters = {
   quantity: number;
@@ -77,7 +77,7 @@ export type UpdateTotalMetersType = {
   date: string;
 };
 
-export interface UpdateYearOnIdType extends UpdateOnIdType {
+export type UpdateYearOnIdType = UpdateOnIdType & {
   added_to_system: number;
 }
 
