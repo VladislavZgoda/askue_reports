@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
           v3_throwAbortReason: true,
           v3_lazyRouteDiscovery: true,
           v3_singleFetch: true,
-          unstable_routeConfig: true,
+          v3_routeConfig: true,
         },
       }),
       tsconfigPaths(),
