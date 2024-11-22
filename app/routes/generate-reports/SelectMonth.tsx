@@ -8,7 +8,7 @@ export default function SelectMonth() {
       </div>
       <select
         className="select select-bordered"
-        aria-label="Выберете балансовую принадлежность"
+        aria-label="Выберете месяц для заголовков таблиц Excel"
         name="month"
         defaultValue=""
         required
