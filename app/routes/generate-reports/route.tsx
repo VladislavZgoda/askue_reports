@@ -12,6 +12,7 @@ import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
 import SelectYear from "./SelectYear";
+import InputExcel from "./InputExcel";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await parseMultipartFormData(
@@ -94,18 +95,7 @@ export default function GenerateReports() {
           </div>
         </section>
 
-        <label className="form-control w-full max-w-xs">
-          <div className="label">
-            <span className="label-text">
-              Добавить данные из приложения №9
-            </span>
-          </div>
-          <input
-            aria-label="Добавить данные из приложения №9"
-            type="file"
-            name="upload"
-            accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-        </label>
+        <InputExcel />
 
         <section className="flex gap-8">
           <SelectMonth />
