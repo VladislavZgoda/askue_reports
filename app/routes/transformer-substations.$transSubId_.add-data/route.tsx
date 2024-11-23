@@ -19,6 +19,7 @@ import Toast from '~/components/Toast';
 import { isNotAuthenticated } from '~/.server/services/auth';
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
+import cache from '~/utils/cache';
 import Log from './Log';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
@@ -84,6 +85,14 @@ export const action = async ({
     }
 
     await addNewMeters(data);
+
+    const cacheKeys = cache.keys();
+
+    if (cacheKeys.length > 0) {
+      cacheKeys.forEach((cacheKey) => {
+        if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
+      })
+    }
   }
 
   if (_action === 'addTechnicalMeters') {

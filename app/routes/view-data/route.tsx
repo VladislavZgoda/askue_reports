@@ -6,6 +6,7 @@ import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
+import cache from "~/utils/cache";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
@@ -13,17 +14,31 @@ export async function loader({ request }: LoaderFunctionArgs) {
   await isNotAuthenticated(request);
 
   const url = new URL(request.url);
-  const privateDate = url.searchParams.get('privateDate');
-  const legalDate = url.searchParams.get('legalDate');
-  const odpyDate = url.searchParams.get('odpyDate');
+  const privateDate = url.searchParams.get('privateDate') ?? todayDate();
+  const legalDate = url.searchParams.get('legalDate') ?? todayDate();
+  const odpyDate = url.searchParams.get('odpyDate') ?? todayDate();
 
-  const loadValues = {
-    privateDate: privateDate ?? todayDate(),
-    legalDate: legalDate ?? todayDate(),
-    odpyDate: odpyDate ?? todayDate()
+  const cacheKey = `view-data${privateDate}${legalDate}${odpyDate}`;
+
+  if (cache.getKey(cacheKey) === undefined) {
+    const loadValues = { privateDate, legalDate, odpyDate };
+
+    const transSubData = await loadData(loadValues);
+    cache.setKey(cacheKey, { loadValues, transSubData });
+  }
+
+  const { loadValues, transSubData } = cache.getKey(cacheKey) as {
+    loadValues: {
+      privateDate: string;
+      legalDate: string;
+      odpyDate: string;
+    },
+    transSubData: {
+      [transSub: string]: {
+        [k: string]: number
+      }
+    },
   };
-
-  const transSubData = await loadData(loadValues);
 
   const hash = createEtagHash({ loadValues, transSubData });
   const etag = request.headers.get('If-None-Match');
@@ -42,7 +57,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     }
   });
 }
-
 
 export default function ViewData() {
   const submit = useSubmit();
