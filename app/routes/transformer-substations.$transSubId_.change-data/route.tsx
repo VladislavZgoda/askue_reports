@@ -111,40 +111,34 @@ export const action = async ({
     });
   };
 
-  const clearCache = () => {
-    const cacheKeys = cache.keys();
-
-    if (cacheKeys.length > 0) {
-      cacheKeys.forEach((cacheKey) => {
-        if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
-      })
-    }
-  };
-
   switch (_action) {
     case 'changePrivate':
       await mutateData('Быт');
-      clearCache();
       break;
     case 'changeLegalSims':
       await mutateData('ЮР Sims');
-      clearCache();
       break;
     case 'changeLegalP2':
       await mutateData('ЮР П2');
-      clearCache();
       break;
     case 'changeOdpySims':
       await mutateData('ОДПУ Sims');
-      clearCache();
       break;
     case 'changeOdpyP2':
       await mutateData('ОДПУ П2');
-      clearCache();
       break;
     case 'changeTechMeters':
       await changeTechMeters(values);
       break;
+  }
+
+  const cacheKeys = cache.keys();
+
+  if (cacheKeys.length > 0) {
+    cacheKeys.forEach((cacheKey) => {
+      if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
+      if (cacheKey.startsWith(`transformer-substations${params.transSubId}`)) cache.removeKey(cacheKey);
+    })
   }
 
   return null;

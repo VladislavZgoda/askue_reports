@@ -10,6 +10,8 @@ import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from '~/utils/etagHash';
 import { data } from "@remix-run/node";
+import cache from "~/utils/cache";
+import { DbData } from '~/types';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
@@ -31,18 +33,37 @@ export const loader = async ({
   }
 
   const url = new URL(request.url);
-  const privateDate = url.searchParams.get('privateDate');
-  const legalDate = url.searchParams.get('legalDate');
-  const odpyDate = url.searchParams.get('odpyDate');
+  const privateDate = url.searchParams.get('privateDate') ?? todayDate();
+  const legalDate = url.searchParams.get('legalDate') ?? todayDate();
+  const odpyDate = url.searchParams.get('odpyDate') ?? todayDate();
+
+  const cacheKey = `transformer-substations${transSub.id}${privateDate}${legalDate}${odpyDate}`;
 
   const loadValues = {
     id: transSub.id,
-    privateDate: privateDate ?? todayDate(),
-    legalDate: legalDate ?? todayDate(),
-    odpyDate: odpyDate ?? todayDate()
+    privateDate,
+    legalDate,
+    odpyDate
   };
 
-  const transSubData = await loadData(loadValues);
+  if (cache.getKey(cacheKey) === undefined) {
+    const transSubData = await loadData(loadValues);
+    cache.setKey(cacheKey, { loadValues, transSubData });
+  }
+
+  const { transSubData } = cache.getKey(cacheKey) as {
+    transSubData: {
+      private: DbData;
+      legalSims: DbData;
+      legalP2: DbData;
+      odpySims: DbData;
+      odpyP2: DbData;
+      techMeters: {
+        quantity: number;
+        underVoltage: number;
+      };
+    },
+  };
 
   const hash = createEtagHash({ transSub, transSubData, loadValues });
 

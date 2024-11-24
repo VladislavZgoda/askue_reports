@@ -85,14 +85,6 @@ export const action = async ({
     }
 
     await addNewMeters(data);
-
-    const cacheKeys = cache.keys();
-
-    if (cacheKeys.length > 0) {
-      cacheKeys.forEach((cacheKey) => {
-        if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
-      })
-    }
   }
 
   if (_action === 'addTechnicalMeters') {
@@ -109,6 +101,15 @@ export const action = async ({
     };
 
     await addTechnicalMeters(data);
+  }
+
+  const cacheKeys = cache.keys();
+
+  if (cacheKeys.length > 0) {
+    cacheKeys.forEach((cacheKey) => {
+      if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
+      if (cacheKey.startsWith(`transformer-substations${params.transSubId}`)) cache.removeKey(cacheKey);
+    })
   }
 
   return null;
