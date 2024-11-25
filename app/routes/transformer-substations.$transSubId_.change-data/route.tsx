@@ -22,7 +22,7 @@ import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
-import cache from '~/utils/cache';
+import clearCache from "~/utils/clearCache";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
@@ -132,14 +132,7 @@ export const action = async ({
       break;
   }
 
-  const cacheKeys = cache.keys();
-
-  if (cacheKeys.length > 0) {
-    cacheKeys.forEach((cacheKey) => {
-      if (cacheKey.startsWith('view-data')) cache.removeKey(cacheKey);
-      if (cacheKey.startsWith(`transformer-substations${params.transSubId}`)) cache.removeKey(cacheKey);
-    })
-  }
+  clearCache(params.transSubId);
 
   return null;
 };
