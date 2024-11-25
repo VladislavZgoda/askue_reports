@@ -1,6 +1,7 @@
 import { Form, useSubmit, useLoaderData } from "@remix-run/react";
 import DateInput from "~/components/DateInput";
 import type { LoaderFunctionArgs, HeadersFunction } from "@remix-run/node";
+import type { DbData } from "./view-data.types";
 import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from '~/.server/services/auth';
@@ -20,24 +21,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const cacheKey = `view-data${privateDate}${legalDate}${odpyDate}`;
 
-  if (cache.getKey(cacheKey) === undefined) {
-    const loadValues = { privateDate, legalDate, odpyDate };
+  const loadValues = { privateDate, legalDate, odpyDate };
 
+  if (cache.getKey(cacheKey) === undefined) {
     const transSubData = await loadData(loadValues);
-    cache.setKey(cacheKey, { loadValues, transSubData });
+    cache.setKey(cacheKey, { transSubData });
   }
 
-  const { loadValues, transSubData } = cache.getKey(cacheKey) as {
-    loadValues: {
-      privateDate: string;
-      legalDate: string;
-      odpyDate: string;
-    },
-    transSubData: {
-      [transSub: string]: {
-        [k: string]: number
-      }
-    },
+  const { transSubData } = cache.getKey(cacheKey) as {
+    transSubData: DbData
   };
 
   const hash = createEtagHash({ loadValues, transSubData });

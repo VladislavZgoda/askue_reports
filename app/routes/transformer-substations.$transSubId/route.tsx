@@ -48,7 +48,7 @@ export const loader = async ({
 
   if (cache.getKey(cacheKey) === undefined) {
     const transSubData = await loadData(loadValues);
-    cache.setKey(cacheKey, { loadValues, transSubData });
+    cache.setKey(cacheKey, { transSubData });
   }
 
   const { transSubData } = cache.getKey(cacheKey) as {
