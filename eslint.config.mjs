@@ -8,8 +8,6 @@ import reactPlugin from "eslint-plugin-react";
 import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
 
-// https://github.com/remix-run/remix/issues/10109
-
 const __dirname = new URL(".", import.meta.url).pathname;
 
 export default [
@@ -19,17 +17,13 @@ export default [
         ignores: [
             "build/*",
             "build/**/*",
-            "**/build/**/*",
             "eslint.config.mjs",
-            "coverage/*",
-            "coverage/**/*",
             "node_modules/*",
             "node_modules/**/*",
-            "global.d.ts",
         ],
     },
     {
-        files: ["**/*.{js,jsx,ts,tsx}"],
+        files: ["**/*.{ts,tsx}"],
         languageOptions: {
             ecmaVersion: "latest",
             sourceType: "module",
@@ -49,10 +43,6 @@ export default [
             ...reactHooksPlugin.configs.recommended.rules,
             ...reactPlugin.configs.recommended.rules,
             ...jsxA11yPlugin.configs.recommended.rules,
-            "react/no-unescaped-entities": "off",
-            "react/display-name": "off",
-            "react/prop-types": "off",
-            "no-prototype-builtins": "off",
         },
         settings: {
             react: {
@@ -92,10 +82,7 @@ export default [
         },
         rules: {
             ...typescriptEslint.configs.recommended.rules,
-            "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/no-require-imports": "off",
-            "@typescript-eslint/no-empty-object-type": "off",
-            "@typescript-eslint/ban-ts-comment": "off",
         },
     },
     // Node environment for eslint.config.mjs
