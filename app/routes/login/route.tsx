@@ -1,37 +1,36 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { Form, redirect, useActionData, useNavigation } from "@remix-run/react";
 import { authenticator } from "~/.server/services/auth";
-import { AuthorizationError } from "remix-auth";
+import sessionStorage from "~/.server/services/session";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  return await authenticator.isAuthenticated(request, {
-    successRedirect: "/"
-  });
+  let session = await sessionStorage.getSession(request.headers.get("cookie"));
+  let user = session.get('loggedUser');
+  if (user) throw redirect("/");
+  return null;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const requestClone = request.clone();
 
-  try {
-    return await authenticator.authenticate('user-login', request, {
-      successRedirect: "/",
-    });
-  } catch (error) {
-    if (error instanceof AuthorizationError) {
-      const formData = await requestClone.formData();
-      const userLogin = formData.get('userLogin');
+  const user = await authenticator.authenticate('user-login', request);
 
-      return {
-        error: error.message,
-        values: {
-          userLogin
-        }
-      };
-    } else if (error instanceof Response) {
-      // Возвращает response 302
-      return error;
-    }
+  if (!user[0]?.userId) {
+    const formData = await requestClone.formData();
+    const userLogin = formData.get('userLogin') as string;
+
+    return {
+      errorMessage: 'Не верный логин/пароль',
+      userLogin
+    };
   }
+
+  let session = await sessionStorage.getSession(request.headers.get('cookie'));
+  session.set('loggedUser', user[0].userId);
+
+  throw redirect('/', {
+    headers: { 'Set-Cookie': await sessionStorage.commitSession(session) }
+  });
 }
 
 export default function Login() {
@@ -54,14 +53,14 @@ export default function Login() {
               type="text"
               placeholder="логин"
               autoComplete="username"
-              className={`input input-bordered ${loginData?.error && 'input-error'}`}
+              className={`input input-bordered ${loginData?.errorMessage && 'input-error'}`}
               id="login"
               name="userLogin"
-              defaultValue={loginData?.error && loginData.values.userLogin}
+              defaultValue={loginData?.errorMessage && loginData?.userLogin}
               required />
-            {loginData?.error && (
+            {loginData?.errorMessage && (
               <div className="label">
-                <span className="label-text-alt text-error">{loginData.error}</span>
+                <span className="label-text-alt text-error">{loginData.errorMessage}</span>
               </div>
             )}
           </div>
@@ -73,7 +72,7 @@ export default function Login() {
               type="password"
               placeholder="пароль"
               autoComplete="current-password"
-              className={`input input-bordered ${loginData?.error && 'input-error'}`}
+              className={`input input-bordered ${loginData?.errorMessage && 'input-error'}`}
               id="password"
               name="password"
               required />

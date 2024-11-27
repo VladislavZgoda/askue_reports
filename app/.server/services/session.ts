@@ -4,7 +4,7 @@ if (!process.env.secret) {
   throw new Error('process.env.secret does not exist');
 }
 
-export const sessionStorage = createCookieSessionStorage({
+const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: 'loggedUser',
     sameSite: 'lax',
@@ -14,3 +14,5 @@ export const sessionStorage = createCookieSessionStorage({
     maxAge: 259200,       // 3 дня
   },
 });
+
+export default sessionStorage;

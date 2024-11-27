@@ -1,11 +1,14 @@
-import { Authenticator, AuthorizationError } from "remix-auth";
-import { sessionStorage } from "./session";
+import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { selectUserId } from "../db-queries/users";
+import { redirect } from "@remix-run/node";
+import sessionStorage from "./session";
 
-export const authenticator = new Authenticator<string>(sessionStorage, {
-  throwOnError: true
-});
+type User = {
+  userId: string;
+}[];
+
+export const authenticator = new Authenticator<User>();
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
@@ -14,21 +17,14 @@ authenticator.use(
 
     const user = await selectUserId(userLogin, password);
 
-    if (!user[0]?.userId) {
-      throw new AuthorizationError("Не верный логин/пароль", {
-        name: "userNotFound",
-        message: "user doesn't exist",
-        cause: "userNotFound",
-      });
-    }
-
-    return user[0].userId;
+    return user;
   }),
   'user-login'
 );
 
 export async function isNotAuthenticated(request: Request) {
-  return await authenticator.isAuthenticated(request, {
-    failureRedirect: "/login"
-  });
+  let session = await sessionStorage.getSession(request.headers.get("cookie"));
+  let user = session.get('loggedUser');
+  if (!user) throw redirect("/login");
+  return null;
 }
