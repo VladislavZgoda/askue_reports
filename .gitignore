@@ -6,3 +6,4 @@ node_modules
 app/routes/generate-reports/.server/filled-reports/
 app/routes/generate-reports/.server/reports-archive/
 /app/routes/generate-reports/.server/uploaded-excel
+.react-router/
