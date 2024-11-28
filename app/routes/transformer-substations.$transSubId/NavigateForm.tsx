@@ -1,5 +1,5 @@
-import { Form } from "@remix-run/react";
-import type { FormMethod } from "@remix-run/react";
+import { Form } from "react-router";
+import type { FormMethod } from "react-router";
 import React from "react";
 
 type NavigateFormType = {

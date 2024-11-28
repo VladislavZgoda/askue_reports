@@ -1,4 +1,4 @@
-import { createCookieSessionStorage } from "@remix-run/node";
+import { createCookieSessionStorage } from "react-router";
 
 if (!process.env.secret) {
   throw new Error('process.env.secret does not exist');

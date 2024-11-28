@@ -1,11 +1,15 @@
 import exceljs from 'exceljs';
+import excelStorage from '~/routes/generate-reports/.server/fileStorage';
+import stream from 'node:stream';
 
 export default async function validateExcel() {
   const excel = new exceljs.Workbook();
 
-  const wb = await excel.xlsx.readFile(
-    'app/routes/generate-reports/.server/uploaded-excel/supplement_nine.xlsx'
-  );
+  if (! await excelStorage.has('supplementNine')) return false;
+
+  const file = await excelStorage.get('supplementNine') as File;
+
+  const wb = await excel.xlsx.read(file.stream() as unknown as stream);
 
   const wsPrivate = wb.worksheets[0];
   const wsOdpy = wb.worksheets[1];

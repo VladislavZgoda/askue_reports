@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { redirect } from "react-router";
 import invariant from "tiny-invariant";
 import { deleteTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import { isNotAuthenticated } from "~/.server/services/auth";

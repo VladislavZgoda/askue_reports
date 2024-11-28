@@ -5,7 +5,7 @@ import TabPanel from "./TabPanel";
 import Button from "./Button";
 import BtnContainer from "./BtnContainer";
 import { isErrors } from "~/utils/checkErrors";
-import type { FetcherWithComponents } from "@remix-run/react";
+import type { FetcherWithComponents } from "react-router";
 
 type PanelProp = {
   label: string;

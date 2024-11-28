@@ -20,6 +20,7 @@ export default [
             "eslint.config.mjs",
             "node_modules/*",
             "node_modules/**/*",
+            ".react-router"
         ],
     },
     {

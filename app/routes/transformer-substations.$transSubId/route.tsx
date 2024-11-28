@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs, HeadersFunction } from '@remix-run/node';
-import { Form, useLoaderData, useSubmit } from '@remix-run/react';
+import type { LoaderFunctionArgs, HeadersFunction } from 'react-router';
+import { Form, useLoaderData, useSubmit, data } from 'react-router';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
@@ -9,7 +9,6 @@ import loadData from './.server/loadData';
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from '~/utils/etagHash';
-import { data } from "@remix-run/node";
 import cache from "~/utils/cache";
 import { DbData } from '~/types';
 
@@ -111,28 +110,32 @@ export default function TransformerSubstation() {
                   actionName='add-data'
                   btnText='Добавить данные'
                   onDelete={undefined}
-                  methodType='get' />
+                  methodType="GET"
+                />
               </li>
               <li>
                 <NavigateForm
                   actionName='change-data'
                   btnText='Изменить данные'
                   onDelete={undefined}
-                  methodType='get' />
+                  methodType="GET"
+                />
               </li>
               <li>
                 <NavigateForm
                   actionName='edit'
                   btnText='Переименовать ТП'
                   onDelete={undefined}
-                  methodType='get' />
+                  methodType="GET"
+                />
               </li>
               <li>
                 <NavigateForm
                   actionName='destroy'
                   btnText='Удалить ТП'
                   onDelete={onDelete}
-                  methodType='post' />
+                  methodType="POST"
+                />
               </li>
             </ul>
           </li>
@@ -142,23 +145,27 @@ export default function TransformerSubstation() {
           className='flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2'
           onChange={(e) => {
             submit(e.currentTarget);
-          }}>
+          }}
+        >
 
           <p>Выберете даты для данных</p>
           <DateInput
             labelText='БЫТ'
             inputName='privateDate'
-            defValue={loadValues.privateDate} />
+            defValue={loadValues.privateDate}
+          />
 
           <DateInput
             labelText='ЮР'
             inputName='legalDate'
-            defValue={loadValues.legalDate} />
+            defValue={loadValues.legalDate}
+          />
 
           <DateInput
-          labelText='ОДПУ'
-          inputName='odpyDate'
-          defValue={loadValues.odpyDate} />
+            labelText='ОДПУ'
+            inputName='odpyDate'
+            defValue={loadValues.odpyDate}
+          />
         </Form>
       </section>
 

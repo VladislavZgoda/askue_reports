@@ -1,9 +1,4 @@
-import {
-  Form,
-  NavLink,
-  useSubmit,
-  useNavigation
-} from "@remix-run/react";
+import { Form, NavLink, useSubmit, useNavigation } from "react-router";
 import type { TransSubs } from "~/types";
 import { useEffect, useState } from 'react';
 

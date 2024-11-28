@@ -1,9 +1,5 @@
-import {
-  useActionData,
-  useNavigation
-} from "@remix-run/react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect } from "@remix-run/node";
+import { useActionData, useNavigation, redirect } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { insertNewTS } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
 import {
@@ -42,7 +38,7 @@ export async function action({
 }
 
 export default function CreateNewTransformerSubstation() {
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData<typeof action>() as { error: string; name: string; } | undefined;
   const navigation = useNavigation();
   const formAction = '/transformer-substations/new';
   const isSubmitting =

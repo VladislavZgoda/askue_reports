@@ -1,42 +1,27 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import DateInput from "~/components/DateInput";
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs } from "react-router";
 import { useEffect, useRef } from "react";
-import {
-  unstable_createMemoryUploadHandler as createMemoryUploadHandler,
-  unstable_parseMultipartFormData as parseMultipartFormData,
-  unstable_createFileUploadHandler as createFileUploadHandler,
-  unstable_composeUploadHandlers as composeUploadHandlers,
-} from "@remix-run/node";
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
 import SelectYear from "./SelectYear";
 import InputExcel from "./InputExcel";
+import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
+import excelStorage from "~/routes/generate-reports/.server/fileStorage";
+
 
 export async function action({ request }: ActionFunctionArgs) {
-  const formData = await parseMultipartFormData(
-    request,
-    composeUploadHandlers(
-      createFileUploadHandler({
-        filter({ contentType }) {
-          return contentType.includes(
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-          );
-        },
-        directory: './app/routes/generate-reports/.server/uploaded-excel',
-        avoidFileConflicts: false,
-        file: () => 'supplement_nine.xlsx',
-        maxPartSize: 10 * 1024 * 1024,
-      }),
-      createMemoryUploadHandler()
-    )
-  );
+  const uploadHandler = async (fileUpload: FileUpload) => {
+    if (fileUpload.fieldName === 'upload' &&
+        fileUpload.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ) {
+      await excelStorage.set('supplementNine', fileUpload);
+    }
+  };
 
+  const formData = await parseFormData(request, uploadHandler);
   const dates = Object.fromEntries(formData);
-  console.log(dates);
-
-  delete dates.upload;
 
   await composeReports(dates);
 

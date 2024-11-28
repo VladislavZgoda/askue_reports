@@ -1,4 +1,4 @@
-import type { FetcherWithComponents } from "@remix-run/react";
+import type { FetcherWithComponents } from "react-router";
 
 type FetcherFormType = {
   children: React.ReactNode;

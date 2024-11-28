@@ -1,7 +1,7 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from "@remix-run/node";
+import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from "react-router";
 import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher, data } from "react-router";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
@@ -20,7 +20,6 @@ import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
 import clearCache from "~/utils/clearCache";
 

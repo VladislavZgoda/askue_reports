@@ -5,6 +5,7 @@ import fsp from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 import validateExcel from "./validateExcel";
+import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 
 type FormDates = {
   [k: string]: FormDataEntryValue;
@@ -17,23 +18,11 @@ export default async function composeReports(dates: FormDates) {
 
   await writeDbData(dates);
 
-  if (await doesFileExist(partPath)
-    && await validateExcel()) await writeParsedData();
+  if (await validateExcel()) await writeParsedData();
 
   await createArchive();
 
   await cleanUp(partPath);
-}
-
-async function doesFileExist(partPath: string) {
-  const path = partPath + 'uploaded-excel/supplement_nine.xlsx';
-
-  try {
-    return (await fsp.stat(path)).isFile();
-  } catch (e) {
-    console.log(e);
-    return false;
-  }
 }
 
 async function doesDirectoryExist(partPath: string) {
@@ -49,11 +38,10 @@ async function doesDirectoryExist(partPath: string) {
 
 async function cleanUp(partPath: string) {
   const dirFilledReports = partPath + 'filled-reports/';
-  const dirUploadedExcel = partPath + 'uploaded-excel/';
 
   deleteFiles(dirFilledReports);
 
-  if (await doesFileExist(partPath)) deleteFiles(dirUploadedExcel);
+  if (await excelStorage.has('supplementNine')) await excelStorage.remove('supplementNine');
 }
 
 function deleteFiles(directory: string) {

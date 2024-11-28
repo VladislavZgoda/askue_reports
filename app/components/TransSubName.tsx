@@ -1,4 +1,4 @@
-import { Form, useNavigate } from "@remix-run/react";
+import { Form, useNavigate } from "react-router";
 
 type TransSubNameArgs = {
   transSub: {

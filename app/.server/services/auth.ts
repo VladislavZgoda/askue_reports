@@ -1,7 +1,7 @@
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { selectUserId } from "../db-queries/users";
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 import sessionStorage from "./session";
 
 type User = {

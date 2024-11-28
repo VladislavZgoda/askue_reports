@@ -1,23 +1,9 @@
-import type {
-  LoaderFunctionArgs,
-  ActionFunctionArgs
-} from "@remix-run/node";
-import { redirect } from "@remix-run/node";
-import {
-  useLoaderData,
-  useActionData,
-  useNavigation,
-} from "@remix-run/react";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import { useLoaderData, useActionData, useNavigation, redirect } from "react-router";
 import invariant from "tiny-invariant";
-import {
-  selectTransSub,
-  updateTransSub
-} from "~/.server/db-queries/transformerSubstationTable";
+import { selectTransSub, updateTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
-import {
-  checkNameConstrains,
-  checkNameLength
-} from "~/utils/validateInput";
+import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
 
 export const loader = async ({
@@ -68,7 +54,7 @@ export const action = async ({
 
 export default function EditTransformerSubstation() {
   const transSub = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData<typeof action>() as { error: string; name: string;} | undefined;
   const navigation = useNavigation();
   const formAction = `/transformer-substations/${transSub.id}/edit`;
   const isSubmitting =

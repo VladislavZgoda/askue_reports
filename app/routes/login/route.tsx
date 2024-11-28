@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { Form, redirect, useActionData, useNavigation } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { Form, redirect, useActionData, useNavigation } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
 

@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from '@remix-run/node';
-import { useLoaderData, useFetcher } from '@remix-run/react';
+import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from 'react-router';
+import { useLoaderData, useFetcher, data } from 'react-router';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import DateInput from '~/components/DateInput';
@@ -17,7 +17,6 @@ import FetcherForm from './FetcherForm';
 import LinkToTransSub from '~/components/LinkToTransSub';
 import Toast from '~/components/Toast';
 import { isNotAuthenticated } from '~/.server/services/auth';
-import { data } from "@remix-run/node";
 import createEtagHash from "~/utils/etagHash";
 import clearCache from '~/utils/clearCache';
 import Log from './Log';
