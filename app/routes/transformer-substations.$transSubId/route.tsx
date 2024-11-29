@@ -10,7 +10,7 @@ import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from '~/utils/etagHash';
 import cache from "~/utils/cache";
-import { DbData } from '~/types';
+import type { DbData } from '~/types';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 

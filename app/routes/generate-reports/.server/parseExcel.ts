@@ -1,6 +1,6 @@
 import exceljs from 'exceljs';
 import excelStorage from '~/routes/generate-reports/.server/fileStorage';
-import stream from 'node:stream';
+import type stream from 'node:stream';
 
 export default async function parseExcel() {
   const excel = new exceljs.Workbook();
