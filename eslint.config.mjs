@@ -84,6 +84,10 @@ export default [
         rules: {
             ...typescriptEslint.configs.recommended.rules,
             "@typescript-eslint/no-require-imports": "off",
+            "@typescript-eslint/consistent-type-imports": [
+                "warn",
+                { "prefer": "type-imports" }
+            ]
         },
     },
     // Node environment for eslint.config.mjs
