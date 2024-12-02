@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs, HeadersFunction } from 'react-router';
-import { Form, useLoaderData, useSubmit, data } from 'react-router';
+import type {  HeadersFunction } from 'react-router';
+import { Form, useSubmit, data } from 'react-router';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import StatTable from './StatTable';
@@ -11,21 +11,22 @@ import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from '~/utils/etagHash';
 import cache from "~/utils/cache";
 import type { DbData } from '~/types';
+import type { Route } from './+types/transformerSubstation';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
-}: LoaderFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.LoaderArgs) => {
+  invariant(params.id, 'Expected params.id');
 
-  if (!Number(params.transSubId)) {
+  if (!Number(params.id)) {
     throw new Response('Not Found', { status: 404 });
   }
 
   await isNotAuthenticated(request);
 
-  const transSub = await selectTransSub(params.transSubId);
+  const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
@@ -84,8 +85,8 @@ export const loader = async ({
   });
 };
 
-export default function TransformerSubstation() {
-  const { transSub, transSubData, loadValues } = useLoaderData<typeof loader>();
+export default function TransformerSubstation({ loaderData }: Route.ComponentProps) {
+  const { transSub, transSubData, loadValues } = loaderData;
 
   const submit = useSubmit();
 

@@ -40,7 +40,7 @@ export function Layout({
 }) {
   const data = useRouteLoaderData<typeof loader>('root');
   const matches = useMatches();
-  const routes = ['routes/$', 'routes/login'];
+  const routes = ['routes/*', 'routes/login', 'routes/404'];
 
   return (
     <html lang="ru" data-theme='retro'>

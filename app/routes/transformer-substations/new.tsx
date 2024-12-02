@@ -1,20 +1,15 @@
 import { useActionData, useNavigation, redirect } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { insertNewTS } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
-import {
-  checkNameConstrains,
-  checkNameLength
-} from "~/utils/validateInput";
+import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import type { Route } from "./+types/new";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   return await isNotAuthenticated(request);
 }
 
-
-export async function action({
-  request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const name = String(formData.get('name'));
   const errNameLength = checkNameLength(name);

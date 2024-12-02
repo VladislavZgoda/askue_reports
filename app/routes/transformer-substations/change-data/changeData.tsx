@@ -1,7 +1,7 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from "react-router";
+import type { HeadersFunction } from "react-router";
 import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import { useLoaderData, useFetcher, data } from "react-router";
+import { useFetcher, data } from "react-router";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
@@ -22,19 +22,20 @@ import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import createEtagHash from "~/utils/etagHash";
 import clearCache from "~/utils/clearCache";
+import type { Route } from "./+types/changeData";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
-}: LoaderFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.LoaderArgs) => {
+  invariant(params.id, 'Expected params.id');
 
-  if (!Number(params.transSubId)) {
+  if (!Number(params.id)) {
     throw new Response('Not Found', { status: 404 });
   }
 
-  const transSub = await selectTransSub(params.transSubId);
+  const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
@@ -91,12 +92,12 @@ export const loader = async ({
 
 export const action = async ({
   request, params
-}: ActionFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.ActionArgs) => {
+  invariant(params.id, 'Expected params.id');
 
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-  values.id = params.transSubId;
+  values.id = params.id;
   const errors = validateInput(values);
 
   if (Object.keys(errors).length > 0) {
@@ -131,12 +132,12 @@ export const action = async ({
       break;
   }
 
-  clearCache(params.transSubId);
+  clearCache(params.id);
 
   return null;
 };
 
-export default function ChangeData() {
+export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const {
     transSub,
     privateData,
@@ -145,7 +146,7 @@ export default function ChangeData() {
     odpySimsData,
     odpyP2Data,
     techMetersData,
-  } = useLoaderData<typeof loader>();
+  } = loaderData;
 
   const fetcher = useFetcher<typeof action>();
   const actionErrors = fetcher.data;

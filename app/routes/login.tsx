@@ -1,16 +1,16 @@
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Form, redirect, useActionData, useNavigation } from "react-router";
+import type { Route } from "./+types/login";
+import { Form, redirect, useNavigation, useActionData } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   let session = await sessionStorage.getSession(request.headers.get("cookie"));
   let user = session.get('loggedUser');
   if (user) throw redirect("/");
   return null;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const requestClone = request.clone();
 
   const user = await authenticator.authenticate('user-login', request);

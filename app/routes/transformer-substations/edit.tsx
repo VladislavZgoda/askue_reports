@@ -1,21 +1,21 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { useLoaderData, useActionData, useNavigation, redirect } from "react-router";
+import { useActionData, useNavigation, redirect } from "react-router";
 import invariant from "tiny-invariant";
 import { selectTransSub, updateTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import TransSubName from "~/components/TransSubName";
 import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import type { Route } from "./+types/edit";
 
 export const loader = async ({
   params, request
-}: LoaderFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.LoaderArgs) => {
+  invariant(params.id, 'Expected params.id');
 
-  if (!Number(params.transSubId)) {
+  if (!Number(params.id)) {
     throw new Response('Not Found', { status: 404 });
   }
 
-  const transSub = await selectTransSub(params.transSubId);
+  const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
@@ -29,8 +29,8 @@ export const loader = async ({
 export const action = async ({
   request,
   params
-}: ActionFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.ActionArgs) => {
+  invariant(params.id, 'Expected params.id');
   const formData = await request.formData();
   const name = String(formData.get('name'));
   const errNameLength = checkNameLength(name);
@@ -40,8 +40,8 @@ export const action = async ({
   }
 
   try {
-    await updateTransSub(params.transSubId, name);
-    return redirect(`/transformer-substations/${params.transSubId}`);
+    await updateTransSub(params.id, name);
+    return redirect(`/transformer-substations/${params.id}`);
   } catch (error) {
     const err = checkNameConstrains(error, name);
     if (err) {
@@ -52,8 +52,8 @@ export const action = async ({
   }
 };
 
-export default function EditTransformerSubstation() {
-  const transSub = useLoaderData<typeof loader>();
+export default function EditTransformerSubstation({ loaderData }: Route.ComponentProps) {
+  const transSub = loaderData;
   const actionData = useActionData<typeof action>() as { error: string; name: string;} | undefined;
   const navigation = useNavigation();
   const formAction = `/transformer-substations/${transSub.id}/edit`;

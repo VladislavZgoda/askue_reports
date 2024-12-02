@@ -1,16 +1,17 @@
-import { Form, useSubmit, useLoaderData, data } from "react-router";
+import { Form, useSubmit, data } from "react-router";
 import DateInput from "~/components/DateInput";
-import type { LoaderFunctionArgs, HeadersFunction } from "react-router";
+import type { HeadersFunction } from "react-router";
 import type { DbData } from "./view-data.types";
 import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from '~/.server/services/auth';
 import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
 import cache from "~/utils/cache";
+import type { Route } from "./+types/viewData";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
 
   const url = new URL(request.url);
@@ -49,10 +50,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
   });
 }
 
-export default function ViewData() {
+export default function ViewData({ loaderData }: Route.ComponentProps) {
   const submit = useSubmit();
 
-  const { loadValues, transSubData } = useLoaderData<typeof loader>();
+  const { loadValues, transSubData } = loaderData;
 
   const transSubs = Object.keys(transSubData).sort((a, b) =>
     a.localeCompare(b, undefined, {

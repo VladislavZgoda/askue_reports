@@ -1,7 +1,7 @@
-import type { LoaderFunctionArgs } from "react-router";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import type { Route } from "./+types/home";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   return await isNotAuthenticated(request);
 }
 

@@ -1,5 +1,5 @@
-import type { LoaderFunctionArgs, ActionFunctionArgs, HeadersFunction } from 'react-router';
-import { useLoaderData, useFetcher, data } from 'react-router';
+import type { HeadersFunction } from 'react-router';
+import { useFetcher, data } from 'react-router';
 import { selectTransSub } from '~/.server/db-queries/transformerSubstationTable';
 import invariant from 'tiny-invariant';
 import DateInput from '~/components/DateInput';
@@ -20,19 +20,20 @@ import { isNotAuthenticated } from '~/.server/services/auth';
 import createEtagHash from "~/utils/etagHash";
 import clearCache from '~/utils/clearCache';
 import Log from './Log';
+import type { Route } from './+types/addData';
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({
   params, request
-}: LoaderFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.LoaderArgs) => {
+  invariant(params.id, 'Expected params.id');
 
-  if (!Number(params.transSubId)) {
+  if (!Number(params.id)) {
     throw new Response('Not Found', { status: 404 });
   }
 
-  const transSub = await selectTransSub(params.transSubId);
+  const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
     throw new Response('Not Found', { status: 404 });
@@ -40,7 +41,7 @@ export const loader = async ({
 
   await isNotAuthenticated(request);
 
-  const logMessages = await selectMessages(params.transSubId);
+  const logMessages = await selectMessages(params.id);
 
   const hash = createEtagHash({ transSub, logMessages });
   const etag = request.headers.get('If-None-Match');
@@ -62,8 +63,8 @@ export const loader = async ({
 
 export const action = async ({
   request, params
-}: ActionFunctionArgs) => {
-  invariant(params.transSubId, 'Expected params.transSubId');
+}: Route.ActionArgs) => {
+  invariant(params.id, 'Expected params.id');
 
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
@@ -76,7 +77,7 @@ export const action = async ({
     }
 
     const data = {
-      transSubId: params.transSubId,
+      transSubId: params.id,
       newMeters: values.newMeters as string,
       addedToSystem: values.addedToSystem as string,
       type: values.type as BalanceType,
@@ -94,7 +95,7 @@ export const action = async ({
     }
 
     const data = {
-      transSubId: params.transSubId,
+      transSubId: params.id,
       techMeters: values.techMeters as string,
       underVoltage: values.underVoltage as string
     };
@@ -102,13 +103,13 @@ export const action = async ({
     await addTechnicalMeters(data);
   }
 
-  clearCache(params.transSubId);
+  clearCache(params.id);
 
   return null;
 };
 
-export default function AddData() {
-  const { transSub, logMessages } = useLoaderData<typeof loader>();
+export default function AddData({ loaderData }: Route.ComponentProps) {
+  const { transSub, logMessages } = loaderData;
   const fetcher = useFetcher<typeof action>();
 
   const actionErrors = fetcher.data;

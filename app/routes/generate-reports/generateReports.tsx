@@ -1,6 +1,5 @@
 import { useFetcher } from "react-router";
 import DateInput from "~/components/DateInput";
-import type { ActionFunctionArgs } from "react-router";
 import { useEffect, useRef } from "react";
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
@@ -9,9 +8,9 @@ import SelectYear from "./SelectYear";
 import InputExcel from "./InputExcel";
 import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
 import excelStorage from "~/routes/generate-reports/.server/fileStorage";
+import type { Route } from "./+types/generateReports";
 
-
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const uploadHandler = async (fileUpload: FileUpload) => {
     if (fileUpload.fieldName === 'upload' &&
         fileUpload.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
