@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sum } from "drizzle-orm";
 import { db } from "../db";
 import { TechnicalMeters } from "../schema";
 
@@ -53,4 +53,15 @@ export const updateTechnicalMeters = async ({
       eq(TechnicalMeters.transformerSubstationId,
         transformerSubstationId)
     );
+};
+
+export const selectSumTechnicalMeters = async () => {
+  const meters = await db
+    .select({
+      quantity: sum(TechnicalMeters.quantity),
+      underVoltage: sum(TechnicalMeters.underVoltage)
+    })
+    .from(TechnicalMeters);
+
+  return meters;
 };
