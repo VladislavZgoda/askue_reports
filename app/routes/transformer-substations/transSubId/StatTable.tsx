@@ -76,7 +76,7 @@ export default function StatTable({ data }: DataProp) {
           <tr className="hover">
             <th>2</th>
             <td>Техучеты не под напряжением</td>
-            <td>{data.techMeters.underVoltage}</td>
+            <td>{data.techMeters.quantity - data.techMeters.underVoltage}</td>
           </tr>
 
           <tr className="hover">
