@@ -7,6 +7,7 @@ export default function InputExcel() {
         </span>
       </div>
       <input
+        className="file-input file-input-bordered file-input-info w-full max-w-xs"
         aria-label="Добавить данные из приложения №9"
         type="file"
         name="upload"
