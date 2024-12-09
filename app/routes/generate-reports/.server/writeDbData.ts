@@ -220,8 +220,14 @@ async function handleSupplementThree({
   const legalNotInSystemSum = calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
   const technicalMeters = await selectSumTechnicalMeters();
 
-  ws.getCell('Y29').value = technicalMeters[0].quantity ?? 0;
-  ws.getCell('Z29').value = technicalMeters[0].underVoltage ?? 0;
+  const technicalMetersQuantity = Number(technicalMeters[0].quantity ?? 0);
+  const technicalMetersUnderVoltage = Number(technicalMeters[0].underVoltage ?? 0);
+
+  ws.getCell('Y29').value = technicalMetersQuantity;
+  ws.getCell('Z29').value = technicalMetersUnderVoltage;
+
+  const notUnderVoltage = technicalMetersQuantity - technicalMetersUnderVoltage;
+  ws.getCell('AB29').value = `Технический учет - ${notUnderVoltage} шт. не под напряжением`;
 
   ws.getCell('F29').value = legalSum + legalNotInSystemSum;
   ws.getCell('G29').value = legalSum;
