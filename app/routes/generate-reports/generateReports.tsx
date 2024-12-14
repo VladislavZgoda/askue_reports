@@ -11,20 +11,24 @@ import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
 
 export async function action({ request }: Route.ActionArgs) {
-  const uploadHandler = async (fileUpload: FileUpload) => {
-    if (fileUpload.fieldName === 'upload' &&
-        fileUpload.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ) {
-      await excelStorage.set('supplementNine', fileUpload);
-    }
-  };
+  const formData = await request.formData();
 
-  const formData = await parseFormData(request, uploadHandler);
-  const dates = Object.fromEntries(formData);
+  console.log(formData.get('upload') as File);
 
-  await composeReports(dates);
+  // const uploadHandler = async (fileUpload: FileUpload) => {
+  //   if (fileUpload.fieldName === 'upload' &&
+  //       fileUpload.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  //   ) {
+  //     await excelStorage.set('supplementNine', fileUpload);
+  //   }
+  // };
 
-  return Math.random() * 1000;
+  // const formData = await parseFormData(request, uploadHandler);
+  // const dates = Object.fromEntries(formData);
+
+  // await composeReports(dates);
+
+  // return Math.random() * 1000;
 }
 
 export default function GenerateReports() {
