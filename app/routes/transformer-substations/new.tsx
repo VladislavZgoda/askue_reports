@@ -11,7 +11,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const name = String(formData.get('name'));
+  const name = String(formData.get("name"));
   const errNameLength = checkNameLength(name);
 
   if (errNameLength) {
@@ -33,11 +33,12 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export default function CreateNewTransformerSubstation() {
-  const actionData = useActionData<typeof action>() as { error: string; name: string; } | undefined;
+  const actionData = useActionData<typeof action>() as
+    | { error: string; name: string }
+    | undefined;
   const navigation = useNavigation();
-  const formAction = '/transformer-substations/new';
-  const isSubmitting =
-    navigation.formAction === formAction;
+  const formAction = "/transformer-substations/new";
+  const isSubmitting = navigation.formAction === formAction;
 
   return (
     <TransSubName
@@ -45,7 +46,7 @@ export default function CreateNewTransformerSubstation() {
       isSubmitting={isSubmitting}
       actionData={actionData}
       formAction={formAction}
-      buttonNames={{ submitName: 'Создание...', idleName: 'Создать' }} />
+      buttonNames={{ submitName: "Создание...", idleName: "Создать" }}
+    />
   );
 }
-

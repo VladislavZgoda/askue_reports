@@ -10,11 +10,14 @@ type NavigateFormType = {
 };
 
 export default function NavigateForm({
-  actionName, btnText, onDelete, methodType
+  actionName,
+  btnText,
+  onDelete,
+  methodType,
 }: NavigateFormType) {
   return (
     <Form action={actionName} method={methodType} onSubmit={onDelete}>
-      <button type='submit'>{btnText}</button>
+      <button type="submit">{btnText}</button>
     </Form>
   );
 }

@@ -47,12 +47,8 @@
           "name": "disabledLegalMeters_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "disabledLegalMeters",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -116,12 +112,8 @@
           "name": "electricityMeters_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "electricityMeters",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -179,12 +171,8 @@
           "name": "failedMeters_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "failedMeters",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -228,12 +216,8 @@
           "name": "metersActionLog_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "metersActionLog",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -315,12 +299,8 @@
           "name": "newMonthMetersTable_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "newMonthMetersTable",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -396,12 +376,8 @@
           "name": "newYearMetersTable_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "newYearMetersTable",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -465,12 +441,8 @@
           "name": "notInSystem_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "notInSystem",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -527,12 +499,8 @@
           "name": "technicalMeters_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "technicalMeters",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -578,9 +546,7 @@
         "transformerSubstation_name_unique": {
           "name": "transformerSubstation_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       }
     }
@@ -589,13 +555,7 @@
     "public.balanceType": {
       "name": "balanceType",
       "schema": "public",
-      "values": [
-        "Быт",
-        "ЮР Sims",
-        "ЮР П2",
-        "ОДПУ Sims",
-        "ОДПУ П2"
-      ]
+      "values": ["Быт", "ЮР Sims", "ЮР П2", "ОДПУ Sims", "ОДПУ П2"]
     }
   },
   "schemas": {},

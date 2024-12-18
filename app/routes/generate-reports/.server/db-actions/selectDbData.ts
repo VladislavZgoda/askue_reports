@@ -1,13 +1,13 @@
-import { selectMetersOnDate } from '~/.server/db-queries/electricityMetersTable';
-import { selectNotInSystemOnDate } from '~/.server/db-queries/notInSystemTable';
-import { selectYearMetersOnDate } from '~/.server/db-queries/newYearMetersTable';
+import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
+import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
+import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMetersTable";
 import {
   selectMonthMetersOnDate,
-  selectMonthPeriodMeters
-} from '~/.server/db-queries/newMothMetersTable';
-import type { BalanceType, CheckRecordValues } from '~/types';
-import { cutOutMonth, cutOutYear } from '~/utils/dateFunctions';
-import type { FormDates } from '../writeDbData';
+  selectMonthPeriodMeters,
+} from "~/.server/db-queries/newMothMetersTable";
+import type { BalanceType, CheckRecordValues } from "~/types";
+import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
+import type { FormDates } from "../writeDbData";
 
 export type TransSubs = {
   id: number;
@@ -17,15 +17,21 @@ export type TransSubs = {
 export type Meters = { [k: string]: number };
 
 type SelectMeters = {
-  transSubs: TransSubs,
-  type: BalanceType,
-  date: FormDataEntryValue,
-  func: ({ type, date, transformerSubstationId }
-    : CheckRecordValues) => Promise<number>;
+  transSubs: TransSubs;
+  type: BalanceType;
+  date: FormDataEntryValue;
+  func: ({
+    type,
+    date,
+    transformerSubstationId,
+  }: CheckRecordValues) => Promise<number>;
 };
 
 export async function selectMeters({
-  transSubs, type, date, func
+  transSubs,
+  type,
+  date,
+  func,
 }: SelectMeters) {
   const meters: Meters = {};
 
@@ -33,7 +39,7 @@ export async function selectMeters({
     const quantity = await func({
       type,
       date: date as string,
-      transformerSubstationId: transSub.id
+      transformerSubstationId: transSub.id,
     });
 
     meters[transSub.name] = quantity;
@@ -53,20 +59,21 @@ export async function selectLegalMeters(
 ) {
   const sims = await selectMeters({
     transSubs,
-    type: 'ЮР Sims',
+    type: "ЮР Sims",
     date,
-    func: selectMetersOnDate
+    func: selectMetersOnDate,
   });
 
   const p2 = await selectMeters({
     transSubs,
-    type: 'ЮР П2',
+    type: "ЮР П2",
     date,
-    func: selectMetersOnDate
+    func: selectMetersOnDate,
   });
 
   const meters: DifferentMeters = {
-    sims, p2
+    sims,
+    p2,
   };
 
   return meters;
@@ -74,27 +81,27 @@ export async function selectLegalMeters(
 
 export async function selectNotInSystem(
   transSubs: TransSubs,
-  dates: FormDates
+  dates: FormDates,
 ) {
   const privateMeters = await selectMeters({
     transSubs,
-    type: 'Быт',
+    type: "Быт",
     date: dates.privateDate,
-    func: selectNotInSystemOnDate
+    func: selectNotInSystemOnDate,
   });
 
   const legalMetersSims = await selectMeters({
     transSubs,
-    type: 'ЮР Sims',
+    type: "ЮР Sims",
     date: dates.legalDate,
-    func: selectNotInSystemOnDate
+    func: selectNotInSystemOnDate,
   });
 
   const legalMetersP2 = await selectMeters({
     transSubs,
-    type: 'ЮР П2',
+    type: "ЮР П2",
     date: dates.legalDate,
-    func: selectNotInSystemOnDate
+    func: selectNotInSystemOnDate,
   });
 
   const meters: Meters = {};
@@ -129,14 +136,14 @@ type GetPeriodMeters = {
   transSubs: TransSubs;
   type: BalanceType;
   date: FormDataEntryValue;
-  periodType?: 'month';
+  periodType?: "month";
 };
 
 async function getPeriodMeters({
   transSubs,
   type,
   date,
-  periodType
+  periodType,
 }: GetPeriodMeters) {
   const meters: PeriodMeters = {};
 
@@ -146,7 +153,7 @@ async function getPeriodMeters({
   const args: FuncArgs = {
     type,
     date: date as string,
-    year
+    year,
   };
 
   let data: {
@@ -155,16 +162,16 @@ async function getPeriodMeters({
   };
 
   for (const transSub of transSubs) {
-    if (periodType === 'month') {
+    if (periodType === "month") {
       data = await selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
         month,
-        ...args
+        ...args,
       });
     } else {
       data = await selectYearMetersOnDate({
         transformerSubstationId: transSub.id,
-        ...args
+        ...args,
       });
     }
 
@@ -175,33 +182,35 @@ async function getPeriodMeters({
 }
 
 type SelectPeriodMeters = {
-  transSubs: TransSubs,
-  dates: FormDates,
-  periodType?: 'month';
+  transSubs: TransSubs;
+  dates: FormDates;
+  periodType?: "month";
 };
 
 export async function selectPeriodMeters({
-  transSubs, dates, periodType
+  transSubs,
+  dates,
+  periodType,
 }: SelectPeriodMeters) {
   const privateMeters = await getPeriodMeters({
     transSubs,
-    type: 'Быт',
+    type: "Быт",
     date: dates.privateDate,
-    periodType
+    periodType,
   });
 
   const legalMetersSims = await getPeriodMeters({
     transSubs,
-    type: 'ЮР Sims',
+    type: "ЮР Sims",
     date: dates.legalDate,
-    periodType
+    periodType,
   });
 
   const legalMetersP2 = await getPeriodMeters({
     transSubs,
-    type: 'ЮР П2',
+    type: "ЮР П2",
     date: dates.legalDate,
-    periodType
+    periodType,
   });
 
   const meters: PeriodMeters = {};
@@ -213,11 +222,15 @@ export async function selectPeriodMeters({
     const legalSims = legalMetersSims[name];
     const legalP2 = legalMetersP2[name];
 
-    const quantity = (privateM?.quantity ?? 0)
-      + (legalSims?.quantity ?? 0) + (legalP2?.quantity ?? 0);
+    const quantity =
+      (privateM?.quantity ?? 0) +
+      (legalSims?.quantity ?? 0) +
+      (legalP2?.quantity ?? 0);
 
-    const added_to_system = (privateM?.added_to_system ?? 0)
-      + (legalSims?.added_to_system ?? 0) + (legalP2?.added_to_system ?? 0);
+    const added_to_system =
+      (privateM?.added_to_system ?? 0) +
+      (legalSims?.added_to_system ?? 0) +
+      (legalP2?.added_to_system ?? 0);
 
     meters[name] = { quantity, added_to_system };
   }
@@ -227,32 +240,37 @@ export async function selectPeriodMeters({
 
 export async function selectMonthMeters(
   transSubs: TransSubs,
-  dates: FormDates
+  dates: FormDates,
 ) {
   const meters = await selectPeriodMeters({
-    transSubs, dates,
-    periodType: 'month'
+    transSubs,
+    dates,
+    periodType: "month",
   });
 
-  if (dates?.privateMonth
-    && checkDates(String(dates.privateDate), String(String(dates.privateMonth)))) {
-    const date = String(dates.privateMonth)
-    await addPreviousMonth(transSubs, meters, date, 'Быт');
+  if (
+    dates?.privateMonth &&
+    checkDates(String(dates.privateDate), String(String(dates.privateMonth)))
+  ) {
+    const date = String(dates.privateMonth);
+    await addPreviousMonth(transSubs, meters, date, "Быт");
   }
 
-  if (dates?.legalMonth
-    && checkDates(String(dates.legalDate), String(String(dates.legalMonth)))) {
-    const date = String(dates.legalMonth)
-    await addPreviousMonth(transSubs, meters, date, 'ЮР Sims');
-    await addPreviousMonth(transSubs, meters, date, 'ЮР П2')
+  if (
+    dates?.legalMonth &&
+    checkDates(String(dates.legalDate), String(String(dates.legalMonth)))
+  ) {
+    const date = String(dates.legalMonth);
+    await addPreviousMonth(transSubs, meters, date, "ЮР Sims");
+    await addPreviousMonth(transSubs, meters, date, "ЮР П2");
   }
 
   return meters;
 }
 
 function checkDates(currentMonth: string, previousMonth: string) {
-  const difference = Number(cutOutMonth(currentMonth))
-    - Number(cutOutMonth(previousMonth));
+  const difference =
+    Number(cutOutMonth(currentMonth)) - Number(cutOutMonth(previousMonth));
 
   return difference === 1;
 }
@@ -261,9 +279,8 @@ async function addPreviousMonth(
   transSubs: TransSubs,
   meters: PeriodMeters,
   date: string,
-  type: BalanceType
+  type: BalanceType,
 ) {
-
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
   const lastMonthDatePrivate = selectLastMonthDate(year, Number(month));
@@ -273,24 +290,25 @@ async function addPreviousMonth(
       type,
       firstDate: date,
       lastDate: lastMonthDatePrivate,
-      transformerSubstationId: transSub.id
+      transformerSubstationId: transSub.id,
     });
 
-    if (typeof periodMeters === 'undefined') continue;
+    if (typeof periodMeters === "undefined") continue;
 
     const metersBeforeFirstDate = await selectMonthMetersOnDate({
       transformerSubstationId: transSub.id,
       type,
       date: date,
       month,
-      year
+      year,
     });
 
-    const quantity = periodMeters.quantity
-      - (metersBeforeFirstDate?.quantity ?? 0);
+    const quantity =
+      periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
 
-    const addedToSystem = periodMeters.added_to_system
-      - (metersBeforeFirstDate?.added_to_system ?? 0);
+    const addedToSystem =
+      periodMeters.added_to_system -
+      (metersBeforeFirstDate?.added_to_system ?? 0);
 
     meters[transSub.name].quantity += quantity;
     meters[transSub.name].added_to_system += addedToSystem;
@@ -301,8 +319,7 @@ function selectLastMonthDate(year: number, month: number) {
   // Первый месяц имеет индекс 0,
   // поэтому month здесь это следующий месяц, а не текущий.
   // При передаче 0 в "date?: number" даст последний день предыдущего месяца.
-  const lastDayOfMonth = new Date(year, month, 0)
-    .toLocaleDateString('en-CA');
+  const lastDayOfMonth = new Date(year, month, 0).toLocaleDateString("en-CA");
 
   return lastDayOfMonth;
 }
@@ -320,21 +337,17 @@ export type Odpy = {
   };
 };
 
-export async function calculateOdpy(
-  dates: FormDates,
-  transSubs: TransSubs
-) {
-
+export async function calculateOdpy(dates: FormDates, transSubs: TransSubs) {
   const odpyData = {
     quantity: 0,
     notInSystem: 0,
     year: {
       quantity: 0,
-      added_to_system: 0
+      added_to_system: 0,
     },
     month: {
       quantity: 0,
-      added_to_system: 0
+      added_to_system: 0,
     },
   };
 
@@ -344,69 +357,75 @@ export async function calculateOdpy(
   for (const transSub of transSubs) {
     const quantitySims = await selectMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ Sims',
-      date: dates.odpyDate as string
+      type: "ОДПУ Sims",
+      date: dates.odpyDate as string,
     });
 
     const quantityP2 = await selectMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ П2',
-      date: dates.odpyDate as string
+      type: "ОДПУ П2",
+      date: dates.odpyDate as string,
     });
 
     const notInSystemSims = await selectNotInSystemOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ Sims',
-      date: dates.odpyDate as string
+      type: "ОДПУ Sims",
+      date: dates.odpyDate as string,
     });
 
     const notInSystemP2 = await selectNotInSystemOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ П2',
-      date: dates.odpyDate as string
+      type: "ОДПУ П2",
+      date: dates.odpyDate as string,
     });
 
     const yearSims = await selectYearMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ Sims',
+      type: "ОДПУ Sims",
       date: dates.odpyDate as string,
-      year
+      year,
     });
 
     const yearP2 = await selectYearMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ П2',
+      type: "ОДПУ П2",
       date: dates.odpyDate as string,
-      year
+      year,
     });
 
     const monthSims = await selectMonthMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ Sims',
+      type: "ОДПУ Sims",
       date: dates.odpyDate as string,
       month,
-      year
+      year,
     });
 
     const monthP2 = await selectMonthMetersOnDate({
       transformerSubstationId: transSub.id,
-      type: 'ОДПУ П2',
+      type: "ОДПУ П2",
       date: dates.odpyDate as string,
       month,
-      year
+      year,
     });
 
     odpyData.quantity += quantitySims + quantityP2;
     odpyData.notInSystem += notInSystemSims + notInSystemP2;
-    odpyData.year.quantity += (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
-    odpyData.year.added_to_system += (yearSims?.added_to_system ?? 0) + (yearP2?.added_to_system ?? 0);
-    odpyData.month.quantity += (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
-    odpyData.month.added_to_system += (monthSims?.added_to_system ?? 0) + (monthP2?.added_to_system ?? 0);
+    odpyData.year.quantity +=
+      (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
+    odpyData.year.added_to_system +=
+      (yearSims?.added_to_system ?? 0) + (yearP2?.added_to_system ?? 0);
+    odpyData.month.quantity +=
+      (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
+    odpyData.month.added_to_system +=
+      (monthSims?.added_to_system ?? 0) + (monthP2?.added_to_system ?? 0);
   }
 
-  if (dates?.odpyMonth
-    && checkDates(String(dates.odpyDate), String(String(dates.odpyMonth)))) {
-    const date = String(dates.odpyMonth)
+  if (
+    dates?.odpyMonth &&
+    checkDates(String(dates.odpyDate), String(String(dates.odpyMonth)))
+  ) {
+    const date = String(dates.odpyMonth);
     const prevMonthMeters = await calculatePreviousMonthOdpy(transSubs, date);
     odpyData.month.quantity += prevMonthMeters.quantity;
     odpyData.month.added_to_system += prevMonthMeters.addedToSystem;
@@ -415,51 +434,49 @@ export async function calculateOdpy(
   return odpyData;
 }
 
-async function calculatePreviousMonthOdpy(
-  transSubs: TransSubs,
-  date: string
-) {
+async function calculatePreviousMonthOdpy(transSubs: TransSubs, date: string) {
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
   const lastMonthDatePrivate = selectLastMonthDate(year, Number(month));
 
   const meters = {
     quantity: 0,
-    addedToSystem: 0
+    addedToSystem: 0,
   };
 
-  const calculate = async (type: 'ОДПУ Sims' | 'ОДПУ П2') => {
+  const calculate = async (type: "ОДПУ Sims" | "ОДПУ П2") => {
     for (const transSub of transSubs) {
       const periodMeters = await selectMonthPeriodMeters({
         type,
         firstDate: date,
         lastDate: lastMonthDatePrivate,
-        transformerSubstationId: transSub.id
+        transformerSubstationId: transSub.id,
       });
 
-      if (typeof periodMeters === 'undefined') continue;
+      if (typeof periodMeters === "undefined") continue;
 
       const metersBeforeFirstDate = await selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
         type,
         date: date,
         month,
-        year
+        year,
       });
 
-      const quantity = periodMeters.quantity
-        - (metersBeforeFirstDate?.quantity ?? 0);
+      const quantity =
+        periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
 
-      const addedToSystem = periodMeters.added_to_system
-        - (metersBeforeFirstDate?.added_to_system ?? 0);
+      const addedToSystem =
+        periodMeters.added_to_system -
+        (metersBeforeFirstDate?.added_to_system ?? 0);
 
       meters.quantity += quantity;
       meters.addedToSystem += addedToSystem;
     }
   };
 
-  await calculate('ОДПУ Sims');
-  await calculate('ОДПУ П2');
+  await calculate("ОДПУ Sims");
+  await calculate("ОДПУ П2");
 
   return meters;
 }

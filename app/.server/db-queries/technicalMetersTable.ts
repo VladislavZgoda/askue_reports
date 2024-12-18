@@ -3,37 +3,34 @@ import { db } from "../db";
 import { TechnicalMeters } from "../schema";
 
 type TechnicalMetersValues = {
-  quantity: number,
-  underVoltage: number,
-  transformerSubstationId: number
+  quantity: number;
+  underVoltage: number;
+  transformerSubstationId: number;
 };
 
 export const insertTechnicalMeters = async ({
   quantity,
   underVoltage,
-  transformerSubstationId
+  transformerSubstationId,
 }: TechnicalMetersValues) => {
-  await db
-    .insert(TechnicalMeters)
-    .values({
-      quantity,
-      underVoltage,
-      transformerSubstationId
-    });
+  await db.insert(TechnicalMeters).values({
+    quantity,
+    underVoltage,
+    transformerSubstationId,
+  });
 };
 
 export const selectTechnicalMeters = async (
-  transformerSubstationId: number
+  transformerSubstationId: number,
 ) => {
   const prevValues = await db
     .select({
       quantity: TechnicalMeters.quantity,
-      underVoltage: TechnicalMeters.underVoltage
+      underVoltage: TechnicalMeters.underVoltage,
     })
     .from(TechnicalMeters)
     .where(
-      eq(TechnicalMeters.transformerSubstationId,
-        transformerSubstationId)
+      eq(TechnicalMeters.transformerSubstationId, transformerSubstationId),
     );
 
   return prevValues;
@@ -42,7 +39,7 @@ export const selectTechnicalMeters = async (
 export const updateTechnicalMeters = async ({
   quantity,
   underVoltage,
-  transformerSubstationId
+  transformerSubstationId,
 }: TechnicalMetersValues) => {
   const updated_at = new Date();
 
@@ -50,8 +47,7 @@ export const updateTechnicalMeters = async ({
     .update(TechnicalMeters)
     .set({ quantity, underVoltage, updated_at })
     .where(
-      eq(TechnicalMeters.transformerSubstationId,
-        transformerSubstationId)
+      eq(TechnicalMeters.transformerSubstationId, transformerSubstationId),
     );
 };
 
@@ -59,7 +55,7 @@ export const selectSumTechnicalMeters = async () => {
   const meters = await db
     .select({
       quantity: sum(TechnicalMeters.quantity),
-      underVoltage: sum(TechnicalMeters.underVoltage)
+      underVoltage: sum(TechnicalMeters.underVoltage),
     })
     .from(TechnicalMeters);
 

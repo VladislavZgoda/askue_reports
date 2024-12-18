@@ -1,9 +1,9 @@
 import createArchive from "./createArchive";
 import writeDbData from "./writeDbData";
 import writeParsedData from "./writeParsedData";
-import fsp from 'fs/promises';
-import fs from 'fs';
-import path from 'path';
+import fsp from "fs/promises";
+import fs from "fs";
+import path from "path";
 import validateExcel from "./validateExcel";
 import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 
@@ -12,9 +12,10 @@ type FormDates = {
 };
 
 export default async function composeReports(dates: FormDates) {
-  const partPath = 'app/routes/generate-reports/.server/';
+  const partPath = "app/routes/generate-reports/.server/";
 
-  if (! await doesDirectoryExist(partPath)) fsp.mkdir(partPath + 'filled-reports/');
+  if (!(await doesDirectoryExist(partPath)))
+    fsp.mkdir(partPath + "filled-reports/");
 
   await writeDbData(dates);
 
@@ -26,7 +27,7 @@ export default async function composeReports(dates: FormDates) {
 }
 
 async function doesDirectoryExist(partPath: string) {
-  const path =  partPath + 'filled-reports/';
+  const path = partPath + "filled-reports/";
 
   try {
     return (await fsp.stat(path)).isDirectory();
@@ -37,11 +38,12 @@ async function doesDirectoryExist(partPath: string) {
 }
 
 async function cleanUp(partPath: string) {
-  const dirFilledReports = partPath + 'filled-reports/';
+  const dirFilledReports = partPath + "filled-reports/";
 
   deleteFiles(dirFilledReports);
 
-  if (await excelStorage.has('supplementNine')) await excelStorage.remove('supplementNine');
+  if (await excelStorage.has("supplementNine"))
+    await excelStorage.remove("supplementNine");
 }
 
 function deleteFiles(directory: string) {

@@ -5,12 +5,8 @@ type ButtonContainer = {
   errors: boolean;
 };
 
-export default function BtnContainer({
-  children, errors
-}: ButtonContainer) {
+export default function BtnContainer({ children, errors }: ButtonContainer) {
   return (
-    <div className={`h-full mt-auto ${errors ? 'mb-12' : ''}`}>
-      {children}
-    </div>
+    <div className={`h-full mt-auto ${errors ? "mb-12" : ""}`}>{children}</div>
   );
 }

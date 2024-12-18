@@ -17,7 +17,9 @@ export default function SelectYear() {
         name="year"
         required
       >
-        <option value="" disabled>Выбрать</option>
+        <option value="" disabled>
+          Выбрать
+        </option>
         <option>{year - 1}</option>
         <option>{year}</option>
       </select>

@@ -8,10 +8,8 @@ export async function loader({ request }: Route.LoaderArgs) {
   return await isNotAuthenticated(request);
 }
 
-export const action = async ({
-  params,
-}: Route.ActionArgs) => {
-  invariant(params.id, 'Missing id param');
+export const action = async ({ params }: Route.ActionArgs) => {
+  invariant(params.id, "Missing id param");
   await deleteTransSub(params.id);
-  return redirect('/');
+  return redirect("/");
 };

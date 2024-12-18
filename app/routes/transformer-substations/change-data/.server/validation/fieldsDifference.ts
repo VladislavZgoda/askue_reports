@@ -1,13 +1,13 @@
-export default function validateInput(
-  values: { [k: string]: FormDataEntryValue; }
-) {
+export default function validateInput(values: {
+  [k: string]: FormDataEntryValue;
+}) {
   const errors: { [k: string]: string } = {};
 
-  if (Object.hasOwn(values, 'inSystemTotal')) {
+  if (Object.hasOwn(values, "inSystemTotal")) {
     checkInput(values, errors);
   }
 
-  if (Object.hasOwn(values, 'underVoltage')) {
+  if (Object.hasOwn(values, "underVoltage")) {
     checkTechMetersInput(values, errors);
   }
 
@@ -15,7 +15,7 @@ export default function validateInput(
 }
 
 function checkInput(
-  values: { [k: string]: FormDataEntryValue; },
+  values: { [k: string]: FormDataEntryValue },
   errors: { [k: string]: string },
 ) {
   const message = `Поле 'Количество ПУ' не должно быть меньше,
@@ -35,7 +35,7 @@ function checkInput(
 }
 
 function checkTechMetersInput(
-  values: { [k: string]: FormDataEntryValue; },
+  values: { [k: string]: FormDataEntryValue },
   errors: { [k: string]: string },
 ) {
   const message = `Поле 'Количество ПУ' не должно быть меньше,

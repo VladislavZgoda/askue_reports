@@ -13,7 +13,9 @@ export default function SelectMonth() {
         defaultValue=""
         required
       >
-        <option value="" disabled>Выбрать</option>
+        <option value="" disabled>
+          Выбрать
+        </option>
         <option>Январь</option>
         <option>Февраль</option>
         <option>Март</option>

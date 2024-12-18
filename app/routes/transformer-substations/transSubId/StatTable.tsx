@@ -11,49 +11,36 @@ type DataProp = {
       quantity: number;
       underVoltage: number;
     };
-  }
+  };
 };
 
 type ConvertedDataType = {
-  [k: string]: { [k: string]: number }
+  [k: string]: { [k: string]: number };
 };
 
 export default function StatTable({ data }: DataProp) {
-  const privateTotal =
-    data.private.inSystem + data.private.notInSystem;
+  const privateTotal = data.private.inSystem + data.private.notInSystem;
 
-  const legalSimsTotal =
-    data.legalSims.inSystem + data.legalSims.notInSystem;
+  const legalSimsTotal = data.legalSims.inSystem + data.legalSims.notInSystem;
 
-  const legalP2Total =
-    data.legalP2.inSystem + data.legalP2.notInSystem;
+  const legalP2Total = data.legalP2.inSystem + data.legalP2.notInSystem;
 
-  const odpySimsTotal =
-    data.odpySims.inSystem + data.odpySims.notInSystem;
+  const odpySimsTotal = data.odpySims.inSystem + data.odpySims.notInSystem;
 
-  const odpyP2Total =
-    data.odpyP2.inSystem + data.odpyP2.notInSystem;
+  const odpyP2Total = data.odpyP2.inSystem + data.odpyP2.notInSystem;
 
   const totalMeters =
-    privateTotal + legalSimsTotal + legalP2Total
-    + odpySimsTotal + odpyP2Total;
+    privateTotal + legalSimsTotal + legalP2Total + odpySimsTotal + odpyP2Total;
 
-  const convertedData: ConvertedDataType =
-    JSON.parse(JSON.stringify(data));
+  const convertedData: ConvertedDataType = JSON.parse(JSON.stringify(data));
 
-  delete convertedData['techMeters'];
+  delete convertedData["techMeters"];
 
-  const reducer = (
-    obj: ConvertedDataType, property: string
-  ) => {
-    return Object
-      .keys(obj)
-      .reduce(
-        (sum, key) => sum + obj[key][property], 0
-      );
+  const reducer = (obj: ConvertedDataType, property: string) => {
+    return Object.keys(obj).reduce((sum, key) => sum + obj[key][property], 0);
   };
 
-  const inSystemTotal = reducer(convertedData, 'inSystem');
+  const inSystemTotal = reducer(convertedData, "inSystem");
 
   return (
     <div className="overflow-auto max-h-[50vh] mt-5 mb-5">

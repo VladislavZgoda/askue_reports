@@ -42,9 +42,7 @@
         "transformerSubstation_name_unique": {
           "name": "transformerSubstation_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       }
     }

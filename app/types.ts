@@ -1,12 +1,14 @@
 export type TransSubs = {
-  transSubs: {
-    id: number;
-    name: string;
-  }[] | undefined,
-  q: string | null | undefined
+  transSubs:
+    | {
+        id: number;
+        name: string;
+      }[]
+    | undefined;
+  q: string | null | undefined;
 };
 
-export type BalanceType = 'Быт' | 'ЮР Sims' | 'ЮР П2' | 'ОДПУ Sims' | 'ОДПУ П2';
+export type BalanceType = "Быт" | "ЮР Sims" | "ЮР П2" | "ОДПУ Sims" | "ОДПУ П2";
 
 export type MetersValues = {
   quantity: number;
@@ -79,7 +81,7 @@ export type UpdateTotalMetersType = {
 
 export type UpdateYearOnIdType = UpdateOnIdType & {
   added_to_system: number;
-}
+};
 
 export type UpdateTotalYearMetersType = {
   year: number;

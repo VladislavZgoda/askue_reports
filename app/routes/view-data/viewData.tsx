@@ -3,7 +3,7 @@ import DateInput from "~/components/DateInput";
 import type { HeadersFunction } from "react-router";
 import type { DbData } from "./view-data.types";
 import createEtagHash from "~/utils/etagHash";
-import { isNotAuthenticated } from '~/.server/services/auth';
+import { isNotAuthenticated } from "~/.server/services/auth";
 import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
 import cache from "~/utils/cache";
@@ -15,9 +15,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
 
   const url = new URL(request.url);
-  const privateDate = url.searchParams.get('privateDate') ?? todayDate();
-  const legalDate = url.searchParams.get('legalDate') ?? todayDate();
-  const odpyDate = url.searchParams.get('odpyDate') ?? todayDate();
+  const privateDate = url.searchParams.get("privateDate") ?? todayDate();
+  const legalDate = url.searchParams.get("legalDate") ?? todayDate();
+  const odpyDate = url.searchParams.get("odpyDate") ?? todayDate();
 
   const cacheKey = `view-data${privateDate}${legalDate}${odpyDate}`;
 
@@ -29,25 +29,28 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const { transSubData } = cache.getKey(cacheKey) as {
-    transSubData: DbData
+    transSubData: DbData;
   };
 
   const hash = createEtagHash({ loadValues, transSubData });
-  const etag = request.headers.get('If-None-Match');
+  const etag = request.headers.get("If-None-Match");
 
   if (etag === hash) {
     return new Response(undefined, { status: 304 }) as unknown as {
-      loadValues: typeof loadValues,
-      transSubData: typeof transSubData,
+      loadValues: typeof loadValues;
+      transSubData: typeof transSubData;
     };
   }
 
-  return data({ loadValues, transSubData }, {
-    headers: {
-      "Cache-Control": "no-cache",
-      "Etag": hash
-    }
-  });
+  return data(
+    { loadValues, transSubData },
+    {
+      headers: {
+        "Cache-Control": "no-cache",
+        Etag: hash,
+      },
+    },
+  );
 }
 
 export default function ViewData({ loaderData }: Route.ComponentProps) {
@@ -58,11 +61,11 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
   const transSubs = Object.keys(transSubData).sort((a, b) =>
     a.localeCompare(b, undefined, {
       numeric: true,
-      sensitivity: 'base'
-    })
+      sensitivity: "base",
+    }),
   );
 
-  const tableRows = transSubs.map((transSub, index) =>
+  const tableRows = transSubs.map((transSub, index) => (
     <tr key={transSubData[transSub].id} className="hover">
       <th>{index + 1}</th>
       <td>{transSub}</td>
@@ -71,40 +74,60 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
       <td>{transSubData[transSub].odpy}</td>
       <td>{transSubData[transSub].notInSystem}</td>
       <td>
-        {transSubData[transSub].private + transSubData[transSub].legal
-          + transSubData[transSub].odpy + transSubData[transSub].notInSystem}
+        {transSubData[transSub].private +
+          transSubData[transSub].legal +
+          transSubData[transSub].odpy +
+          transSubData[transSub].notInSystem}
       </td>
     </tr>
+  ));
+
+  const privateTotal = transSubs.reduce(
+    (sum, transSub) => sum + transSubData[transSub].private,
+    0,
   );
 
-  const privateTotal = transSubs.reduce((sum, transSub) =>
-    sum + transSubData[transSub].private , 0
+  const legalTotal = transSubs.reduce(
+    (sum, transSub) => sum + transSubData[transSub].legal,
+    0,
   );
 
-  const legalTotal = transSubs.reduce((sum, transSub) =>
-    sum + transSubData[transSub].legal , 0
-  );
-
-  const odpyTotal = transSubs.reduce((sum, transSub) =>
-    sum + transSubData[transSub].odpy , 0
+  const odpyTotal = transSubs.reduce(
+    (sum, transSub) => sum + transSubData[transSub].odpy,
+    0,
   );
 
   const totalInSystem = privateTotal + legalTotal + odpyTotal;
 
-  const totalCount = transSubs.reduce((sum, transSub) =>
-    sum + transSubData[transSub].notInSystem, 0
-  ) + totalInSystem;
+  const totalCount =
+    transSubs.reduce(
+      (sum, transSub) => sum + transSubData[transSub].notInSystem,
+      0,
+    ) + totalInSystem;
 
   return (
     <main className="w-[70%] mr-auto ml-auto">
-      <Form className="mt-5 flex justify-between"
+      <Form
+        className="mt-5 flex justify-between"
         onChange={(e) => {
           submit(e.currentTarget);
         }}
       >
-        <DateInput labelText="БЫТ" inputName="privateDate" defValue={loadValues.privateDate} />
-        <DateInput labelText="ЮР" inputName="legalDate" defValue={loadValues.legalDate} />
-        <DateInput labelText="ОДПУ" inputName="odpyDate" defValue={loadValues.odpyDate} />
+        <DateInput
+          labelText="БЫТ"
+          inputName="privateDate"
+          defValue={loadValues.privateDate}
+        />
+        <DateInput
+          labelText="ЮР"
+          inputName="legalDate"
+          defValue={loadValues.legalDate}
+        />
+        <DateInput
+          labelText="ОДПУ"
+          inputName="odpyDate"
+          defValue={loadValues.odpyDate}
+        />
       </Form>
 
       <div className="overflow-x-auto max-h-[70vh] mt-5 mb-10">
@@ -120,9 +143,7 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
               <th>Всего</th>
             </tr>
           </thead>
-          <tbody>
-            {tableRows}
-          </tbody>
+          <tbody>{tableRows}</tbody>
         </table>
       </div>
 
@@ -137,10 +158,12 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
           Всего ОДПУ: <span className="font-bold">{odpyTotal}</span>
         </p>
         <p>
-          Всего с возможностью опроса через ПО: <span className="font-bold">{totalInSystem}</span>
+          Всего с возможностью опроса через ПО:{" "}
+          <span className="font-bold">{totalInSystem}</span>
         </p>
         <p>
-          Общее количество ТУ с возможностью опроса: <span className="font-bold">{totalCount}</span>
+          Общее количество ТУ с возможностью опроса:{" "}
+          <span className="font-bold">{totalCount}</span>
         </p>
       </div>
     </main>

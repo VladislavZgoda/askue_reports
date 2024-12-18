@@ -37,8 +37,13 @@ type PanelProp = {
 };
 
 export default function Panel({
-  label, errors, data, checked = false,
-  fetcher, isSubmitting, btnValue
+  label,
+  errors,
+  data,
+  checked = false,
+  fetcher,
+  isSubmitting,
+  btnValue,
 }: PanelProp) {
   return (
     <TabPanel checked={checked} label={label}>
@@ -49,14 +54,16 @@ export default function Panel({
             name="totalMeters"
             error={errors?.totalDiff}
             defValue={data.totalMeters.quantity}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
 
           <Input
             label="Из них в системе"
             name="inSystemTotal"
             error={errors?.totalDiff}
             defValue={data.totalMeters.addedToSystem}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
         </Container>
 
         <Container heading="Установлено за год">
@@ -65,14 +72,16 @@ export default function Panel({
             name="yearTotal"
             error={errors?.yearDiff}
             defValue={data.totalYearMeters.quantity}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
 
           <Input
             label="Из них в системе"
             name="inSystemYear"
             error={errors?.yearDiff}
             defValue={data.totalYearMeters.addedToSystem}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
         </Container>
 
         <Container heading="Установлено в этом месяце">
@@ -81,21 +90,20 @@ export default function Panel({
             name="monthTotal"
             error={errors?.monthDiff}
             defValue={data.totalMonthMeters.quantity}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
 
           <Input
             label="Из них в системе"
             name="inSystemMonth"
             error={errors?.monthDiff}
             defValue={data.totalMonthMeters.addedToSystem}
-            errors={isErrors(errors)} />
+            errors={isErrors(errors)}
+          />
         </Container>
 
         <BtnContainer errors={isErrors(errors)}>
-          <Button
-            buttonValue={btnValue}
-            isSubmitting={isSubmitting}
-          />
+          <Button buttonValue={btnValue} isSubmitting={isSubmitting} />
         </BtnContainer>
       </Form>
     </TabPanel>

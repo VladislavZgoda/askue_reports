@@ -1,5 +1,5 @@
 export function todayDate() {
-  const date = new Date().toLocaleDateString('en-CA');
+  const date = new Date().toLocaleDateString("en-CA");
 
   return date;
 }

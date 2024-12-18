@@ -12,23 +12,24 @@ export default function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
-  loadContext: AppLoadContext
+  loadContext: AppLoadContext,
 ) {
   let prohibitOutOfOrderStreaming =
-    isBotRequest(request.headers.get("user-agent")) || reactRouterContext.isSpaMode;
+    isBotRequest(request.headers.get("user-agent")) ||
+    reactRouterContext.isSpaMode;
 
   return prohibitOutOfOrderStreaming
     ? handleBotRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        reactRouterContext
+        reactRouterContext,
       )
     : handleBrowserRequest(
         request,
         responseStatusCode,
         responseHeaders,
-        reactRouterContext
+        reactRouterContext,
       );
 }
 
@@ -52,16 +53,12 @@ function handleBotRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext
+  reactRouterContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter
-        context={reactRouterContext}
-        url={request.url}
-
-      />,
+      <ServerRouter context={reactRouterContext} url={request.url} />,
       {
         onAllReady() {
           shellRendered = true;
@@ -74,7 +71,7 @@ function handleBotRequest(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           );
 
           pipe(body);
@@ -91,7 +88,7 @@ function handleBotRequest(
             console.error(error);
           }
         },
-      }
+      },
     );
 
     setTimeout(abort, streamTimeout + 1000);
@@ -102,16 +99,12 @@ function handleBrowserRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext
+  reactRouterContext: EntryContext,
 ) {
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <ServerRouter
-        context={reactRouterContext}
-        url={request.url}
-
-      />,
+      <ServerRouter context={reactRouterContext} url={request.url} />,
       {
         onShellReady() {
           shellRendered = true;
@@ -124,7 +117,7 @@ function handleBrowserRequest(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
-            })
+            }),
           );
 
           pipe(body);
@@ -141,7 +134,7 @@ function handleBrowserRequest(
             console.error(error);
           }
         },
-      }
+      },
     );
 
     setTimeout(abort, streamTimeout + 1000);

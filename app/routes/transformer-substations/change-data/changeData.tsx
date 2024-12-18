@@ -26,28 +26,26 @@ import type { Route } from "./+types/changeData";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
-export const loader = async ({
-  params, request
-}: Route.LoaderArgs) => {
-  invariant(params.id, 'Expected params.id');
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
+  invariant(params.id, "Expected params.id");
 
   if (!Number(params.id)) {
-    throw new Response('Not Found', { status: 404 });
+    throw new Response("Not Found", { status: 404 });
   }
 
   const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
-    throw new Response('Not Found', { status: 404 });
+    throw new Response("Not Found", { status: 404 });
   }
 
   await isNotAuthenticated(request);
 
-  const privateData = await loadData(transSub.id, 'Быт');
-  const legalSimsData = await loadData(transSub.id, 'ЮР Sims');
-  const legalP2Data = await loadData(transSub.id, 'ЮР П2');
-  const odpySimsData = await loadData(transSub.id, 'ОДПУ Sims');
-  const odpyP2Data = await loadData(transSub.id, 'ОДПУ П2');
+  const privateData = await loadData(transSub.id, "Быт");
+  const legalSimsData = await loadData(transSub.id, "ЮР Sims");
+  const legalP2Data = await loadData(transSub.id, "ЮР П2");
+  const odpySimsData = await loadData(transSub.id, "ОДПУ Sims");
+  const odpyP2Data = await loadData(transSub.id, "ОДПУ П2");
   const techMetersData = await loadTechMeters(transSub.id);
 
   const hash = createEtagHash({
@@ -60,40 +58,41 @@ export const loader = async ({
     techMetersData,
   });
 
-  const etag = request.headers.get('If-None-Match');
+  const etag = request.headers.get("If-None-Match");
 
   if (etag === hash) {
     return new Response(undefined, { status: 304 }) as unknown as {
-      transSub: typeof transSub,
-      privateData: typeof privateData,
-      legalSimsData: typeof legalSimsData,
-      legalP2Data: typeof legalP2Data,
-      odpySimsData: typeof odpySimsData,
-      odpyP2Data: typeof odpyP2Data,
-      techMetersData: typeof techMetersData,
+      transSub: typeof transSub;
+      privateData: typeof privateData;
+      legalSimsData: typeof legalSimsData;
+      legalP2Data: typeof legalP2Data;
+      odpySimsData: typeof odpySimsData;
+      odpyP2Data: typeof odpyP2Data;
+      techMetersData: typeof techMetersData;
     };
   }
 
-  return data({
-    transSub,
-    privateData,
-    legalSimsData,
-    legalP2Data,
-    odpySimsData,
-    odpyP2Data,
-    techMetersData,
-  }, {
-    headers: {
-      "Cache-Control": "no-cache",
-      "Etag": hash
-    }
-  });
+  return data(
+    {
+      transSub,
+      privateData,
+      legalSimsData,
+      legalP2Data,
+      odpySimsData,
+      odpyP2Data,
+      techMetersData,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-cache",
+        Etag: hash,
+      },
+    },
+  );
 };
 
-export const action = async ({
-  request, params
-}: Route.ActionArgs) => {
-  invariant(params.id, 'Expected params.id');
+export const action = async ({ request, params }: Route.ActionArgs) => {
+  invariant(params.id, "Expected params.id");
 
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
@@ -107,27 +106,27 @@ export const action = async ({
   const mutateData = async (type: BalanceType) => {
     await changeData({
       ...values,
-      type
+      type,
     });
   };
 
   switch (_action) {
-    case 'changePrivate':
-      await mutateData('Быт');
+    case "changePrivate":
+      await mutateData("Быт");
       break;
-    case 'changeLegalSims':
-      await mutateData('ЮР Sims');
+    case "changeLegalSims":
+      await mutateData("ЮР Sims");
       break;
-    case 'changeLegalP2':
-      await mutateData('ЮР П2');
+    case "changeLegalP2":
+      await mutateData("ЮР П2");
       break;
-    case 'changeOdpySims':
-      await mutateData('ОДПУ Sims');
+    case "changeOdpySims":
+      await mutateData("ОДПУ Sims");
       break;
-    case 'changeOdpyP2':
-      await mutateData('ОДПУ П2');
+    case "changeOdpyP2":
+      await mutateData("ОДПУ П2");
       break;
-    case 'changeTechMeters':
+    case "changeTechMeters":
       await changeTechMeters(values);
       break;
   }
@@ -150,8 +149,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
   const fetcher = useFetcher<typeof action>();
   const actionErrors = fetcher.data;
-  const formAction = fetcher.formData?.get('_action');
-  const isSubmitting = fetcher.state === 'submitting';
+  const formAction = fetcher.formData?.get("_action");
+  const isSubmitting = fetcher.state === "submitting";
 
   const checkWhatForm = (formBtnName: string) => {
     return formAction === formBtnName;
@@ -161,53 +160,45 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     return dataType && isSubmitting;
   };
 
-  const isPrivateData = checkWhatForm('changePrivate');
+  const isPrivateData = checkWhatForm("changePrivate");
   const isSubmittingPrivate = checkFormSubmit(isPrivateData);
 
-  const isLegalSimsData = checkWhatForm('changeLegalSims');
+  const isLegalSimsData = checkWhatForm("changeLegalSims");
   const isSubmittingLegalSims = checkFormSubmit(isLegalSimsData);
 
-  const isLegalP2Data = checkWhatForm('changeLegalP2');
+  const isLegalP2Data = checkWhatForm("changeLegalP2");
   const isSubmittingLegalP2 = checkFormSubmit(isLegalP2Data);
 
-  const isOdpySimsData = checkWhatForm('changeOdpySims');
+  const isOdpySimsData = checkWhatForm("changeOdpySims");
   const isSubmittingOdpySims = checkFormSubmit(isOdpySimsData);
 
-  const isOdpyP2Data = checkWhatForm('changeOdpyP2');
+  const isOdpyP2Data = checkWhatForm("changeOdpyP2");
   const isSubmittingOdpyP2 = checkFormSubmit(isOdpyP2Data);
 
-  const isTechMetersData = checkWhatForm('changeTechMeters');
+  const isTechMetersData = checkWhatForm("changeTechMeters");
   const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
 
-  const [
-    privateErrors,
-    setPrivateErrors
-  ] = useState<{ [k: string]: string }>({});
+  const [privateErrors, setPrivateErrors] = useState<{ [k: string]: string }>(
+    {},
+  );
 
-  const [
-    legalSimsErrors,
-    setLegalSimsErrors
-  ] = useState<{ [k: string]: string }>({});
+  const [legalSimsErrors, setLegalSimsErrors] = useState<{
+    [k: string]: string;
+  }>({});
 
-  const [
-    legalP2Errors,
-    setLegalP2Errors,
-  ] = useState<{ [k: string]: string }>({});
+  const [legalP2Errors, setLegalP2Errors] = useState<{ [k: string]: string }>(
+    {},
+  );
 
-  const [
-    odpySimsErrors,
-    setOdpySimsErrors
-  ] = useState<{ [k: string]: string }>({});
+  const [odpySimsErrors, setOdpySimsErrors] = useState<{ [k: string]: string }>(
+    {},
+  );
 
-  const [
-    odpyP2Errors,
-    setOdpyP2Errors
-  ] = useState<{ [k: string]: string }>({});
+  const [odpyP2Errors, setOdpyP2Errors] = useState<{ [k: string]: string }>({});
 
-  const [
-    techMetersErrors,
-    setTechMetersErrors
-  ] = useState<{ [k: string]: string }>({});
+  const [techMetersErrors, setTechMetersErrors] = useState<{
+    [k: string]: string;
+  }>({});
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -243,44 +234,32 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
       setTechMetersErrors(actionErrors.errors);
     }
 
-    if (!isSubmittingPrivate
-      && !actionErrors?.errors
-      && isPrivateData) {
+    if (!isSubmittingPrivate && !actionErrors?.errors && isPrivateData) {
       setPrivateErrors({});
       handleIsVisible();
     }
 
-    if (!isSubmittingLegalSims
-      && !actionErrors?.errors
-      && isLegalSimsData) {
+    if (!isSubmittingLegalSims && !actionErrors?.errors && isLegalSimsData) {
       setLegalSimsErrors({});
       handleIsVisible();
     }
 
-    if (!isSubmittingLegalP2
-      && !actionErrors?.errors
-      && isLegalP2Data) {
+    if (!isSubmittingLegalP2 && !actionErrors?.errors && isLegalP2Data) {
       setLegalP2Errors({});
       handleIsVisible();
     }
 
-    if (!isSubmittingOdpySims
-      && !actionErrors?.errors
-      && isOdpySimsData) {
+    if (!isSubmittingOdpySims && !actionErrors?.errors && isOdpySimsData) {
       setOdpySimsErrors({});
       handleIsVisible();
     }
 
-    if (!isSubmittingOdpyP2
-      && !actionErrors?.errors
-      && isOdpyP2Data) {
+    if (!isSubmittingOdpyP2 && !actionErrors?.errors && isOdpyP2Data) {
       setOdpyP2Errors({});
       handleIsVisible();
     }
 
-    if (!isSubmittingTechMeters
-      && !actionErrors?.errors
-      && isTechMetersData) {
+    if (!isSubmittingTechMeters && !actionErrors?.errors && isTechMetersData) {
       setTechMetersErrors({});
       handleIsVisible();
     }
@@ -302,40 +281,53 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
   return (
     <main>
-      <LinkToTransSub
-        id={transSub.id}
-        name={transSub.name}
-      />
+      <LinkToTransSub id={transSub.id} name={transSub.name} />
 
       <div role="tablist" className="tabs tabs-lifted ml-14 mr-14">
         <Panel
-          label="БЫТ" checked={true} data={privateData}
-          isSubmitting={isSubmittingPrivate} errors={privateErrors}
-          fetcher={fetcher} btnValue="changePrivate"
+          label="БЫТ"
+          checked={true}
+          data={privateData}
+          isSubmitting={isSubmittingPrivate}
+          errors={privateErrors}
+          fetcher={fetcher}
+          btnValue="changePrivate"
         />
 
         <Panel
-          label="ЮР Sims" data={legalSimsData}
-          isSubmitting={isSubmittingLegalSims} errors={legalSimsErrors}
-          fetcher={fetcher} btnValue="changeLegalSims"
+          label="ЮР Sims"
+          data={legalSimsData}
+          isSubmitting={isSubmittingLegalSims}
+          errors={legalSimsErrors}
+          fetcher={fetcher}
+          btnValue="changeLegalSims"
         />
 
         <Panel
-          label="ЮР П2" data={legalP2Data}
-          isSubmitting={isSubmittingLegalP2} errors={legalP2Errors}
-          fetcher={fetcher} btnValue="changeLegalP2"
+          label="ЮР П2"
+          data={legalP2Data}
+          isSubmitting={isSubmittingLegalP2}
+          errors={legalP2Errors}
+          fetcher={fetcher}
+          btnValue="changeLegalP2"
         />
 
         <Panel
-          label="ОДПУ Sims" data={odpySimsData}
-          isSubmitting={isSubmittingOdpySims} errors={odpySimsErrors}
-          fetcher={fetcher} btnValue="changeOdpySims"
+          label="ОДПУ Sims"
+          data={odpySimsData}
+          isSubmitting={isSubmittingOdpySims}
+          errors={odpySimsErrors}
+          fetcher={fetcher}
+          btnValue="changeOdpySims"
         />
 
         <Panel
-          label="ОДПУ П2" data={odpyP2Data}
-          isSubmitting={isSubmittingOdpyP2} errors={odpyP2Errors}
-          fetcher={fetcher} btnValue="changeOdpyP2"
+          label="ОДПУ П2"
+          data={odpyP2Data}
+          isSubmitting={isSubmittingOdpyP2}
+          errors={odpyP2Errors}
+          fetcher={fetcher}
+          btnValue="changeOdpyP2"
         />
 
         <TabPanel label="Техучеты">
@@ -368,10 +360,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
         </TabPanel>
       </div>
 
-      <Toast
-        isVisible={isVisible}
-        message="Данные успешно обновлены."
-      />
+      <Toast isVisible={isVisible} message="Данные успешно обновлены." />
     </main>
   );
 }

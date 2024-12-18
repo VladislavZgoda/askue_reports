@@ -12,10 +12,12 @@ import type { Route } from "./+types/generateReports";
 
 export async function action({ request }: Route.ActionArgs) {
   const uploadHandler = async (fileUpload: FileUpload) => {
-    if (fileUpload.fieldName === 'upload' &&
-        fileUpload.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    if (
+      fileUpload.fieldName === "upload" &&
+      fileUpload.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     ) {
-      await excelStorage.set('supplementNine', fileUpload);
+      await excelStorage.set("supplementNine", fileUpload);
     }
   };
 
@@ -30,17 +32,14 @@ export async function action({ request }: Route.ActionArgs) {
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
   const afterAction = fetcher.data;
-  const isSubmitting = fetcher.state === 'submitting';
+  const isSubmitting = fetcher.state === "submitting";
   const formRef = useRef<HTMLFormElement>(null);
 
   const download = () => {
-    const link = document.createElement('a');
-    link.href = '/download';
+    const link = document.createElement("a");
+    link.href = "/download";
 
-    link.setAttribute(
-      'download',
-      `Отчеты.zip`,
-    );
+    link.setAttribute("download", `Отчеты.zip`);
 
     document.body.appendChild(link);
     link.click();
@@ -63,8 +62,8 @@ export default function GenerateReports() {
         className="flex flex-col w-[30vw] gap-6"
         method="post"
         encType="multipart/form-data"
-        ref={formRef}>
-
+        ref={formRef}
+      >
         <section className="flex flex-row gap-16 flex-auto">
           <div className="flex-auto">
             <DateInput labelText="Быт" inputName="privateDate" />
@@ -73,9 +72,18 @@ export default function GenerateReports() {
           </div>
 
           <div className="flex-auto">
-            <DateInputWithoutDef labelText="Быт прошлый месяц" inputName="privateMonth" />
-            <DateInputWithoutDef labelText="Юр прошлый месяц" inputName="legalMonth" />
-            <DateInputWithoutDef labelText="ОДПУ прошлый месяц" inputName="odpyMonth" />
+            <DateInputWithoutDef
+              labelText="Быт прошлый месяц"
+              inputName="privateMonth"
+            />
+            <DateInputWithoutDef
+              labelText="Юр прошлый месяц"
+              inputName="legalMonth"
+            />
+            <DateInputWithoutDef
+              labelText="ОДПУ прошлый месяц"
+              inputName="odpyMonth"
+            />
           </div>
         </section>
 
@@ -86,10 +94,12 @@ export default function GenerateReports() {
           <SelectYear />
         </section>
 
-        <button className={`btn btn-outline btn-primary mt-4 ${isSubmitting && 'btn-active'}`}
-          type={isSubmitting ? 'button' : 'submit'}>
-          {isSubmitting && (<span className="loading loading-spinner"></span>)}
-          {isSubmitting ? 'Создание...' : 'Сформировать'}
+        <button
+          className={`btn btn-outline btn-primary mt-4 ${isSubmitting && "btn-active"}`}
+          type={isSubmitting ? "button" : "submit"}
+        >
+          {isSubmitting && <span className="loading loading-spinner"></span>}
+          {isSubmitting ? "Создание..." : "Сформировать"}
         </button>
       </fetcher.Form>
     </main>

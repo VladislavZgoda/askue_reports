@@ -6,12 +6,10 @@ type FormType = {
     errors: {
       [k: string]: string;
     };
-  } | null>
+  } | null>;
 };
 
-export default function Form({
-  children, fetcher
-}: FormType) {
+export default function Form({ children, fetcher }: FormType) {
   return (
     <fetcher.Form method="post" className="flex gap-8">
       {children}

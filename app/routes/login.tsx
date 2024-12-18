@@ -5,7 +5,7 @@ import sessionStorage from "~/.server/services/session";
 
 export async function loader({ request }: Route.LoaderArgs) {
   let session = await sessionStorage.getSession(request.headers.get("cookie"));
-  let user = session.get('loggedUser');
+  let user = session.get("loggedUser");
   if (user) throw redirect("/");
   return null;
 }
@@ -13,30 +13,30 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const requestClone = request.clone();
 
-  const user = await authenticator.authenticate('user-login', request);
+  const user = await authenticator.authenticate("user-login", request);
 
   if (!user[0]?.userId) {
     const formData = await requestClone.formData();
-    const userLogin = formData.get('userLogin') as string;
+    const userLogin = formData.get("userLogin") as string;
 
     return {
-      errorMessage: 'Не верный логин/пароль',
-      userLogin
+      errorMessage: "Не верный логин/пароль",
+      userLogin,
     };
   }
 
-  let session = await sessionStorage.getSession(request.headers.get('cookie'));
-  session.set('loggedUser', user[0].userId);
+  let session = await sessionStorage.getSession(request.headers.get("cookie"));
+  session.set("loggedUser", user[0].userId);
 
-  throw redirect('/', {
-    headers: { 'Set-Cookie': await sessionStorage.commitSession(session) }
+  throw redirect("/", {
+    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
   });
 }
 
 export default function Login() {
   const loginData = useActionData<typeof action>();
   const navigation = useNavigation();
-  const isSubmitting = navigation.state === 'submitting';
+  const isSubmitting = navigation.state === "submitting";
 
   return (
     <main className="flex flex-col items-center gap-5 w-full">
@@ -53,14 +53,17 @@ export default function Login() {
               type="text"
               placeholder="логин"
               autoComplete="username"
-              className={`input input-bordered ${loginData?.errorMessage && 'input-error'}`}
+              className={`input input-bordered ${loginData?.errorMessage && "input-error"}`}
               id="login"
               name="userLogin"
               defaultValue={loginData?.errorMessage && loginData?.userLogin}
-              required />
+              required
+            />
             {loginData?.errorMessage && (
               <div className="label">
-                <span className="label-text-alt text-error">{loginData.errorMessage}</span>
+                <span className="label-text-alt text-error">
+                  {loginData.errorMessage}
+                </span>
               </div>
             )}
           </div>
@@ -72,17 +75,25 @@ export default function Login() {
               type="password"
               placeholder="пароль"
               autoComplete="current-password"
-              className={`input input-bordered ${loginData?.errorMessage && 'input-error'}`}
+              className={`input input-bordered ${loginData?.errorMessage && "input-error"}`}
               id="password"
               name="password"
-              required />
+              required
+            />
           </div>
           <div className="form-control mt-6">
             <button
-              className={isSubmitting ? "btn btn-outline btn-secondary btn-active" : "btn btn-primary"}
-              type={isSubmitting ? "button" : "submit"}>
-              {isSubmitting && <span className="loading loading-spinner"></span>}
-              {isSubmitting ? 'Проверка...' : 'Войти'}
+              className={
+                isSubmitting
+                  ? "btn btn-outline btn-secondary btn-active"
+                  : "btn btn-primary"
+              }
+              type={isSubmitting ? "button" : "submit"}
+            >
+              {isSubmitting && (
+                <span className="loading loading-spinner"></span>
+              )}
+              {isSubmitting ? "Проверка..." : "Войти"}
             </button>
           </div>
         </Form>

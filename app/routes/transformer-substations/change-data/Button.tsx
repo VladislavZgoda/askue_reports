@@ -2,16 +2,17 @@ import type { SubmitButtonValues } from "~/types";
 
 export default function Button({
   buttonValue,
-  isSubmitting
+  isSubmitting,
 }: SubmitButtonValues) {
   return (
     <button
       type={isSubmitting ? "button" : "submit"}
-      className={`btn btn-outline btn-accent ${isSubmitting && 'btn-active'}`}
+      className={`btn btn-outline btn-accent ${isSubmitting && "btn-active"}`}
       name="_action"
-      value={buttonValue}>
+      value={buttonValue}
+    >
       {isSubmitting && <span className="loading loading-spinner"></span>}
-      {isSubmitting ? 'Изменение...' : 'Изменить данные'}
-    </button >
+      {isSubmitting ? "Изменение..." : "Изменить данные"}
+    </button>
   );
 }

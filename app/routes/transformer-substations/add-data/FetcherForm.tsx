@@ -18,14 +18,15 @@ export default function FetcherForm({
   h2Title,
 }: FetcherFormType) {
   return (
-    <div className='flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80'>
-
+    <div className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80">
       <h2>{h2Title}</h2>
 
-      <fetcher.Form className='flex flex-col gap-5 h-full' method='post' ref={metesRef}>
-
+      <fetcher.Form
+        className="flex flex-col gap-5 h-full"
+        method="post"
+        ref={metesRef}
+      >
         {children}
-
       </fetcher.Form>
     </div>
   );

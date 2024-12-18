@@ -20,30 +20,24 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-export async function loader({
-  request
-}: LoaderFunctionArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
-  const q = url.searchParams.get('q');
+  const q = url.searchParams.get("q");
   const transSubs = await selectTransSubs(q);
   return { transSubs, q };
 }
 
 export function action() {
-  return redirect('/transformer-substations/new');
+  return redirect("/transformer-substations/new");
 }
 
-export function Layout({
-  children
-}: {
-  children: React.ReactNode
-}) {
-  const data = useRouteLoaderData<typeof loader>('root');
+export function Layout({ children }: { children: React.ReactNode }) {
+  const data = useRouteLoaderData<typeof loader>("root");
   const matches = useMatches();
-  const routes = ['routes/*', 'routes/login', 'routes/404'];
+  const routes = ["routes/*", "routes/login", "routes/404"];
 
   return (
-    <html lang="ru" data-theme='retro'>
+    <html lang="ru" data-theme="retro">
       <head>
         <Meta />
         <Links />
@@ -52,12 +46,15 @@ export function Layout({
         <title>Отчеты АСКУЭ</title>
       </head>
       <body
-        className={`${!routes.includes(matches[1]?.id)
-          ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
-          : 'font-sans bg-base-200 box-border'}`}>
-
-        {!routes.includes(matches[1]?.id)
-        && <MainLayout transSubs={data?.transSubs} q={data?.q} />}
+        className={`${
+          !routes.includes(matches[1]?.id)
+            ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
+            : "font-sans bg-base-200 box-border"
+        }`}
+      >
+        {!routes.includes(matches[1]?.id) && (
+          <MainLayout transSubs={data?.transSubs} q={data?.q} />
+        )}
 
         {children}
         <ScrollRestoration />
@@ -70,19 +67,23 @@ export function Layout({
 export default function App() {
   const navigation = useNavigation();
   const matches = useMatches();
-  const routes = ['routes/$', 'routes/login'];
+  const routes = ["routes/$", "routes/login"];
 
-  return(
-    <div className={
-      `${!routes.includes(matches[1]?.id)
-        ? 'col-start-2 col-span-4 row-start-2 row-span-3'
-        : 'h-screen w-screen flex justify-center items-center'}`}>
-
-      {navigation.state === 'loading' ? (
+  return (
+    <div
+      className={`${
+        !routes.includes(matches[1]?.id)
+          ? "col-start-2 col-span-4 row-start-2 row-span-3"
+          : "h-screen w-screen flex justify-center items-center"
+      }`}
+    >
+      {navigation.state === "loading" ? (
         <div className="flex justify-center items-center h-full">
           <span className="loading loading-spinner text-primary size-72"></span>
         </div>
-      ): <Outlet /> }
+      ) : (
+        <Outlet />
+      )}
     </div>
   );
 }
@@ -102,7 +103,7 @@ export function ErrorBoundary() {
   } else if (error instanceof Error) {
     return (
       <div className="text-error text-2xl ml-5 mt-5">
-        <h1>{ error.name }</h1>
+        <h1>{error.name}</h1>
         <p>{error.message}</p>
       </div>
     );

@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { TransformerSubstationTable } from "../schema";
-import { eq, ilike } from 'drizzle-orm';
+import { eq, ilike } from "drizzle-orm";
 import composeSearchString from "~/utils/searchString";
 
 export async function insertNewTS(name: string) {
@@ -15,24 +15,22 @@ export async function insertNewTS(name: string) {
   return transSub[0];
 }
 
-export async function selectTransSubs(
-  searchParam: string | null
-) {
+export async function selectTransSubs(searchParam: string | null) {
   try {
     const q = composeSearchString(searchParam);
 
     const transSubs = await db
       .select({
         id: TransformerSubstationTable.id,
-        name: TransformerSubstationTable.name
+        name: TransformerSubstationTable.name,
       })
       .from(TransformerSubstationTable)
       .where(ilike(TransformerSubstationTable.name, q));
 
     return transSubs;
   } catch {
-    throw new Error('DB is not available', {
-      cause: 'Cannot connect to db'
+    throw new Error("DB is not available", {
+      cause: "Cannot connect to db",
     });
   }
 }
@@ -41,7 +39,7 @@ export async function selectTransSub(id: string) {
   const transSubs = await db
     .select({
       id: TransformerSubstationTable.id,
-      name: TransformerSubstationTable.name
+      name: TransformerSubstationTable.name,
     })
     .from(TransformerSubstationTable)
     .where(eq(TransformerSubstationTable.id, Number(id)));
@@ -55,22 +53,20 @@ export async function deleteTransSub(id: string) {
     .where(eq(TransformerSubstationTable.id, Number(id)));
 }
 
-export async function updateTransSub(
-  id: string, name: string
-) {
+export async function updateTransSub(id: string, name: string) {
   const updated_at = new Date();
 
   await db
     .update(TransformerSubstationTable)
     .set({ name, updated_at })
-    .where(eq(TransformerSubstationTable.id, Number(id)))
+    .where(eq(TransformerSubstationTable.id, Number(id)));
 }
 
 export async function selectAllTransSubs() {
   return await db
     .select({
       id: TransformerSubstationTable.id,
-      name: TransformerSubstationTable.name
+      name: TransformerSubstationTable.name,
     })
-    .from(TransformerSubstationTable)
+    .from(TransformerSubstationTable);
 }

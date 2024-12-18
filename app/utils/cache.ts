@@ -1,4 +1,4 @@
-import { FlatCache } from 'flat-cache';
+import { FlatCache } from "flat-cache";
 
 let cache: FlatCache;
 

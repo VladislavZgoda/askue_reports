@@ -60,12 +60,8 @@
           "name": "electricityMeters_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "electricityMeters",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -141,12 +137,8 @@
           "name": "newYearMetersTable_transformerSubstation_transformerSubstation_id_fk",
           "tableFrom": "newYearMetersTable",
           "tableTo": "transformerSubstation",
-          "columnsFrom": [
-            "transformerSubstation"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["transformerSubstation"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -192,9 +184,7 @@
         "transformerSubstation_name_unique": {
           "name": "transformerSubstation_name_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
+          "columns": ["name"]
         }
       }
     }
@@ -203,13 +193,7 @@
     "public.balanceType": {
       "name": "balanceType",
       "schema": "public",
-      "values": [
-        "Быт",
-        "ЮР Sims",
-        "ЮР П2",
-        "ОДПУ Sims",
-        "ОДПУ П2"
-      ]
+      "values": ["Быт", "ЮР Sims", "ЮР П2", "ОДПУ Sims", "ОДПУ П2"]
     }
   },
   "schemas": {},
