@@ -32,9 +32,15 @@ export default async function changeData(values: {
 }) {
   const handledValues = handleValues(values);
   const prevData = await loadData(handledValues.id, handledValues.type);
-  await handleTotalMeters(handledValues, prevData);
-  await handleYearMeters(handledValues, prevData);
-  await handleMonthMeters(handledValues, prevData);
+
+  await Promise.all([
+    handleTotalMeters(handledValues, prevData),
+    handleYearMeters(handledValues, prevData),
+    handleMonthMeters(handledValues, prevData),
+  ]);
+  // await handleTotalMeters(handledValues, prevData);
+  // await handleYearMeters(handledValues, prevData);
+  // await handleMonthMeters(handledValues, prevData);
 }
 
 function handleValues(values: { [k: string]: FormDataEntryValue }) {
@@ -79,10 +85,16 @@ async function handleTotalMeters(
   { id, type, totalMeters, inSystemTotal, date }: UpdateTotalMetersType,
   prevData: PrevData,
 ) {
-  const lastMetersQuantityId = await getLastRecordId({
-    transformerSubstationId: id,
-    type,
-  });
+  const [lastMetersQuantityId, lastNotInSystemId] = await Promise.all([
+    getLastRecordId({
+      transformerSubstationId: id,
+      type,
+    }),
+    getLastNotInSystemId({
+      transformerSubstationId: id,
+      type,
+    }),
+  ]);
 
   if (lastMetersQuantityId) {
     const prevQuantity = prevData.totalMeters.addedToSystem;
@@ -101,11 +113,6 @@ async function handleTotalMeters(
       type,
     });
   }
-
-  const lastNotInSystemId = await getLastNotInSystemId({
-    transformerSubstationId: id,
-    type,
-  });
 
   if (lastNotInSystemId) {
     const prevQuantity =
