@@ -17,15 +17,18 @@ export default async function loadData(id: number, type: BalanceType) {
     type,
   };
 
-  const metersQuantity = (await selectLastQuantity(argsObj)) ?? 0;
-  const metersNotInSystem = (await selectLastNotInSystem(argsObj)) ?? 0;
-  const yearMeters = await handleYearMeters(id, year, type);
-  const monthMeters = await handleMonthMeters(id, year, type);
+  const [metersQuantity, metersNotInSystem, yearMeters, monthMeters] =
+    await Promise.all([
+      selectLastQuantity(argsObj),
+      selectLastNotInSystem(argsObj),
+      handleYearMeters(id, year, type),
+      handleMonthMeters(id, year, type),
+    ]);
 
   const data = {
     totalMeters: {
-      quantity: metersQuantity + metersNotInSystem,
-      addedToSystem: metersQuantity,
+      quantity: (metersQuantity ?? 0) + (metersNotInSystem ?? 0),
+      addedToSystem: metersQuantity ?? 0,
     },
     totalYearMeters: yearMeters,
     totalMonthMeters: monthMeters,

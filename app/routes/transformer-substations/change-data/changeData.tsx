@@ -41,12 +41,21 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   await isNotAuthenticated(request);
 
-  const privateData = await loadData(transSub.id, "Быт");
-  const legalSimsData = await loadData(transSub.id, "ЮР Sims");
-  const legalP2Data = await loadData(transSub.id, "ЮР П2");
-  const odpySimsData = await loadData(transSub.id, "ОДПУ Sims");
-  const odpyP2Data = await loadData(transSub.id, "ОДПУ П2");
-  const techMetersData = await loadTechMeters(transSub.id);
+  const [
+    privateData,
+    legalSimsData,
+    legalP2Data,
+    odpySimsData,
+    odpyP2Data,
+    techMetersData,
+  ] = await Promise.all([
+    loadData(transSub.id, "Быт"),
+    loadData(transSub.id, "ЮР Sims"),
+    loadData(transSub.id, "ЮР П2"),
+    loadData(transSub.id, "ОДПУ Sims"),
+    loadData(transSub.id, "ОДПУ П2"),
+    loadTechMeters(transSub.id),
+  ]);
 
   const hash = createEtagHash({
     transSub,
