@@ -1,4 +1,5 @@
 import type { FetcherWithComponents } from "react-router";
+import type { RefObject } from "react";
 
 type FetcherFormType = {
   children: React.ReactNode;
@@ -7,7 +8,7 @@ type FetcherFormType = {
       [k: string]: string;
     };
   } | null>;
-  metesRef: React.RefObject<HTMLFormElement>;
+  metesRef: RefObject<HTMLFormElement | null>;
   h2Title: string;
 };
 
