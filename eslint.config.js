@@ -18,6 +18,7 @@ export default [
       "build/*", 
       ".react-router/*",
       "app/entry.server.tsx",
+      "app/utils/cache.ts",
     ]
   },
   {
