@@ -4,4 +4,6 @@ coverage
 .gitignore
 package-lock.json
 package.json
-
+.react-router
+app/.server/migrations/
+app/entry.server.tsx
