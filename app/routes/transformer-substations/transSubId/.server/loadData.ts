@@ -16,16 +16,24 @@ export default async function loadData({
   legalDate,
   odpyDate,
 }: LoadData) {
-  const data = {
-    private: await getDataFromDb(id, privateDate, "Быт"),
-    legalSims: await getDataFromDb(id, legalDate, "ЮР Sims"),
-    legalP2: await getDataFromDb(id, legalDate, "ЮР П2"),
-    odpySims: await getDataFromDb(id, odpyDate, "ОДПУ Sims"),
-    odpyP2: await getDataFromDb(id, odpyDate, "ОДПУ П2"),
-    techMeters: await getTechMetersFromDb(id),
-  };
+  const [privateMeters, legalSims, legalP2, odpySims, odpyP2, techMeters] =
+    await Promise.all([
+      getDataFromDb(id, privateDate, "Быт"),
+      getDataFromDb(id, legalDate, "ЮР Sims"),
+      getDataFromDb(id, legalDate, "ЮР П2"),
+      getDataFromDb(id, odpyDate, "ОДПУ Sims"),
+      getDataFromDb(id, odpyDate, "ОДПУ П2"),
+      getTechMetersFromDb(id),
+    ]);
 
-  return data;
+  return {
+    privateMeters,
+    legalSims,
+    legalP2,
+    odpySims,
+    odpyP2,
+    techMeters,
+  };
 }
 
 function handleValues(id: number, date: string, type: BalanceType) {
@@ -39,9 +47,14 @@ function handleValues(id: number, date: string, type: BalanceType) {
 async function getDataFromDb(id: number, date: string, type: BalanceType) {
   const values = handleValues(id, date, type);
 
+  const [inSystem, notInSystem] = await Promise.all([
+    selectMetersOnDate(values),
+    selectNotInSystemOnDate(values),
+  ]);
+
   const data: DbData = {
-    inSystem: await selectMetersOnDate(values),
-    notInSystem: await selectNotInSystemOnDate(values),
+    inSystem,
+    notInSystem,
   };
 
   return data;

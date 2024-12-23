@@ -51,7 +51,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   const { transSubData } = cache.getKey(cacheKey) as {
     transSubData: {
-      private: DbData;
+      privateMeters: DbData;
       legalSims: DbData;
       legalP2: DbData;
       odpySims: DbData;

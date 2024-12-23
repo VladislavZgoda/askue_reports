@@ -2,7 +2,7 @@ import type { DbData } from "~/types";
 
 type DataProp = {
   data: {
-    private: DbData;
+    privateMeters: DbData;
     legalSims: DbData;
     legalP2: DbData;
     odpySims: DbData;
@@ -19,7 +19,8 @@ type ConvertedDataType = {
 };
 
 export default function StatTable({ data }: DataProp) {
-  const privateTotal = data.private.inSystem + data.private.notInSystem;
+  const privateTotal =
+    data.privateMeters.inSystem + data.privateMeters.notInSystem;
 
   const legalSimsTotal = data.legalSims.inSystem + data.legalSims.notInSystem;
 
@@ -75,7 +76,7 @@ export default function StatTable({ data }: DataProp) {
           <tr className="hover">
             <th>4</th>
             <td>БЫТ в системе</td>
-            <td>{data.private.inSystem}</td>
+            <td>{data.privateMeters.inSystem}</td>
           </tr>
 
           <tr className="hover">
