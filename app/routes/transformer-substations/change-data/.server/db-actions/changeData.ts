@@ -38,9 +38,6 @@ export default async function changeData(values: {
     handleYearMeters(handledValues, prevData),
     handleMonthMeters(handledValues, prevData),
   ]);
-  // await handleTotalMeters(handledValues, prevData);
-  // await handleYearMeters(handledValues, prevData);
-  // await handleMonthMeters(handledValues, prevData);
 }
 
 function handleValues(values: { [k: string]: FormDataEntryValue }) {
