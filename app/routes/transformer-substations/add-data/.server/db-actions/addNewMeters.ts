@@ -62,12 +62,15 @@ export default async function addNewMeters(values: ActionValues) {
     await handleNotInSystem(insertValues);
   }
 
-  await handleYearMeters(insertValues);
-  await handleMonthMeters(insertValues);
-  await handleInsertNewMeters({
-    ...insertValues,
-    quantity: insertValues.added_to_system,
-  });
+  await Promise.all([
+    handleYearMeters(insertValues),
+    handleMonthMeters(insertValues),
+    handleInsertNewMeters({
+      ...insertValues,
+      quantity: insertValues.added_to_system,
+    }),
+  ]);
+
   await addMessageToLog(insertValues);
 }
 
