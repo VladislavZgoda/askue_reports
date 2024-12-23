@@ -4,7 +4,9 @@ import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const session = await sessionStorage.getSession(request.headers.get("cookie"));
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
   const user = session.get("loggedUser");
   if (user) throw redirect("/");
   return null;
@@ -25,7 +27,9 @@ export async function action({ request }: Route.ActionArgs) {
     };
   }
 
-  const session = await sessionStorage.getSession(request.headers.get("cookie"));
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
   session.set("loggedUser", user[0].userId);
 
   throw redirect("/", {

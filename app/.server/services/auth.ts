@@ -23,7 +23,9 @@ authenticator.use(
 );
 
 export async function isNotAuthenticated(request: Request) {
-  const session = await sessionStorage.getSession(request.headers.get("cookie"));
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
   const user = session.get("loggedUser");
   if (!user) throw redirect("/login");
   return null;
