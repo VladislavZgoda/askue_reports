@@ -28,16 +28,16 @@ export default async function writeDbData(dates: FormDates) {
 
   const transSubs = await selectAllTransSubs();
 
-  const privateMeters = await selectMeters({
-    transSubs,
-    type: "Быт",
-    date: dates.privateDate,
-    func: selectMetersOnDate,
-  });
-
-  const legalMeters = await selectLegalMeters(transSubs, dates.legalDate);
-
-  const odpy = await calculateOdpy(dates, transSubs);
+  const [privateMeters, legalMeters, odpy] = await Promise.all([
+    selectMeters({
+      transSubs,
+      type: "Быт",
+      date: dates.privateDate,
+      func: selectMetersOnDate,
+    }),
+    selectLegalMeters(transSubs, dates.legalDate),
+    calculateOdpy(dates, transSubs),
+  ]);
 
   await handlePrivateSector(path, privateMeters, excel);
 
@@ -115,14 +115,14 @@ async function handleReport({
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
 
-  const notInSystem = await selectNotInSystem(transSubs, dates);
-
-  const yearMeters = await selectPeriodMeters({
-    transSubs,
-    dates,
-  });
-
-  const monthMeters = await selectMonthMeters(transSubs, dates);
+  const [notInSystem, yearMeters, monthMeters] = await Promise.all([
+    selectNotInSystem(transSubs, dates),
+    selectPeriodMeters({
+      transSubs,
+      dates,
+    }),
+    selectMonthMeters(transSubs, dates),
+  ]);
 
   ws.getColumn("B").eachCell((cell, rowNumber) => {
     const transSub = String(cell.value).trim();
@@ -214,19 +214,20 @@ async function handleSupplementThree({
   ws.getCell("D29").value = privateSum + privateNotInSystemSum;
   ws.getCell("E29").value = privateSum;
 
-  const notInSystemSims = await selectMeters({
-    transSubs,
-    type: "ЮР Sims",
-    date: dates.legalDate as string,
-    func: selectNotInSystemOnDate,
-  });
-
-  const notInSystemP2 = await selectMeters({
-    transSubs,
-    type: "ЮР П2",
-    date: dates.legalDate as string,
-    func: selectNotInSystemOnDate,
-  });
+  const [notInSystemSims, notInSystemP2] = await Promise.all([
+    selectMeters({
+      transSubs,
+      type: "ЮР Sims",
+      date: dates.legalDate as string,
+      func: selectNotInSystemOnDate,
+    }),
+    selectMeters({
+      transSubs,
+      type: "ЮР П2",
+      date: dates.legalDate as string,
+      func: selectNotInSystemOnDate,
+    }),
+  ]);
 
   const legalSum =
     calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
