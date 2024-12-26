@@ -83,7 +83,7 @@ async function handlePrivateSector(
     ws.getCell("H" + rowNumber).model.result = undefined;
   });
 
-  resetResult(ws, 155);
+  resetResult(ws, 157);
 
   // Без этой строки файл будет повреждён.
   ws.removeConditionalFormatting("");
@@ -155,17 +155,17 @@ async function handleReport({
     ws.getCell("O" + rowNumber).model.result = undefined;
   });
 
-  ws.getCell("H265").value = odpy.quantity;
-  ws.getCell("P265").value = odpy.notInSystem;
-  ws.getCell("Q265").value = odpy.year.quantity;
-  ws.getCell("R265").value = odpy.year.added_to_system;
-  ws.getCell("S265").value = odpy.month.quantity;
-  ws.getCell("T265").value = odpy.month.added_to_system;
+  ws.getCell("H266").value = odpy.quantity;
+  ws.getCell("P266").value = odpy.notInSystem;
+  ws.getCell("Q266").value = odpy.year.quantity;
+  ws.getCell("R266").value = odpy.year.added_to_system;
+  ws.getCell("S266").value = odpy.month.quantity;
+  ws.getCell("T266").value = odpy.month.added_to_system;
 
-  resetResult(ws, 267);
+  resetResult(ws, 268);
 
-  ws.getCell("H268").model.result = undefined;
   ws.getCell("H269").model.result = undefined;
+  ws.getCell("H270").model.result = undefined;
 
   ws.getCell("A4").value =
     'Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" ' +
