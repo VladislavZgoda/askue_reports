@@ -1,13 +1,6 @@
 import { db } from "../db";
 import { NewMonthMetersTable } from "../schema";
 import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
-import type {
-  MonthMetersValues,
-  SelectMonthQuantity,
-  LastMonthQuantity,
-  UpdateMonthOnIdType,
-  BalanceType,
-} from "~/types";
 
 export async function insertMonthMeters({
   quantity,

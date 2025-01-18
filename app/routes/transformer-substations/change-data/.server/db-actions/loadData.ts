@@ -1,11 +1,5 @@
 import { selectLastQuantity } from "~/.server/db-queries/electricityMetersTable";
 import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
-import type {
-  LastQuantity,
-  LastYearQuantity,
-  LastMonthQuantity,
-  BalanceType,
-} from "~/types";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMetersTable";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMothMetersTable";
 

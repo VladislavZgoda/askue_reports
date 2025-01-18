@@ -15,7 +15,6 @@ import BtnContainer from "./BtnContainer";
 import Toast from "~/components/Toast";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
-import type { BalanceType } from "~/types";
 import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";

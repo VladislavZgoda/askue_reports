@@ -1,9 +1,3 @@
-import type {
-  BalanceType,
-  UpdateTotalMetersType,
-  UpdateTotalYearMetersType,
-  UpdateTotalMonthMetersType,
-} from "~/types";
 import {
   getLastRecordId,
   updateRecordOnId,

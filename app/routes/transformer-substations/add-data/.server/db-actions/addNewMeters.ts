@@ -7,15 +7,6 @@ import {
   getQuantityOnID,
   updateRecordOnId,
 } from "~/.server/db-queries/electricityMetersTable";
-import type {
-  InsertMetersValues,
-  TotalMeters,
-  BalanceType,
-  CheckRecordValues,
-  UpdateOnIdType,
-  YearMetersValues,
-  MonthMetersValues,
-} from "~/types";
 import {
   insertYearMeters,
   selectYearQuantity,

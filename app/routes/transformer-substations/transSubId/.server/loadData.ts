@@ -1,4 +1,3 @@
-import type { BalanceType, DbData } from "~/types";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";

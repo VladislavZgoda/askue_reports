@@ -10,7 +10,6 @@ import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import createEtagHash from "~/utils/etagHash";
 import cache from "~/utils/cache";
-import type { DbData } from "~/types";
 import type { Route } from "./+types/transformerSubstation";
 
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;

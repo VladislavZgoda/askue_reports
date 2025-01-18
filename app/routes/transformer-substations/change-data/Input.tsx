@@ -1,5 +1,3 @@
-import type { InputType } from "~/types";
-
 export default function Input({
   defValue,
   name,

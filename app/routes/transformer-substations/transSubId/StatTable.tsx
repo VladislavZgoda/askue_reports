@@ -1,5 +1,3 @@
-import type { DbData } from "~/types";
-
 type DataProp = {
   data: {
     privateMeters: DbData;

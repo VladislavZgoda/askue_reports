@@ -1,4 +1,4 @@
-export type TransSubs = {
+declare type TransSubs = {
   transSubs:
     | {
         id: number;
@@ -8,70 +8,70 @@ export type TransSubs = {
   q: string | null | undefined;
 };
 
-export type BalanceType = "Быт" | "ЮР Sims" | "ЮР П2" | "ОДПУ Sims" | "ОДПУ П2";
+declare type BalanceType = "Быт" | "ЮР Sims" | "ЮР П2" | "ОДПУ Sims" | "ОДПУ П2";
 
-export type MetersValues = {
+declare type MetersValues = {
   quantity: number;
   type: BalanceType;
   date: string;
   transformerSubstationId: number;
 };
 
-export type InsertMetersValues = MetersValues & {
+declare type InsertMetersValues = MetersValues & {
   added_to_system: number;
 };
 
-export type YearMetersValues = InsertMetersValues & {
+declare type YearMetersValues = InsertMetersValues & {
   year: number;
 };
 
-export type MonthMetersValues = YearMetersValues & {
+declare type MonthMetersValues = YearMetersValues & {
   month: string;
 };
 
-export type CheckRecordValues = {
+declare type CheckRecordValues = {
   type: BalanceType;
   date: string;
   transformerSubstationId: number;
 };
 
-export type SelectYearQuantity = CheckRecordValues & {
+declare type SelectYearQuantity = CheckRecordValues & {
   year: number;
 };
 
-export type SelectMonthQuantity = SelectYearQuantity & {
+declare type SelectMonthQuantity = SelectYearQuantity & {
   month: string;
 };
 
-export type LastQuantity = {
+declare type LastQuantity = {
   transformerSubstationId: number;
   type: BalanceType;
 };
 
-export type LastYearQuantity = LastQuantity & {
+declare type LastYearQuantity = LastQuantity & {
   year: number;
 };
 
-export type LastMonthQuantity = LastYearQuantity & {
+declare type LastMonthQuantity = LastYearQuantity & {
   month: string;
 };
 
-export type TotalMeters = {
+declare type TotalMeters = {
   quantity: number;
   added_to_system: number;
 };
 
-export type SubmitButtonValues = {
+declare type SubmitButtonValues = {
   buttonValue: string;
   isSubmitting: boolean;
 };
 
-export type UpdateOnIdType = {
+declare type UpdateOnIdType = {
   id: number;
   quantity: number;
 };
 
-export type UpdateTotalMetersType = {
+declare type UpdateTotalMetersType = {
   totalMeters: number;
   inSystemTotal: number;
   id: number;
@@ -79,11 +79,11 @@ export type UpdateTotalMetersType = {
   date: string;
 };
 
-export type UpdateYearOnIdType = UpdateOnIdType & {
+declare type UpdateYearOnIdType = UpdateOnIdType & {
   added_to_system: number;
 };
 
-export type UpdateTotalYearMetersType = {
+declare type UpdateTotalYearMetersType = {
   year: number;
   id: number;
   type: BalanceType;
@@ -92,9 +92,9 @@ export type UpdateTotalYearMetersType = {
   yearTotal: number;
 };
 
-export type UpdateMonthOnIdType = UpdateYearOnIdType;
+declare type UpdateMonthOnIdType = UpdateYearOnIdType;
 
-export type UpdateTotalMonthMetersType = {
+declare type UpdateTotalMonthMetersType = {
   year: number;
   id: number;
   type: BalanceType;
@@ -104,7 +104,7 @@ export type UpdateTotalMonthMetersType = {
   inSystemMonth: number;
 };
 
-export type InputType = {
+declare type InputType = {
   defValue: number;
   name: string;
   label: string;
@@ -112,12 +112,12 @@ export type InputType = {
   errors?: boolean;
 };
 
-export type DbData = {
+declare type DbData = {
   inSystem: number;
   notInSystem: number;
 };
 
-export type QuantityForInsert = {
+declare type QuantityForInsert = {
   transformerSubstationId: number;
   type: BalanceType;
   date: string;

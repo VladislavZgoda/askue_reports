@@ -1,5 +1,3 @@
-import type { SubmitButtonValues } from "~/types";
-
 export default function SubmitButton({
   buttonValue,
   isSubmitting,

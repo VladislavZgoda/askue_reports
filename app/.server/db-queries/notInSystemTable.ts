@@ -1,12 +1,5 @@
 import { db } from "../db";
 import { NotInSystem } from "../schema";
-import type {
-  MetersValues,
-  CheckRecordValues,
-  LastQuantity,
-  UpdateOnIdType,
-  QuantityForInsert,
-} from "~/types";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
 export async function insertNotInSystem({

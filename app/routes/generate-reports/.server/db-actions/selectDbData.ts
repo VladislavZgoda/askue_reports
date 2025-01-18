@@ -5,7 +5,6 @@ import {
   selectMonthMetersOnDate,
   selectMonthPeriodMeters,
 } from "~/.server/db-queries/newMothMetersTable";
-import type { BalanceType, CheckRecordValues } from "~/types";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormDates } from "../writeDbData";
 

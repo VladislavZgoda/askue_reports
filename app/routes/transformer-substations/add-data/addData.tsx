@@ -6,7 +6,6 @@ import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
 import SelectInput from "./SelectInput";
 import addNewMeters from "./.server/db-actions/addNewMeters";
-import type { BalanceType } from "~/types";
 import { selectMessages } from "~/.server/db-queries/metersActionLogTable";
 import addTechnicalMeters from "./.server/db-actions/addTechnicalMeters";
 import SubmitButton from "./SubmitButton";

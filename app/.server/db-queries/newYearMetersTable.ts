@@ -1,11 +1,5 @@
 import { db } from "../db";
 import { NewYearMetersTable } from "../schema";
-import type {
-  YearMetersValues,
-  SelectYearQuantity,
-  LastYearQuantity,
-  UpdateYearOnIdType,
-} from "~/types";
 import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
 
 export async function insertYearMeters({
