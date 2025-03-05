@@ -73,17 +73,23 @@ async function handlePrivateSector(
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
 
+  // Первые две строки заняты и не изменяются, для динамического определения последней
+  // строки с формулами, их необходимо учесть в начальном отсчете.
+  let rowCount = 2;
+
   ws.getColumn("A").eachCell((cell, rowNumber) => {
     const transSub = String(cell.value).trim();
 
     if (!transSub.startsWith("ТП")) return;
+
+    rowCount += 1;
 
     ws.getCell("B" + rowNumber).value = privateMeters[transSub] ?? 0;
     ws.getCell("G" + rowNumber).model.result = undefined;
     ws.getCell("H" + rowNumber).model.result = undefined;
   });
 
-  resetResult(ws, 157);
+  resetResult(ws, rowCount + 1);
 
   // Без этой строки файл будет повреждён.
   ws.removeConditionalFormatting("");

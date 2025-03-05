@@ -8,7 +8,12 @@ declare type TransSubs = {
   q: string | null | undefined;
 };
 
-declare type BalanceType = "Быт" | "ЮР Sims" | "ЮР П2" | "ОДПУ Sims" | "ОДПУ П2";
+declare type BalanceType =
+  | "Быт"
+  | "ЮР Sims"
+  | "ЮР П2"
+  | "ОДПУ Sims"
+  | "ОДПУ П2";
 
 declare type MetersValues = {
   quantity: number;
