@@ -35,12 +35,12 @@ async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
     ws.getCell("M" + rowNumber).model.result = undefined;
   });
 
-  ws.getCell("L265").value = data.odpy.total;
-  ws.getCell("M265").model.result = undefined;
-
-  ws.getCell("L266").value =
-    data.odpy.rider + data.private.rider + data.legal.rider;
+  ws.getCell("L266").value = data.odpy.total;
   ws.getCell("M266").model.result = undefined;
+
+  ws.getCell("L267").value =
+    data.odpy.rider + data.private.rider + data.legal.rider;
+  ws.getCell("M267").model.result = undefined;
 
   await excel.xlsx.writeFile(filePath);
 }
