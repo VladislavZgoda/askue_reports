@@ -22,10 +22,16 @@ async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[0];
 
+  // Первые 9 строк заняты и не изменяются, для динамического определения
+  // строк после линий с ТП, их необходимо учесть в начальном отсчете.
+  let rowCount = 9;
+
   ws.getColumn("B").eachCell((cell, rowNumber) => {
     const transSub = String(cell.value).trim();
 
     if (!transSub.startsWith("ТП")) return;
+
+    rowCount += 1;
 
     const quantityPrivate = data.private[transSub] ?? 0;
     const quantityLegal = data.legal[transSub] ?? 0;
@@ -35,12 +41,12 @@ async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
     ws.getCell("M" + rowNumber).model.result = undefined;
   });
 
-  ws.getCell("L266").value = data.odpy.total;
-  ws.getCell("M266").model.result = undefined;
+  ws.getCell(`L${rowCount + 1}`).value = data.odpy.total;
+  ws.getCell(`M${rowCount + 1}`).model.result = undefined;
 
-  ws.getCell("L267").value =
+  ws.getCell(`L${rowCount + 2}`).value =
     data.odpy.rider + data.private.rider + data.legal.rider;
-  ws.getCell("M267").model.result = undefined;
+  ws.getCell(`M${rowCount + 2}`).model.result = undefined;
 
   await excel.xlsx.writeFile(filePath);
 }
