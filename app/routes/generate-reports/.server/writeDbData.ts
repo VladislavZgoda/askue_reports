@@ -130,10 +130,16 @@ async function handleReport({
     selectMonthMeters(transSubs, dates),
   ]);
 
+  // Первые 9 строк заняты и не изменяются, для динамического определения
+  // строк после линий с ТП, их необходимо учесть в начальном отсчете.
+  let rowCount = 9;
+
   ws.getColumn("B").eachCell((cell, rowNumber) => {
     const transSub = String(cell.value).trim();
 
     if (!transSub.startsWith("ТП")) return;
+
+    rowCount += 1;
 
     const privateM = privateMeters[transSub] ?? 0;
 
@@ -161,17 +167,19 @@ async function handleReport({
     ws.getCell("O" + rowNumber).model.result = undefined;
   });
 
-  ws.getCell("H266").value = odpy.quantity;
-  ws.getCell("P266").value = odpy.notInSystem;
-  ws.getCell("Q266").value = odpy.year.quantity;
-  ws.getCell("R266").value = odpy.year.added_to_system;
-  ws.getCell("S266").value = odpy.month.quantity;
-  ws.getCell("T266").value = odpy.month.added_to_system;
+  const odpyRow = rowCount + 1;
 
-  resetResult(ws, 268);
+  ws.getCell(`H${odpyRow}`).value = odpy.quantity;
+  ws.getCell(`P${odpyRow}`).value = odpy.notInSystem;
+  ws.getCell(`Q${odpyRow}`).value = odpy.year.quantity;
+  ws.getCell(`R${odpyRow}`).value = odpy.year.added_to_system;
+  ws.getCell(`S${odpyRow}`).value = odpy.month.quantity;
+  ws.getCell(`T${odpyRow}`).value = odpy.month.added_to_system;
 
-  ws.getCell("H269").model.result = undefined;
-  ws.getCell("H270").model.result = undefined;
+  resetResult(ws, rowCount + 3);
+
+  ws.getCell(`H${rowCount + 4}`).model.result = undefined;
+  ws.getCell(`H${rowCount + 5}`).model.result = undefined;
 
   ws.getCell("A4").value =
     'Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" ' +
