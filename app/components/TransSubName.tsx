@@ -45,8 +45,7 @@ export default function TransSubName({
             <input
               type="text"
               placeholder="ТП-1000"
-              className={`input input-bordered w-full max-w-xs input-xs
-                md:input-md sm:input-sm lg:input-lg
+              className={`input input-xs md:input-md sm:input-sm lg:input-lg
                 ${actionData?.error ? "input-error" : "input-accent"}`}
               name="name"
               id="name"

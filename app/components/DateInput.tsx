@@ -20,7 +20,7 @@ export default function DateInput({
         type="date"
         min="0"
         placeholder="0"
-        className="input input-bordered w-full max-w-xs"
+        className="input"
         aria-label={labelText}
         name={inputName}
         defaultValue={defValue || todayDate()}

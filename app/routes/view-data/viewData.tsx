@@ -66,7 +66,7 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
   );
 
   const tableRows = transSubs.map((transSub, index) => (
-    <tr key={transSubData[transSub].id} className="hover">
+    <tr key={transSubData[transSub].id} className="hover:bg-base-300">
       <th>{index + 1}</th>
       <td>{transSub}</td>
       <td>{transSubData[transSub].private}</td>

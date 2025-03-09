@@ -11,7 +11,7 @@ export default function SelectYear() {
         </span>
       </div>
       <select
-        className="select select-bordered"
+        className="select"
         aria-label="Выберете год для заголовков таблиц Excel"
         defaultValue=""
         name="year"

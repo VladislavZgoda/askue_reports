@@ -64,7 +64,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
             });
           }}
         >
-          <label className="input input-bordered input-info flex items-center gap-2">
+          <label className="input input-info flex items-center gap-2">
             <input
               type="search"
               className="grow"

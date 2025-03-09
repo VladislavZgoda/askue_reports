@@ -291,7 +291,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     <main>
       <LinkToTransSub id={transSub.id} name={transSub.name} />
 
-      <div role="tablist" className="tabs tabs-lifted ml-14 mr-14">
+      <div role="tablist" className="tabs tabs-lift ml-14 mr-14">
         <Panel
           label="БЫТ"
           checked={true}

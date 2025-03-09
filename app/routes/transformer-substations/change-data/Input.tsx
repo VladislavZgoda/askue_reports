@@ -17,8 +17,7 @@ export default function Input({
         type="number"
         placeholder="0"
         min="0"
-        className={`input w-full max-w-xs
-          ${error ? "input-error" : "input-bordered"}`}
+        className={`input ${error && "input-error"}`}
         aria-label={label}
         name={name}
         defaultValue={defValue}

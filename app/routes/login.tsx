@@ -43,54 +43,49 @@ export default function Login() {
   const isSubmitting = navigation.state === "submitting";
 
   return (
-    <main className="flex flex-col items-center gap-5 w-full">
+    <main className="flex flex-col items-center gap-5 w-full max-h-screen">
       <h1 className="text-4xl font-bold underline text-success">
         Отчеты АСКУЭ
       </h1>
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <Form className="card-body" method="post">
-          <div className="form-control">
-            <label htmlFor="login" className="label">
-              <span className="label-text">Логин</span>
+          <fieldset className="fieldset w-xs">
+            <label htmlFor="login" className="fieldset-label">
+              Логин
             </label>
             <input
               type="text"
               placeholder="логин"
               autoComplete="username"
-              className={`input input-bordered ${loginData?.errorMessage && "input-error"}`}
+              className={`input ${loginData?.errorMessage && "input-error"}`}
               id="login"
               name="userLogin"
               defaultValue={loginData?.errorMessage && loginData?.userLogin}
               required
             />
             {loginData?.errorMessage && (
-              <div className="label">
-                <span className="label-text-alt text-error">
-                  {loginData.errorMessage}
-                </span>
+              <div className="fieldset-label text-error">
+                {loginData.errorMessage}
               </div>
             )}
-          </div>
-          <div className="form-control">
-            <label htmlFor="password" className="label">
-              <span className="label-text">Пароль</span>
+
+            <label htmlFor="password" className="fieldset-label">
+              Пароль
             </label>
             <input
               type="password"
               placeholder="пароль"
               autoComplete="current-password"
-              className={`input input-bordered ${loginData?.errorMessage && "input-error"}`}
+              className={`input ${loginData?.errorMessage && "input-error"}`}
               id="password"
               name="password"
               required
             />
-          </div>
-          <div className="form-control mt-6">
             <button
               className={
                 isSubmitting
-                  ? "btn btn-outline btn-secondary btn-active"
-                  : "btn btn-primary"
+                  ? "btn btn-neutral btn-active mt-4"
+                  : "btn btn-neutral mt-4"
               }
               type={isSubmitting ? "button" : "submit"}
             >
@@ -99,7 +94,7 @@ export default function Login() {
               )}
               {isSubmitting ? "Проверка..." : "Войти"}
             </button>
-          </div>
+          </fieldset>
         </Form>
       </div>
     </main>

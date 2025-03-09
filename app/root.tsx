@@ -11,14 +11,10 @@ import {
   useNavigation,
   useMatches,
 } from "react-router";
-import type { LinksFunction, LoaderFunctionArgs } from "react-router";
-import stylesheet from "~/tailwind.css?url";
+import type { LoaderFunctionArgs } from "react-router";
+import "./app.css";
 import MainLayout from "./layout/MainLayout";
 import { selectTransSubs } from "./.server/db-queries/transformerSubstationTable";
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
-];
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

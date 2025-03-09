@@ -53,85 +53,85 @@ export default function StatTable({ data }: DataProp) {
         </thead>
 
         <tbody className="text-lg">
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>1</th>
             <td>Техучеты</td>
             <td>{data.techMeters.quantity}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>2</th>
             <td>Техучеты не под напряжением</td>
             <td>{data.techMeters.quantity - data.techMeters.underVoltage}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>3</th>
             <td>БЫТ всего</td>
             <td>{privateTotal}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>4</th>
             <td>БЫТ в системе</td>
             <td>{data.privateMeters.inSystem}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>6</th>
             <td>ЮР Sims всего</td>
             <td>{legalSimsTotal}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>7</th>
             <td>ЮР Sims в системе</td>
             <td>{data.legalSims.inSystem}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>9</th>
             <td>ЮР П2 всего</td>
             <td>{legalP2Total}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>10</th>
             <td>ЮР П2 в системе</td>
             <td>{data.legalP2.inSystem}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>13</th>
             <td>ОДПУ Sims всего</td>
             <td>{odpySimsTotal}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>14</th>
             <td>ОДПУ Sims в системе</td>
             <td>{data.odpySims.inSystem}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>16</th>
             <td>ОДПУ П2 всего</td>
             <td>{odpyP2Total}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>16</th>
             <td>ОДПУ П2 в системе</td>
             <td>{data.odpyP2.inSystem}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>18</th>
             <td>Всего коммерческих ПУ</td>
             <td>{totalMeters}</td>
           </tr>
 
-          <tr className="hover">
+          <tr className="hover:bg-base-300">
             <th>19</th>
             <td>Всего коммерческих ПУ в работе</td>
             <td>{inSystemTotal}</td>

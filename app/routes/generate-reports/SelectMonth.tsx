@@ -7,7 +7,7 @@ export default function SelectMonth() {
         </span>
       </div>
       <select
-        className="select select-bordered"
+        className="select"
         aria-label="Выберете месяц для заголовков таблиц Excel"
         name="month"
         defaultValue=""
