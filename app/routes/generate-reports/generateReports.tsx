@@ -89,13 +89,13 @@ export default function GenerateReports() {
 
         <InputExcel />
 
-        <section className="flex gap-10">
+        <section className="flex gap-19">
           <SelectMonth />
           <SelectYear />
         </section>
 
         <button
-          className={`btn btn-outline btn-primary mt-4 ${isSubmitting && "btn-active"}`}
+          className={`btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-outline btn-primary mt-4 ${isSubmitting && "btn-active"}`}
           type={isSubmitting ? "button" : "submit"}
         >
           {isSubmitting && <span className="loading loading-spinner"></span>}
