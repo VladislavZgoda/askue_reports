@@ -12,11 +12,11 @@ export default function SelectYear() {
       <select
         className="select"
         aria-label="Выберете год для заголовков таблиц Excel"
-        defaultValue="Выбрать"
+        defaultValue="Выбрать год"
         name="year"
         required
       >
-        <option disabled={true}>Выбрать</option>
+        <option disabled={true}>Выбрать год</option>
         <option>{year - 1}</option>
         <option>{year}</option>
       </select>
