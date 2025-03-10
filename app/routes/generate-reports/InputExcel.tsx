@@ -1,16 +1,16 @@
 export default function InputExcel() {
   return (
-    <label className="form-control w-full max-w-xs">
-      <div className="label">
-        <span className="label-text">Добавить данные из приложения №9</span>
-      </div>
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">
+        Добавить данные из приложения №9
+      </legend>
       <input
-        className="file-input file-input-info w-full max-w-xs"
+        className="file-input file-input-info"
         aria-label="Добавить данные из приложения №9"
         type="file"
         name="upload"
         accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
       />
-    </label>
+    </fieldset>
   );
 }
