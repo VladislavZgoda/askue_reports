@@ -89,8 +89,10 @@ export default function GenerateReports() {
 
         <InputExcel />
 
-        <section className="flex gap-19">
-          <SelectMonth />
+        <section className="flex">
+          <div className="mr-auto">
+            <SelectMonth />
+          </div>
           <SelectYear />
         </section>
 
