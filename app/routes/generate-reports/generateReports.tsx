@@ -97,7 +97,8 @@ export default function GenerateReports() {
         </section>
 
         <button
-          className={`btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-outline btn-primary mt-4 ${isSubmitting && "btn-active"}`}
+          className={`btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-outline btn-primary mt-4
+            ${isSubmitting && "btn-active"}`}
           type={isSubmitting ? "button" : "submit"}
         >
           {isSubmitting && <span className="loading loading-spinner"></span>}
