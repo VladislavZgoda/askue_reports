@@ -12,10 +12,8 @@ export default function DateInput({
   defValue,
 }: DateInputType) {
   return (
-    <label className="form-control w-full max-w-xs">
-      <div className="label">
-        <span className="label-text">{labelText}</span>
-      </div>
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">{labelText}</legend>
       <input
         type="date"
         min="0"
@@ -26,6 +24,6 @@ export default function DateInput({
         defaultValue={defValue || todayDate()}
         required
       />
-    </label>
+    </fieldset>
   );
 }
