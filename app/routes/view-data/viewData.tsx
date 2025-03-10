@@ -113,25 +113,33 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
           submit(e.currentTarget);
         }}
       >
-        <DateInput
-          labelText="БЫТ"
-          inputName="privateDate"
-          defValue={loadValues.privateDate}
-        />
-        <DateInput
-          labelText="ЮР"
-          inputName="legalDate"
-          defValue={loadValues.legalDate}
-        />
-        <DateInput
-          labelText="ОДПУ"
-          inputName="odpyDate"
-          defValue={loadValues.odpyDate}
-        />
+        <div className="w-52 sm:w-56 md:w-64 lg:w-72">
+          <DateInput
+            labelText="БЫТ"
+            inputName="privateDate"
+            defValue={loadValues.privateDate}
+          />
+        </div>
+
+        <div className="w-52 sm:w-56 md:w-64 lg:w-72">
+          <DateInput
+            labelText="ЮР"
+            inputName="legalDate"
+            defValue={loadValues.legalDate}
+          />
+        </div>
+
+        <div className="w-52 sm:w-56 md:w-64 lg:w-72">
+          <DateInput
+            labelText="ОДПУ"
+            inputName="odpyDate"
+            defValue={loadValues.odpyDate}
+          />
+        </div>
       </Form>
 
       <div className="overflow-x-auto max-h-[70vh] mt-5 mb-10">
-        <table className="table table-lg">
+        <table className="table table-xs sm:table-sm md:table-md lg:table-lg">
           <thead className="sticky top-0 bg-base-200">
             <tr>
               <th></th>
