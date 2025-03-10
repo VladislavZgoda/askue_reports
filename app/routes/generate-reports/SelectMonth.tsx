@@ -1,21 +1,18 @@
 export default function SelectMonth() {
   return (
-    <label className="form-control w-full max-w-xs">
-      <div className="label">
-        <span className="label-text">
-          Выберете месяц для заголовков таблиц Excel
-        </span>
-      </div>
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">
+        Выберете месяц для заголовков таблиц Excel
+      </legend>
+
       <select
         className="select"
         aria-label="Выберете месяц для заголовков таблиц Excel"
         name="month"
-        defaultValue=""
+        defaultValue="Выбрать месяц"
         required
       >
-        <option value="" disabled>
-          Выбрать
-        </option>
+        <option disabled={true}>Выбрать месяц</option>
         <option>Январь</option>
         <option>Февраль</option>
         <option>Март</option>
@@ -29,6 +26,6 @@ export default function SelectMonth() {
         <option>Ноябрь</option>
         <option>Декабрь</option>
       </select>
-    </label>
+    </fieldset>
   );
 }
