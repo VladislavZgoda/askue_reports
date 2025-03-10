@@ -10,13 +10,16 @@ export default function Header() {
       <Link
         to="/"
         className="flex col-span-1 items-center ml-12 w-64
-        justify-around rounded-lg bg-success p-2"
+        justify-around rounded-lg bg-info p-2"
       >
         <img className="size-14" src={logo} alt="Изображение счетчика" />
         <h1 className="text-2xl font-bold text-white">Отчеты АСКУЭ</h1>
       </Link>
       <nav className="text-xl col-start-2 col-span-4 justify-self-center">
-        <menu className="menu menu-horizontal bg-base-200 w-full rounded-xl gap-14">
+        <menu
+          className="menu menu-vertical menu-xs sm:menu-sm md:menu-md lg:menu-lg 
+              xl:menu-xl lg:menu-horizontal bg-base-200 rounded-box gap-14"
+        >
           <li>
             <div>
               <NavLink
@@ -24,10 +27,12 @@ export default function Header() {
                 role="button"
                 className={({
                   isActive,
-                }) => `btn btn-info btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && "btn-active"}`}
+                }) => `btn btn-info btn-outline btn-xs sm:btn-sm lg:w-64
+                md:btn-md lg:btn-lg xl:btn-xl ${isActive && "btn-active"}`}
               >
-                Сформировать отчеты
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg">
+                  Сформировать отчеты
+                </span>
               </NavLink>
             </div>
           </li>
@@ -37,11 +42,13 @@ export default function Header() {
                 to="/view-data"
                 className={({
                   isActive,
-                }) => `btn btn-info btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg ${isActive && "btn-active"}`}
+                }) => `btn btn-info btn-outline btn-xs sm:btn-sm lg:w-64
+                md:btn-md lg:btn-lg xl:btn-xl ${isActive && "btn-active"}`}
                 prefetch="intent"
               >
-                Просмотр данных
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg">
+                  Просмотр данных
+                </span>
               </NavLink>
             </div>
           </li>
@@ -49,10 +56,12 @@ export default function Header() {
             <Form action="logout" method="post">
               <button
                 type="submit"
-                className="btn btn-error btn-outline md:btn-wide
-                btn-xs sm:btn-sm md:btn-md lg:btn-lg"
+                className="btn btn-error btn-outline btn-xs sm:btn-sm lg:w-64
+                md:btn-md lg:btn-lg xl:btn-xl"
               >
-                Выйти
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg">
+                  Выйти
+                </span>
               </button>
             </Form>
           </li>
