@@ -14,7 +14,7 @@ export default function DateInputWithoutDef({
         type="date"
         min="0"
         placeholder="0"
-        className="input"
+        className="input input-xs sm:input-sm md:input-md lg:input-lg"
         aria-label={labelText}
         name={inputName}
       />

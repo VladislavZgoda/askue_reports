@@ -10,7 +10,7 @@ export default function SelectYear() {
       </legend>
 
       <select
-        className="select"
+        className="select select-xs sm:select-sm md:select-md lg:select-lg"
         aria-label="Выберете год для заголовков таблиц Excel"
         defaultValue="Выбрать год"
         name="year"

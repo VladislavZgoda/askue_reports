@@ -6,7 +6,7 @@ export default function SelectMonth() {
       </legend>
 
       <select
-        className="select"
+        className="select select-xs sm:select-sm md:select-md lg:select-lg"
         aria-label="Выберете месяц для заголовков таблиц Excel"
         name="month"
         defaultValue="Выбрать месяц"
