@@ -44,7 +44,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body
         className={`${
           !routes.includes(matches[1]?.id)
-            ? "font-sans box-border grid grid-cols-[24rem_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]"
+            ? `font-sans box-border grid grid-cols-[1fr_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]
+            lg:grid-cols-[24rem_1fr_1fr_1fr_1fr] lg:grid-rows-[8rem_2fr_2fr_2fr_3rem]`
             : "font-sans bg-base-200 box-border"
         }`}
       >
