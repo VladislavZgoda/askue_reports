@@ -9,7 +9,7 @@ export default function Log({ logMessages }: LogMessages) {
   return (
     <section className="w-96">
       {logMessages.length > 0 && (
-        <div className="bg-base-200 collapse">
+        <div className="bg-base-100 border-base-300 collapse border">
           <input type="checkbox" className="peer" />
           <div
             className="collapse-title bg-primary text-primary-content
