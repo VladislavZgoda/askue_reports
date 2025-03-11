@@ -35,34 +35,28 @@ export default function TransSubName({
       <Form
         method="post"
         action={formAction}
-        className="flex p-8 h-2/5 w-3/5 flex-initial bg-neutral-content rounded-lg"
+        className="flex p-8 h-2/5 w-3/5 flex-initial bg-base-200 rounded-lg"
       >
         <div className="flex flex-col justify-evenly items-center w-full h-full flex-initial">
-          <div className="form-control w-full max-w-xs">
-            <label className="label" htmlFor="name">
-              <span className="label-text">Наименование</span>
-            </label>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Наименование ТП</legend>
             <input
               type="text"
               placeholder="ТП-1000"
-              className={`input input-xs md:input-md sm:input-sm lg:input-lg
-                ${actionData?.error ? "input-error" : "input-accent"}`}
+              className={`input input-xs md:input-md sm:input-sm lg:input-lg w-80
+                ${actionData?.error ? "input-error" : "input-neutral"}`}
               name="name"
-              id="name"
               defaultValue={actionData?.name || transSub?.name || ""}
             />
             {actionData?.error && (
-              <div className="label">
-                <span className="label-text-alt text-error">
-                  {actionData.error}
-                </span>
-              </div>
+              <p className="fieldset-label text-error">{actionData.error}</p>
             )}
-          </div>
-          <div className="flex flex-initial justify-evenly w-full text-white font-semibold">
+          </fieldset>
+
+          <div className="flex flex-initial justify-evenly w-full">
             <button
               type={isSubmitting ? "button" : "submit"}
-              className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
+              className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg w-48"
             >
               {isSubmitting && (
                 <span className="loading loading-spinner"></span>
@@ -71,9 +65,10 @@ export default function TransSubName({
                 ? `${buttonNames.submitName}`
                 : `${buttonNames.idleName}`}
             </button>
+
             <button
               type="button"
-              className="btn btn-secondary btn-xs sm:btn-sm md:btn-md lg:btn-lg"
+              className="btn btn-success btn-xs sm:btn-sm md:btn-md lg:btn-lg w-48"
               onClick={() => navigate(-1)}
             >
               Назад
