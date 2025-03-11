@@ -21,9 +21,7 @@ export default function NumberInput({
         aria-label={labelName}
         name={inputName}
       />
-      {error && (
-        <p className="fieldset-label text-error">{error}</p>
-      )}
+      {error && <p className="fieldset-label text-error">{error}</p>}
     </fieldset>
   );
 }

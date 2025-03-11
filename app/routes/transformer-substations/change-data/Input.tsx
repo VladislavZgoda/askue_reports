@@ -6,30 +6,25 @@ export default function Input({
   errors = false,
 }: InputType) {
   return (
-    <label
-      className={`
-      ${errors && !error ? "mb-12" : ""}`}
+    <fieldset
+      className={`fieldset
+      ${errors && !error ? "mb-12" : "mb-1.5"}`}
     >
-      <div className="label">
-        <span className="label-text">{label}</span>
-      </div>
+      <legend className="fieldset-legend">{label}</legend>
+
       <input
         type="number"
         placeholder="0"
         min="0"
-        className={`input ${error && "input-error"}`}
+        className={`input input-lg ${error && "input-error"}`}
         aria-label={label}
         name={name}
         defaultValue={defValue}
         required
       />
       {error && (
-        <div className="label">
-          <span className="label-text-alt text-error text-pretty w-72">
-            {error}
-          </span>
-        </div>
+        <p className="fieldset-label text-error text-pretty w-72">{error}</p>
       )}
-    </label>
+    </fieldset>
   );
 }

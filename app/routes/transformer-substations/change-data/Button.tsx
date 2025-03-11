@@ -5,7 +5,7 @@ export default function Button({
   return (
     <button
       type={isSubmitting ? "button" : "submit"}
-      className={`btn btn-outline btn-accent ${isSubmitting && "btn-active"}`}
+      className={`btn btn-outline btn-accent btn-lg ${isSubmitting && "btn-active"}`}
       name="_action"
       value={buttonValue}
     >
