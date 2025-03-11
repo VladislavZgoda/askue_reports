@@ -64,7 +64,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
             });
           }}
         >
-          <label className="input input-info">
+          <label className="input input-info input-lg">
             {searching ? (
               <span className="loading loading-spinner loading-xs text-info"></span>
             ) : (
@@ -99,7 +99,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
         <Form method="post" className="flex-initial">
           <button
             type="submit"
-            className="btn btn-xs sm:btn-sm md:btn-md btn-outline btn-neutral w-48"
+            className="btn btn-xs sm:btn-sm md:btn-md btn-outline lg:btn-lg btn-neutral w-56"
           >
             Добавить ТП
           </button>
