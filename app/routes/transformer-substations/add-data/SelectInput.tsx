@@ -21,7 +21,7 @@ export default function SelectInput({ error }: ErrorProp) {
         <option value="ОДПУ Sims">ОДПУ Sims</option>
         <option value="ОДПУ П2">ОДПУ П2</option>
       </select>
-      {error && <span className="fieldset-label text-error">{error}</span>}
+      {error && <p className="fieldset-label text-error">{error}</p>}
     </fieldset>
   );
 }
