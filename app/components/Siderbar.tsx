@@ -106,7 +106,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
         </Form>
       </div>
       <nav className="py-5">
-        <ul className="flex overflow-auto flex-col items-center h-[65vh]">
+        <ul className="flex overflow-auto flex-col items-center h-[65vh] ml-3">
           {listItems()}
         </ul>
       </nav>
