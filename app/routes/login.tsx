@@ -44,11 +44,11 @@ export default function Login() {
 
   return (
     <main className="flex flex-col items-center gap-5 w-full max-h-screen">
-      <h1 className="text-4xl font-bold underline text-info">Отчеты АСКУЭ</h1>
+      <h1 className="text-4xl font-bold underline text-neutral">Отчеты АСКУЭ</h1>
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
         <Form className="card-body" method="post">
           <fieldset className="fieldset w-xs">
-            <label htmlFor="login" className="fieldset-label">
+            <label htmlFor="login" className="fieldset-label text-base">
               Логин
             </label>
             <input
@@ -67,7 +67,7 @@ export default function Login() {
               </div>
             )}
 
-            <label htmlFor="password" className="fieldset-label">
+            <label htmlFor="password" className="fieldset-label text-base">
               Пароль
             </label>
             <input
@@ -83,7 +83,7 @@ export default function Login() {
               className={
                 isSubmitting
                   ? "btn btn-neutral btn-active mt-4"
-                  : "btn btn-neutral mt-4"
+                  : "btn btn-neutral mt-4 text-base"
               }
               type={isSubmitting ? "button" : "submit"}
             >
