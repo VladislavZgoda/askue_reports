@@ -9,12 +9,12 @@ export default function SelectInput({ error }: ErrorProp) {
         Выберете балансовую принадлежность
       </legend>
       <select
-        className={`select ${error && "select-error"}`}
+        className={`select select-lg ${error && "select-error"}`}
         aria-label="Выберете балансовую принадлежность"
-        defaultValue="Выбрать"
+        defaultValue="Выбрать группу"
         name="type"
       >
-        <option disabled={true}>Выбрать</option>
+        <option disabled={true}>Выбрать группу</option>
         <option value="Быт">Быт</option>
         <option value="ЮР Sims">ЮР Sims</option>
         <option value="ЮР П2">ЮР П2</option>

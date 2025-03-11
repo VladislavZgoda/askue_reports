@@ -4,7 +4,7 @@ export default function SubmitButton({
 }: SubmitButtonValues) {
   return (
     <button
-      className={`btn btn-outline btn-success mt-auto ${isSubmitting && "btn-active"}`}
+      className={`btn btn-outline btn-success btn-lg mt-auto ${isSubmitting && "btn-active"}`}
       type={isSubmitting ? "button" : "submit"}
       name="_action"
       value={buttonValue}

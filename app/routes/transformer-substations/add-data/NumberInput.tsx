@@ -10,23 +10,20 @@ export default function NumberInput({
   error,
 }: NameForInput) {
   return (
-    <label className="form-control w-full max-w-xs">
-      <div className="label">
-        <span className="label-text">{labelName}</span>
-      </div>
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">{labelName}</legend>
+
       <input
         type="number"
         min="0"
         placeholder="0"
-        className={`input ${error && "input-error"}`}
+        className={`input input-lg ${error && "input-error"}`}
         aria-label={labelName}
         name={inputName}
       />
       {error && (
-        <div className="label">
-          <span className="label-text-alt text-error">{error}</span>
-        </div>
+        <p className="fieldset-label text-error">{error}</p>
       )}
-    </label>
+    </fieldset>
   );
 }
