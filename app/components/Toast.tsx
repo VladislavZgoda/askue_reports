@@ -9,7 +9,7 @@ export default function Toast({ isVisible, message }: ToastPropType) {
       className={`toast toast-top toast-end
           ${isVisible ? "visible" : "invisible"}`}
     >
-      <div className="alert alert-success">
+      <div className="alert alert-success h-14">
         <span>{message}</span>
       </div>
     </div>
