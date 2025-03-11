@@ -30,7 +30,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
             prefetch="intent"
             className={({ isActive, isPending }) =>
               isActive
-                ? "btn btn-info btn-lg btn-active w-56"
+                ? "btn btn-info btn-lg btn-active w-56 shadow-xs shadow-neutral"
                 : isPending
                   ? "btn btn-ghost btn-lg btn-active w-56"
                   : "btn btn-ghost btn-lg w-56"
