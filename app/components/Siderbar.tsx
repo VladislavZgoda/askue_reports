@@ -99,7 +99,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
         <Form method="post" className="flex-initial">
           <button
             type="submit"
-            className="btn btn-xs sm:btn-sm md:btn-md btn-outline w-52"
+            className="btn btn-xs sm:btn-sm md:btn-md btn-outline btn-neutral w-48"
           >
             Добавить ТП
           </button>
