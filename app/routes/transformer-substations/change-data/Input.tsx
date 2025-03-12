@@ -16,7 +16,7 @@ export default function Input({
         type="number"
         placeholder="0"
         min="0"
-        className={`input input-lg ${error && "input-error"}`}
+        className={`input input-lg rounded-sm ${error && "input-error"}`}
         aria-label={label}
         name={name}
         defaultValue={defValue}
