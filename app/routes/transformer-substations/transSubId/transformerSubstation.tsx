@@ -102,7 +102,7 @@ export default function TransformerSubstation({
   return (
     <main className="m-2">
       <section className="flex justify-between w-[60%]">
-        <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1">
+        <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1 shadow-md">
           <li>
             <h2 className="menu-title">{transSub.name}</h2>
             <ul>
@@ -143,7 +143,7 @@ export default function TransformerSubstation({
         </ul>
 
         <Form
-          className="flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2"
+          className="flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2 shadow-md"
           onChange={(e) => {
             submit(e.currentTarget);
           }}
