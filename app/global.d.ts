@@ -1,4 +1,4 @@
-declare type TransSubs = {
+declare interface TransSubs {
   transSubs:
     | {
         id: number;
@@ -6,7 +6,7 @@ declare type TransSubs = {
       }[]
     | undefined;
   q: string | null | undefined;
-};
+}
 
 declare type BalanceType =
   | "Быт"
@@ -15,91 +15,91 @@ declare type BalanceType =
   | "ОДПУ Sims"
   | "ОДПУ П2";
 
-declare type MetersValues = {
+declare interface MetersValues {
   quantity: number;
   type: BalanceType;
   date: string;
   transformerSubstationId: number;
-};
+}
 
-declare type InsertMetersValues = MetersValues & {
+declare interface InsertMetersValues extends MetersValues {
   added_to_system: number;
-};
+}
 
-declare type YearMetersValues = InsertMetersValues & {
+declare interface YearMetersValues extends InsertMetersValues {
   year: number;
-};
+}
 
-declare type MonthMetersValues = YearMetersValues & {
+declare interface MonthMetersValues extends YearMetersValues {
   month: string;
-};
+}
 
-declare type CheckRecordValues = {
+declare interface CheckRecordValues {
   type: BalanceType;
   date: string;
   transformerSubstationId: number;
-};
+}
 
-declare type SelectYearQuantity = CheckRecordValues & {
+declare interface SelectYearQuantity extends CheckRecordValues {
   year: number;
-};
+}
 
-declare type SelectMonthQuantity = SelectYearQuantity & {
+declare interface SelectMonthQuantity extends SelectYearQuantity {
   month: string;
-};
+}
 
-declare type LastQuantity = {
+declare interface LastQuantity {
   transformerSubstationId: number;
   type: BalanceType;
-};
+}
 
-declare type LastYearQuantity = LastQuantity & {
+declare interface LastYearQuantity extends LastQuantity {
   year: number;
-};
+}
 
-declare type LastMonthQuantity = LastYearQuantity & {
+declare interface LastMonthQuantity extends LastYearQuantity {
   month: string;
-};
+}
 
-declare type TotalMeters = {
+declare interface TotalMeters {
   quantity: number;
   added_to_system: number;
-};
+}
 
-declare type SubmitButtonValues = {
+declare interface SubmitButtonValues {
   buttonValue: string;
   isSubmitting: boolean;
-};
+}
 
-declare type UpdateOnIdType = {
+declare interface UpdateOnIdType {
   id: number;
   quantity: number;
-};
+}
 
-declare type UpdateTotalMetersType = {
+declare interface UpdateTotalMetersType {
   totalMeters: number;
   inSystemTotal: number;
   id: number;
   type: BalanceType;
   date: string;
-};
+}
 
-declare type UpdateYearOnIdType = UpdateOnIdType & {
+declare interface UpdateYearOnIdType extends UpdateOnIdType {
   added_to_system: number;
-};
+}
 
-declare type UpdateTotalYearMetersType = {
+declare interface UpdateTotalYearMetersType {
   year: number;
   id: number;
   type: BalanceType;
   date: string;
   inSystemYear: number;
   yearTotal: number;
-};
+}
 
 declare type UpdateMonthOnIdType = UpdateYearOnIdType;
 
-declare type UpdateTotalMonthMetersType = {
+declare interface UpdateTotalMonthMetersType {
   year: number;
   id: number;
   type: BalanceType;
@@ -107,23 +107,23 @@ declare type UpdateTotalMonthMetersType = {
   month: string;
   monthTotal: number;
   inSystemMonth: number;
-};
+}
 
-declare type InputType = {
+declare interface InputType {
   defValue: number;
   name: string;
   label: string;
   error?: string | undefined;
   errors?: boolean;
-};
+}
 
-declare type DbData = {
+declare interface DbData {
   inSystem: number;
   notInSystem: number;
-};
+}
 
-declare type QuantityForInsert = {
+declare interface QuantityForInsert {
   transformerSubstationId: number;
   type: BalanceType;
   date: string;
-};
+}
