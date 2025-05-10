@@ -247,7 +247,7 @@ export async function selectMonthMetersOnDate({
   return record[0];
 }
 
-type monthPeriod = {
+interface monthPeriod {
   type: BalanceType;
   firstDate: string;
   lastDate: string;

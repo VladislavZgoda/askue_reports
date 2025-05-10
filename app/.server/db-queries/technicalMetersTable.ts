@@ -2,7 +2,7 @@ import { eq, sum } from "drizzle-orm";
 import { db } from "../db";
 import { TechnicalMeters } from "../schema";
 
-type TechnicalMetersValues = {
+interface TechnicalMetersValues {
   quantity: number;
   underVoltage: number;
   transformerSubstationId: number;
