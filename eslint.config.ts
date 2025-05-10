@@ -9,7 +9,8 @@ export default [
   { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   pluginReact.configs.flat.recommended,
   eslintConfigPrettier,
   {
@@ -19,6 +20,14 @@ export default [
       "app/entry.server.tsx",
       "app/utils/cache.ts",
     ],
+  },
+  {
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
   },
   {
     rules: {
