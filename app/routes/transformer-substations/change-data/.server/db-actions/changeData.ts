@@ -17,7 +17,7 @@ import {
   getLastMonthId,
   updateMonthOnId,
   insertMonthMeters,
-} from "~/.server/db-queries/newMothMetersTable";
+} from "~/.server/db-queries/newMonthMetersTable";
 import loadData from "./loadData";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 

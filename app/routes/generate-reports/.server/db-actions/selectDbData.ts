@@ -4,7 +4,7 @@ import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMetersTable"
 import {
   selectMonthMetersOnDate,
   selectMonthPeriodMeters,
-} from "~/.server/db-queries/newMothMetersTable";
+} from "~/.server/db-queries/newMonthMetersTable";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormDates } from "../writeDbData";
 

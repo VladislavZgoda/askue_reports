@@ -24,7 +24,7 @@ import {
   getMonthMetersOnID,
   getMonthMetersForInsert,
   updateMonthOnId,
-} from "~/.server/db-queries/newMothMetersTable";
+} from "~/.server/db-queries/newMonthMetersTable";
 import {
   insertNotInSystem,
   updateNotInSystem,
