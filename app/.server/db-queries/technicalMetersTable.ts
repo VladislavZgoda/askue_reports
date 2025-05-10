@@ -6,7 +6,7 @@ interface TechnicalMetersValues {
   quantity: number;
   underVoltage: number;
   transformerSubstationId: number;
-};
+}
 
 export const insertTechnicalMeters = async ({
   quantity,

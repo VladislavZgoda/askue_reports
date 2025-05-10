@@ -252,7 +252,7 @@ interface monthPeriod {
   firstDate: string;
   lastDate: string;
   transformerSubstationId: number;
-};
+}
 
 export async function selectMonthPeriodMeters({
   type,
