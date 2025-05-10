@@ -26,7 +26,10 @@ export async function isNotAuthenticated(request: Request) {
   const session = await sessionStorage.getSession(
     request.headers.get("cookie"),
   );
-  const user = session.get("loggedUser");
-  if (!user) throw redirect("/login");
+
+  const user = session.get("loggedUser") as string | undefined;
+
+  if (!user) return redirect("/login");
+
   return null;
 }
