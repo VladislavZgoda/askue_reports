@@ -15,4 +15,4 @@ const runMigration = async () => {
   await migrationClient.end();
 };
 
-runMigration().catch((error) => console.log(error));
+await runMigration();
