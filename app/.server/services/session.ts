@@ -10,7 +10,7 @@ const sessionStorage = createCookieSessionStorage({
     sameSite: "lax",
     path: "/",
     httpOnly: true,
-    secrets: [process.env.secret as string],
+    secrets: [process.env.secret],
     maxAge: 259200, // 3 дня
   },
 });
