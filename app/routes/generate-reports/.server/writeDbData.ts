@@ -11,7 +11,7 @@ import {
   selectMonthMeters,
 } from "./db-actions/selectDbData";
 import type {
-  Meters,
+  MetersType,
   Odpy,
   DifferentMeters,
   TransSubs,
@@ -64,7 +64,7 @@ export default async function writeDbData(dates: FormDates) {
 
 async function handlePrivateSector(
   path: string,
-  privateMeters: Meters,
+  privateMeters: MetersType,
   excel: exceljs.Workbook,
 ) {
   const templatePath = path + "workbooks/private_sector.xlsx";
@@ -98,7 +98,7 @@ async function handlePrivateSector(
 
 type ReportType = {
   path: string;
-  privateMeters: Meters;
+  privateMeters: MetersType;
   legalMeters: DifferentMeters;
   transSubs: TransSubs;
   dates: FormDates;
@@ -192,7 +192,7 @@ async function handleReport({
 
 type SupplementThree = {
   path: string;
-  privateMeters: Meters;
+  privateMeters: MetersType;
   legalMeters: DifferentMeters;
   odpy: Odpy;
   transSubs: TransSubs;
@@ -280,7 +280,7 @@ function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
   ws.getRow(rowNumber).eachCell((cell) => (cell.model.result = undefined));
 }
 
-function calculateSum(meters: Meters) {
+function calculateSum(meters: MetersType) {
   let sum = 0;
 
   for (const key of Object.keys(meters)) {
