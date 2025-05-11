@@ -1,6 +1,6 @@
 import { Form, useNavigate } from "react-router";
 
-type TransSubNameArgs = {
+interface TransSubNameProps {
   transSub:
     | {
         id: number;
@@ -19,7 +19,7 @@ type TransSubNameArgs = {
     submitName: string;
     idleName: string;
   };
-};
+}
 
 export default function TransSubName({
   transSub,
@@ -27,7 +27,7 @@ export default function TransSubName({
   actionData,
   formAction,
   buttonNames,
-}: TransSubNameArgs) {
+}: TransSubNameProps) {
   const navigate = useNavigate();
 
   return (
@@ -46,7 +46,7 @@ export default function TransSubName({
               className={`input input-xs md:input-md sm:input-sm lg:input-lg w-80
                 ${actionData?.error ? "input-error" : "input-neutral"}`}
               name="name"
-              defaultValue={actionData?.name || transSub?.name || ""}
+              defaultValue={actionData?.name ?? transSub?.name ?? ""}
             />
             {actionData?.error && (
               <p className="fieldset-label text-error">{actionData.error}</p>
@@ -69,7 +69,7 @@ export default function TransSubName({
             <button
               type="button"
               className="btn btn-success btn-xs sm:btn-sm md:btn-md lg:btn-lg w-48"
-              onClick={() => navigate(-1)}
+              onClick={() => void navigate(-1)}
             >
               Назад
             </button>

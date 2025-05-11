@@ -1,16 +1,16 @@
 import { todayDate } from "~/utils/dateFunctions";
 
-type DateInputType = {
+interface DateInputProps {
   labelText: string;
   inputName: string;
   defValue?: string;
-};
+}
 
 export default function DateInput({
   labelText,
   inputName,
   defValue,
-}: DateInputType) {
+}: DateInputProps) {
   return (
     <fieldset className="fieldset">
       <legend className="fieldset-legend">{labelText}</legend>
@@ -21,7 +21,7 @@ export default function DateInput({
         className="input input-xs sm:input-sm md:input-md lg:input-lg"
         aria-label={labelText}
         name={inputName}
-        defaultValue={defValue || todayDate()}
+        defaultValue={defValue ?? todayDate()}
         required
       />
     </fieldset>

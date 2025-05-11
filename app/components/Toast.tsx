@@ -1,9 +1,9 @@
-type ToastPropType = {
+interface ToastProps {
   isVisible: boolean;
   message: string;
-};
+}
 
-export default function Toast({ isVisible, message }: ToastPropType) {
+export default function Toast({ isVisible, message }: ToastProps) {
   return (
     <div
       className={`toast toast-top toast-end

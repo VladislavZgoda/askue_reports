@@ -2,7 +2,7 @@ import { Form, NavLink, useSubmit, useNavigation } from "react-router";
 import { useEffect, useState } from "react";
 
 export default function Siderbar({ transSubs, q }: TransSubs) {
-  const [query, setQuery] = useState(q || "");
+  const [query, setQuery] = useState(q ?? "");
   const submit = useSubmit();
   const navigation = useNavigation();
   const searching =
@@ -10,7 +10,7 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
     new URLSearchParams(navigation.location.search).has("q");
 
   useEffect(() => {
-    setQuery(q || "");
+    setQuery(q ?? "");
   }, [q]);
 
   const listItems = () => {
@@ -59,7 +59,8 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
           role="search"
           onChange={(e) => {
             const isFirstSearch = q === null;
-            submit(e.currentTarget, {
+
+            void submit(e.currentTarget, {
               replace: !isFirstSearch,
             });
           }}

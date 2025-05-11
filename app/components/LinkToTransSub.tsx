@@ -1,11 +1,11 @@
 import { Link } from "react-router";
 
-type LinkType = {
+interface LinkProps {
   id: number;
   name: string;
-};
+}
 
-export default function LinkToTransSub({ id, name }: LinkType) {
+export default function LinkToTransSub({ id, name }: LinkProps) {
   return (
     <Link
       to={`/transformer-substations/${id}`}
