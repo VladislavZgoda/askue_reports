@@ -7,8 +7,11 @@ export async function loader({ request }: Route.LoaderArgs) {
   const session = await sessionStorage.getSession(
     request.headers.get("cookie"),
   );
-  const user = session.get("loggedUser");
-  if (user) throw redirect("/");
+
+  const user = session.get("loggedUser") as string | undefined;
+
+  if (user) return redirect("/");
+
   return null;
 }
 
@@ -30,9 +33,10 @@ export async function action({ request }: Route.ActionArgs) {
   const session = await sessionStorage.getSession(
     request.headers.get("cookie"),
   );
+
   session.set("loggedUser", user[0].userId);
 
-  throw redirect("/", {
+  return redirect("/", {
     headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
   });
 }

@@ -1,7 +1,7 @@
 import { createReadableStreamFromReadable } from "@react-router/node";
 import fs from "fs";
 
-export const loader = async () => {
+export const loader = () => {
   const filePath =
     "app/routes/generate-reports/.server/reports-archive/reports.zip";
   const file = createReadableStreamFromReadable(fs.createReadStream(filePath));
