@@ -7,22 +7,19 @@ import path from "path";
 import validateExcel from "./validateExcel";
 import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 
-type FormDates = {
-  [k: string]: FormDataEntryValue;
-};
+type FormDatesType = Record<string, FormDataEntryValue>;
 
-export default async function composeReports(dates: FormDates) {
+export default async function composeReports(dates: FormDatesType) {
   const partPath = "app/routes/generate-reports/.server/";
 
   if (!(await doesDirectoryExist(partPath)))
-    fsp.mkdir(partPath + "filled-reports/");
+    await fsp.mkdir(partPath + "filled-reports/");
 
   await writeDbData(dates);
 
   if (await validateExcel()) await writeParsedData();
 
   await createArchive();
-
   await cleanUp(partPath);
 }
 
