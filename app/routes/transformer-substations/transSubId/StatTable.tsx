@@ -1,4 +1,4 @@
-type DataProp = {
+interface DataProp {
   data: {
     privateMeters: DbData;
     legalSims: DbData;
@@ -10,11 +10,9 @@ type DataProp = {
       underVoltage: number;
     };
   };
-};
+}
 
-type ConvertedDataType = {
-  [k: string]: { [k: string]: number };
-};
+type ConvertedDataType = Record<string, Record<string, number>>;
 
 export default function StatTable({ data }: DataProp) {
   const privateTotal =
@@ -33,7 +31,7 @@ export default function StatTable({ data }: DataProp) {
 
   const convertedData: ConvertedDataType = JSON.parse(JSON.stringify(data));
 
-  delete convertedData["techMeters"];
+  delete convertedData.techMeters;
 
   const reducer = (obj: ConvertedDataType, property: string) => {
     return Object.keys(obj).reduce((sum, key) => sum + obj[key][property], 0);

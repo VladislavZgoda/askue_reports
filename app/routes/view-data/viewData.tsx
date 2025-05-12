@@ -1,7 +1,7 @@
 import { Form, useSubmit, data } from "react-router";
 import DateInput from "~/components/DateInput";
 import type { HeadersFunction } from "react-router";
-import type { DbData } from "./view-data.types";
+import type { DbDataType } from "./view-data.types";
 import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { todayDate } from "~/utils/dateFunctions";
@@ -29,7 +29,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   }
 
   const { transSubData } = cache.getKey(cacheKey) as {
-    transSubData: DbData;
+    transSubData: DbDataType;
   };
 
   const hash = createEtagHash({ loadValues, transSubData });
@@ -110,7 +110,7 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
       <Form
         className="mt-5 flex justify-between"
         onChange={(e) => {
-          submit(e.currentTarget);
+          void submit(e.currentTarget);
         }}
       >
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">

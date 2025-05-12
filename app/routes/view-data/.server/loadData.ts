@@ -1,13 +1,13 @@
 import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstationTable";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
-import type { DbData } from "../view-data.types";
+import type { DbDataType } from "../view-data.types";
 
-type LoadDates = {
+interface LoadDates {
   privateDate: string;
   legalDate: string;
   odpyDate: string;
-};
+}
 
 export default async function loadData({
   privateDate,
@@ -16,7 +16,7 @@ export default async function loadData({
 }: LoadDates) {
   const transSubs = await selectAllTransSubs();
 
-  const data: DbData = {};
+  const data: DbDataType = {};
 
   for (const transSub of transSubs) {
     const transformerSubstationId = transSub.id;

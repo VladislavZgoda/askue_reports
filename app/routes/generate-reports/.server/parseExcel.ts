@@ -13,7 +13,7 @@ export default async function parseExcel() {
   const wsOdpy = wb.worksheets[1];
   const wsLegal = wb.worksheets[2];
 
-  const data: { [k: string]: { [k: string]: number } } = {
+  const data = {
     private: {
       total: 0,
       rider: 0,
@@ -32,11 +32,11 @@ export default async function parseExcel() {
   parseSheet(wsLegal, data.legal);
 
   wsOdpy.getColumn("N").eachCell((cell, rowNumber) => {
-    const transSub = String(cell.value).trim();
+    const transSub = cell.text.trim();
 
     if (!transSub.startsWith("ТП-")) return;
 
-    const readingSource = String(wsOdpy.getCell("M" + rowNumber).value);
+    const readingSource = wsOdpy.getCell("M" + rowNumber).text;
 
     if (readingSource.toLowerCase() === "ридер") {
       data.odpy.rider += 1;
@@ -48,9 +48,9 @@ export default async function parseExcel() {
   return data;
 }
 
-function parseSheet(ws: exceljs.Worksheet, data: { [k: string]: number }) {
+function parseSheet(ws: exceljs.Worksheet, data: Record<string, number>) {
   ws.getColumn("N").eachCell((cell, rowNumber) => {
-    const transSub = String(cell.value);
+    const transSub = cell.text;
 
     if (!transSub.startsWith("ТП-")) return;
 
@@ -58,7 +58,7 @@ function parseSheet(ws: exceljs.Worksheet, data: { [k: string]: number }) {
       data[transSub] = 0;
     }
 
-    const readingSource = String(ws.getCell("M" + rowNumber).value);
+    const readingSource = ws.getCell("M" + rowNumber).text;
 
     if (readingSource.toLowerCase() === "ридер") {
       data.rider += 1;

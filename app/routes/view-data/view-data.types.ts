@@ -1,5 +1,1 @@
-export type DbData = {
-  [transSub: string]: {
-    [k: string]: number;
-  };
-};
+export type DbDataType = Record<string, Record<string, number>>;

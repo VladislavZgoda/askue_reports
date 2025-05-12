@@ -18,7 +18,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   invariant(params.id, "Expected params.id");
 
   if (!Number(params.id)) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
@@ -26,7 +26,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   const url = new URL(request.url);
@@ -145,7 +145,7 @@ export default function TransformerSubstation({
         <Form
           className="flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2 shadow-md"
           onChange={(e) => {
-            submit(e.currentTarget);
+            void submit(e.currentTarget);
           }}
         >
           <p>Выберете даты для данных</p>

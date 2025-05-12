@@ -2,19 +2,19 @@ import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable"
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 
-type LoadData = {
+interface LoadDataProps {
   id: number;
   privateDate: string;
   legalDate: string;
   odpyDate: string;
-};
+}
 
 export default async function loadData({
   id,
   privateDate,
   legalDate,
   odpyDate,
-}: LoadData) {
+}: LoadDataProps) {
   const [privateMeters, legalSims, legalP2, odpySims, odpyP2, techMeters] =
     await Promise.all([
       getDataFromDb(id, privateDate, "Быт"),
