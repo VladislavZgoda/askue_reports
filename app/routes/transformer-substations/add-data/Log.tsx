@@ -1,9 +1,9 @@
-type LogMessages = {
+interface LogMessages {
   logMessages: {
     id: number;
     message: string;
   }[];
-};
+}
 
 export default function Log({ logMessages }: LogMessages) {
   return (

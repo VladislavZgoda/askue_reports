@@ -1,12 +1,12 @@
-type DateInputType = {
+interface DateInputProps {
   labelText: string;
   inputName: string;
-};
+}
 
 export default function DateInputWithoutDef({
   labelText,
   inputName,
-}: DateInputType) {
+}: DateInputProps) {
   return (
     <fieldset className="fieldset">
       <legend className="fieldset-legend">{labelText}</legend>

@@ -1,6 +1,6 @@
-type ErrorProp = {
+interface ErrorProp {
   error: string | undefined;
-};
+}
 
 export default function SelectInput({ error }: ErrorProp) {
   return (

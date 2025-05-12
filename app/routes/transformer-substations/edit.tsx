@@ -13,13 +13,13 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   invariant(params.id, "Expected params.id");
 
   if (!Number(params.id)) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
@@ -30,7 +30,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export const action = async ({ request, params }: Route.ActionArgs) => {
   invariant(params.id, "Expected params.id");
   const formData = await request.formData();
-  const name = String(formData.get("name"));
+  const name = formData.get("name") as string;
   const errNameLength = checkNameLength(name);
 
   if (errNameLength) {

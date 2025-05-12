@@ -7,9 +7,8 @@ export default async function validateExcel() {
 
   if (!(await excelStorage.has("supplementNine"))) return false;
 
-  const file = (await excelStorage.get("supplementNine")) as File;
-
-  const wb = await excel.xlsx.read(file.stream() as unknown as stream);
+  const file = await excelStorage.get("supplementNine");
+  const wb = await excel.xlsx.read(file!.stream() as unknown as stream);
 
   const wsPrivate = wb.worksheets[0];
   const wsOdpy = wb.worksheets[1];
@@ -56,5 +55,5 @@ function checkTitles(ws: exceljs.Worksheet) {
 }
 
 function cellValue(ws: exceljs.Worksheet, cellNumber: string) {
-  return String(ws.getCell(cellNumber).value).trim();
+  return ws.getCell(cellNumber).text.trim();
 }

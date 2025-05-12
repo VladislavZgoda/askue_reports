@@ -11,7 +11,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
-  const name = String(formData.get("name"));
+  const name = formData.get("name") as string;
   const errNameLength = checkNameLength(name);
 
   if (errNameLength) {

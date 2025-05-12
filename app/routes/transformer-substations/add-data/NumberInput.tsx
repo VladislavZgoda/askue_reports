@@ -1,14 +1,14 @@
-type NameForInput = {
+interface NumberInputProps {
   labelName: string;
   inputName: string;
   error: string | undefined;
-};
+}
 
 export default function NumberInput({
   labelName,
   inputName,
   error,
-}: NameForInput) {
+}: NumberInputProps) {
   return (
     <fieldset className="fieldset">
       <legend className="fieldset-legend">{labelName}</legend>

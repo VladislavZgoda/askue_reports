@@ -27,13 +27,13 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   invariant(params.id, "Expected params.id");
 
   if (!Number(params.id)) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
@@ -106,6 +106,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   return null;
 };
 
+type ErrorType = Record<string, string>;
+
 export default function AddData({ loaderData }: Route.ComponentProps) {
   const { transSub, logMessages } = loaderData;
   const fetcher = useFetcher<typeof action>();
@@ -131,11 +133,8 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   const newMetesRef = useRef<HTMLFormElement>(null);
   const technicalMetersRef = useRef<HTMLFormElement>(null);
 
-  const [errNewMeters, setErrNewMeters] = useState<{ [k: string]: string }>({});
-
-  const [errTechnicalMeters, setErrTechnicalMeters] = useState<{
-    [k: string]: string;
-  }>({});
+  const [errNewMeters, setErrNewMeters] = useState<ErrorType>({});
+  const [errTechnicalMeters, setErrTechnicalMeters] = useState<ErrorType>({});
 
   const [isVisible, setIsVisible] = useState(false);
 

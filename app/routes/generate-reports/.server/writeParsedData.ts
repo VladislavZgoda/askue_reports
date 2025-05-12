@@ -10,13 +10,13 @@ export default async function writeParsedData() {
   await handleSupplementThree(data, path, excel);
 }
 
-type Data = {
-  [k: string]: {
-    [k: string]: number;
-  };
-};
+type DataType = Record<string, Record<string, number>>;
 
-async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
+async function handleReport(
+  data: DataType,
+  path: string,
+  excel: exceljs.Workbook,
+) {
   const filePath = path + "Отчет по дистанционным съемам.xlsx";
 
   const wb = await excel.xlsx.readFile(filePath);
@@ -27,7 +27,7 @@ async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
   let rowCount = 9;
 
   ws.getColumn("B").eachCell((cell, rowNumber) => {
-    const transSub = String(cell.value).trim();
+    const transSub = cell.text.trim();
 
     if (!transSub.startsWith("ТП")) return;
 
@@ -52,7 +52,7 @@ async function handleReport(data: Data, path: string, excel: exceljs.Workbook) {
 }
 
 async function handleSupplementThree(
-  data: Data,
+  data: DataType,
   path: string,
   excel: exceljs.Workbook,
 ) {

@@ -7,6 +7,7 @@ import {
   getQuantityOnID,
   updateRecordOnId,
 } from "~/.server/db-queries/electricityMetersTable";
+
 import {
   insertYearMeters,
   selectYearQuantity,
@@ -16,6 +17,7 @@ import {
   updateYearOnId,
   getYearMetersForInsert,
 } from "~/.server/db-queries/newYearMetersTable";
+
 import {
   insertMonthMeters,
   updateMonthMeters,
@@ -25,6 +27,7 @@ import {
   getMonthMetersForInsert,
   updateMonthOnId,
 } from "~/.server/db-queries/newMonthMetersTable";
+
 import {
   insertNotInSystem,
   updateNotInSystem,
@@ -34,16 +37,17 @@ import {
   getNotInSystemForInsert,
   updateNotInSystemOnId,
 } from "~/.server/db-queries/notInSystemTable";
+
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
-type ActionValues = {
+interface ActionValues {
   transSubId: string;
   newMeters: string;
   addedToSystem: string;
   type: BalanceType;
   date: string;
-};
+}
 
 export default async function addNewMeters(values: ActionValues) {
   const insertValues = handleInsertValues(values);
@@ -97,7 +101,7 @@ async function handleUpdate(
   });
 }
 
-type NextRecords = {
+interface NextRecords {
   values: InsertMetersValues;
   getIdsFunc: ({
     type,
@@ -110,7 +114,7 @@ type NextRecords = {
   >;
   getQuantityFunc: (id: number) => Promise<number>;
   updateFunc: ({ id, quantity }: UpdateOnIdType) => Promise<void>;
-};
+}
 
 async function updateNextRecords({
   values,
