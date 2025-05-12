@@ -2,6 +2,8 @@ import exceljs from "exceljs";
 import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstationTable";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
+import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
+
 import {
   selectMeters,
   selectLegalMeters,
@@ -10,19 +12,17 @@ import {
   selectNotInSystem,
   selectMonthMeters,
 } from "./db-actions/selectDbData";
+
 import type {
   MetersType,
   Odpy,
   DifferentMeters,
   TransSubs,
 } from "./db-actions/selectDbData";
-import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 
-export type FormDates = {
-  [k: string]: FormDataEntryValue;
-};
+export type FormDatesType = Record<string, FormDataEntryValue>;
 
-export default async function writeDbData(dates: FormDates) {
+export default async function writeDbData(dates: FormDatesType) {
   const excel = new exceljs.Workbook();
   const path = "app/routes/generate-reports/.server/";
 
@@ -78,7 +78,7 @@ async function handlePrivateSector(
   let rowCount = 2;
 
   ws.getColumn("A").eachCell((cell, rowNumber) => {
-    const transSub = String(cell.value).trim();
+    const transSub = cell.text.trim();
 
     if (!transSub.startsWith("ТП")) return;
 
@@ -96,15 +96,15 @@ async function handlePrivateSector(
   await excel.xlsx.writeFile(savePath);
 }
 
-type ReportType = {
+interface ReportType {
   path: string;
   privateMeters: MetersType;
   legalMeters: DifferentMeters;
   transSubs: TransSubs;
-  dates: FormDates;
+  dates: FormDatesType;
   odpy: Odpy;
   excel: exceljs.Workbook;
-};
+}
 
 async function handleReport({
   path,
@@ -135,7 +135,7 @@ async function handleReport({
   let rowCount = 9;
 
   ws.getColumn("B").eachCell((cell, rowNumber) => {
-    const transSub = String(cell.value).trim();
+    const transSub = cell.text.trim();
 
     if (!transSub.startsWith("ТП")) return;
 
@@ -143,10 +143,9 @@ async function handleReport({
 
     const privateM = privateMeters[transSub] ?? 0;
 
-    const legalM =
-      legalMeters["sims"][transSub] + legalMeters["p2"][transSub] || 0;
+    const legalM = legalMeters.sims[transSub] + legalMeters.p2[transSub] || 0;
 
-    const p2 = legalMeters["p2"][transSub] ?? 0;
+    const p2 = legalMeters.p2[transSub] ?? 0;
     const notInSystemMeters = notInSystem[transSub] ?? 0;
 
     const yearQuantity = yearMeters[transSub]?.quantity ?? 0;
@@ -183,22 +182,22 @@ async function handleReport({
 
   ws.getCell("A4").value =
     'Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" ' +
-    `по работе систем  дистанционного съема показаний за ${dates.month} ${dates.year} года`;
+    `по работе систем  дистанционного съема показаний за ${dates.month as string} ${dates.year as string} года`;
 
   // Без этой строки файл будет повреждён, не объяснимо но факт.
   ws.removeConditionalFormatting("");
   await excel.xlsx.writeFile(savePath);
 }
 
-type SupplementThree = {
+interface SupplementThree {
   path: string;
   privateMeters: MetersType;
   legalMeters: DifferentMeters;
   odpy: Odpy;
   transSubs: TransSubs;
-  dates: FormDates;
+  dates: FormDatesType;
   excel: exceljs.Workbook;
-};
+}
 
 async function handleSupplementThree({
   path,
@@ -270,7 +269,8 @@ async function handleSupplementThree({
   resetResult(ws, 29);
   resetResult(ws, 33);
 
-  ws.getCell("A2").value = `Отчетная форма за ${dates.month} ${dates.year}`;
+  ws.getCell("A2").value =
+    `Отчетная форма за ${dates.month as string} ${dates.year as string}`;
 
   await excel.xlsx.writeFile(savePath);
 }

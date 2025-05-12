@@ -1,14 +1,13 @@
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMetersTable";
+import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
+import type { FormDatesType } from "../writeDbData";
 
 import {
   selectMonthMetersOnDate,
   selectMonthPeriodMeters,
 } from "~/.server/db-queries/newMonthMetersTable";
-
-import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
-import type { FormDates } from "../writeDbData";
 
 export type TransSubs = {
   id: number;
@@ -83,7 +82,7 @@ export async function selectLegalMeters(
 
 export async function selectNotInSystem(
   transSubs: TransSubs,
-  dates: FormDates,
+  dates: FormDatesType,
 ) {
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
     selectMeters({
@@ -186,7 +185,7 @@ async function getPeriodMeters({
 
 interface SelectPeriodMeters {
   transSubs: TransSubs;
-  dates: FormDates;
+  dates: FormDatesType;
   periodType?: "month";
 }
 
@@ -243,7 +242,7 @@ export async function selectPeriodMeters({
 
 export async function selectMonthMeters(
   transSubs: TransSubs,
-  dates: FormDates,
+  dates: FormDatesType,
 ) {
   const meters = await selectPeriodMeters({
     transSubs,
@@ -340,7 +339,10 @@ export interface Odpy {
   };
 }
 
-export async function calculateOdpy(dates: FormDates, transSubs: TransSubs) {
+export async function calculateOdpy(
+  dates: FormDatesType,
+  transSubs: TransSubs,
+) {
   const odpyData = {
     quantity: 0,
     notInSystem: 0,
