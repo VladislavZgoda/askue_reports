@@ -1,7 +1,7 @@
-export default function validateInput(values: {
-  [k: string]: FormDataEntryValue;
-}) {
-  const errors: { [k: string]: string } = {};
+export default function validateInput(
+  values: Record<string, FormDataEntryValue>,
+) {
+  const errors: Record<string, string> = {};
 
   if (Object.hasOwn(values, "inSystemTotal")) {
     checkInput(values, errors);
@@ -15,8 +15,8 @@ export default function validateInput(values: {
 }
 
 function checkInput(
-  values: { [k: string]: FormDataEntryValue },
-  errors: { [k: string]: string },
+  values: Record<string, FormDataEntryValue>,
+  errors: Record<string, string>,
 ) {
   const message = `Поле 'Количество ПУ' не должно быть меньше,
       чем поле 'Из них добавлено в систему'.`;
@@ -35,8 +35,8 @@ function checkInput(
 }
 
 function checkTechMetersInput(
-  values: { [k: string]: FormDataEntryValue },
-  errors: { [k: string]: string },
+  values: Record<string, FormDataEntryValue>,
+  errors: Record<string, string>,
 ) {
   const message = `Поле 'Количество ПУ' не должно быть меньше,
       чем поле 'Из них под напряжением'.`;

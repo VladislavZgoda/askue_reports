@@ -1,15 +1,13 @@
 import type { FetcherWithComponents } from "react-router";
 
-type FormType = {
+interface FormProps {
   children: React.ReactNode;
   fetcher: FetcherWithComponents<{
-    errors: {
-      [k: string]: string;
-    };
+    errors: Record<string, string>;
   } | null>;
-};
+}
 
-export default function Form({ children, fetcher }: FormType) {
+export default function Form({ children, fetcher }: FormProps) {
   return (
     <fetcher.Form method="post" className="flex gap-8">
       {children}

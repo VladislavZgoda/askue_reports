@@ -5,11 +5,11 @@ import {
 } from "~/.server/db-queries/technicalMetersTable";
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 
-type TechnicalMetersAction = {
+interface TechnicalMetersAction {
   transSubId: string;
   techMeters: string;
   underVoltage: string;
-};
+}
 
 export default async function addTechnicalMeters(
   values: TechnicalMetersAction,

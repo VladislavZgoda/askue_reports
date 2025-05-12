@@ -1,7 +1,8 @@
-export default function validateInputNewMeters(values: {
-  [k: string]: FormDataEntryValue;
-}) {
-  const errors: { [k: string]: string } = {};
+export default function validateInputNewMeters(
+  values: Record<string, FormDataEntryValue>,
+) {
+  const errors: Record<string, string> = {};
+
   if (!values.newMeters) {
     errors.newMeters = "Пустое поле, введите число.";
   }

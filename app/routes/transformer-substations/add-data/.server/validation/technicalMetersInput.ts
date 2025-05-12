@@ -1,7 +1,7 @@
-export default function validateInputTechnicalMeters(values: {
-  [k: string]: FormDataEntryValue;
-}) {
-  const errors: { [k: string]: string } = {};
+export default function validateInputTechnicalMeters(
+  values: Record<string, FormDataEntryValue>,
+) {
+  const errors: Record<string, string> = {};
 
   if (!values.techMeters) {
     errors.techMeters = "Пустое поле, введите число.";

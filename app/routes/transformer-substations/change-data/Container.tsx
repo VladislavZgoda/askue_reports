@@ -1,11 +1,11 @@
 import React from "react";
 
-type ContainerType = {
+interface ContainerProps {
   children: React.ReactNode;
   heading: string;
-};
+}
 
-export default function Container({ children, heading }: ContainerType) {
+export default function Container({ children, heading }: ContainerProps) {
   return (
     <div className="join join-vertical gap-2">
       <h2 className="join-item text-center">{heading}</h2>

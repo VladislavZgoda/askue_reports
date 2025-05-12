@@ -21,9 +21,9 @@ import {
 import loadData from "./loadData";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
-export default async function changeData(values: {
-  [k: string]: FormDataEntryValue;
-}) {
+export default async function changeData(
+  values: Record<string, FormDataEntryValue>,
+) {
   const handledValues = handleValues(values);
   const prevData = await loadData(handledValues.id, handledValues.type);
 
@@ -34,7 +34,7 @@ export default async function changeData(values: {
   ]);
 }
 
-function handleValues(values: { [k: string]: FormDataEntryValue }) {
+function handleValues(values: Record<string, FormDataEntryValue>) {
   const date = new Date().toLocaleDateString("en-CA");
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
@@ -57,7 +57,7 @@ function handleValues(values: { [k: string]: FormDataEntryValue }) {
   return handledValues;
 }
 
-type PrevData = {
+interface PrevData {
   totalMeters: {
     quantity: number;
     addedToSystem: number;
@@ -70,7 +70,7 @@ type PrevData = {
     quantity: number;
     addedToSystem: number;
   };
-};
+}
 
 async function handleTotalMeters(
   handledValues: UpdateTotalMetersType,

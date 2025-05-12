@@ -23,19 +23,21 @@ import createEtagHash from "~/utils/etagHash";
 import clearCache from "~/utils/clearCache";
 import type { Route } from "./+types/changeData";
 
+type ErrorsType = Record<string, string>;
+
 export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   invariant(params.id, "Expected params.id");
 
   if (!Number(params.id)) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   const transSub = await selectTransSub(params.id);
 
   if (!transSub) {
-    throw new Response("Not Found", { status: 404 });
+    throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
@@ -186,27 +188,12 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const isTechMetersData = checkWhatForm("changeTechMeters");
   const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
 
-  const [privateErrors, setPrivateErrors] = useState<{ [k: string]: string }>(
-    {},
-  );
-
-  const [legalSimsErrors, setLegalSimsErrors] = useState<{
-    [k: string]: string;
-  }>({});
-
-  const [legalP2Errors, setLegalP2Errors] = useState<{ [k: string]: string }>(
-    {},
-  );
-
-  const [odpySimsErrors, setOdpySimsErrors] = useState<{ [k: string]: string }>(
-    {},
-  );
-
-  const [odpyP2Errors, setOdpyP2Errors] = useState<{ [k: string]: string }>({});
-
-  const [techMetersErrors, setTechMetersErrors] = useState<{
-    [k: string]: string;
-  }>({});
+  const [privateErrors, setPrivateErrors] = useState<ErrorsType>({});
+  const [legalSimsErrors, setLegalSimsErrors] = useState<ErrorsType>({});
+  const [legalP2Errors, setLegalP2Errors] = useState<ErrorsType>({});
+  const [odpySimsErrors, setOdpySimsErrors] = useState<ErrorsType>({});
+  const [odpyP2Errors, setOdpyP2Errors] = useState<ErrorsType>({});
+  const [techMetersErrors, setTechMetersErrors] = useState<ErrorsType>({});
 
   const [isVisible, setIsVisible] = useState(false);
 

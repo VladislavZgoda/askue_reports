@@ -4,9 +4,9 @@ import {
   insertTechnicalMeters,
 } from "~/.server/db-queries/technicalMetersTable";
 
-export default async function changeTechMeters(values: {
-  [k: string]: FormDataEntryValue;
-}) {
+export default async function changeTechMeters(
+  values: Record<string, FormDataEntryValue>,
+) {
   const { quantity, underVoltage, transformerSubstationId } =
     handleValues(values);
 
@@ -33,7 +33,7 @@ export default async function changeTechMeters(values: {
   }
 }
 
-function handleValues(values: { [k: string]: FormDataEntryValue }) {
+function handleValues(values: Record<string, FormDataEntryValue>) {
   return {
     quantity: Number(values.quantity),
     underVoltage: Number(values.underVoltage),

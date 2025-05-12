@@ -7,13 +7,11 @@ import BtnContainer from "./BtnContainer";
 import { isErrors } from "~/utils/checkErrors";
 import type { FetcherWithComponents } from "react-router";
 
-type PanelProp = {
+interface PanelProps {
   label: string;
   checked?: boolean;
   fetcher: FetcherWithComponents<{
-    errors: {
-      [k: string]: string;
-    };
+    errors: Record<string, string>;
   } | null>;
   isSubmitting: boolean;
   data: {
@@ -30,11 +28,9 @@ type PanelProp = {
       addedToSystem: number;
     };
   };
-  errors: {
-    [k: string]: string;
-  };
+  errors: Record<string, string>;
   btnValue: string;
-};
+}
 
 export default function Panel({
   label,
@@ -44,7 +40,7 @@ export default function Panel({
   fetcher,
   isSubmitting,
   btnValue,
-}: PanelProp) {
+}: PanelProps) {
   return (
     <TabPanel checked={checked} label={label}>
       <Form fetcher={fetcher}>

@@ -1,14 +1,14 @@
-type TabPanelType = {
+interface TabPanelProps {
   children: React.ReactNode;
   label: string;
   checked?: boolean;
-};
+}
 
 export default function TabPanel({
   children,
   label,
   checked = false,
-}: TabPanelType) {
+}: TabPanelProps) {
   return (
     <>
       <input
