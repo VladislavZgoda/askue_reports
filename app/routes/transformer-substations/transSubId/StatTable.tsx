@@ -1,4 +1,4 @@
-interface DataProp {
+interface StatTableProps {
   data: {
     privateMeters: DbData;
     legalSims: DbData;
@@ -12,32 +12,24 @@ interface DataProp {
   };
 }
 
-type ConvertedDataType = Record<string, Record<string, number>>;
-
-export default function StatTable({ data }: DataProp) {
+export default function StatTable({ data }: StatTableProps) {
   const privateTotal =
     data.privateMeters.inSystem + data.privateMeters.notInSystem;
 
   const legalSimsTotal = data.legalSims.inSystem + data.legalSims.notInSystem;
-
   const legalP2Total = data.legalP2.inSystem + data.legalP2.notInSystem;
-
   const odpySimsTotal = data.odpySims.inSystem + data.odpySims.notInSystem;
-
   const odpyP2Total = data.odpyP2.inSystem + data.odpyP2.notInSystem;
 
   const totalMeters =
     privateTotal + legalSimsTotal + legalP2Total + odpySimsTotal + odpyP2Total;
 
-  const convertedData: ConvertedDataType = JSON.parse(JSON.stringify(data));
-
-  delete convertedData.techMeters;
-
-  const reducer = (obj: ConvertedDataType, property: string) => {
-    return Object.keys(obj).reduce((sum, key) => sum + obj[key][property], 0);
-  };
-
-  const inSystemTotal = reducer(convertedData, "inSystem");
+  const inSystemTotal =
+    data.privateMeters.inSystem +
+    data.legalSims.inSystem +
+    data.legalP2.inSystem +
+    data.odpySims.inSystem +
+    data.odpyP2.inSystem;
 
   return (
     <div className="overflow-auto max-h-[50vh] mt-5 mb-5">
