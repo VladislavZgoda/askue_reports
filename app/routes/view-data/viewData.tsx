@@ -1,15 +1,10 @@
-import { Form, useSubmit, data } from "react-router";
+import { Form, useSubmit } from "react-router";
 import DateInput from "~/components/DateInput";
-import type { HeadersFunction } from "react-router";
-import type { DbDataType } from "./view-data.types";
-import createEtagHash from "~/utils/etagHash";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
-import cache from "~/utils/cache";
 import type { Route } from "./+types/viewData";
-
-export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
+import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
 
 export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
@@ -19,41 +14,17 @@ export async function loader({ request }: Route.LoaderArgs) {
   const legalDate = url.searchParams.get("legalDate") ?? todayDate();
   const odpyDate = url.searchParams.get("odpyDate") ?? todayDate();
 
-  const cacheKey = `view-data${privateDate}${legalDate}${odpyDate}`;
-
   const loadValues = { privateDate, legalDate, odpyDate };
-
-  if (cache.getKey(cacheKey) === undefined) {
-    const transSubData = await loadData(loadValues);
-    cache.setKey(cacheKey, { transSubData });
-  }
-
-  const { transSubData } = cache.getKey(cacheKey) as {
-    transSubData: DbDataType;
-  };
-
-  const hash = createEtagHash({ loadValues, transSubData });
-  const etag = request.headers.get("If-None-Match");
-
-  if (etag === hash) {
-    return new Response(undefined, { status: 304 }) as unknown as {
-      loadValues: typeof loadValues;
-      transSubData: typeof transSubData;
-    };
-  }
-
-  return data(
-    { loadValues, transSubData },
-    {
-      headers: {
-        "Cache-Control": "no-cache",
-        Etag: hash,
-      },
-    },
-  );
+  const transSubData = await loadData(loadValues);
+  
+  return { loadValues, transSubData };
 }
 
-export default function ViewData({ loaderData }: Route.ComponentProps) {
+export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
+
+export default CacheRoute(function ViewData({
+  loaderData,
+}: Route.ComponentProps) {
   const submit = useSubmit();
 
   const { loadValues, transSubData } = loaderData;
@@ -176,4 +147,4 @@ export default function ViewData({ loaderData }: Route.ComponentProps) {
       </div>
     </main>
   );
-}
+});

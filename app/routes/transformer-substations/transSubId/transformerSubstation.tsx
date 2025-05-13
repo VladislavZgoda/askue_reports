@@ -1,22 +1,15 @@
-import type { HeadersFunction } from "react-router";
-import { Form, useSubmit, data } from "react-router";
+import { Form, useSubmit } from "react-router";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import invariant from "tiny-invariant";
 import StatTable from "./StatTable";
 import NavigateForm from "./NavigateForm";
 import DateInput from "~/components/DateInput";
 import loadData from "./.server/loadData";
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import createEtagHash from "~/utils/etagHash";
-import cache from "~/utils/cache";
 import type { Route } from "./+types/transformerSubstation";
-
-export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
+import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  invariant(params.id, "Expected params.id");
-
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -34,8 +27,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const legalDate = url.searchParams.get("legalDate") ?? todayDate();
   const odpyDate = url.searchParams.get("odpyDate") ?? todayDate();
 
-  const cacheKey = `transformer-substations${transSub.id}${privateDate}${legalDate}${odpyDate}`;
-
   const loadValues = {
     id: transSub.id,
     privateDate,
@@ -43,49 +34,14 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     odpyDate,
   };
 
-  if (cache.getKey(cacheKey) === undefined) {
-    const transSubData = await loadData(loadValues);
-    cache.setKey(cacheKey, { transSubData });
-  }
+  const transSubData = await loadData(loadValues);
 
-  const { transSubData } = cache.getKey(cacheKey) as {
-    transSubData: {
-      privateMeters: DbData;
-      legalSims: DbData;
-      legalP2: DbData;
-      odpySims: DbData;
-      odpyP2: DbData;
-      techMeters: {
-        quantity: number;
-        underVoltage: number;
-      };
-    };
-  };
-
-  const hash = createEtagHash({ transSub, transSubData, loadValues });
-
-  const etag = request.headers.get("If-None-Match");
-
-  if (etag === hash) {
-    return new Response(undefined, { status: 304 }) as unknown as {
-      loadValues: typeof loadValues;
-      transSub: typeof transSub;
-      transSubData: typeof transSubData;
-    };
-  }
-
-  return data(
-    { transSub, transSubData, loadValues },
-    {
-      headers: {
-        "Cache-Control": "no-cache",
-        Etag: hash,
-      },
-    },
-  );
+  return { transSub, transSubData, loadValues };
 };
 
-export default function TransformerSubstation({
+export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
+
+export default CacheRoute(function TransformerSubstation({
   loaderData,
 }: Route.ComponentProps) {
   const { transSub, transSubData, loadValues } = loaderData;
@@ -174,4 +130,4 @@ export default function TransformerSubstation({
       </section>
     </main>
   );
-}
+});
