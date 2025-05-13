@@ -1,5 +1,4 @@
 import { useActionData, useNavigation, redirect } from "react-router";
-import invariant from "tiny-invariant";
 import {
   selectTransSub,
   updateTransSub,
@@ -10,8 +9,6 @@ import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/edit";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  invariant(params.id, "Expected params.id");
-
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -28,7 +25,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  invariant(params.id, "Expected params.id");
   const formData = await request.formData();
   const name = formData.get("name") as string;
   const errNameLength = checkNameLength(name);

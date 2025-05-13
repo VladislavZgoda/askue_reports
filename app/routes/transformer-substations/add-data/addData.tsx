@@ -1,6 +1,5 @@
 import { useFetcher } from "react-router";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import invariant from "tiny-invariant";
 import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
 import SelectInput from "./SelectInput";
@@ -19,8 +18,6 @@ import Log from "./Log";
 import type { Route } from "./+types/addData";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  invariant(params.id, "Expected params.id");
-
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -39,8 +36,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  invariant(params.id, "Expected params.id");
-
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
 
