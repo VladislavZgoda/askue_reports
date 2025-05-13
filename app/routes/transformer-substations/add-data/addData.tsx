@@ -1,5 +1,4 @@
-import type { HeadersFunction } from "react-router";
-import { useFetcher, data } from "react-router";
+import { useFetcher } from "react-router";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
 import invariant from "tiny-invariant";
 import DateInput from "~/components/DateInput";
@@ -16,12 +15,8 @@ import FetcherForm from "./FetcherForm";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import Toast from "~/components/Toast";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import createEtagHash from "~/utils/etagHash";
-import clearCache from "~/utils/clearCache";
 import Log from "./Log";
 import type { Route } from "./+types/addData";
-
-export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   invariant(params.id, "Expected params.id");
@@ -40,25 +35,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   const logMessages = await selectMessages(params.id);
 
-  const hash = createEtagHash({ transSub, logMessages });
-  const etag = request.headers.get("If-None-Match");
-
-  if (etag === hash) {
-    return new Response(undefined, { status: 304 }) as unknown as {
-      transSub: typeof transSub;
-      logMessages: typeof logMessages;
-    };
-  }
-
-  return data(
-    { transSub, logMessages },
-    {
-      headers: {
-        "Cache-Control": "no-cache",
-        Etag: hash,
-      },
-    },
-  );
+  return { transSub, logMessages };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
@@ -100,8 +77,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     await addTechnicalMeters(data);
   }
-
-  clearCache(params.id);
 
   return null;
 };

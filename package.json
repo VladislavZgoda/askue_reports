@@ -23,7 +23,6 @@
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.43.1",
     "exceljs": "^4.4.0",
-    "flat-cache": "^6.1.4",
     "isbot": "^5.1.8",
     "postgres": "^3.4.4",
     "react": "^19.0.0",

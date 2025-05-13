@@ -16,7 +16,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const loadValues = { privateDate, legalDate, odpyDate };
   const transSubData = await loadData(loadValues);
-  
+
   return { loadValues, transSubData };
 }
 

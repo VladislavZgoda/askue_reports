@@ -1,7 +1,5 @@
-import type { HeadersFunction } from "react-router";
-import invariant from "tiny-invariant";
 import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
-import { useFetcher, data } from "react-router";
+import { useFetcher } from "react-router";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
@@ -19,17 +17,11 @@ import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import createEtagHash from "~/utils/etagHash";
-import clearCache from "~/utils/clearCache";
 import type { Route } from "./+types/changeData";
 
 type ErrorsType = Record<string, string>;
 
-export const headers: HeadersFunction = ({ loaderHeaders }) => loaderHeaders;
-
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  invariant(params.id, "Expected params.id");
-
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -58,7 +50,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     loadTechMeters(transSub.id),
   ]);
 
-  const hash = createEtagHash({
+  return {
     transSub,
     privateData,
     legalSimsData,
@@ -66,44 +58,10 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     odpySimsData,
     odpyP2Data,
     techMetersData,
-  });
-
-  const etag = request.headers.get("If-None-Match");
-
-  if (etag === hash) {
-    return new Response(undefined, { status: 304 }) as unknown as {
-      transSub: typeof transSub;
-      privateData: typeof privateData;
-      legalSimsData: typeof legalSimsData;
-      legalP2Data: typeof legalP2Data;
-      odpySimsData: typeof odpySimsData;
-      odpyP2Data: typeof odpyP2Data;
-      techMetersData: typeof techMetersData;
-    };
-  }
-
-  return data(
-    {
-      transSub,
-      privateData,
-      legalSimsData,
-      legalP2Data,
-      odpySimsData,
-      odpyP2Data,
-      techMetersData,
-    },
-    {
-      headers: {
-        "Cache-Control": "no-cache",
-        Etag: hash,
-      },
-    },
-  );
+  };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  invariant(params.id, "Expected params.id");
-
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
   values.id = params.id;
@@ -140,8 +98,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       await changeTechMeters(values);
       break;
   }
-
-  clearCache(params.id);
 
   return null;
 };
