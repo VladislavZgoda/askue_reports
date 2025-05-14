@@ -2,6 +2,7 @@ import type { Route } from "./+types/login";
 import { Form, redirect, useNavigation, useActionData } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
+import { ZodError } from "zod";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await sessionStorage.getSession(
@@ -16,29 +17,31 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const requestClone = request.clone();
+  try {
+    const userIdOrErros = await authenticator.authenticate("user-login", request);
 
-  const user = await authenticator.authenticate("user-login", request);
+    if (typeof userIdOrErros === "object") {
+      return userIdOrErros;
+    }
 
-  if (!user[0]?.userId) {
-    const formData = await requestClone.formData();
-    const userLogin = formData.get("userLogin") as string;
+    const session = await sessionStorage.getSession(
+      request.headers.get("cookie"),
+    );
 
-    return {
-      errorMessage: "Не верный логин/пароль",
-      userLogin,
-    };
+    session.set("loggedUser", userIdOrErros);
+
+    return redirect("/", {
+      headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+    });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        errorMessage: "Не верный логин/пароль",
+      };
+    } else {
+      console.log(error);
+    }
   }
-
-  const session = await sessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
-
-  session.set("loggedUser", user[0].userId);
-
-  return redirect("/", {
-    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
-  });
 }
 
 export default function Login() {
@@ -63,9 +66,8 @@ export default function Login() {
               autoComplete="username"
               className={`input ${loginData?.errorMessage && "input-error"}`}
               id="login"
-              name="userLogin"
+              name="login"
               defaultValue={loginData?.errorMessage && loginData?.userLogin}
-              required
             />
             {loginData?.errorMessage && (
               <div className="fieldset-label text-error">
@@ -83,7 +85,6 @@ export default function Login() {
               className={`input ${loginData?.errorMessage && "input-error"}`}
               id="password"
               name="password"
-              required
             />
             <button
               className={

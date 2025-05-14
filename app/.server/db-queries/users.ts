@@ -12,4 +12,5 @@ export async function selectUserId(userLogin: string, password: string) {
   return userId;
 }
 
-export const userSelectSchema = createSelectSchema(Users);
+const userSelectSchema = createSelectSchema(Users);
+export const userIdSchema = userSelectSchema.pick({ userId: true });
