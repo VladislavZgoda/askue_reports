@@ -125,14 +125,14 @@ async function updateNextRecords({
   const ids = await getIdsFunc(values);
 
   if (ids.length > 0) {
-    ids.forEach(async ({ id }) => {
+    for (const { id } of ids) {
       const quantity = await getQuantityFunc(id);
 
       await updateFunc({
         id,
         quantity: quantity + values.quantity,
       });
-    });
+    }
   }
 }
 
@@ -267,7 +267,7 @@ async function updateNextYearRecords(values: YearMetersValues) {
   const ids = await getYearIds(values);
 
   if (ids.length > 0) {
-    ids.forEach(async ({ id }) => {
+    for (const { id } of ids) {
       const meters = await getYearMetersOnID(id);
 
       await updateYearOnId({
@@ -275,7 +275,7 @@ async function updateNextYearRecords(values: YearMetersValues) {
         quantity: meters.quantity + values.quantity,
         added_to_system: meters.added_to_system + values.added_to_system,
       });
-    });
+    }
   }
 }
 
@@ -362,7 +362,7 @@ async function updateNextMonthRecords(values: MonthMetersValues) {
   const ids = await getMonthIds(values);
 
   if (ids.length > 0) {
-    ids.forEach(async ({ id }) => {
+    for (const { id } of ids) {
       const meters = await getMonthMetersOnID(id);
 
       await updateMonthOnId({
@@ -370,7 +370,7 @@ async function updateNextMonthRecords(values: MonthMetersValues) {
         quantity: meters.quantity + values.quantity,
         added_to_system: meters.added_to_system + values.added_to_system,
       });
-    });
+    }
   }
 }
 
