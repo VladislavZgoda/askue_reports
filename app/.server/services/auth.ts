@@ -1,21 +1,38 @@
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { selectUserId } from "../db-queries/users";
+import { selectUserId, userSelectSchema } from "../db-queries/users";
 import { redirect } from "react-router";
 import sessionStorage from "./session";
+import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { getValidatedFormData } from "remix-hook-form";
+import type { FieldErrors } from "react-hook-form";
 
 type User = {
   userId: string;
 }[];
 
-export const authenticator = new Authenticator<User>();
+const schema = zod.object({
+  login: zod.string().min(1),
+  password: zod.string().min(1),
+});
+
+export type FormData = zod.infer<typeof schema>;
+
+export const resolver = zodResolver(schema);
+export const authenticator = new Authenticator<User | FieldErrors<FormData>>();
 
 authenticator.use(
-  new FormStrategy(async ({ form }) => {
-    const userLogin = form.get("userLogin") as string;
-    const password = form.get("password") as string;
+  new FormStrategy(async ({ request }) => {
+    const { errors, data } = await getValidatedFormData<FormData>(
+      request,
+      resolver,
+    );
 
-    const user = await selectUserId(userLogin, password);
+    if (errors) return errors;
+
+    const user = await selectUserId(data.login, data.password);
+    const userId: { userId: string } = userSelectSchema.parse(user[0]);
 
     return user;
   }),
