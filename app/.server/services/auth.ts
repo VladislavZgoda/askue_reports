@@ -7,7 +7,7 @@ import * as zod from "zod";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
 import type { FormData } from "~/routes/auth/zodLoginSchema";
-import { resolver } from "~/routes/auth/zodLoginSchema";
+import { resolver, cookieSchema } from "~/routes/auth/zodLoginSchema";
 
 type UserId = zod.infer<typeof userIdSchema>;
 
@@ -58,9 +58,9 @@ export async function isNotAuthenticated(request: Request) {
     request.headers.get("cookie"),
   );
 
-  const user = session.get("loggedUser") as string | undefined;
+  const user = cookieSchema.safeParse(session.get("loggedUser"));
 
-  if (!user) return redirect("/login");
+  if (!user.success) return redirect("/login");
 
   return null;
 }

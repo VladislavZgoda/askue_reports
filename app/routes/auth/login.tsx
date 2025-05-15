@@ -3,7 +3,7 @@ import { Form, redirect, useNavigation } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
 import { useRemixForm } from "remix-hook-form";
-import { resolver } from "./zodLoginSchema";
+import { resolver, cookieSchema } from "./zodLoginSchema";
 import type { FormData } from "./zodLoginSchema";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -11,9 +11,9 @@ export async function loader({ request }: Route.LoaderArgs) {
     request.headers.get("cookie"),
   );
 
-  const user = session.get("loggedUser") as string | undefined;
+  const user = cookieSchema.safeParse(session.get("loggedUser"));
 
-  if (user) return redirect("/");
+  if (user.success) return redirect("/");
 
   return null;
 }
