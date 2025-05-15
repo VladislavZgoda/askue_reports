@@ -9,6 +9,11 @@ import InputExcel from "./InputExcel";
 import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
 import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
+import { isNotAuthenticated } from "~/.server/services/auth";
+
+export async function loader({ request }: Route.LoaderArgs) {
+  return await isNotAuthenticated(request);
+}
 
 export async function action({ request }: Route.ActionArgs) {
   const uploadHandler = async (fileUpload: FileUpload) => {
