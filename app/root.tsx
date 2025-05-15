@@ -30,7 +30,7 @@ export function action() {
 export function Layout({ children }: { children: React.ReactNode }) {
   const data = useRouteLoaderData<typeof loader>("root");
   const matches = useMatches();
-  const routes = ["routes/*", "routes/login", "routes/404"];
+  const routes = ["routes/*", "routes/auth/login", "routes/404"];
 
   return (
     <html lang="ru" data-theme="retro">
@@ -64,7 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   const navigation = useNavigation();
   const matches = useMatches();
-  const routes = ["routes/$", "routes/login"];
+  const routes = ["routes/$", "routes/auth/login"];
 
   return (
     <div

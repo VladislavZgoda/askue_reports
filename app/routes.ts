@@ -10,8 +10,8 @@ export default [
   route("generate-reports", "./routes/generate-reports/generateReports.tsx"),
   route("view-data", "./routes/view-data/viewData.tsx"),
   route("download", "./routes/download.ts"),
-  route("logout", "./routes/logout.tsx"),
-  route("login", "./routes/login.tsx"),
+  route("logout", "./routes/auth/logout.tsx"),
+  route("login", "./routes/auth/login.tsx"),
   ...prefix("transformer-substations", [
     route(
       ":id",

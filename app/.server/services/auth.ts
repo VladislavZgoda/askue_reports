@@ -6,8 +6,8 @@ import sessionStorage from "./session";
 import * as zod from "zod";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
-import type { FormData } from "~/routes/login";
-import { resolver } from "~/routes/login";
+import type { FormData } from "~/routes/auth/zodLoginSchema";
+import { resolver } from "~/routes/auth/zodLoginSchema";
 
 type UserId = zod.infer<typeof userIdSchema>;
 

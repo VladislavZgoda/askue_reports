@@ -3,16 +3,8 @@ import { Form, redirect, useNavigation } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
 import { useRemixForm } from "remix-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as zod from "zod";
-
-const schema = zod.object({
-  login: zod.string().min(1, { message: "Пустое поле" }),
-  password: zod.string().min(1, { message: "Пустое поле" }),
-});
-
-export const resolver = zodResolver(schema);
-export type FormData = zod.infer<typeof schema>;
+import { resolver } from "./zodLoginSchema";
+import type { FormData } from "./zodLoginSchema";
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await sessionStorage.getSession(
