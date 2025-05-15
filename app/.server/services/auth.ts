@@ -3,13 +3,13 @@ import { FormStrategy } from "remix-auth-form";
 import { selectUserId, userIdSchema } from "../db-queries/users";
 import { redirect } from "react-router";
 import sessionStorage from "./session";
-import * as zod from "zod";
+import * as z from "zod";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
 import type { FormData } from "~/routes/auth/zodLoginSchema";
 import { resolver, cookieSchema } from "~/routes/auth/zodLoginSchema";
 
-type UserId = zod.infer<typeof userIdSchema>;
+type UserId = z.infer<typeof userIdSchema>;
 
 type AuthType =
   | UserId["userId"]
