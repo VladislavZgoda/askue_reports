@@ -1,8 +1,18 @@
 import type { Route } from "./+types/login";
-import { Form, redirect, useNavigation, useActionData } from "react-router";
+import { Form, redirect, useNavigation } from "react-router";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
-import { ZodError } from "zod";
+import { useRemixForm } from "remix-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as zod from "zod";
+
+const schema = zod.object({
+  login: zod.string().min(1, { message: "Пустое поле" }),
+  password: zod.string().min(1, { message: "Пустое поле" }),
+});
+
+export const resolver = zodResolver(schema);
+export type FormData = zod.infer<typeof schema>;
 
 export async function loader({ request }: Route.LoaderArgs) {
   const session = await sessionStorage.getSession(
@@ -17,35 +27,33 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  try {
-    const userIdOrErros = await authenticator.authenticate("user-login", request);
+  const userIdOrError = await authenticator.authenticate("user-login", request);
 
-    if (typeof userIdOrErros === "object") {
-      return userIdOrErros;
-    }
-
-    const session = await sessionStorage.getSession(
-      request.headers.get("cookie"),
-    );
-
-    session.set("loggedUser", userIdOrErros);
-
-    return redirect("/", {
-      headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
-    });
-  } catch (error) {
-    if (error instanceof ZodError) {
-      return {
-        errorMessage: "Не верный логин/пароль",
-      };
-    } else {
-      console.log(error);
-    }
+  if (typeof userIdOrError === "object") {
+    return userIdOrError;
   }
+
+  const session = await sessionStorage.getSession(
+    request.headers.get("cookie"),
+  );
+
+  session.set("loggedUser", userIdOrError);
+
+  return redirect("/", {
+    headers: { "Set-Cookie": await sessionStorage.commitSession(session) },
+  });
 }
 
 export default function Login() {
-  const loginData = useActionData<typeof action>();
+  const {
+    handleSubmit,
+    formState: { errors },
+    register,
+  } = useRemixForm<FormData>({
+    mode: "onSubmit",
+    resolver,
+  });
+
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
@@ -55,23 +63,23 @@ export default function Login() {
         Отчеты АСКУЭ
       </h1>
       <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-        <Form className="card-body" method="post">
+        <Form onSubmit={void handleSubmit} method="POST" className="card-body">
           <fieldset className="fieldset w-xs">
             <label htmlFor="login" className="fieldset-label text-base">
               Логин
             </label>
             <input
+              {...register("login")}
               type="text"
-              placeholder="логин"
-              autoComplete="username"
-              className={`input ${loginData?.errorMessage && "input-error"}`}
+              placeholder="Имя пользователя"
+              autoComplete="login"
+              className={`input ${errors?.login && "input-error"}`}
               id="login"
               name="login"
-              defaultValue={loginData?.errorMessage && loginData?.userLogin}
             />
-            {loginData?.errorMessage && (
+            {errors?.login && (
               <div className="fieldset-label text-error">
-                {loginData.errorMessage}
+                {errors.login.message}
               </div>
             )}
 
@@ -79,13 +87,20 @@ export default function Login() {
               Пароль
             </label>
             <input
+              {...register("password")}
               type="password"
-              placeholder="пароль"
+              placeholder="Пароль"
               autoComplete="current-password"
-              className={`input ${loginData?.errorMessage && "input-error"}`}
+              className={`input ${errors?.password && "input-error"}`}
               id="password"
               name="password"
             />
+            {errors?.password && (
+              <div className="fieldset-label text-error">
+                {errors.password.message}
+              </div>
+            )}
+
             <button
               className={
                 isSubmitting

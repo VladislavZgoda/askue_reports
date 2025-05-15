@@ -4,37 +4,51 @@ import { selectUserId, userIdSchema } from "../db-queries/users";
 import { redirect } from "react-router";
 import sessionStorage from "./session";
 import * as zod from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
-
-const schema = zod.object({
-  login: zod.string().min(1),
-  password: zod.string().min(1),
-});
+import type { FormData } from "~/routes/login";
+import { resolver } from "~/routes/login";
 
 type UserId = zod.infer<typeof userIdSchema>;
-export type FormData = zod.infer<typeof schema>;
 
-export const resolver = zodResolver(schema);
+type AuthType =
+  | UserId["userId"]
+  | {
+      errors: FieldErrors<FormData>;
+      receivedValues: Partial<FormData>;
+    };
 
-export const authenticator = new Authenticator<
-  UserId["userId"] | FieldErrors<FormData>
->();
+export const authenticator = new Authenticator<AuthType>();
 
 authenticator.use(
   new FormStrategy(async ({ request }) => {
-    const { errors, data } = await getValidatedFormData<FormData>(
-      request,
-      resolver,
-    );
+    const { errors, data, receivedValues } =
+      await getValidatedFormData<FormData>(request, resolver);
 
-    if (errors) return errors;
+    if (errors) return { errors, receivedValues };
 
-    const user = await selectUserId(data.login, data.password);
-    const { userId } = userIdSchema.parse(user[0]);
+    const userIdRow = await selectUserId(data.login, data.password);
+    const parsedUserId = userIdSchema.safeParse(userIdRow[0]);
 
-    return userId;
+    if (parsedUserId.success) return parsedUserId.data.userId;
+
+    const customErrors = {
+      login: {
+        message: "Не верный логин/пароль",
+        type: "validate",
+        ref: undefined,
+      },
+      password: {
+        message: "Не верный логин/пароль",
+        type: "validate",
+        ref: undefined,
+      },
+    };
+
+    return {
+      errors: customErrors,
+      receivedValues,
+    };
   }),
   "user-login",
 );
