@@ -10,6 +10,20 @@ import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
 import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import * as z from "zod";
+
+const formSchema = z.object({
+  privateDate: z.string().min(1),
+  legalDate: z.string().min(1),
+  odpyDate: z.string().min(1),
+  privateMonth: z.string().optional(),
+  legalMonth: z.string().optional(),
+  odpyMonth: z.string().optional(),
+  month: z.string().min(1),
+  year: z.string().min(1),
+});
+
+export type FormData = z.infer<typeof formSchema>;
 
 export async function loader({ request }: Route.LoaderArgs) {
   return await isNotAuthenticated(request);
@@ -27,9 +41,10 @@ export async function action({ request }: Route.ActionArgs) {
   };
 
   const formData = await parseFormData(request, uploadHandler);
-  const dates = Object.fromEntries(formData);
+  const formDataObj = Object.fromEntries(formData);
+  const parsedFormData = formSchema.parse(formDataObj);
 
-  await composeReports(dates);
+  await composeReports(parsedFormData);
 
   return Math.random() * 1000;
 }
@@ -40,19 +55,8 @@ export default function GenerateReports() {
   const isSubmitting = fetcher.state === "submitting";
   const formRef = useRef<HTMLFormElement>(null);
 
-  const download = () => {
-    const link = document.createElement("a");
-    link.href = "/download";
-
-    link.setAttribute("download", `Отчеты.zip`);
-
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode?.removeChild(link);
-  };
-
   useEffect(() => {
-    if (afterAction) download();
+    if (afterAction) downloadFile();
   }, [afterAction]);
 
   useEffect(() => {
@@ -112,4 +116,15 @@ export default function GenerateReports() {
       </fetcher.Form>
     </main>
   );
+}
+
+function downloadFile() {
+  const link = document.createElement("a");
+  link.href = "/download";
+
+  link.setAttribute("download", `Отчеты.zip`);
+
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
 }
