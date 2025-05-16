@@ -1,6 +1,5 @@
 import { useFetcher } from "react-router";
 import DateInput from "~/components/DateInput";
-import { useEffect, useRef } from "react";
 import composeReports from "./.server/composeReports";
 import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
@@ -11,6 +10,8 @@ import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import * as z from "zod";
+import { useRemixForm, getValidatedFormData } from "remix-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = z.object({
   privateDate: z.string().min(1),
@@ -22,6 +23,8 @@ const formSchema = z.object({
   month: z.string().min(1),
   year: z.string().min(1),
 });
+
+const resolver = zodResolver(formSchema);
 
 export type FormData = z.infer<typeof formSchema>;
 
@@ -41,37 +44,59 @@ export async function action({ request }: Route.ActionArgs) {
   };
 
   const formData = await parseFormData(request, uploadHandler);
-  const formDataObj = Object.fromEntries(formData);
-  const parsedFormData = formSchema.parse(formDataObj);
+  const { errors, data } = await getValidatedFormData<FormData>(
+    formData,
+    resolver,
+  );
 
-  await composeReports(parsedFormData);
+  if (errors) return errors;
 
-  return Math.random() * 1000;
+  await composeReports(data);
+
+  return null;
+}
+
+export async function clientAction({ serverAction }: Route.ClientActionArgs) {
+  const serverErrors = await serverAction();
+
+  if (serverErrors) return serverErrors;
+
+  const link = document.createElement("a");
+  link.href = "/download";
+
+  link.setAttribute("download", `Отчеты.zip`);
+
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+
+  return null;
 }
 
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
-  const afterAction = fetcher.data;
-  const isSubmitting = fetcher.state === "submitting";
-  const formRef = useRef<HTMLFormElement>(null);
+  const isSubmitting = fetcher.state === "loading";
 
-  useEffect(() => {
-    if (afterAction) downloadFile();
-  }, [afterAction]);
-
-  useEffect(() => {
-    if (!isSubmitting) formRef.current?.reset();
-  }, [isSubmitting]);
+  const {
+    handleSubmit,
+    formState: { errors },
+    register,
+    reset,
+  } = useRemixForm<FormData>({
+    mode: "onSubmit",
+    resolver,
+    fetcher,
+  });
 
   return (
     <main className="mt-5 ml-10">
       <p className="mb-3 font-bold">Выберите даты для балансных групп</p>
 
       <fetcher.Form
+        onSubmit={void handleSubmit}
         className="flex flex-col w-[30vw] gap-6"
         method="post"
         encType="multipart/form-data"
-        ref={formRef}
       >
         <section className="flex flex-row gap-16 flex-auto">
           <div className="flex-auto">
@@ -116,15 +141,4 @@ export default function GenerateReports() {
       </fetcher.Form>
     </main>
   );
-}
-
-function downloadFile() {
-  const link = document.createElement("a");
-  link.href = "/download";
-
-  link.setAttribute("download", `Отчеты.zip`);
-
-  document.body.appendChild(link);
-  link.click();
-  link.parentNode?.removeChild(link);
 }
