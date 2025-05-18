@@ -5,13 +5,15 @@ import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
 import SelectYear from "./SelectYear";
 import InputExcel from "./InputExcel";
-import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
-import excelStorage from "~/routes/generate-reports/.server/fileStorage";
+// import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
+// import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import * as z from "zod";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Input from "./Input";
+import { todayDate } from "~/utils/dateFunctions";
 
 const formSchema = z.object({
   privateDate: z.string().min(1),
@@ -20,8 +22,21 @@ const formSchema = z.object({
   privateMonth: z.string().optional(),
   legalMonth: z.string().optional(),
   odpyMonth: z.string().optional(),
+  upload: z
+    .instanceof(File)
+    .optional()
+    .superRefine((file, ctx) => {
+      if (file && file.size > 0) {
+        if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Тип файла не xlsx.",
+          })
+        }
+      }
+    }),
   month: z.string().min(1),
-  year: z.string().min(1),
+  year: z.number(),
 });
 
 const resolver = zodResolver(formSchema);
@@ -33,21 +48,30 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const uploadHandler = async (fileUpload: FileUpload) => {
-    if (
-      fileUpload.fieldName === "upload" &&
-      fileUpload.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    ) {
-      await excelStorage.set("supplementNine", fileUpload);
-    }
-  };
-
-  const formData = await parseFormData(request, uploadHandler);
   const { errors, data } = await getValidatedFormData<FormData>(
-    formData,
+    request,
     resolver,
   );
+
+  console.log(data?.upload?.stream());
+
+  // const uploadHandler = async (fileUpload: FileUpload) => {
+  //   if (
+  //     fileUpload.fieldName === "upload" &&
+  //     fileUpload.type ===
+  //       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  //   ) {
+  //     await excelStorage.set("supplementNine", fileUpload);
+  //   }
+  // };
+
+  // const formData = await parseFormData(request, uploadHandler);
+  // const { errors, data } = await getValidatedFormData<FormData>(
+  //   formData,
+  //   resolver,
+  // );
+
+  console.log(errors);
 
   if (errors) return errors;
 
@@ -76,16 +100,18 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
   const isSubmitting = fetcher.state === "loading";
+  const defaultDate = todayDate();
+  const errors = fetcher.data;
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    register,
-    reset,
-  } = useRemixForm<FormData>({
+  const { handleSubmit, register, reset } = useRemixForm<FormData>({
     mode: "onSubmit",
     resolver,
     fetcher,
+    defaultValues: {
+      privateDate: defaultDate,
+      legalDate: defaultDate,
+      odpyDate: defaultDate,
+    },
   });
 
   return (
@@ -100,34 +126,55 @@ export default function GenerateReports() {
       >
         <section className="flex flex-row gap-16 flex-auto">
           <div className="flex-auto">
-            <DateInput labelText="Быт" inputName="privateDate" />
-            <DateInput labelText="Юр" inputName="legalDate" />
-            <DateInput labelText="ОДПУ" inputName="odpyDate" />
+            <Input
+              type="date"
+              error={errors?.privateDate?.message}
+              legend="Быт"
+              {...register("privateDate")}
+            />
+            <Input
+              type="date"
+              error={errors?.legalDate?.message}
+              legend="Юр"
+              {...register("legalDate")}
+            />
+            <Input
+              type="date"
+              error={errors?.odpyDate?.message}
+              legend="ОДПУ"
+              {...register("odpyDate")}
+            />
           </div>
 
           <div className="flex-auto">
-            <DateInputWithoutDef
-              labelText="Быт прошлый месяц"
-              inputName="privateMonth"
+            <Input
+              type="date"
+              legend="Быт прошлый месяц"
+              {...register("privateMonth")}
             />
-            <DateInputWithoutDef
-              labelText="Юр прошлый месяц"
-              inputName="legalMonth"
+            <Input
+              type="date"
+              legend="Юр прошлый месяц"
+              {...register("legalMonth")}
             />
-            <DateInputWithoutDef
-              labelText="ОДПУ прошлый месяц"
-              inputName="odpyMonth"
+            <Input
+              type="date"
+              legend="ОДПУ прошлый месяц"
+              {...register("odpyMonth")}
             />
           </div>
         </section>
 
-        <InputExcel />
+        <InputExcel error={errors?.upload?.message} {...register("upload")} />
 
         <section className="flex">
           <div className="mr-auto">
-            <SelectMonth />
+            <SelectMonth
+              error={errors?.month?.message}
+              {...register("month")}
+            />
           </div>
-          <SelectYear />
+          <SelectYear error={errors?.year?.message} {...register("year")} />
         </section>
 
         <button

@@ -10,10 +10,6 @@ export default defineConfig(({ mode }) => {
       "process.env.secret": JSON.stringify(env.secret),
       "process.env.DATABASE_URL": JSON.stringify(env.DATABASE_URL),
     },
-    plugins: [
-      reactRouter(),
-      tsconfigPaths(),
-      tailwindcss(),
-    ],
+    plugins: [reactRouter(), tsconfigPaths(), tailwindcss()],
   };
 });
