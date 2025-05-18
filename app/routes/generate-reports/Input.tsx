@@ -1,0 +1,19 @@
+import type { ComponentPropsWithoutRef } from "react";
+
+type Props = ComponentPropsWithoutRef<"input"> & {
+  error?: string | undefined;
+  legend: string;
+};
+
+export default function Input({ error, legend, ...props }: Props) {
+  return (
+    <fieldset className="fieldset">
+      <legend className="fieldset-legend">{legend}</legend>
+      <input
+        {...props}
+        className="input input-xs sm:input-sm md:input-md lg:input-lg"
+      />
+      {error && <p className="fieldset-label text-error">{error}</p>}
+    </fieldset>
+  );
+}
