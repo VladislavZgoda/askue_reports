@@ -11,38 +11,58 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
 import { todayDate } from "~/utils/dateFunctions";
 import validateExcel from "./validateExcel";
+import { useEffect } from "react";
 
-const formSchema = z.object({
-  privateDate: z.string().min(1),
-  legalDate: z.string().min(1),
-  odpyDate: z.string().min(1),
-  privateMonth: z.string().optional(),
-  legalMonth: z.string().optional(),
-  odpyMonth: z.string().optional(),
-  upload: z
-    .instanceof(File)
-    .optional()
-    .superRefine(async (file, ctx) => {
-      if (file && file.size > 0) {
-        if (
-          file.type !==
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        ) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Тип файла не xlsx.",
-          });
-        } else if (!(await validateExcel(file))) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "Не корректные столбцы в приложении №9.",
-          });
+const formSchema = z
+  .object({
+    privateDate: z.string().min(1, { message: "Выберите дату." }),
+    legalDate: z.string().min(1, { message: "Выберите дату." }),
+    odpyDate: z.string().min(1, { message: "Выберите дату." }),
+    privateMonth: z.string().optional(),
+    legalMonth: z.string().optional(),
+    odpyMonth: z.string().optional(),
+    upload: z
+      .instanceof(File)
+      .optional()
+      .superRefine(async (file, ctx) => {
+        if (file && file.size > 0) {
+          if (
+            file.type !==
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Тип файла не xlsx.",
+            });
+          } else if (!(await validateExcel(file))) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "Не корректные столбцы в приложении №9.",
+            });
+          }
         }
+      }),
+    month: z.string().optional(),
+    year: z.union([z.number(), z.string()]).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.upload && data.upload.size > 0) {
+      if (!data.month) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Выберите месяц.",
+          path: ["month"],
+        });
       }
-    }),
-  month: z.string().min(1),
-  year: z.number(),
-});
+      if (!data.year) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Выберите год.",
+          path: ["year"],
+        });
+      }
+    }
+  });
 
 const resolver = zodResolver(formSchema);
 
@@ -57,8 +77,6 @@ export async function action({ request }: Route.ActionArgs) {
     request,
     resolver,
   );
-
-  console.log(errors);
 
   if (errors) return errors;
 
@@ -86,20 +104,25 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
 
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
-  const isSubmitting = fetcher.state === "loading";
+  const isSubmitting = fetcher.state === "submitting";
   const defaultDate = todayDate();
   const errors = fetcher.data;
 
   const { handleSubmit, register, reset } = useRemixForm<FormData>({
-    mode: "onSubmit",
     resolver,
     fetcher,
     defaultValues: {
       privateDate: defaultDate,
       legalDate: defaultDate,
       odpyDate: defaultDate,
+      month: "Выбрать месяц",
+      year: "Выбрать год",
     },
   });
+
+  useEffect(() => {
+    if (!fetcher.data) reset();
+  }, [fetcher.data]);
 
   return (
     <main className="mt-5 ml-10">
