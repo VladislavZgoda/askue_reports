@@ -15,8 +15,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
-    "@mjackson/file-storage": "^0.6.1",
-    "@mjackson/form-data-parser": "^0.7.0",
     "@react-router/fs-routes": "^7.1.0",
     "@react-router/node": "^7.1.0",
     "@react-router/serve": "^7.1.0",
