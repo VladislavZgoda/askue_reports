@@ -1,10 +1,10 @@
 import parseExcel from "./parseExcel";
 import exceljs from "exceljs";
 
-export default async function writeParsedData() {
+export default async function writeParsedData(file: File) {
   const path = "app/routes/generate-reports/.server/filled-reports/";
   const excel = new exceljs.Workbook();
-  const data = await parseExcel();
+  const data = await parseExcel(file);
 
   await handleReport(data, path, excel);
   await handleSupplementThree(data, path, excel);

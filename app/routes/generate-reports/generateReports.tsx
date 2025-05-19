@@ -1,12 +1,8 @@
 import { useFetcher } from "react-router";
-import DateInput from "~/components/DateInput";
 import composeReports from "./.server/composeReports";
-import DateInputWithoutDef from "./DateInputWithoutDef";
 import SelectMonth from "./SelectMonth";
 import SelectYear from "./SelectYear";
 import InputExcel from "./InputExcel";
-// import { type FileUpload, parseFormData } from "@mjackson/form-data-parser";
-// import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import * as z from "zod";
@@ -14,6 +10,7 @@ import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
 import { todayDate } from "~/utils/dateFunctions";
+import validateExcel from "./validateExcel";
 
 const formSchema = z.object({
   privateDate: z.string().min(1),
@@ -25,13 +22,21 @@ const formSchema = z.object({
   upload: z
     .instanceof(File)
     .optional()
-    .superRefine((file, ctx) => {
+    .superRefine(async (file, ctx) => {
       if (file && file.size > 0) {
-        if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+        if (
+          file.type !==
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: "Тип файла не xlsx.",
-          })
+          });
+        } else if (!(await validateExcel(file))) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Не корректные столбцы в приложении №9.",
+          });
         }
       }
     }),
@@ -52,24 +57,6 @@ export async function action({ request }: Route.ActionArgs) {
     request,
     resolver,
   );
-
-  console.log(data?.upload?.stream());
-
-  // const uploadHandler = async (fileUpload: FileUpload) => {
-  //   if (
-  //     fileUpload.fieldName === "upload" &&
-  //     fileUpload.type ===
-  //       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  //   ) {
-  //     await excelStorage.set("supplementNine", fileUpload);
-  //   }
-  // };
-
-  // const formData = await parseFormData(request, uploadHandler);
-  // const { errors, data } = await getValidatedFormData<FormData>(
-  //   formData,
-  //   resolver,
-  // );
 
   console.log(errors);
 

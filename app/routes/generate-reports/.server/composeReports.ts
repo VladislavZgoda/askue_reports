@@ -4,8 +4,6 @@ import writeParsedData from "./writeParsedData";
 import fsp from "fs/promises";
 import fs from "fs";
 import path from "path";
-import validateExcel from "./validateExcel";
-import excelStorage from "~/routes/generate-reports/.server/fileStorage";
 import type { FormData } from "../generateReports";
 
 export default async function composeReports(formData: FormData) {
@@ -16,10 +14,11 @@ export default async function composeReports(formData: FormData) {
 
   await writeDbData(formData);
 
-  if (await validateExcel()) await writeParsedData();
+  if (formData.upload && formData.upload.size > 0)
+    await writeParsedData(formData.upload);
 
   await createArchive();
-  await cleanUp(partPath);
+  cleanUp(partPath);
 }
 
 async function doesDirectoryExist(partPath: string) {
@@ -33,13 +32,10 @@ async function doesDirectoryExist(partPath: string) {
   }
 }
 
-async function cleanUp(partPath: string) {
+function cleanUp(partPath: string) {
   const dirFilledReports = partPath + "filled-reports/";
 
   deleteFiles(dirFilledReports);
-
-  if (await excelStorage.has("supplementNine"))
-    await excelStorage.remove("supplementNine");
 }
 
 function deleteFiles(directory: string) {
