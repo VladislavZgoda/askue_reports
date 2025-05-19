@@ -62,7 +62,8 @@ const formSchema = z
         });
       }
     }
-  }).readonly();
+  })
+  .readonly();
 
 const resolver = zodResolver(formSchema);
 
