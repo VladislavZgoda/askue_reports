@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
 import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
+import Button from "~/components/Button";
 
 import {
   todayDate,
@@ -250,14 +251,13 @@ export default function GenerateReports() {
           </Select>
         </section>
 
-        <button
-          className={`btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-outline btn-primary mt-4
-            ${isSubmitting && "btn-active"}`}
+        <Button
+          className={`mt-4 btn-outline btn-primary ${isSubmitting && "btn-active"}`}
           type={isSubmitting ? "button" : "submit"}
         >
           {isSubmitting && <span className="loading loading-spinner"></span>}
           {isSubmitting ? "Создание..." : "Сформировать"}
-        </button>
+        </Button>
       </fetcher.Form>
     </main>
   );
