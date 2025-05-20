@@ -10,7 +10,7 @@ import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
 import { todayDate } from "~/utils/dateFunctions";
-import validateExcel from "./validateExcel";
+import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
 
 const formSchema = z
