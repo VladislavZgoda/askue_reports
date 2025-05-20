@@ -1,13 +1,13 @@
 import { useFetcher } from "react-router";
 import composeReports from "./.server/composeReports";
-import Select from "./Select";
+import Select from "../../components/Select";
 import InputExcel from "./InputExcel";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import * as z from "zod";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Input from "./Input";
+import Input from "../../components/Input";
 import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
 import Button from "~/components/Button";
