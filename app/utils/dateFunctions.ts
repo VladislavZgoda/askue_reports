@@ -11,3 +11,13 @@ export function cutOutYear(date: string) {
 export function cutOutMonth(date: string) {
   return date.slice(5, 7);
 }
+
+export function validatePreviousMonthDate(
+  currentMonth: string,
+  previousMonth: string,
+) {
+  const difference =
+    Number(cutOutMonth(currentMonth)) - Number(cutOutMonth(previousMonth));
+
+  return difference === 1;
+}
