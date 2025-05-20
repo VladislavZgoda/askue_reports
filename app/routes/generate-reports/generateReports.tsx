@@ -9,7 +9,7 @@ import * as z from "zod";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
-import { todayDate } from "~/utils/dateFunctions";
+import { todayDate, validatePreviousMonthDate } from "~/utils/dateFunctions";
 import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
 
@@ -59,6 +59,42 @@ const formSchema = z
           code: z.ZodIssueCode.custom,
           message: "Выберите год.",
           path: ["year"],
+        });
+      }
+    }
+    if (data.privateMonth) {
+      const { privateDate, privateMonth } = data;
+      const validationResult = validatePreviousMonthDate(
+        privateDate,
+        privateMonth,
+      );
+      if (!validationResult) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Диапазон больше одного месяца.",
+          path: ["privateMonth"],
+        });
+      }
+    }
+    if (data.legalMonth) {
+      const { legalDate, legalMonth } = data;
+      const validationResult = validatePreviousMonthDate(legalDate, legalMonth);
+      if (!validationResult) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Диапазон больше одного месяца.",
+          path: ["legalMonth"],
+        });
+      }
+    }
+    if (data.odpyMonth) {
+      const { odpyDate, odpyMonth } = data;
+      const validationResult = validatePreviousMonthDate(odpyDate, odpyMonth);
+      if (!validationResult) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Диапазон больше одного месяца.",
+          path: ["odpyMonth"],
         });
       }
     }
@@ -160,16 +196,19 @@ export default function GenerateReports() {
           <div className="flex-auto">
             <Input
               type="date"
+              error={errors?.privateMonth?.message}
               legend="Быт прошлый месяц"
               {...register("privateMonth")}
             />
             <Input
               type="date"
+              error={errors?.legalMonth?.message}
               legend="Юр прошлый месяц"
               {...register("legalMonth")}
             />
             <Input
               type="date"
+              error={errors?.odpyMonth?.message}
               legend="ОДПУ прошлый месяц"
               {...register("odpyMonth")}
             />
