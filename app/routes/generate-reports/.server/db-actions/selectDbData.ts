@@ -250,31 +250,18 @@ export async function selectMonthMeters(
     periodType: "month",
   });
 
-  if (
-    formData?.privateMonth &&
-    checkDates(formData.privateDate, formData.privateMonth)
-  ) {
+  if (formData?.privateMonth) {
     const date = formData.privateMonth;
     await addPreviousMonth(transSubs, meters, date, "Быт");
   }
 
-  if (
-    formData?.legalMonth &&
-    checkDates(formData.legalDate, formData.legalMonth)
-  ) {
+  if (formData?.legalMonth) {
     const date = formData.legalMonth;
     await addPreviousMonth(transSubs, meters, date, "ЮР Sims");
     await addPreviousMonth(transSubs, meters, date, "ЮР П2");
   }
 
   return meters;
-}
-
-function checkDates(currentMonth: string, previousMonth: string) {
-  const difference =
-    Number(cutOutMonth(currentMonth)) - Number(cutOutMonth(previousMonth));
-
-  return difference === 1;
 }
 
 async function addPreviousMonth(
@@ -427,10 +414,7 @@ export async function calculateOdpy(formData: FormData, transSubs: TransSubs) {
       (monthSims?.added_to_system ?? 0) + (monthP2?.added_to_system ?? 0);
   }
 
-  if (
-    formData?.odpyMonth &&
-    checkDates(formData.odpyDate, formData.odpyMonth)
-  ) {
+  if (formData?.odpyMonth) {
     const date = formData.odpyMonth;
     const prevMonthMeters = await calculatePreviousMonthOdpy(transSubs, date);
     odpyData.month.quantity += prevMonthMeters.quantity;
