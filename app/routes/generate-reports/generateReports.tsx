@@ -43,7 +43,7 @@ const formSchema = z
         }
       }),
     month: z.string().optional(),
-    year: z.union([z.number(), z.string()]).optional(),
+    year: z.coerce.string().optional(),
   })
   .superRefine((data, ctx) => {
     if (data.upload && data.upload.size > 0) {
