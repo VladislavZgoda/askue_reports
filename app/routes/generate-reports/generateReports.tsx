@@ -1,7 +1,6 @@
 import { useFetcher } from "react-router";
 import composeReports from "./.server/composeReports";
-import SelectMonth from "./SelectMonth";
-import SelectYear from "./SelectYear";
+import Select from "./Select";
 import InputExcel from "./InputExcel";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
@@ -9,9 +8,14 @@ import * as z from "zod";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "./Input";
-import { todayDate, validatePreviousMonthDate } from "~/utils/dateFunctions";
 import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
+
+import {
+  todayDate,
+  validatePreviousMonthDate,
+  cutOutYear,
+} from "~/utils/dateFunctions";
 
 const formSchema = z
   .object({
@@ -144,6 +148,7 @@ export default function GenerateReports() {
   const isSubmitting = fetcher.state === "submitting";
   const defaultDate = todayDate();
   const errors = fetcher.data;
+  const year = cutOutYear(todayDate());
 
   const { handleSubmit, register, reset } = useRemixForm<FormData>({
     resolver,
@@ -222,12 +227,27 @@ export default function GenerateReports() {
 
         <section className="flex">
           <div className="mr-auto">
-            <SelectMonth
+            <Select
               error={errors?.month?.message}
+              label="Выберете месяц для заголовков таблиц Excel"
               {...register("month")}
-            />
+            >
+              <option disabled={true}>Выбрать месяц</option>
+              {months.map((item, index) => (
+                <option key={index}>{item}</option>
+              ))}
+            </Select>
           </div>
-          <SelectYear error={errors?.year?.message} {...register("year")} />
+
+          <Select
+            error={errors?.year?.message}
+            label="Выберете год для заголовков таблиц Excel"
+            {...register("year")}
+          >
+            <option disabled={true}>Выбрать год</option>
+            <option>{year - 1}</option>
+            <option>{year}</option>
+          </Select>
         </section>
 
         <button
@@ -242,3 +262,18 @@ export default function GenerateReports() {
     </main>
   );
 }
+
+const months = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+] as const;
