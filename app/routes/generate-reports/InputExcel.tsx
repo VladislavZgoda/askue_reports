@@ -12,7 +12,7 @@ export default function InputExcel({ error, ...props }: Props) {
       </legend>
       <input
         {...props}
-        className="file-input file-input-info input-xs sm:input-sm md:input-md lg:input-lg"
+        className={`file-input input-xs sm:input-sm md:input-md lg:input-lg ${error ? "file-input-error" : "file-input-info"}`}
         aria-label="Добавить данные из приложения №9"
         type="file"
         accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

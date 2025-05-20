@@ -11,7 +11,7 @@ export default function Input({ error, legend, ...props }: Props) {
       <legend className="fieldset-legend">{legend}</legend>
       <input
         {...props}
-        className="input input-xs sm:input-sm md:input-md lg:input-lg"
+        className={`input input-xs sm:input-sm md:input-md lg:input-lg ${error && "input-error"}`}
       />
       {error && <p className="fieldset-label text-error">{error}</p>}
     </fieldset>
