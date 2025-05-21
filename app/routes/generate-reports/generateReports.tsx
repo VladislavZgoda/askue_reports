@@ -1,7 +1,7 @@
 import { useFetcher } from "react-router";
 import composeReports from "./.server/composeReports";
 import Select from "../../components/Select";
-import InputExcel from "./InputExcel";
+import InputExcel from "./components/InputExcel";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import * as z from "zod";
