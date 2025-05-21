@@ -136,7 +136,7 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
   const link = document.createElement("a");
   link.href = "/download";
 
-  link.setAttribute("download", `Отчеты.zip`);
+  link.setAttribute("download", "Отчеты.zip");
 
   document.body.appendChild(link);
   link.click();
@@ -262,13 +262,23 @@ export default function GenerateReports() {
           </Fieldset>
         </section>
 
-        <Button
-          className={`mt-4 btn-outline btn-primary ${isSubmitting && "btn-active"}`}
-          type={isSubmitting ? "button" : "submit"}
-        >
-          {isSubmitting && <span className="loading loading-spinner"></span>}
-          {isSubmitting ? "Создание..." : "Сформировать"}
-        </Button>
+        <div className="mt-4 flex gap-18">
+          <Button
+            className={`flex-1 btn-primary ${isSubmitting && "btn-active"}`}
+            type={isSubmitting ? "button" : "submit"}
+          >
+            {isSubmitting && <span className="loading loading-spinner"></span>}
+            {isSubmitting ? "Создание..." : "Сформировать"}
+          </Button>
+
+          <Button
+            className="flex-1 btn-neutral"
+            type="button"
+            onClick={() => reset()}
+          >
+            Очистить форму
+          </Button>
+        </div>
       </fetcher.Form>
     </main>
   );
