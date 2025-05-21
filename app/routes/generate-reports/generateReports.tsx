@@ -11,6 +11,7 @@ import Input from "../../components/Input";
 import validateExcel from "./utils/validateExcel";
 import { useEffect } from "react";
 import Button from "~/components/Button";
+import Fieldset from "~/components/Fieldset";
 
 import {
   todayDate,
@@ -180,47 +181,57 @@ export default function GenerateReports() {
         method="post"
         encType="multipart/form-data"
       >
-        <section className="flex flex-row gap-16 flex-auto">
-          <div className="flex-auto">
-            <Input
-              type="date"
-              error={errors?.privateDate?.message}
-              legend="Быт"
-              {...register("privateDate")}
-            />
-            <Input
-              type="date"
-              error={errors?.legalDate?.message}
-              legend="Юр"
-              {...register("legalDate")}
-            />
-            <Input
-              type="date"
-              error={errors?.odpyDate?.message}
-              legend="ОДПУ"
-              {...register("odpyDate")}
-            />
-          </div>
+        <section className="flex flex-col">
+          <div className="flex gap-18 mb-1">
+            <Fieldset className="w-full" legend="Быт">
+              <Input
+                type="date"
+                error={errors?.privateDate?.message}
+                {...register("privateDate")}
+              />
+            </Fieldset>
 
-          <div className="flex-auto">
-            <Input
-              type="date"
-              error={errors?.privateMonth?.message}
-              legend="Быт прошлый месяц"
-              {...register("privateMonth")}
-            />
-            <Input
-              type="date"
-              error={errors?.legalMonth?.message}
-              legend="Юр прошлый месяц"
-              {...register("legalMonth")}
-            />
-            <Input
-              type="date"
-              error={errors?.odpyMonth?.message}
-              legend="ОДПУ прошлый месяц"
-              {...register("odpyMonth")}
-            />
+            <Fieldset className="w-full" legend="Быт прошлый месяц">
+              <Input
+                type="date"
+                error={errors?.privateMonth?.message}
+                {...register("privateMonth")}
+              />
+            </Fieldset>
+          </div>
+          <div className="flex gap-18 mb-1">
+            <Fieldset className="w-full" legend="Юр">
+              <Input
+                type="date"
+                error={errors?.legalDate?.message}
+                {...register("legalDate")}
+              />
+            </Fieldset>
+
+            <Fieldset className="w-full" legend="Юр прошлый месяц">
+              <Input
+                type="date"
+                error={errors?.legalMonth?.message}
+                {...register("legalMonth")}
+              />
+            </Fieldset>
+          </div>
+          <div className="flex gap-18">
+            <Fieldset className="w-full" legend="ОДПУ">
+              <Input
+                type="date"
+                error={errors?.odpyDate?.message}
+                {...register("odpyDate")}
+              />
+            </Fieldset>
+
+            <Fieldset className="w-full" legend="ОДПУ прошлый месяц">
+              <Input
+                type="date"
+                error={errors?.odpyMonth?.message}
+                {...register("odpyMonth")}
+              />
+            </Fieldset>
           </div>
         </section>
 
