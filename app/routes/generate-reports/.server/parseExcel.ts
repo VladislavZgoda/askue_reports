@@ -49,7 +49,7 @@ function parseSheet(ws: exceljs.Worksheet, data: Record<string, number>) {
 
     if (!transSub.startsWith("ТП-")) return;
 
-    if (!Object.prototype.hasOwnProperty.call(data, transSub)) {
+    if (!Object.hasOwn(data, transSub)) {
       data[transSub] = 0;
     }
 
