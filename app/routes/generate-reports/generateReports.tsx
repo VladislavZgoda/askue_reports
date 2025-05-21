@@ -237,29 +237,29 @@ export default function GenerateReports() {
 
         <InputExcel error={errors?.upload?.message} {...register("upload")} />
 
-        <section className="flex">
-          <div className="mr-auto">
-            <Select
-              error={errors?.month?.message}
-              label="Выберете месяц для заголовков таблиц Excel"
-              {...register("month")}
-            >
+        <section className="flex gap-18">
+          <Fieldset
+            className="w-full"
+            legend="Выберете месяц для заголовков таблиц Excel"
+          >
+            <Select error={errors?.month?.message} {...register("month")}>
               <option disabled={true}>Выбрать месяц</option>
               {months.map((item, index) => (
                 <option key={index}>{item}</option>
               ))}
             </Select>
-          </div>
+          </Fieldset>
 
-          <Select
-            error={errors?.year?.message}
-            label="Выберете год для заголовков таблиц Excel"
-            {...register("year")}
+          <Fieldset
+            className="w-full"
+            legend="Выберете год для заголовков таблиц Excel"
           >
-            <option disabled={true}>Выбрать год</option>
-            <option>{year - 1}</option>
-            <option>{year}</option>
-          </Select>
+            <Select error={errors?.year?.message} {...register("year")}>
+              <option disabled={true}>Выбрать год</option>
+              <option>{year - 1}</option>
+              <option>{year}</option>
+            </Select>
+          </Fieldset>
         </section>
 
         <Button
