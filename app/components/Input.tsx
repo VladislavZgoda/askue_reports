@@ -5,13 +5,13 @@ type Props = ComponentPropsWithoutRef<"input"> & {
   legend: string;
 };
 
-export default function Input({ error, legend, ...props }: Props) {
+export default function Input({ className, error, legend, ...props }: Props) {
   return (
     <fieldset className="fieldset">
       <legend className="fieldset-legend">{legend}</legend>
       <input
         {...props}
-        className={`input input-xs sm:input-sm md:input-md lg:input-lg ${error && "input-error"}`}
+        className={`input input-xs sm:input-sm md:input-md lg:input-lg ${error && "input-error"} ${className}`}
       />
       {error && <p className="fieldset-label text-error">{error}</p>}
     </fieldset>
