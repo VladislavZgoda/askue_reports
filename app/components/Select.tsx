@@ -5,13 +5,19 @@ type Props = ComponentPropsWithoutRef<"select"> & {
   label: string;
 };
 
-export default function Select({ children, error, label, ...props }: Props) {
+export default function Select({
+  className,
+  children,
+  error,
+  label,
+  ...props
+}: Props) {
   return (
     <fieldset className="fieldset">
       <legend className="fieldset-legend">{label}</legend>
       <select
         {...props}
-        className={`select select-xs sm:select-sm md:select-md lg:select-lg ${error && "select-error"}`}
+        className={`select select-xs sm:select-sm md:select-md lg:select-lg ${error && "select-error"} ${className}`}
       >
         {children}
       </select>
