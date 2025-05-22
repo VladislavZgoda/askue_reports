@@ -9,7 +9,7 @@ import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "../../components/Input";
 import validateExcel from "./utils/validateExcel";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
 
@@ -149,8 +149,8 @@ export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
   const isSubmitting = fetcher.state === "submitting";
   const defaultDate = todayDate();
-  const errors = fetcher.data;
   const year = cutOutYear(todayDate());
+  const [errors, setErrors] = useState(fetcher.data);
 
   const { handleSubmit, register, reset } = useRemixForm<FormData>({
     resolver,
@@ -167,9 +167,21 @@ export default function GenerateReports() {
     },
   });
 
+  const handleReset = () => {
+    if (isSubmitting) return;
+
+    reset();
+    setErrors(null);
+  };
+
   useEffect(() => {
-    if (!fetcher.data) reset();
-  }, [fetcher.data]);
+    if (!fetcher.data && fetcher.state === "idle") {
+      setErrors(null);
+      reset();
+    }
+
+    if (fetcher.data) setErrors({ ...fetcher.data });
+  }, [fetcher.data, fetcher.state]);
 
   return (
     <main className="mt-5 ml-10">
@@ -274,7 +286,7 @@ export default function GenerateReports() {
           <Button
             className="flex-1 btn-neutral"
             type="button"
-            onClick={() => reset()}
+            onClick={handleReset}
           >
             Очистить форму
           </Button>
