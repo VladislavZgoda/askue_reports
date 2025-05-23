@@ -151,8 +151,9 @@ export default function GenerateReports() {
   const defaultDate = todayDate();
   const year = cutOutYear(todayDate());
   const [errors, setErrors] = useState(fetcher.data);
+  const redStar = <span className="text-red-600 text-sm">*</span>;
 
-  const { handleSubmit, register, reset } = useRemixForm<FormData>({
+  const { formState, handleSubmit, register, reset } = useRemixForm<FormData>({
     resolver,
     fetcher,
     defaultValues: {
@@ -185,7 +186,8 @@ export default function GenerateReports() {
 
   return (
     <main className="mt-5 ml-10">
-      <p className="mb-3 font-bold">Выберите даты для балансных групп</p>
+      <h1 className="font-bold text-xl">Выберите даты для данных из балансных групп</h1>
+      <p className="mb-1.5 text-xs">Необязательно: добавить данные из прошлого месяца в текущий</p>
 
       <fetcher.Form
         onSubmit={void handleSubmit}
@@ -195,7 +197,7 @@ export default function GenerateReports() {
       >
         <section className="flex flex-col">
           <div className="flex gap-18 mb-1">
-            <Fieldset className="w-full" legend="Быт">
+            <Fieldset className="w-full" legend={<div>Быт{redStar}</div>}>
               <Input
                 type="date"
                 error={errors?.privateDate?.message}
@@ -203,7 +205,7 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="Быт прошлый месяц">
+            <Fieldset className="w-full" legend="Быт прошлый месяц (необязательно)">
               <Input
                 type="date"
                 error={errors?.privateMonth?.message}
@@ -212,7 +214,7 @@ export default function GenerateReports() {
             </Fieldset>
           </div>
           <div className="flex gap-18 mb-1">
-            <Fieldset className="w-full" legend="Юр">
+            <Fieldset className="w-full" legend={<div>Юр{redStar}</div>}>
               <Input
                 type="date"
                 error={errors?.legalDate?.message}
@@ -220,7 +222,7 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="Юр прошлый месяц">
+            <Fieldset className="w-full" legend="Юр прошлый месяц (необязательно)">
               <Input
                 type="date"
                 error={errors?.legalMonth?.message}
@@ -229,7 +231,7 @@ export default function GenerateReports() {
             </Fieldset>
           </div>
           <div className="flex gap-18">
-            <Fieldset className="w-full" legend="ОДПУ">
+            <Fieldset className="w-full" legend={<div>ОДПУ{redStar}</div>}>
               <Input
                 type="date"
                 error={errors?.odpyDate?.message}
@@ -237,7 +239,7 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="ОДПУ прошлый месяц">
+            <Fieldset className="w-full" legend="ОДПУ прошлый месяц (необязательно)">
               <Input
                 type="date"
                 error={errors?.odpyMonth?.message}
@@ -247,34 +249,40 @@ export default function GenerateReports() {
           </div>
         </section>
 
-        <InputExcel error={errors?.upload?.message} {...register("upload")} />
+        <h2 className="font-semibold -mb-5 -mt-1">Добавить данные из приложения №9 (необязательно)</h2>
 
-        <section className="flex gap-18">
-          <Fieldset
-            className="w-full"
-            legend="Выберете месяц для заголовков таблиц Excel"
-          >
-            <Select error={errors?.month?.message} {...register("month")}>
-              <option disabled={true}>Выбрать месяц</option>
-              {months.map((item, index) => (
-                <option key={index}>{item}</option>
-              ))}
-            </Select>
-          </Fieldset>
+        <Fieldset legend="Файл Приложение №9">
+          <InputExcel error={errors?.upload?.message} {...register("upload")} />
+        </Fieldset>
 
-          <Fieldset
-            className="w-full"
-            legend="Выберете год для заголовков таблиц Excel"
-          >
-            <Select error={errors?.year?.message} {...register("year")}>
-              <option disabled={true}>Выбрать год</option>
-              <option>{year - 1}</option>
-              <option>{year}</option>
-            </Select>
-          </Fieldset>
-        </section>
+        {formState.dirtyFields.upload && (
+          <section className="flex gap-18">
+            <Fieldset
+              className="w-full"
+              legend={<div>Месяц для заголовков таблиц Excel{redStar}</div>}
+            >
+              <Select error={errors?.month?.message} {...register("month")}>
+                <option disabled={true}>Выбрать месяц</option>
+                {months.map((item, index) => (
+                  <option key={index}>{item}</option>
+                ))}
+              </Select>
+            </Fieldset>
 
-        <div className="mt-4 flex gap-18">
+            <Fieldset
+              className="w-full"
+              legend={<div>Год для заголовков таблиц Excel{redStar}</div>}
+            >
+              <Select error={errors?.year?.message} {...register("year")}>
+                <option disabled={true}>Выбрать год</option>
+                <option>{year - 1}</option>
+                <option>{year}</option>
+              </Select>
+            </Fieldset>
+          </section>
+        )}
+
+        <div className="mt-2.5 flex gap-18">
           <Button
             className={`flex-1 btn-primary ${isSubmitting && "btn-active"}`}
             type={isSubmitting ? "button" : "submit"}
