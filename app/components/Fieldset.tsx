@@ -1,7 +1,7 @@
-import type { ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type Props = ComponentPropsWithoutRef<"fieldset"> & {
-  legend: string;
+  legend: ReactNode;
 };
 
 export default function Fieldset({
