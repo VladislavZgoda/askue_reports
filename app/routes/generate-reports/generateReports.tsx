@@ -186,8 +186,12 @@ export default function GenerateReports() {
 
   return (
     <main className="mt-5 ml-10">
-      <h1 className="font-bold text-xl">Выберите даты для данных из балансных групп</h1>
-      <p className="mb-1.5 text-xs">Необязательно: добавить данные из прошлого месяца в текущий</p>
+      <h1 className="font-bold text-xl">
+        Выберите даты для данных из балансных групп
+      </h1>
+      <p className="mb-1.5 text-xs">
+        Необязательно: добавить данные из прошлого месяца в текущий
+      </p>
 
       <fetcher.Form
         onSubmit={void handleSubmit}
@@ -205,7 +209,10 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="Быт прошлый месяц (необязательно)">
+            <Fieldset
+              className="w-full"
+              legend="Быт прошлый месяц (необязательно)"
+            >
               <Input
                 type="date"
                 error={errors?.privateMonth?.message}
@@ -222,7 +229,10 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="Юр прошлый месяц (необязательно)">
+            <Fieldset
+              className="w-full"
+              legend="Юр прошлый месяц (необязательно)"
+            >
               <Input
                 type="date"
                 error={errors?.legalMonth?.message}
@@ -239,7 +249,10 @@ export default function GenerateReports() {
               />
             </Fieldset>
 
-            <Fieldset className="w-full" legend="ОДПУ прошлый месяц (необязательно)">
+            <Fieldset
+              className="w-full"
+              legend="ОДПУ прошлый месяц (необязательно)"
+            >
               <Input
                 type="date"
                 error={errors?.odpyMonth?.message}
@@ -249,7 +262,9 @@ export default function GenerateReports() {
           </div>
         </section>
 
-        <h2 className="font-semibold -mb-5 -mt-1">Добавить данные из приложения №9 (необязательно)</h2>
+        <h2 className="font-semibold -mb-5 -mt-1">
+          Добавить данные из приложения №9 (необязательно)
+        </h2>
 
         <Fieldset legend="Файл Приложение №9">
           <InputExcel error={errors?.upload?.message} {...register("upload")} />
