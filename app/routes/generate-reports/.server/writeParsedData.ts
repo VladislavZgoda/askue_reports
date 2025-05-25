@@ -1,24 +1,26 @@
 import parseExcel from "./parseExcel";
 import exceljs from "exceljs";
 
+type ParseExcel = Awaited<ReturnType<typeof parseExcel>>;
+type UploadedMetersReadings = ParseExcel["uploadedMetersReadings"];
+type TpMetersReadings = ParseExcel["tpMetersReadings"];
+
 export default async function writeParsedData(file: File) {
   const path = "app/routes/generate-reports/.server/filled-reports/";
-  const excel = new exceljs.Workbook();
-  const data = await parseExcel(file);
+  const { uploadedMetersReadings, tpMetersReadings } = await parseExcel(file);
 
-  await handleReport(data, path, excel);
-  await handleSupplementThree(data, path, excel);
+  await handleReport(path, uploadedMetersReadings, tpMetersReadings);
+  await handleSupplementThree(path, uploadedMetersReadings);
 }
 
-type DataType = Record<string, Record<string, number>>;
-
 async function handleReport(
-  data: DataType,
   path: string,
-  excel: exceljs.Workbook,
+  uploadedMetersReadings: UploadedMetersReadings,
+  tpMetersReadings: TpMetersReadings,
 ) {
   const filePath = path + "Отчет по дистанционным съемам.xlsx";
 
+  const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[0];
 
@@ -27,47 +29,50 @@ async function handleReport(
   let rowCount = 9;
 
   ws.getColumn("B").eachCell((cell, rowNumber) => {
-    const transSub = cell.text.trim();
+    const tp = cell.text.trim();
 
-    if (!transSub.startsWith("ТП")) return;
+    if (!tp.startsWith("ТП")) return;
 
     rowCount += 1;
 
-    const quantityPrivate = data.private[transSub] ?? 0;
-    const quantityLegal = data.legal[transSub] ?? 0;
-    const total = quantityPrivate + quantityLegal;
+    const quantityReadings = tpMetersReadings[tp] ?? 0;
 
-    ws.getCell("L" + rowNumber).value = total;
+    ws.getCell("L" + rowNumber).value = quantityReadings;
+    // Сбросить формулу, после обработки через exceljs, формулы не работают без этой процедуры.
     ws.getCell("M" + rowNumber).model.result = undefined;
   });
 
-  ws.getCell(`L${rowCount + 1}`).value = data.odpy.total;
+  ws.getCell(`L${rowCount + 1}`).value = uploadedMetersReadings.odpy.askue;
   ws.getCell(`M${rowCount + 1}`).model.result = undefined;
 
   ws.getCell(`L${rowCount + 2}`).value =
-    data.odpy.rider + data.private.rider + data.legal.rider;
+    uploadedMetersReadings.odpy.rider +
+    uploadedMetersReadings.private.rider +
+    uploadedMetersReadings.legal.rider;
+
+  // Сбросить формулу, после обработки через exceljs, формулы не работают без этой процедуры.
   ws.getCell(`M${rowCount + 2}`).model.result = undefined;
 
   await excel.xlsx.writeFile(filePath);
 }
 
 async function handleSupplementThree(
-  data: DataType,
   path: string,
-  excel: exceljs.Workbook,
+  uploadedMetersReadings: UploadedMetersReadings,
 ) {
   const filePath = path + "Приложение №3.xlsx";
 
+  const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[2];
 
-  ws.getCell("K29").value = data.private.total;
-  ws.getCell("L29").value = data.legal.total;
-  ws.getCell("M29").value = data.odpy.total;
+  ws.getCell("K29").value = uploadedMetersReadings.private.askue;
+  ws.getCell("L29").value = uploadedMetersReadings.legal.askue;
+  ws.getCell("M29").value = uploadedMetersReadings.odpy.askue;
 
-  ws.getCell("N29").value = data.private.rider;
-  ws.getCell("O29").value = data.legal.rider;
-  ws.getCell("P29").value = data.odpy.rider;
+  ws.getCell("N29").value = uploadedMetersReadings.private.rider;
+  ws.getCell("O29").value = uploadedMetersReadings.legal.rider;
+  ws.getCell("P29").value = uploadedMetersReadings.odpy.rider;
 
   await excel.xlsx.writeFile(filePath);
 }

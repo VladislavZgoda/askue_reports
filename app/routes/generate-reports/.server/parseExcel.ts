@@ -1,5 +1,17 @@
 import exceljs from "exceljs";
 
+type BalanceGroups = "private" | "legal" | "odpy";
+
+interface MetersReadings {
+  askue: number;
+  rider: number;
+}
+
+type UploadedMetersReadings = Record<BalanceGroups, MetersReadings>;
+
+// Key - наимаеннование ТП (ТП-777), value - количество КС быт + юр.
+type TpMetersReadings = Record<string, number>;
+
 export default async function parseExcel(file: File) {
   const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.load(await file.arrayBuffer());
@@ -8,23 +20,25 @@ export default async function parseExcel(file: File) {
   const wsOdpy = wb.worksheets[1];
   const wsLegal = wb.worksheets[2];
 
-  const data = {
+  const uploadedMetersReadings: UploadedMetersReadings = {
     private: {
-      total: 0,
+      askue: 0,
       rider: 0,
     },
     legal: {
-      total: 0,
+      askue: 0,
       rider: 0,
     },
     odpy: {
-      total: 0,
+      askue: 0,
       rider: 0,
     },
   };
 
-  parseSheet(wsPrivate, data.private);
-  parseSheet(wsLegal, data.legal);
+  const tpMetersReadings: TpMetersReadings = {};
+
+  parseSheet(wsPrivate, uploadedMetersReadings.private, tpMetersReadings);
+  parseSheet(wsLegal, uploadedMetersReadings.legal, tpMetersReadings);
 
   wsOdpy.getColumn("N").eachCell((cell, rowNumber) => {
     const transSub = cell.text.trim();
@@ -34,32 +48,36 @@ export default async function parseExcel(file: File) {
     const readingSource = wsOdpy.getCell("M" + rowNumber).text;
 
     if (readingSource.toLowerCase() === "ридер") {
-      data.odpy.rider += 1;
+      uploadedMetersReadings.odpy.rider += 1;
     } else {
-      data.odpy.total += 1;
+      uploadedMetersReadings.odpy.askue += 1;
     }
   });
 
-  return data;
+  return { uploadedMetersReadings, tpMetersReadings };
 }
 
-function parseSheet(ws: exceljs.Worksheet, data: Record<string, number>) {
+function parseSheet(
+  ws: exceljs.Worksheet,
+  metersReadings: MetersReadings,
+  tpMetersReadings: TpMetersReadings,
+) {
   ws.getColumn("N").eachCell((cell, rowNumber) => {
-    const transSub = cell.text;
+    const tp = cell.text;
 
-    if (!transSub.startsWith("ТП-")) return;
+    if (!tp.startsWith("ТП-")) return;
 
-    if (!Object.hasOwn(data, transSub)) {
-      data[transSub] = 0;
+    if (!Object.hasOwn(tpMetersReadings, tp)) {
+      tpMetersReadings[tp] = 0;
     }
 
     const readingSource = ws.getCell("M" + rowNumber).text;
 
     if (readingSource.toLowerCase() === "ридер") {
-      data.rider += 1;
+      metersReadings.rider += 1;
     } else {
-      data[transSub] += 1;
-      data.total += 1;
+      tpMetersReadings[tp] += 1;
+      metersReadings.askue += 1;
     }
   });
 }
