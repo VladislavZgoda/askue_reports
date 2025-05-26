@@ -25,8 +25,8 @@ const timestamps = {
     .notNull(),
 };
 
-export const TransformerSubstationTable = pgTable(
-  "transformerSubstation",
+export const transformerSubstations = pgTable(
+  "transformer_substations",
   {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 15 }).unique().notNull(),
@@ -52,8 +52,8 @@ export const ElectricityMetersTable = pgTable(
     quantity: integer("quantity").notNull(),
     type: BalanceType("balanceType").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformerSubstation")
-      .references(() => TransformerSubstationTable.id, {
+    transformerSubstationId: integer("transformer_substation_id")
+      .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })
       .notNull(),
@@ -77,12 +77,12 @@ export const NewYearMetersTable = pgTable(
     type: BalanceType("balanceType").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformerSubstation")
-      .references(() => TransformerSubstationTable.id, {
+    transformerSubstationId: integer("transformer_Substation_id")
+      .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })
       .notNull(),
-    ...timestamps
+    ...timestamps,
   },
   (table) => {
     return [
@@ -104,12 +104,12 @@ export const NewMonthMetersTable = pgTable(
     month: varchar("month", { length: 2 }).notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformerSubstation")
-      .references(() => TransformerSubstationTable.id, {
+    transformerSubstationId: integer("transformer_substation_id")
+      .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })
       .notNull(),
-    ...timestamps
+    ...timestamps,
   },
   (table) => {
     return [
@@ -129,8 +129,8 @@ export const NotInSystem = pgTable(
     quantity: integer("quantity").notNull(),
     type: BalanceType("balanceType").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformerSubstation")
-      .references(() => TransformerSubstationTable.id, {
+    transformerSubstationId: integer("transformer_substation_id")
+      .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })
       .notNull(),
@@ -150,8 +150,8 @@ export const MetersActionLog = pgTable(
   {
     id: serial("id").primaryKey(),
     message: text("message").notNull(),
-    transformerSubstationId: integer("transformerSubstation")
-      .references(() => TransformerSubstationTable.id, {
+    transformerSubstationId: integer("transformer_substation_id")
+      .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })
       .notNull(),
@@ -171,8 +171,8 @@ export const TechnicalMeters = pgTable("technicalMeters", {
   id: serial("id").primaryKey(),
   quantity: integer("quantity").notNull(),
   underVoltage: integer("underVoltage").notNull(),
-  transformerSubstationId: integer("transformerSubstation")
-    .references(() => TransformerSubstationTable.id, {
+  transformerSubstationId: integer("transformer_substation_id")
+    .references(() => transformerSubstations.id, {
       onDelete: "cascade",
     })
     .notNull(),

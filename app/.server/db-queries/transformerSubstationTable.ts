@@ -1,15 +1,15 @@
 import { db } from "../db";
-import { TransformerSubstationTable } from "../schema";
+import { transformerSubstations } from "../schema";
 import { eq, ilike } from "drizzle-orm";
 import composeSearchString from "~/utils/searchString";
 
 export async function insertNewTS(name: string) {
   const transSub = await db
-    .insert(TransformerSubstationTable)
+    .insert(transformerSubstations)
     .values({ name })
     .returning({
-      id: TransformerSubstationTable.id,
-      name: TransformerSubstationTable.name,
+      id: transformerSubstations.id,
+      name: transformerSubstations.name,
     });
 
   return transSub[0];
@@ -21,11 +21,11 @@ export async function selectTransSubs(searchParam: string | null) {
 
     const transSubs = await db
       .select({
-        id: TransformerSubstationTable.id,
-        name: TransformerSubstationTable.name,
+        id: transformerSubstations.id,
+        name: transformerSubstations.name,
       })
-      .from(TransformerSubstationTable)
-      .where(ilike(TransformerSubstationTable.name, q));
+      .from(transformerSubstations)
+      .where(ilike(transformerSubstations.name, q));
 
     return transSubs;
   } catch {
@@ -38,35 +38,35 @@ export async function selectTransSubs(searchParam: string | null) {
 export async function selectTransSub(id: string) {
   const transSubs = await db
     .select({
-      id: TransformerSubstationTable.id,
-      name: TransformerSubstationTable.name,
+      id: transformerSubstations.id,
+      name: transformerSubstations.name,
     })
-    .from(TransformerSubstationTable)
-    .where(eq(TransformerSubstationTable.id, Number(id)));
+    .from(transformerSubstations)
+    .where(eq(transformerSubstations.id, Number(id)));
 
   return transSubs[0];
 }
 
 export async function deleteTransSub(id: string) {
   await db
-    .delete(TransformerSubstationTable)
-    .where(eq(TransformerSubstationTable.id, Number(id)));
+    .delete(transformerSubstations)
+    .where(eq(transformerSubstations.id, Number(id)));
 }
 
 export async function updateTransSub(id: string, name: string) {
   const updatedAt = new Date();
 
   await db
-    .update(TransformerSubstationTable)
+    .update(transformerSubstations)
     .set({ name, updatedAt })
-    .where(eq(TransformerSubstationTable.id, Number(id)));
+    .where(eq(transformerSubstations.id, Number(id)));
 }
 
 export async function selectAllTransSubs() {
   return await db
     .select({
-      id: TransformerSubstationTable.id,
-      name: TransformerSubstationTable.name,
+      id: transformerSubstations.id,
+      name: transformerSubstations.name,
     })
-    .from(TransformerSubstationTable);
+    .from(transformerSubstations);
 }
