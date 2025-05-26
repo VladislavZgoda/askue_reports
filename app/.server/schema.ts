@@ -45,12 +45,12 @@ export const balanceGroupEnum = pgEnum("balance_group", [
   "ОДПУ П2",
 ]);
 
-export const ElectricityMetersTable = pgTable(
-  "electricityMeters",
+export const electricityMeters = pgTable(
+  "electricity_meters",
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    type: balanceGroupEnum("balance_group").notNull(),
+    balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_substation_id")
       .references(() => transformerSubstations.id, {
@@ -61,8 +61,10 @@ export const ElectricityMetersTable = pgTable(
   },
   (table) => {
     return [
-      index("transformerSubstation_id_index").on(table.transformerSubstationId),
-      index("type_index").on(table.type),
+      index("transformer_substation_id_index").on(
+        table.transformerSubstationId,
+      ),
+      index("balance_group_index").on(table.balanceGroup),
       index("date_index").on(table.date),
     ];
   },
