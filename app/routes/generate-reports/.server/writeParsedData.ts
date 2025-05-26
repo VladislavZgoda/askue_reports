@@ -2,8 +2,8 @@ import parseExcel from "./parseExcel";
 import exceljs from "exceljs";
 
 type ParseExcel = Awaited<ReturnType<typeof parseExcel>>;
-type UploadedMetersReadings = ParseExcel["uploadedMetersReadings"];
-type TpMetersReadings = ParseExcel["tpMetersReadings"];
+type UploadedMetersReadings = Readonly<ParseExcel["uploadedMetersReadings"]>;
+type TpMetersReadings = Readonly<ParseExcel["tpMetersReadings"]>;
 
 export default async function writeParsedData(file: File) {
   const path = "app/routes/generate-reports/.server/filled-reports/";
