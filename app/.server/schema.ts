@@ -37,7 +37,7 @@ export const transformerSubstations = pgTable(
   },
 );
 
-export const BalanceType = pgEnum("balanceType", [
+export const balanceGroupEnum = pgEnum("balance_group", [
   "Быт",
   "ЮР Sims",
   "ЮР П2",
@@ -50,7 +50,7 @@ export const ElectricityMetersTable = pgTable(
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    type: BalanceType("balanceType").notNull(),
+    type: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_substation_id")
       .references(() => transformerSubstations.id, {
@@ -74,7 +74,7 @@ export const NewYearMetersTable = pgTable(
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
     added_to_system: integer("added_to_system").notNull(),
-    type: BalanceType("balanceType").notNull(),
+    type: balanceGroupEnum("balance_group").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_Substation_id")
@@ -100,7 +100,7 @@ export const NewMonthMetersTable = pgTable(
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
     added_to_system: integer("added_to_system").notNull(),
-    type: BalanceType("balanceType").notNull(),
+    type: balanceGroupEnum("balance_group").notNull(),
     month: varchar("month", { length: 2 }).notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
@@ -127,7 +127,7 @@ export const NotInSystem = pgTable(
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    type: BalanceType("balanceType").notNull(),
+    type: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_substation_id")
       .references(() => transformerSubstations.id, {
