@@ -15,13 +15,13 @@ export const TransformerSubstationTable = pgTable(
   {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 15 }).unique().notNull(),
-    created_at: timestamp("created_at", {
+    createdAt: timestamp("created_at", {
       withTimezone: true,
       mode: "date",
     })
       .defaultNow()
       .notNull(),
-    updated_at: timestamp("updated_at", {
+    updatedAt: timestamp("updated_at", {
       withTimezone: true,
       mode: "date",
     })
