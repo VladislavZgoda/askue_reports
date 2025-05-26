@@ -1,4 +1,4 @@
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
+import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMetersTable";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";

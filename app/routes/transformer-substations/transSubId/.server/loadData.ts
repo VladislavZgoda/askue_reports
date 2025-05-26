@@ -1,4 +1,4 @@
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
+import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 

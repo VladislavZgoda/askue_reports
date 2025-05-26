@@ -1,5 +1,5 @@
 import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstations";
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMetersTable";
+import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
 import type { DbDataType } from "../view-data.types";
 

@@ -6,7 +6,7 @@ import {
   getQuantityForInsert,
   getQuantityOnID,
   updateRecordOnId,
-} from "~/.server/db-queries/electricityMetersTable";
+} from "~/.server/db-queries/electricityMeters";
 
 import {
   insertYearMeters,
