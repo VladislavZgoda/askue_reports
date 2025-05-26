@@ -18,10 +18,10 @@ export type MetersType = Record<string, number>;
 
 interface SelectMetersArgs {
   transSubs: TransSubs;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: FormDataEntryValue;
   func: ({
-    type,
+    balanceGroup,
     date,
     transformerSubstationId,
   }: CheckRecordValues) => Promise<number>;
@@ -29,7 +29,7 @@ interface SelectMetersArgs {
 
 export async function selectMeters({
   transSubs,
-  type,
+  balanceGroup,
   date,
   func,
 }: SelectMetersArgs) {
@@ -37,7 +37,7 @@ export async function selectMeters({
 
   for (const transSub of transSubs) {
     const quantity = await func({
-      type,
+      balanceGroup,
       date: date as string,
       transformerSubstationId: transSub.id,
     });
@@ -60,13 +60,13 @@ export async function selectLegalMeters(
   const [sims, p2] = await Promise.all([
     selectMeters({
       transSubs,
-      type: "ЮР Sims",
+      balanceGroup: "ЮР Sims",
       date,
       func: selectMetersOnDate,
     }),
     selectMeters({
       transSubs,
-      type: "ЮР П2",
+      balanceGroup: "ЮР П2",
       date,
       func: selectMetersOnDate,
     }),
@@ -87,19 +87,19 @@ export async function selectNotInSystem(
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
     selectMeters({
       transSubs,
-      type: "Быт",
+      balanceGroup: "Быт",
       date: formData.privateDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       transSubs,
-      type: "ЮР Sims",
+      balanceGroup: "ЮР Sims",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       transSubs,
-      type: "ЮР П2",
+      balanceGroup: "ЮР П2",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
@@ -129,21 +129,21 @@ type PeriodMetersType = Record<
 >;
 
 interface FuncArgs {
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   year: number;
 }
 
 interface GetPeriodMeters {
   transSubs: TransSubs;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   periodType?: "month";
 }
 
 async function getPeriodMeters({
   transSubs,
-  type,
+  balanceGroup,
   date,
   periodType,
 }: GetPeriodMeters) {
@@ -153,7 +153,7 @@ async function getPeriodMeters({
   const month = cutOutMonth(date);
 
   const args: FuncArgs = {
-    type,
+    balanceGroup,
     date,
     year,
   };
@@ -197,19 +197,19 @@ export async function selectPeriodMeters({
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
     getPeriodMeters({
       transSubs,
-      type: "Быт",
+      balanceGroup: "Быт",
       date: formData.privateDate,
       periodType,
     }),
     getPeriodMeters({
       transSubs,
-      type: "ЮР Sims",
+      balanceGroup: "ЮР Sims",
       date: formData.legalDate,
       periodType,
     }),
     getPeriodMeters({
       transSubs,
-      type: "ЮР П2",
+      balanceGroup: "ЮР П2",
       date: formData.legalDate,
       periodType,
     }),
@@ -268,7 +268,7 @@ async function addPreviousMonth(
   transSubs: TransSubs,
   meters: PeriodMetersType,
   date: string,
-  type: BalanceType,
+  balanceGroup: BalanceGroup,
 ) {
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
@@ -276,7 +276,7 @@ async function addPreviousMonth(
 
   for (const transSub of transSubs) {
     const periodMeters = await selectMonthPeriodMeters({
-      type,
+      type: balanceGroup,
       firstDate: date,
       lastDate: lastMonthDatePrivate,
       transformerSubstationId: transSub.id,
@@ -286,7 +286,7 @@ async function addPreviousMonth(
 
     const metersBeforeFirstDate = await selectMonthMetersOnDate({
       transformerSubstationId: transSub.id,
-      type,
+      balanceGroup,
       date,
       month,
       year,
@@ -356,46 +356,46 @@ export async function calculateOdpy(formData: FormData, transSubs: TransSubs) {
     ] = await Promise.all([
       selectMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: formData.odpyDate,
       }),
       selectMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: formData.odpyDate,
       }),
       selectNotInSystemOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: formData.odpyDate,
       }),
       selectNotInSystemOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: formData.odpyDate,
       }),
       selectYearMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: formData.odpyDate,
         year,
       }),
       selectYearMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: formData.odpyDate,
         year,
       }),
       selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: formData.odpyDate,
         month,
         year,
       }),
       selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: formData.odpyDate,
         month,
         year,
@@ -447,8 +447,8 @@ async function calculatePreviousMonthOdpy(transSubs: TransSubs, date: string) {
 
       const metersBeforeFirstDate = await selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
-        type,
-        date: date,
+        balanceGroup: type,
+        date,
         month,
         year,
       });

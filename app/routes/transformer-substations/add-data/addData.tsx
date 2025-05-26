@@ -50,7 +50,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       transSubId: params.id,
       newMeters: values.newMeters as string,
       addedToSystem: values.addedToSystem as string,
-      type: values.type as BalanceType,
+      balanceGroup: values.type as BalanceGroup,
       date: values.date as string,
     };
 

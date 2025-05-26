@@ -45,7 +45,7 @@ interface ActionValues {
   transSubId: string;
   newMeters: string;
   addedToSystem: string;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
 }
 
@@ -73,7 +73,7 @@ function handleInsertValues(values: ActionValues) {
   return {
     quantity: Number(values.newMeters),
     added_to_system: Number(values.addedToSystem),
-    type: values.type,
+    balanceGroup: values.balanceGroup,
     date: values.date,
     transformerSubstationId: Number(values.transSubId),
   };
@@ -104,7 +104,7 @@ async function handleUpdate(
 interface NextRecords {
   values: InsertMetersValues;
   getIdsFunc: ({
-    type,
+    balanceGroup,
     date,
     transformerSubstationId,
   }: CheckRecordValues) => Promise<
@@ -197,10 +197,11 @@ async function handleInsertNotInSystem(insertValues: InsertMetersValues) {
 }
 
 async function handleYearMeters(insertValues: InsertMetersValues) {
-  const { type, date, transformerSubstationId } = insertValues;
+  const { balanceGroup, date, transformerSubstationId } = insertValues;
   const year = cutOutYear(date);
+
   const prevYearQuantity = await selectYearQuantity({
-    type,
+    balanceGroup,
     date,
     transformerSubstationId,
     year,
@@ -222,11 +223,16 @@ async function insertTotalYearMeters(
   insertValues: InsertMetersValues,
   year: number,
 ) {
-  const { quantity, added_to_system, type, date, transformerSubstationId } =
-    insertValues;
+  const {
+    quantity,
+    added_to_system,
+    balanceGroup,
+    date,
+    transformerSubstationId,
+  } = insertValues;
 
   const lastYearQuantity = await getYearMetersForInsert({
-    type,
+    balanceGroup,
     transformerSubstationId,
     year,
     date,
@@ -280,11 +286,11 @@ async function updateNextYearRecords(values: YearMetersValues) {
 }
 
 async function handleMonthMeters(insertValues: InsertMetersValues) {
-  const { type, date, transformerSubstationId } = insertValues;
+  const { balanceGroup, date, transformerSubstationId } = insertValues;
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
   const prevMonthQuantity = await selectMonthQuantity({
-    type,
+    balanceGroup,
     date,
     transformerSubstationId,
     month,
@@ -314,11 +320,16 @@ async function insertTotalMonthMeters(
   month: string,
   year: number,
 ) {
-  const { quantity, added_to_system, type, date, transformerSubstationId } =
-    insertValues;
+  const {
+    quantity,
+    added_to_system,
+    balanceGroup,
+    date,
+    transformerSubstationId,
+  } = insertValues;
 
   const lastMonthQuantity = await getMonthMetersForInsert({
-    type,
+    balanceGroup,
     transformerSubstationId,
     month,
     year,
@@ -375,9 +386,10 @@ async function updateNextMonthRecords(values: MonthMetersValues) {
 }
 
 async function addMessageToLog(insertValues: InsertMetersValues) {
-  const { quantity, added_to_system, type, transformerSubstationId } =
+  const { quantity, added_to_system, balanceGroup, transformerSubstationId } =
     insertValues;
+
   const time = new Date().toLocaleString("ru");
-  const message = `Добавлено: ${quantity} ${added_to_system} ${type} ${time}`;
+  const message = `Добавлено: ${quantity} ${added_to_system} ${balanceGroup} ${time}`;
   await insertMessage(message, transformerSubstationId);
 }
