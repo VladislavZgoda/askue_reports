@@ -89,11 +89,11 @@ export async function updateMonthMeters({
   month,
   year,
 }: MonthMetersValues) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system, updated_at })
+    .set({ quantity, added_to_system, updatedAt })
     .where(
       and(
         eq(NewMonthMetersTable.type, type),
@@ -139,11 +139,11 @@ export async function updateMonthOnId({
   quantity,
   added_to_system,
 }: UpdateMonthOnIdType) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system, updated_at })
+    .set({ quantity, added_to_system, updatedAt })
     .where(eq(NewMonthMetersTable.id, id));
 }
 

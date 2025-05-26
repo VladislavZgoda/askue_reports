@@ -76,11 +76,11 @@ export async function updateYearMeters({
   transformerSubstationId,
   year,
 }: YearMetersValues) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NewYearMetersTable)
-    .set({ quantity, added_to_system, updated_at })
+    .set({ quantity, added_to_system, updatedAt })
     .where(
       and(
         eq(NewYearMetersTable.type, type),
@@ -117,11 +117,11 @@ export async function updateYearOnId({
   quantity,
   added_to_system,
 }: UpdateYearOnIdType) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NewYearMetersTable)
-    .set({ quantity, added_to_system, updated_at })
+    .set({ quantity, added_to_system, updatedAt })
     .where(eq(NewYearMetersTable.id, id));
 }
 

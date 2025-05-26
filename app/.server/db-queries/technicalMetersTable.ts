@@ -41,11 +41,11 @@ export const updateTechnicalMeters = async ({
   underVoltage,
   transformerSubstationId,
 }: TechnicalMetersValues) => {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(TechnicalMeters)
-    .set({ quantity, underVoltage, updated_at })
+    .set({ quantity, underVoltage, updatedAt })
     .where(
       eq(TechnicalMeters.transformerSubstationId, transformerSubstationId),
     );

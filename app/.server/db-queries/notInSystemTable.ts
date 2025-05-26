@@ -22,11 +22,11 @@ export async function updateNotInSystem({
   date,
   transformerSubstationId,
 }: MetersValues) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NotInSystem)
-    .set({ quantity, updated_at })
+    .set({ quantity, updatedAt })
     .where(
       and(
         eq(NotInSystem.transformerSubstationId, transformerSubstationId),
@@ -100,11 +100,11 @@ export async function getLastNotInSystemId({
 }
 
 export async function updateNotInSystemOnId({ id, quantity }: UpdateOnIdType) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(NotInSystem)
-    .set({ quantity, updated_at })
+    .set({ quantity, updatedAt })
     .where(eq(NotInSystem.id, id));
 }
 

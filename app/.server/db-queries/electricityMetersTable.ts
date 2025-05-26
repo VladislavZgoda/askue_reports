@@ -46,11 +46,11 @@ export async function updateMetersRecord({
   date,
   transformerSubstationId,
 }: MetersValues) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(ElectricityMetersTable)
-    .set({ quantity, updated_at })
+    .set({ quantity, updatedAt })
     .where(
       and(
         eq(
@@ -110,11 +110,11 @@ export async function getLastRecordId({
 }
 
 export async function updateRecordOnId({ id, quantity }: UpdateOnIdType) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(ElectricityMetersTable)
-    .set({ quantity, updated_at })
+    .set({ quantity, updatedAt })
     .where(eq(ElectricityMetersTable.id, id));
 }
 
