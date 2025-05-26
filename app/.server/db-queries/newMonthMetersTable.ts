@@ -5,7 +5,7 @@ import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 export async function insertMonthMeters({
   quantity,
   added_to_system,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -14,7 +14,7 @@ export async function insertMonthMeters({
   await db.insert(NewMonthMetersTable).values({
     quantity,
     added_to_system,
-    type,
+    type: balanceGroup,
     date,
     transformerSubstationId,
     month,
@@ -23,7 +23,7 @@ export async function insertMonthMeters({
 }
 
 export async function selectMonthQuantity({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -37,7 +37,7 @@ export async function selectMonthQuantity({
     .from(NewMonthMetersTable)
     .where(
       and(
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(NewMonthMetersTable.date, date),
         eq(
           NewMonthMetersTable.transformerSubstationId,
@@ -52,7 +52,7 @@ export async function selectMonthQuantity({
 }
 
 export async function selectLastMonthQuantity({
-  type,
+  balanceGroup,
   transformerSubstationId,
   month,
   year,
@@ -65,7 +65,7 @@ export async function selectLastMonthQuantity({
     .from(NewMonthMetersTable)
     .where(
       and(
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(
           NewMonthMetersTable.transformerSubstationId,
           transformerSubstationId,
@@ -83,7 +83,7 @@ export async function selectLastMonthQuantity({
 export async function updateMonthMeters({
   quantity,
   added_to_system,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -96,7 +96,7 @@ export async function updateMonthMeters({
     .set({ quantity, added_to_system, updatedAt })
     .where(
       and(
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(NewMonthMetersTable.date, date),
         eq(
           NewMonthMetersTable.transformerSubstationId,
@@ -109,7 +109,7 @@ export async function updateMonthMeters({
 }
 
 export async function getLastMonthId({
-  type,
+  balanceGroup,
   transformerSubstationId,
   month,
   year,
@@ -119,7 +119,7 @@ export async function getLastMonthId({
     .from(NewMonthMetersTable)
     .where(
       and(
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(
           NewMonthMetersTable.transformerSubstationId,
           transformerSubstationId,
@@ -148,7 +148,7 @@ export async function updateMonthOnId({
 }
 
 export async function getMonthIds({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -160,7 +160,7 @@ export async function getMonthIds({
     .where(
       and(
         gt(NewMonthMetersTable.date, date),
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(NewMonthMetersTable.month, month),
         eq(NewMonthMetersTable.year, year),
         eq(
@@ -186,7 +186,7 @@ export async function getMonthMetersOnID(id: number) {
 }
 
 export async function getMonthMetersForInsert({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -204,7 +204,7 @@ export async function getMonthMetersForInsert({
           NewMonthMetersTable.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(NewMonthMetersTable.month, month),
         eq(NewMonthMetersTable.year, year),
         lt(NewMonthMetersTable.date, date),
@@ -217,7 +217,7 @@ export async function getMonthMetersForInsert({
 }
 
 export async function selectMonthMetersOnDate({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   month,
@@ -236,7 +236,7 @@ export async function selectMonthMetersOnDate({
           transformerSubstationId,
         ),
         lte(NewMonthMetersTable.date, date),
-        eq(NewMonthMetersTable.type, type),
+        eq(NewMonthMetersTable.type, balanceGroup),
         eq(NewMonthMetersTable.month, month),
         eq(NewMonthMetersTable.year, year),
       ),
@@ -248,7 +248,7 @@ export async function selectMonthMetersOnDate({
 }
 
 interface monthPeriod {
-  type: BalanceType;
+  type: BalanceGroup;
   firstDate: string;
   lastDate: string;
   transformerSubstationId: number;

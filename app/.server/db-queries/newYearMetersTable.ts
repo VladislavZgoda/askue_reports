@@ -5,7 +5,7 @@ import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
 export async function insertYearMeters({
   quantity,
   added_to_system,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -13,7 +13,7 @@ export async function insertYearMeters({
   await db.insert(NewYearMetersTable).values({
     quantity,
     added_to_system,
-    type,
+    type: balanceGroup,
     date,
     transformerSubstationId,
     year,
@@ -21,7 +21,7 @@ export async function insertYearMeters({
 }
 
 export async function selectYearQuantity({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -34,7 +34,7 @@ export async function selectYearQuantity({
     .from(NewYearMetersTable)
     .where(
       and(
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.date, date),
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
         eq(NewYearMetersTable.year, year),
@@ -45,7 +45,7 @@ export async function selectYearQuantity({
 }
 
 export async function selectLastYearQuantity({
-  type,
+  balanceGroup,
   transformerSubstationId,
   year,
 }: LastYearQuantity) {
@@ -57,7 +57,7 @@ export async function selectLastYearQuantity({
     .from(NewYearMetersTable)
     .where(
       and(
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
         eq(NewYearMetersTable.year, year),
       ),
@@ -71,7 +71,7 @@ export async function selectLastYearQuantity({
 export async function updateYearMeters({
   quantity,
   added_to_system,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -83,7 +83,7 @@ export async function updateYearMeters({
     .set({ quantity, added_to_system, updatedAt })
     .where(
       and(
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.date, date),
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
         eq(NewYearMetersTable.year, year),
@@ -92,7 +92,7 @@ export async function updateYearMeters({
 }
 
 export async function getLastYearId({
-  type,
+  balanceGroup,
   transformerSubstationId,
   year,
 }: LastYearQuantity): Promise<number | undefined> {
@@ -101,7 +101,7 @@ export async function getLastYearId({
     .from(NewYearMetersTable)
     .where(
       and(
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
         eq(NewYearMetersTable.year, year),
       ),
@@ -126,7 +126,7 @@ export async function updateYearOnId({
 }
 
 export async function getYearIds({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -137,7 +137,7 @@ export async function getYearIds({
     .where(
       and(
         gt(NewYearMetersTable.date, date),
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.year, year),
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
       ),
@@ -159,7 +159,7 @@ export async function getYearMetersOnID(id: number) {
 }
 
 export async function getYearMetersForInsert({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -173,7 +173,7 @@ export async function getYearMetersForInsert({
     .where(
       and(
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.year, year),
         lt(NewYearMetersTable.date, date),
       ),
@@ -185,7 +185,7 @@ export async function getYearMetersForInsert({
 }
 
 export async function selectYearMetersOnDate({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
   year,
@@ -200,7 +200,7 @@ export async function selectYearMetersOnDate({
       and(
         eq(NewYearMetersTable.transformerSubstationId, transformerSubstationId),
         lte(NewYearMetersTable.date, date),
-        eq(NewYearMetersTable.type, type),
+        eq(NewYearMetersTable.type, balanceGroup),
         eq(NewYearMetersTable.year, year),
       ),
     )

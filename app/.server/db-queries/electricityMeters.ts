@@ -28,10 +28,7 @@ export async function checkMetersRecord({
     .from(electricityMeters)
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         eq(electricityMeters.date, date),
         eq(electricityMeters.balanceGroup, balanceGroup),
       ),
@@ -53,10 +50,7 @@ export async function updateMetersRecord({
     .set({ quantity, updatedAt })
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         eq(electricityMeters.date, date),
         eq(electricityMeters.balanceGroup, balanceGroup),
       ),
@@ -74,10 +68,7 @@ export async function selectLastQuantity({
     .from(electricityMeters)
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     )
@@ -96,10 +87,7 @@ export async function getLastRecordId({
     .from(electricityMeters)
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     )
@@ -130,10 +118,7 @@ export async function selectMetersOnDate({
     .from(electricityMeters)
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         lte(electricityMeters.date, date),
         eq(electricityMeters.balanceGroup, balanceGroup),
       ),
@@ -156,10 +141,7 @@ export async function getNewMetersIds({
       and(
         gt(electricityMeters.date, date),
         eq(electricityMeters.balanceGroup, balanceGroup),
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
       ),
     );
 
@@ -178,10 +160,7 @@ export async function getQuantityForInsert({
     .from(electricityMeters)
     .where(
       and(
-        eq(
-          electricityMeters.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
         eq(electricityMeters.balanceGroup, balanceGroup),
         lt(electricityMeters.date, date),
       ),
