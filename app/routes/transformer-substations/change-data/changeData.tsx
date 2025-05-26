@@ -71,10 +71,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     return { errors };
   }
 
-  const mutateData = async (type: BalanceType) => {
+  const mutateData = async (balanceGroup: BalanceGroup) => {
     await changeData({
       ...values,
-      type,
+      balanceGroup,
     });
   };
 

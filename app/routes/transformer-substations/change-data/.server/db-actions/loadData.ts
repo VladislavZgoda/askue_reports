@@ -3,20 +3,20 @@ import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMetersTable";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMetersTable";
 
-export default async function loadData(id: number, type: BalanceType) {
+export default async function loadData(id: number, balanceGroup: BalanceGroup) {
   const year = new Date().getFullYear();
 
   const argsObj: LastQuantity = {
     transformerSubstationId: id,
-    type,
+    balanceGroup,
   };
 
   const [metersQuantity, metersNotInSystem, yearMeters, monthMeters] =
     await Promise.all([
       selectLastQuantity(argsObj),
       selectLastNotInSystem(argsObj),
-      handleYearMeters(id, year, type),
-      handleMonthMeters(id, year, type),
+      handleYearMeters(id, year, balanceGroup),
+      handleMonthMeters(id, year, balanceGroup),
     ]);
 
   const data = {
@@ -31,10 +31,14 @@ export default async function loadData(id: number, type: BalanceType) {
   return data;
 }
 
-async function handleYearMeters(id: number, year: number, type: BalanceType) {
+async function handleYearMeters(
+  id: number,
+  year: number,
+  balanceGroup: BalanceGroup,
+) {
   const argsObj: LastYearQuantity = {
     transformerSubstationId: id,
-    type,
+    balanceGroup,
     year,
   };
 
@@ -48,7 +52,11 @@ async function handleYearMeters(id: number, year: number, type: BalanceType) {
   return yearQuantity;
 }
 
-async function handleMonthMeters(id: number, year: number, type: BalanceType) {
+async function handleMonthMeters(
+  id: number,
+  year: number,
+  balanceGroup: BalanceGroup,
+) {
   let month = String(new Date().getMonth() + 1);
 
   if (month.length === 1) {
@@ -57,7 +65,7 @@ async function handleMonthMeters(id: number, year: number, type: BalanceType) {
 
   const argsObj: LastMonthQuantity = {
     transformerSubstationId: id,
-    type,
+    balanceGroup,
     month,
     year,
   };

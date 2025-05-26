@@ -25,7 +25,7 @@ export default async function changeData(
   values: Record<string, FormDataEntryValue>,
 ) {
   const handledValues = handleValues(values);
-  const prevData = await loadData(handledValues.id, handledValues.type);
+  const prevData = await loadData(handledValues.id, handledValues.balanceGroup);
 
   await Promise.all([
     handleTotalMeters(handledValues, prevData),
@@ -40,7 +40,7 @@ function handleValues(values: Record<string, FormDataEntryValue>) {
   const month = cutOutMonth(date);
 
   const handledValues = {
-    type: values.type as BalanceType,
+    balanceGroup: values.type as BalanceGroup,
     totalMeters: Number(values.totalMeters),
     inSystemTotal: Number(values.inSystemTotal),
     yearTotal: Number(values.yearTotal),
@@ -76,16 +76,16 @@ async function handleTotalMeters(
   handledValues: UpdateTotalMetersType,
   prevData: PrevData,
 ) {
-  const { id, type } = handledValues;
+  const { id, balanceGroup } = handledValues;
 
   const [lastMetersQuantityId, lastNotInSystemId] = await Promise.all([
     getLastRecordId({
       transformerSubstationId: id,
-      type,
+      balanceGroup,
     }),
     getLastNotInSystemId({
       transformerSubstationId: id,
-      type,
+      balanceGroup,
     }),
   ]);
 
@@ -100,7 +100,7 @@ async function handleMetersQuantity(
   handledValues: UpdateTotalMetersType,
   prevData: PrevData,
 ) {
-  const { inSystemTotal, id, date, type } = handledValues;
+  const { inSystemTotal, id, date, balanceGroup } = handledValues;
 
   if (lastMetersQuantityId) {
     const prevQuantity = prevData.totalMeters.addedToSystem;
@@ -116,7 +116,7 @@ async function handleMetersQuantity(
       quantity: inSystemTotal,
       transformerSubstationId: id,
       date,
-      type,
+      balanceGroup,
     });
   }
 }
@@ -126,7 +126,7 @@ async function handleNotInSystem(
   handledValues: UpdateTotalMetersType,
   prevData: PrevData,
 ) {
-  const { totalMeters, inSystemTotal, id, date, type } = handledValues;
+  const { totalMeters, inSystemTotal, id, date, balanceGroup } = handledValues;
 
   if (lastNotInSystemId) {
     const prevQuantity =
@@ -144,18 +144,25 @@ async function handleNotInSystem(
       transformerSubstationId: id,
       quantity: totalMeters - inSystemTotal,
       date,
-      type,
+      balanceGroup,
     });
   }
 }
 
 async function handleYearMeters(
-  { id, type, yearTotal, inSystemYear, date, year }: UpdateTotalYearMetersType,
+  {
+    id,
+    balanceGroup,
+    yearTotal,
+    inSystemYear,
+    date,
+    year,
+  }: UpdateTotalYearMetersType,
   prevData: PrevData,
 ) {
   const lastYearId = await getLastYearId({
     transformerSubstationId: id,
-    type,
+    balanceGroup,
     year,
   });
 
@@ -178,7 +185,7 @@ async function handleYearMeters(
       added_to_system: inSystemYear,
       transformerSubstationId: id,
       date,
-      type,
+      balanceGroup,
       year,
     });
   }
@@ -187,7 +194,7 @@ async function handleYearMeters(
 async function handleMonthMeters(
   {
     id,
-    type,
+    balanceGroup,
     monthTotal,
     inSystemMonth,
     date,
@@ -198,7 +205,7 @@ async function handleMonthMeters(
 ) {
   const lastMonthId = await getLastMonthId({
     transformerSubstationId: id,
-    type,
+    balanceGroup,
     month,
     year,
   });
@@ -221,7 +228,7 @@ async function handleMonthMeters(
       quantity: monthTotal,
       added_to_system: inSystemMonth,
       transformerSubstationId: id,
-      type,
+      balanceGroup,
       date,
       year,
       month,

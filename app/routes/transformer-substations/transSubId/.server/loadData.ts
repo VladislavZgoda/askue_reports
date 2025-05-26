@@ -35,16 +35,20 @@ export default async function loadData({
   };
 }
 
-function handleValues(id: number, date: string, type: BalanceType) {
+function handleValues(id: number, date: string, balanceGroup: BalanceGroup) {
   return {
     transformerSubstationId: id,
     date,
-    type,
+    balanceGroup,
   };
 }
 
-async function getDataFromDb(id: number, date: string, type: BalanceType) {
-  const values = handleValues(id, date, type);
+async function getDataFromDb(
+  id: number,
+  date: string,
+  balanceGroup: BalanceGroup,
+) {
+  const values = handleValues(id, date, balanceGroup);
 
   const [inSystem, notInSystem] = await Promise.all([
     selectMetersOnDate(values),
