@@ -1,39 +1,39 @@
 import { db } from "../db";
-import { ElectricityMetersTable } from "../schema";
+import { electricityMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
 export async function insertNewMeters({
   quantity,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
 }: MetersValues) {
-  await db.insert(ElectricityMetersTable).values({
+  await db.insert(electricityMeters).values({
     quantity,
-    type,
+    balanceGroup,
     date,
     transformerSubstationId,
   });
 }
 
 export async function checkMetersRecord({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
 }: CheckRecordValues): Promise<number | undefined> {
   const record = await db
     .select({
-      quantity: ElectricityMetersTable.quantity,
+      quantity: electricityMeters.quantity,
     })
-    .from(ElectricityMetersTable)
+    .from(electricityMeters)
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(ElectricityMetersTable.date, date),
-        eq(ElectricityMetersTable.type, type),
+        eq(electricityMeters.date, date),
+        eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     );
 
@@ -42,46 +42,46 @@ export async function checkMetersRecord({
 
 export async function updateMetersRecord({
   quantity,
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
 }: MetersValues) {
   const updatedAt = new Date();
 
   await db
-    .update(ElectricityMetersTable)
+    .update(electricityMeters)
     .set({ quantity, updatedAt })
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(ElectricityMetersTable.date, date),
-        eq(ElectricityMetersTable.type, type),
+        eq(electricityMeters.date, date),
+        eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     );
 }
 
 export async function selectLastQuantity({
   transformerSubstationId,
-  type,
+  balanceGroup,
 }: LastQuantity): Promise<number | undefined> {
   const metersQuantity = await db
     .select({
-      quantity: ElectricityMetersTable.quantity,
+      quantity: electricityMeters.quantity,
     })
-    .from(ElectricityMetersTable)
+    .from(electricityMeters)
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(ElectricityMetersTable.type, type),
+        eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(ElectricityMetersTable.date))
+    .orderBy(desc(electricityMeters.date))
     .limit(1);
 
   return metersQuantity[0]?.quantity;
@@ -89,21 +89,21 @@ export async function selectLastQuantity({
 
 export async function getLastRecordId({
   transformerSubstationId,
-  type,
+  balanceGroup,
 }: LastQuantity): Promise<number | undefined> {
   const recordId = await db
-    .select({ id: ElectricityMetersTable.id })
-    .from(ElectricityMetersTable)
+    .select({ id: electricityMeters.id })
+    .from(electricityMeters)
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(ElectricityMetersTable.type, type),
+        eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(ElectricityMetersTable.date))
+    .orderBy(desc(electricityMeters.date))
     .limit(1);
 
   return recordId[0]?.id;
@@ -113,51 +113,51 @@ export async function updateRecordOnId({ id, quantity }: UpdateOnIdType) {
   const updatedAt = new Date();
 
   await db
-    .update(ElectricityMetersTable)
+    .update(electricityMeters)
     .set({ quantity, updatedAt })
-    .where(eq(ElectricityMetersTable.id, id));
+    .where(eq(electricityMeters.id, id));
 }
 
 export async function selectMetersOnDate({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
 }: CheckRecordValues) {
   const record = await db
     .select({
-      quantity: ElectricityMetersTable.quantity,
+      quantity: electricityMeters.quantity,
     })
-    .from(ElectricityMetersTable)
+    .from(electricityMeters)
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        lte(ElectricityMetersTable.date, date),
-        eq(ElectricityMetersTable.type, type),
+        lte(electricityMeters.date, date),
+        eq(electricityMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(ElectricityMetersTable.date))
+    .orderBy(desc(electricityMeters.date))
     .limit(1);
 
   return record[0]?.quantity ?? 0;
 }
 
 export async function getNewMetersIds({
-  type,
+  balanceGroup,
   date,
   transformerSubstationId,
 }: CheckRecordValues) {
   const ids = await db
-    .select({ id: ElectricityMetersTable.id })
-    .from(ElectricityMetersTable)
+    .select({ id: electricityMeters.id })
+    .from(electricityMeters)
     .where(
       and(
-        gt(ElectricityMetersTable.date, date),
-        eq(ElectricityMetersTable.type, type),
+        gt(electricityMeters.date, date),
+        eq(electricityMeters.balanceGroup, balanceGroup),
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
       ),
@@ -169,24 +169,24 @@ export async function getNewMetersIds({
 export async function getQuantityForInsert({
   transformerSubstationId,
   date,
-  type,
+  balanceGroup,
 }: QuantityForInsert) {
   const record = await db
     .select({
-      quantity: ElectricityMetersTable.quantity,
+      quantity: electricityMeters.quantity,
     })
-    .from(ElectricityMetersTable)
+    .from(electricityMeters)
     .where(
       and(
         eq(
-          ElectricityMetersTable.transformerSubstationId,
+          electricityMeters.transformerSubstationId,
           transformerSubstationId,
         ),
-        eq(ElectricityMetersTable.type, type),
-        lt(ElectricityMetersTable.date, date),
+        eq(electricityMeters.balanceGroup, balanceGroup),
+        lt(electricityMeters.date, date),
       ),
     )
-    .orderBy(desc(ElectricityMetersTable.date))
+    .orderBy(desc(electricityMeters.date))
     .limit(1);
 
   return record[0]?.quantity ?? 0;
@@ -194,9 +194,9 @@ export async function getQuantityForInsert({
 
 export async function getQuantityOnID(id: number) {
   const record = await db
-    .select({ quantity: ElectricityMetersTable.quantity })
-    .from(ElectricityMetersTable)
-    .where(eq(ElectricityMetersTable.id, id));
+    .select({ quantity: electricityMeters.quantity })
+    .from(electricityMeters)
+    .where(eq(electricityMeters.id, id));
 
   return record[0].quantity;
 }

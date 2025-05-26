@@ -8,7 +8,7 @@ declare interface TransSubs {
   q: string | null | undefined;
 }
 
-declare type BalanceType =
+declare type BalanceGroup =
   | "Быт"
   | "ЮР Sims"
   | "ЮР П2"
@@ -17,7 +17,7 @@ declare type BalanceType =
 
 declare interface MetersValues {
   quantity: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   transformerSubstationId: number;
 }
@@ -35,7 +35,7 @@ declare interface MonthMetersValues extends YearMetersValues {
 }
 
 declare interface CheckRecordValues {
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   transformerSubstationId: number;
 }
@@ -50,7 +50,7 @@ declare interface SelectMonthQuantity extends SelectYearQuantity {
 
 declare interface LastQuantity {
   transformerSubstationId: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
 }
 
 declare interface LastYearQuantity extends LastQuantity {
@@ -80,7 +80,7 @@ declare interface UpdateTotalMetersType {
   totalMeters: number;
   inSystemTotal: number;
   id: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
 }
 
@@ -91,7 +91,7 @@ declare interface UpdateYearOnIdType extends UpdateOnIdType {
 declare interface UpdateTotalYearMetersType {
   year: number;
   id: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   inSystemYear: number;
   yearTotal: number;
@@ -102,7 +102,7 @@ declare type UpdateMonthOnIdType = UpdateYearOnIdType;
 declare interface UpdateTotalMonthMetersType {
   year: number;
   id: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
   month: string;
   monthTotal: number;
@@ -124,6 +124,6 @@ declare interface DbData {
 
 declare interface QuantityForInsert {
   transformerSubstationId: number;
-  type: BalanceType;
+  balanceGroup: BalanceGroup;
   date: string;
 }
