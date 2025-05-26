@@ -10,23 +10,27 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
+const timestamps = {
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "date",
+  })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", {
+    withTimezone: true,
+    mode: "date",
+  })
+    .defaultNow()
+    .notNull(),
+};
+
 export const TransformerSubstationTable = pgTable(
   "transformerSubstation",
   {
     id: serial("id").primaryKey(),
     name: varchar("name", { length: 15 }).unique().notNull(),
-    createdAt: timestamp("created_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
+    ...timestamps,
   },
   (table) => {
     return [index("id_index").on(table.id)];
@@ -53,18 +57,7 @@ export const ElectricityMetersTable = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
+    ...timestamps,
   },
   (table) => {
     return [
@@ -89,18 +82,7 @@ export const NewYearMetersTable = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
+    ...timestamps
   },
   (table) => {
     return [
@@ -127,18 +109,7 @@ export const NewMonthMetersTable = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
+    ...timestamps
   },
   (table) => {
     return [
@@ -163,18 +134,7 @@ export const NotInSystem = pgTable(
         onDelete: "cascade",
       })
       .notNull(),
-    created_at: timestamp("created_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
-    updated_at: timestamp("updated_at", {
-      withTimezone: true,
-      mode: "date",
-    })
-      .defaultNow()
-      .notNull(),
+    ...timestamps,
   },
   (table) => {
     return [
@@ -216,18 +176,7 @@ export const TechnicalMeters = pgTable("technicalMeters", {
       onDelete: "cascade",
     })
     .notNull(),
-  created_at: timestamp("created_at", {
-    withTimezone: true,
-    mode: "date",
-  })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp("updated_at", {
-    withTimezone: true,
-    mode: "date",
-  })
-    .defaultNow()
-    .notNull(),
+  ...timestamps,
 });
 
 export const Users = pgTable("users", {
@@ -235,16 +184,5 @@ export const Users = pgTable("users", {
   useLogin: varchar("name").unique().notNull(),
   password: varchar("password").notNull(),
   userId: varchar("userId").notNull(),
-  created_at: timestamp("created_at", {
-    withTimezone: true,
-    mode: "date",
-  })
-    .defaultNow()
-    .notNull(),
-  updated_at: timestamp("updated_at", {
-    withTimezone: true,
-    mode: "date",
-  })
-    .defaultNow()
-    .notNull(),
+  ...timestamps,
 });
