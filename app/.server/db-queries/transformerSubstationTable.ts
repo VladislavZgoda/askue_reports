@@ -54,11 +54,11 @@ export async function deleteTransSub(id: string) {
 }
 
 export async function updateTransSub(id: string, name: string) {
-  const updated_at = new Date();
+  const updatedAt = new Date();
 
   await db
     .update(TransformerSubstationTable)
-    .set({ name, updated_at })
+    .set({ name, updatedAt })
     .where(eq(TransformerSubstationTable.id, Number(id)));
 }
 
