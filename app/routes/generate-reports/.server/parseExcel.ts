@@ -9,7 +9,7 @@ interface MetersReadings {
 
 type UploadedMetersReadings = Record<BalanceGroups, MetersReadings>;
 
-// Key - наимаеннование ТП (ТП-777), value - количество КС быт + юр.
+// Key - наименование ТП (ТП-777), value - количество КС быт + юр.
 type TpMetersReadings = Record<string, number>;
 
 export default async function parseExcel(file: File) {
