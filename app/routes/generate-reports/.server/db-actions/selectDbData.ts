@@ -137,7 +137,7 @@ interface FuncArgs {
 interface GetPeriodMeters {
   transSubs: TransSubs;
   type: BalanceType;
-  date: FormDataEntryValue;
+  date: string;
   periodType?: "month";
 }
 
@@ -149,12 +149,12 @@ async function getPeriodMeters({
 }: GetPeriodMeters) {
   const meters: PeriodMetersType = {};
 
-  const year = cutOutYear(date as string);
-  const month = cutOutMonth(date as string);
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
 
   const args: FuncArgs = {
     type,
-    date: date as string,
+    date,
     year,
   };
 
@@ -287,7 +287,7 @@ async function addPreviousMonth(
     const metersBeforeFirstDate = await selectMonthMetersOnDate({
       transformerSubstationId: transSub.id,
       type,
-      date: date,
+      date,
       month,
       year,
     });
