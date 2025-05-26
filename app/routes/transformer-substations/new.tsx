@@ -1,5 +1,5 @@
 import { useActionData, useNavigation, redirect } from "react-router";
-import { insertNewTS } from "~/.server/db-queries/transformerSubstationTable";
+import { insertNewTS } from "~/.server/db-queries/transformerSubstations";
 import TransSubName from "~/components/TransSubName";
 import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";

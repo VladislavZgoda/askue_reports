@@ -1,5 +1,5 @@
 import { useFetcher } from "react-router";
-import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
+import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
 import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
 import SelectInput from "./SelectInput";

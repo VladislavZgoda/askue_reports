@@ -1,4 +1,4 @@
-import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
+import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";

@@ -14,7 +14,7 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import "./app.css";
 import MainLayout from "./layout/MainLayout";
-import { selectTransSubs } from "./.server/db-queries/transformerSubstationTable";
+import { selectTransSubs } from "./.server/db-queries/transformerSubstations";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

@@ -1,5 +1,5 @@
 import { Form, useSubmit } from "react-router";
-import { selectTransSub } from "~/.server/db-queries/transformerSubstationTable";
+import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
 import StatTable from "./StatTable";
 import NavigateForm from "./NavigateForm";
 import DateInput from "~/components/DateInput";
