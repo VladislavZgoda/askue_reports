@@ -1,5 +1,5 @@
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
+import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 
 interface LoadDataProps {

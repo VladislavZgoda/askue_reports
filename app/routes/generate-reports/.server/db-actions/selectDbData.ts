@@ -1,5 +1,5 @@
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
+import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormData } from "../../generateReports";

@@ -7,7 +7,7 @@ import {
   getLastNotInSystemId,
   updateNotInSystemOnId,
   insertNotInSystem,
-} from "~/.server/db-queries/notInSystemTable";
+} from "~/.server/db-queries/notInSystem";
 import {
   getLastYearId,
   updateYearOnId,

@@ -36,7 +36,7 @@ import {
   getNotInSystemOnID,
   getNotInSystemForInsert,
   updateNotInSystemOnId,
-} from "~/.server/db-queries/notInSystemTable";
+} from "~/.server/db-queries/notInSystem";
 
 import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";

@@ -1,7 +1,7 @@
 import exceljs from "exceljs";
 import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstations";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystemTable";
+import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
 
 import {

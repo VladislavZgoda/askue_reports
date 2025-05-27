@@ -1,5 +1,5 @@
 import { selectLastQuantity } from "~/.server/db-queries/electricityMeters";
-import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
+import { selectLastNotInSystem } from "~/.server/db-queries/notInSystem";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMeters";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMeters";
 
