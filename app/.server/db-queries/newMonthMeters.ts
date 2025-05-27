@@ -1,5 +1,5 @@
 import { db } from "../db";
-import { NewMonthMetersTable } from "../schema";
+import { newMonthMeters } from "../schema";
 import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 
 export async function insertMonthMeters({
@@ -11,10 +11,10 @@ export async function insertMonthMeters({
   month,
   year,
 }: MonthMetersValues) {
-  await db.insert(NewMonthMetersTable).values({
+  await db.insert(newMonthMeters).values({
     quantity,
-    added_to_system: addedToSystem,
-    type: balanceGroup,
+    addedToSystem,
+    balanceGroup,
     date,
     transformerSubstationId,
     month,
@@ -31,20 +31,17 @@ export async function selectMonthQuantity({
 }: SelectMonthQuantity) {
   const monthQuantity = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      addedToSystem: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
+    .from(newMonthMeters)
     .where(
       and(
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(NewMonthMetersTable.date, date),
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.date, date),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
       ),
     );
 
@@ -59,22 +56,19 @@ export async function selectLastMonthQuantity({
 }: LastMonthQuantity) {
   const monthQuantity = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
+    .from(newMonthMeters)
     .where(
       and(
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
       ),
     )
-    .orderBy(desc(NewMonthMetersTable.date))
+    .orderBy(desc(newMonthMeters.date))
     .limit(1);
 
   return monthQuantity;
@@ -92,18 +86,15 @@ export async function updateMonthMeters({
   const updatedAt = new Date();
 
   await db
-    .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system: addedToSystem, updatedAt })
+    .update(newMonthMeters)
+    .set({ quantity, addedToSystem, updatedAt })
     .where(
       and(
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(NewMonthMetersTable.date, date),
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.date, date),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
       ),
     );
 }
@@ -115,20 +106,17 @@ export async function getLastMonthId({
   year,
 }: LastMonthQuantity): Promise<number | undefined> {
   const recordId = await db
-    .select({ id: NewMonthMetersTable.id })
-    .from(NewMonthMetersTable)
+    .select({ id: newMonthMeters.id })
+    .from(newMonthMeters)
     .where(
       and(
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
       ),
     )
-    .orderBy(desc(NewMonthMetersTable.date))
+    .orderBy(desc(newMonthMeters.date))
     .limit(1);
 
   return recordId[0]?.id;
@@ -142,9 +130,9 @@ export async function updateMonthOnId({
   const updatedAt = new Date();
 
   await db
-    .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system: addedToSystem, updatedAt })
-    .where(eq(NewMonthMetersTable.id, id));
+    .update(newMonthMeters)
+    .set({ quantity, addedToSystem, updatedAt })
+    .where(eq(newMonthMeters.id, id));
 }
 
 export async function getMonthIds({
@@ -155,18 +143,15 @@ export async function getMonthIds({
   year,
 }: SelectMonthQuantity) {
   const ids = await db
-    .select({ id: NewMonthMetersTable.id })
-    .from(NewMonthMetersTable)
+    .select({ id: newMonthMeters.id })
+    .from(newMonthMeters)
     .where(
       and(
-        gt(NewMonthMetersTable.date, date),
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        gt(newMonthMeters.date, date),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
       ),
     );
 
@@ -176,11 +161,11 @@ export async function getMonthIds({
 export async function getMonthMetersOnID(id: number) {
   const record = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
-    .where(eq(NewMonthMetersTable.id, id));
+    .from(newMonthMeters)
+    .where(eq(newMonthMeters.id, id));
 
   return record[0];
 }
@@ -194,23 +179,20 @@ export async function getMonthMetersForInsert({
 }: SelectMonthQuantity) {
   const record = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
+    .from(newMonthMeters)
     .where(
       and(
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
-        lt(NewMonthMetersTable.date, date),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
+        lt(newMonthMeters.date, date),
       ),
     )
-    .orderBy(desc(NewMonthMetersTable.date))
+    .orderBy(desc(newMonthMeters.date))
     .limit(1);
 
   return record;
@@ -225,59 +207,53 @@ export async function selectMonthMetersOnDate({
 }: SelectMonthQuantity) {
   const record = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
+    .from(newMonthMeters)
     .where(
       and(
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        lte(NewMonthMetersTable.date, date),
-        eq(NewMonthMetersTable.type, balanceGroup),
-        eq(NewMonthMetersTable.month, month),
-        eq(NewMonthMetersTable.year, year),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        lte(newMonthMeters.date, date),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(newMonthMeters.month, month),
+        eq(newMonthMeters.year, year),
       ),
     )
-    .orderBy(desc(NewMonthMetersTable.date))
+    .orderBy(desc(newMonthMeters.date))
     .limit(1);
 
   return record[0];
 }
 
 interface monthPeriod {
-  type: BalanceGroup;
+  balanceGroup: BalanceGroup;
   firstDate: string;
   lastDate: string;
   transformerSubstationId: number;
 }
 
 export async function selectMonthPeriodMeters({
-  type,
+  balanceGroup,
   firstDate,
   lastDate,
   transformerSubstationId,
 }: monthPeriod) {
   const record = await db
     .select({
-      quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      quantity: newMonthMeters.quantity,
+      addedToSystem: newMonthMeters.addedToSystem,
     })
-    .from(NewMonthMetersTable)
+    .from(newMonthMeters)
     .where(
       and(
-        eq(
-          NewMonthMetersTable.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        lte(NewMonthMetersTable.date, lastDate),
-        gte(NewMonthMetersTable.date, firstDate),
-        eq(NewMonthMetersTable.type, type),
+        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        lte(newMonthMeters.date, lastDate),
+        gte(newMonthMeters.date, firstDate),
+        eq(newMonthMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(NewMonthMetersTable.date))
+    .orderBy(desc(newMonthMeters.date))
     .limit(1);
 
   return record[0];

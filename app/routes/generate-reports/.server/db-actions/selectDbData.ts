@@ -124,7 +124,7 @@ type PeriodMetersType = Record<
   string,
   {
     quantity: number;
-    added_to_system: number;
+    addedToSystem: number;
   }
 >;
 
@@ -160,7 +160,7 @@ async function getPeriodMeters({
 
   let data: {
     quantity: number;
-    added_to_system: number;
+    addedToSystem: number;
   };
 
   for (const transSub of transSubs) {
@@ -229,12 +229,12 @@ export async function selectPeriodMeters({
       (legalSims?.quantity ?? 0) +
       (legalP2?.quantity ?? 0);
 
-    const added_to_system =
-      (privateM?.added_to_system ?? 0) +
-      (legalSims?.added_to_system ?? 0) +
-      (legalP2?.added_to_system ?? 0);
+    const addedToSystem =
+      (privateM?.addedToSystem ?? 0) +
+      (legalSims?.addedToSystem ?? 0) +
+      (legalP2?.addedToSystem ?? 0);
 
-    meters[name] = { quantity, added_to_system };
+    meters[name] = { quantity, addedToSystem };
   }
 
   return meters;
@@ -276,7 +276,7 @@ async function addPreviousMonth(
 
   for (const transSub of transSubs) {
     const periodMeters = await selectMonthPeriodMeters({
-      type: balanceGroup,
+      balanceGroup,
       firstDate: date,
       lastDate: lastMonthDatePrivate,
       transformerSubstationId: transSub.id,
@@ -296,11 +296,10 @@ async function addPreviousMonth(
       periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
 
     const addedToSystem =
-      periodMeters.added_to_system -
-      (metersBeforeFirstDate?.added_to_system ?? 0);
+      periodMeters.addedToSystem - (metersBeforeFirstDate?.addedToSystem ?? 0);
 
     meters[transSub.name].quantity += quantity;
-    meters[transSub.name].added_to_system += addedToSystem;
+    meters[transSub.name].addedToSystem += addedToSystem;
   }
 }
 
@@ -411,7 +410,7 @@ export async function calculateOdpy(formData: FormData, transSubs: TransSubs) {
     odpyData.month.quantity +=
       (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
     odpyData.month.added_to_system +=
-      (monthSims?.added_to_system ?? 0) + (monthP2?.added_to_system ?? 0);
+      (monthSims?.addedToSystem ?? 0) + (monthP2?.addedToSystem ?? 0);
   }
 
   if (formData?.odpyMonth) {
@@ -434,10 +433,10 @@ async function calculatePreviousMonthOdpy(transSubs: TransSubs, date: string) {
     addedToSystem: 0,
   };
 
-  const calculate = async (type: "ОДПУ Sims" | "ОДПУ П2") => {
+  const calculate = async (balanceGroup: "ОДПУ Sims" | "ОДПУ П2") => {
     for (const transSub of transSubs) {
       const periodMeters = await selectMonthPeriodMeters({
-        type,
+        balanceGroup,
         firstDate: date,
         lastDate: lastMonthDatePrivate,
         transformerSubstationId: transSub.id,
@@ -447,7 +446,7 @@ async function calculatePreviousMonthOdpy(transSubs: TransSubs, date: string) {
 
       const metersBeforeFirstDate = await selectMonthMetersOnDate({
         transformerSubstationId: transSub.id,
-        balanceGroup: type,
+        balanceGroup,
         date,
         month,
         year,
@@ -457,8 +456,8 @@ async function calculatePreviousMonthOdpy(transSubs: TransSubs, date: string) {
         periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
 
       const addedToSystem =
-        periodMeters.added_to_system -
-        (metersBeforeFirstDate?.added_to_system ?? 0);
+        periodMeters.addedToSystem -
+        (metersBeforeFirstDate?.addedToSystem ?? 0);
 
       meters.quantity += quantity;
       meters.addedToSystem += addedToSystem;

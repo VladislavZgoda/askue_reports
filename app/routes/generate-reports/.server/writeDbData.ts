@@ -31,7 +31,7 @@ export default async function writeDbData(formData: FormData) {
   const [privateMeters, legalMeters, odpy] = await Promise.all([
     selectMeters({
       transSubs,
-      type: "Быт",
+      balanceGroup: "Быт",
       date: formData.privateDate,
       func: selectMetersOnDate,
     }),
@@ -142,17 +142,16 @@ async function handleReport({
     rowCount += 1;
 
     const privateM = privateMeters[transSub] ?? 0;
-
     const legalM = legalMeters.sims[transSub] + legalMeters.p2[transSub] || 0;
 
     const p2 = legalMeters.p2[transSub] ?? 0;
     const notInSystemMeters = notInSystem[transSub] ?? 0;
 
     const yearQuantity = yearMeters[transSub]?.quantity ?? 0;
-    const yearInSystem = yearMeters[transSub]?.added_to_system ?? 0;
+    const yearInSystem = yearMeters[transSub]?.addedToSystem ?? 0;
 
     const monthQuantity = monthMeters[transSub]?.quantity ?? 0;
-    const monthInSystem = monthMeters[transSub]?.added_to_system ?? 0;
+    const monthInSystem = monthMeters[transSub]?.addedToSystem ?? 0;
 
     ws.getCell("H" + rowNumber).value = privateM + legalM;
     ws.getCell("I" + rowNumber).value = privateM;
@@ -216,7 +215,7 @@ async function handleSupplementThree({
 
   const notInSystemPrivate = await selectMeters({
     transSubs,
-    type: "Быт",
+    balanceGroup: "Быт",
     date: formData.privateDate,
     func: selectNotInSystemOnDate,
   });
@@ -230,13 +229,13 @@ async function handleSupplementThree({
   const [notInSystemSims, notInSystemP2] = await Promise.all([
     selectMeters({
       transSubs,
-      type: "ЮР Sims",
+      balanceGroup: "ЮР Sims",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       transSubs,
-      type: "ЮР П2",
+      balanceGroup: "ЮР П2",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),

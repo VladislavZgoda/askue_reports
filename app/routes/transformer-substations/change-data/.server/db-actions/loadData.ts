@@ -74,7 +74,7 @@ async function handleMonthMeters(
 
   const monthQuantity = {
     quantity: monthData[0]?.quantity ?? 0,
-    addedToSystem: monthData[0]?.added_to_system ?? 0,
+    addedToSystem: monthData[0]?.addedToSystem ?? 0,
   };
 
   return monthQuantity;

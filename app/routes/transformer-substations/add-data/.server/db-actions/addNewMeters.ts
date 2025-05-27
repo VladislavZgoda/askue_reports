@@ -337,7 +337,7 @@ async function insertTotalMonthMeters(
   const updatedLastMonthQuantity =
     quantity + (lastMonthQuantity[0]?.quantity ?? 0);
   const updatedLastMonthAddedToSystem =
-    addedToSystem + (lastMonthQuantity[0]?.added_to_system ?? 0);
+    addedToSystem + (lastMonthQuantity[0]?.addedToSystem ?? 0);
 
   await insertMonthMeters({
     ...insertValues,
@@ -378,7 +378,7 @@ async function updateNextMonthRecords(values: MonthMetersValues) {
       await updateMonthOnId({
         id,
         quantity: meters.quantity + values.quantity,
-        addedToSystem: meters.added_to_system + values.addedToSystem,
+        addedToSystem: meters.addedToSystem + values.addedToSystem,
       });
     }
   }
