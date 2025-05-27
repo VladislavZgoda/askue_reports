@@ -147,8 +147,8 @@ export const notInSystem = pgTable(
   },
 );
 
-export const MetersActionLog = pgTable(
-  "metersActionLog",
+export const meterActionLogs = pgTable(
+  "meter_action_logs",
   {
     id: serial("id").primaryKey(),
     message: text("message").notNull(),
