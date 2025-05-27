@@ -23,7 +23,7 @@ declare interface MetersValues {
 }
 
 declare interface InsertMetersValues extends MetersValues {
-  added_to_system: number;
+  addedToSystem: number;
 }
 
 declare interface YearMetersValues extends InsertMetersValues {
@@ -85,7 +85,7 @@ declare interface UpdateTotalMetersType {
 }
 
 declare interface UpdateYearOnIdType extends UpdateOnIdType {
-  added_to_system: number;
+  addedToSystem: number;
 }
 
 declare interface UpdateTotalYearMetersType {
