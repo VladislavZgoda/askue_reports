@@ -45,6 +45,14 @@ export const balanceGroupEnum = pgEnum("balance_group", [
   "ОДПУ П2",
 ]);
 
+const transformerSubstationForeignKey = {
+  transformerSubstationId: integer("transformer_substation_id")
+    .references(() => transformerSubstations.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+};
+
 export const electricityMeters = pgTable(
   "electricity_meters",
   {
@@ -52,11 +60,7 @@ export const electricityMeters = pgTable(
     quantity: integer("quantity").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformer_substation_id")
-      .references(() => transformerSubstations.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
+    ...transformerSubstationForeignKey,
     ...timestamps,
   },
   (table) => {
@@ -79,11 +83,7 @@ export const newYearMeters = pgTable(
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformer_substation_id")
-      .references(() => transformerSubstations.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
+    ...transformerSubstationForeignKey,
     ...timestamps,
   },
   (table) => {
@@ -106,11 +106,7 @@ export const newMonthMeters = pgTable(
     month: varchar("month", { length: 2 }).notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformer_substation_id")
-      .references(() => transformerSubstations.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
+    ...transformerSubstationForeignKey,
     ...timestamps,
   },
   (table) => {
@@ -131,11 +127,7 @@ export const notInSystem = pgTable(
     quantity: integer("quantity").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformer_substation_id")
-      .references(() => transformerSubstations.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
+    ...transformerSubstationForeignKey,
     ...timestamps,
   },
   (table) => {
@@ -152,17 +144,13 @@ export const meterActionLogs = pgTable(
   {
     id: serial("id").primaryKey(),
     message: text("message").notNull(),
-    transformerSubstationId: integer("transformer_substation_id")
-      .references(() => transformerSubstations.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
     created_at: timestamp("created_at", {
       withTimezone: true,
       mode: "date",
     })
       .defaultNow()
       .notNull(),
+    ...transformerSubstationForeignKey,
   },
   (table) => {
     return [index("log_foreign_key").on(table.transformerSubstationId)];
@@ -173,11 +161,7 @@ export const technicalMeters = pgTable("technical_meters", {
   id: serial("id").primaryKey(),
   quantity: integer("quantity").notNull(),
   underVoltage: integer("under_voltage").notNull(),
-  transformerSubstationId: integer("transformer_substation_id")
-    .references(() => transformerSubstations.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
+  ...transformerSubstationForeignKey,
   ...timestamps,
 });
 
