@@ -1,4 +1,4 @@
-import { selectTechnicalMeters } from "~/.server/db-queries/technicalMetersTable";
+import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 export default async function loadTechMeters(id: number) {
   const techMeters = await selectTechnicalMeters(id);

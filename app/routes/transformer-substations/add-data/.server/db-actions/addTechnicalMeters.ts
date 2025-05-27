@@ -2,7 +2,7 @@ import {
   insertTechnicalMeters,
   selectTechnicalMeters,
   updateTechnicalMeters,
-} from "~/.server/db-queries/technicalMetersTable";
+} from "~/.server/db-queries/technicalMeters";
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 
 interface TechnicalMetersAction {

@@ -2,7 +2,7 @@ import {
   selectTechnicalMeters,
   updateTechnicalMeters,
   insertTechnicalMeters,
-} from "~/.server/db-queries/technicalMetersTable";
+} from "~/.server/db-queries/technicalMeters";
 
 export default async function changeTechMeters(
   values: Record<string, FormDataEntryValue>,
