@@ -1,6 +1,6 @@
 import { eq, sum } from "drizzle-orm";
 import { db } from "../db";
-import { TechnicalMeters } from "../schema";
+import { technicalMeters } from "../schema";
 
 interface TechnicalMetersValues {
   quantity: number;
@@ -13,7 +13,7 @@ export const insertTechnicalMeters = async ({
   underVoltage,
   transformerSubstationId,
 }: TechnicalMetersValues) => {
-  await db.insert(TechnicalMeters).values({
+  await db.insert(technicalMeters).values({
     quantity,
     underVoltage,
     transformerSubstationId,
@@ -25,12 +25,12 @@ export const selectTechnicalMeters = async (
 ) => {
   const prevValues = await db
     .select({
-      quantity: TechnicalMeters.quantity,
-      underVoltage: TechnicalMeters.underVoltage,
+      quantity: technicalMeters.quantity,
+      underVoltage: technicalMeters.underVoltage,
     })
-    .from(TechnicalMeters)
+    .from(technicalMeters)
     .where(
-      eq(TechnicalMeters.transformerSubstationId, transformerSubstationId),
+      eq(technicalMeters.transformerSubstationId, transformerSubstationId),
     );
 
   return prevValues;
@@ -44,20 +44,20 @@ export const updateTechnicalMeters = async ({
   const updatedAt = new Date();
 
   await db
-    .update(TechnicalMeters)
+    .update(technicalMeters)
     .set({ quantity, underVoltage, updatedAt })
     .where(
-      eq(TechnicalMeters.transformerSubstationId, transformerSubstationId),
+      eq(technicalMeters.transformerSubstationId, transformerSubstationId),
     );
 };
 
 export const selectSumTechnicalMeters = async () => {
   const meters = await db
     .select({
-      quantity: sum(TechnicalMeters.quantity),
-      underVoltage: sum(TechnicalMeters.underVoltage),
+      quantity: sum(technicalMeters.quantity),
+      underVoltage: sum(technicalMeters.underVoltage),
     })
-    .from(TechnicalMeters);
+    .from(technicalMeters);
 
   return meters;
 };
