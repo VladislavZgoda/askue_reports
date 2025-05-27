@@ -211,6 +211,13 @@
       "when": 1748344749730,
       "tag": "0029_moaning_fallen_one",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1748345088453,
+      "tag": "0030_right_warbird",
+      "breakpoints": true
     }
   ]
 }

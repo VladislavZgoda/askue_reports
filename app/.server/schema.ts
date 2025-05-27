@@ -181,10 +181,10 @@ export const technicalMeters = pgTable("technical_meters", {
   ...timestamps,
 });
 
-export const Users = pgTable("users", {
+export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  useLogin: varchar("name").unique().notNull(),
+  name: varchar("name").unique().notNull(),
   password: varchar("password").notNull(),
-  userId: varchar("userId").notNull(),
+  userId: varchar("user_id").notNull(),
   ...timestamps,
 });
