@@ -79,7 +79,7 @@ export const newYearMeters = pgTable(
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
-    transformerSubstationId: integer("transformer_Substation_id")
+    transformerSubstationId: integer("transformer_substation_id")
       .references(() => transformerSubstations.id, {
         onDelete: "cascade",
       })

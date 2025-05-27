@@ -176,6 +176,13 @@
       "when": 1748328877949,
       "tag": "0024_unknown_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1748329545039,
+      "tag": "0025_wet_roulette",
+      "breakpoints": true
     }
   ]
 }
