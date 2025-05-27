@@ -12,7 +12,7 @@ import {
   getLastYearId,
   updateYearOnId,
   insertYearMeters,
-} from "~/.server/db-queries/newYearMetersTable";
+} from "~/.server/db-queries/newYearMeters";
 import {
   getLastMonthId,
   updateMonthOnId,
