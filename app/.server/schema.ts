@@ -96,13 +96,13 @@ export const newYearMeters = pgTable(
   },
 );
 
-export const NewMonthMetersTable = pgTable(
-  "newMonthMetersTable",
+export const newMonthMeters = pgTable(
+  "new_month_meters",
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    added_to_system: integer("added_to_system").notNull(),
-    type: balanceGroupEnum("balance_group").notNull(),
+    addedToSystem: integer("added_to_system").notNull(),
+    balanceGroup: balanceGroupEnum("balance_group").notNull(),
     month: varchar("month", { length: 2 }).notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
@@ -116,7 +116,7 @@ export const NewMonthMetersTable = pgTable(
   (table) => {
     return [
       index("month_foreign_key").on(table.transformerSubstationId),
-      index("month_type_index").on(table.type),
+      index("month_type_index").on(table.balanceGroup),
       index("month_date_index").on(table.date),
       index("month_index").on(table.month),
       index("month_year_index").on(table.year),
