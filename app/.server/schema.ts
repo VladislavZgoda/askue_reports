@@ -124,12 +124,12 @@ export const newMonthMeters = pgTable(
   },
 );
 
-export const NotInSystem = pgTable(
-  "notInSystem",
+export const notInSystem = pgTable(
+  "not_in_system",
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    type: balanceGroupEnum("balance_group").notNull(),
+    balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_substation_id")
       .references(() => transformerSubstations.id, {
@@ -141,7 +141,7 @@ export const NotInSystem = pgTable(
   (table) => {
     return [
       index("not_in_system_foreign_key").on(table.transformerSubstationId),
-      index("not_in_system_type_index").on(table.type),
+      index("not_in_system_type_index").on(table.balanceGroup),
       index("not_in_system_date_index").on(table.date),
     ];
   },
