@@ -3,7 +3,7 @@ import {
   selectTechnicalMeters,
   updateTechnicalMeters,
 } from "~/.server/db-queries/technicalMetersTable";
-import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 
 interface TechnicalMetersAction {
   transSubId: string;

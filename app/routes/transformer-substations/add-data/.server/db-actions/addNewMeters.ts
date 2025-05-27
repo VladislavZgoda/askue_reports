@@ -38,7 +38,7 @@ import {
   updateNotInSystemOnId,
 } from "~/.server/db-queries/notInSystem";
 
-import { insertMessage } from "~/.server/db-queries/metersActionLogTable";
+import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 interface ActionValues {
