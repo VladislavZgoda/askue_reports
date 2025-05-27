@@ -34,52 +34,52 @@ export default async function loadData({
       notInSystemOdpyP2,
     ] = await Promise.all([
       selectMetersOnDate({
-        type: "Быт",
+        balanceGroup: "Быт",
         date: privateDate,
         transformerSubstationId,
       }),
       selectMetersOnDate({
-        type: "ЮР Sims",
+        balanceGroup: "ЮР Sims",
         date: legalDate,
         transformerSubstationId,
       }),
       selectMetersOnDate({
-        type: "ЮР П2",
+        balanceGroup: "ЮР П2",
         date: legalDate,
         transformerSubstationId,
       }),
       selectMetersOnDate({
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: odpyDate,
         transformerSubstationId,
       }),
       selectMetersOnDate({
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: odpyDate,
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
-        type: "Быт",
+        balanceGroup: "Быт",
         date: privateDate,
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
-        type: "ЮР Sims",
+        balanceGroup: "ЮР Sims",
         date: legalDate,
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
-        type: "ЮР П2",
+        balanceGroup: "ЮР П2",
         date: legalDate,
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
-        type: "ОДПУ Sims",
+        balanceGroup: "ОДПУ Sims",
         date: odpyDate,
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
-        type: "ОДПУ П2",
+        balanceGroup: "ОДПУ П2",
         date: odpyDate,
         transformerSubstationId,
       }),

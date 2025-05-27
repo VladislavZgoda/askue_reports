@@ -407,7 +407,7 @@ export async function calculateOdpy(formData: FormData, transSubs: TransSubs) {
     odpyData.year.quantity +=
       (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
     odpyData.year.added_to_system +=
-      (yearSims?.added_to_system ?? 0) + (yearP2?.added_to_system ?? 0);
+      (yearSims?.addedToSystem ?? 0) + (yearP2?.addedToSystem ?? 0);
     odpyData.month.quantity +=
       (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
     odpyData.month.added_to_system +=
