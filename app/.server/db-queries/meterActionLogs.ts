@@ -1,12 +1,12 @@
 import { db } from "../db";
-import { MetersActionLog } from "../schema";
+import { meterActionLogs } from "../schema";
 import { eq, desc } from "drizzle-orm";
 
 export const insertMessage = async (
   message: string,
   transformerSubstationId: number,
 ) => {
-  await db.insert(MetersActionLog).values({
+  await db.insert(meterActionLogs).values({
     message,
     transformerSubstationId,
   });
@@ -15,17 +15,17 @@ export const insertMessage = async (
 export const selectMessages = async (transformerSubstationId: string) => {
   const messages = await db
     .select({
-      id: MetersActionLog.id,
-      message: MetersActionLog.message,
+      id: meterActionLogs.id,
+      message: meterActionLogs.message,
     })
-    .from(MetersActionLog)
+    .from(meterActionLogs)
     .where(
       eq(
-        MetersActionLog.transformerSubstationId,
+        meterActionLogs.transformerSubstationId,
         Number(transformerSubstationId),
       ),
     )
-    .orderBy(desc(MetersActionLog.created_at))
+    .orderBy(desc(meterActionLogs.created_at))
     .limit(8);
 
   return messages;
