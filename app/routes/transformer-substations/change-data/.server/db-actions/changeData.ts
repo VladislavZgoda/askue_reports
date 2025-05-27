@@ -40,7 +40,7 @@ function handleValues(values: Record<string, FormDataEntryValue>) {
   const month = cutOutMonth(date);
 
   const handledValues = {
-    balanceGroup: values.type as BalanceGroup,
+    balanceGroup: values.balanceGroup as BalanceGroup,
     totalMeters: Number(values.totalMeters),
     inSystemTotal: Number(values.inSystemTotal),
     yearTotal: Number(values.yearTotal),
