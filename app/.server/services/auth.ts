@@ -3,7 +3,7 @@ import { FormStrategy } from "remix-auth-form";
 import { selectUserId, userIdSchema } from "../db-queries/users";
 import { redirect } from "react-router";
 import sessionStorage from "./session";
-import * as z from "zod";
+import * as z from "zod/v4";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
 import type { FormData } from "~/routes/auth/zodLoginSchema";
