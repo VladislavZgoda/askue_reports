@@ -176,13 +176,13 @@ async function handleYearMeters(
       await updateYearOnId({
         id: lastYearId,
         quantity: yearTotal,
-        added_to_system: inSystemYear,
+        addedToSystem: inSystemYear,
       });
     }
   } else {
     await insertYearMeters({
       quantity: yearTotal,
-      added_to_system: inSystemYear,
+      addedToSystem: inSystemYear,
       transformerSubstationId: id,
       date,
       balanceGroup,
@@ -220,13 +220,13 @@ async function handleMonthMeters(
       await updateMonthOnId({
         id: lastMonthId,
         quantity: monthTotal,
-        added_to_system: inSystemMonth,
+        addedToSystem: inSystemMonth,
       });
     }
   } else {
     await insertMonthMeters({
       quantity: monthTotal,
-      added_to_system: inSystemMonth,
+      addedToSystem: inSystemMonth,
       transformerSubstationId: id,
       balanceGroup,
       date,

@@ -4,7 +4,7 @@ import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 
 export async function insertMonthMeters({
   quantity,
-  added_to_system,
+  addedToSystem,
   balanceGroup,
   date,
   transformerSubstationId,
@@ -13,7 +13,7 @@ export async function insertMonthMeters({
 }: MonthMetersValues) {
   await db.insert(NewMonthMetersTable).values({
     quantity,
-    added_to_system,
+    added_to_system: addedToSystem,
     type: balanceGroup,
     date,
     transformerSubstationId,
@@ -32,7 +32,7 @@ export async function selectMonthQuantity({
   const monthQuantity = await db
     .select({
       quantity: NewMonthMetersTable.quantity,
-      added_to_system: NewMonthMetersTable.added_to_system,
+      addedToSystem: NewMonthMetersTable.added_to_system,
     })
     .from(NewMonthMetersTable)
     .where(
@@ -82,7 +82,7 @@ export async function selectLastMonthQuantity({
 
 export async function updateMonthMeters({
   quantity,
-  added_to_system,
+  addedToSystem,
   balanceGroup,
   date,
   transformerSubstationId,
@@ -93,7 +93,7 @@ export async function updateMonthMeters({
 
   await db
     .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system, updatedAt })
+    .set({ quantity, added_to_system: addedToSystem, updatedAt })
     .where(
       and(
         eq(NewMonthMetersTable.type, balanceGroup),
@@ -137,13 +137,13 @@ export async function getLastMonthId({
 export async function updateMonthOnId({
   id,
   quantity,
-  added_to_system,
+  addedToSystem,
 }: UpdateMonthOnIdType) {
   const updatedAt = new Date();
 
   await db
     .update(NewMonthMetersTable)
-    .set({ quantity, added_to_system, updatedAt })
+    .set({ quantity, added_to_system: addedToSystem, updatedAt })
     .where(eq(NewMonthMetersTable.id, id));
 }
 

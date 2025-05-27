@@ -46,7 +46,7 @@ async function handleYearMeters(
 
   const yearQuantity = {
     quantity: yearData[0]?.quantity ?? 0,
-    addedToSystem: yearData[0]?.added_to_system ?? 0,
+    addedToSystem: yearData[0]?.addedToSystem ?? 0,
   };
 
   return yearQuantity;

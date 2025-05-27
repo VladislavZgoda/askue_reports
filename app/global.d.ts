@@ -63,7 +63,7 @@ declare interface LastMonthQuantity extends LastYearQuantity {
 
 declare interface TotalMeters {
   quantity: number;
-  added_to_system: number;
+  addedToSystem: number;
 }
 
 declare interface SubmitButtonValues {
