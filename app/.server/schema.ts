@@ -70,13 +70,13 @@ export const electricityMeters = pgTable(
   },
 );
 
-export const NewYearMetersTable = pgTable(
-  "newYearMetersTable",
+export const newYearMeters = pgTable(
+  "new_year_meters",
   {
     id: serial("id").primaryKey(),
     quantity: integer("quantity").notNull(),
-    added_to_system: integer("added_to_system").notNull(),
-    type: balanceGroupEnum("balance_group").notNull(),
+    addedToSystem: integer("added_to_system").notNull(),
+    balanceGroup: balanceGroupEnum("balance_group").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     transformerSubstationId: integer("transformer_Substation_id")
@@ -89,7 +89,7 @@ export const NewYearMetersTable = pgTable(
   (table) => {
     return [
       index("year_foreign_key").on(table.transformerSubstationId),
-      index("year_type_index").on(table.type),
+      index("year_type_index").on(table.balanceGroup),
       index("year_date_index").on(table.date),
       index("year_index").on(table.year),
     ];

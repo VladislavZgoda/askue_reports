@@ -169,6 +169,13 @@
       "when": 1748281100021,
       "tag": "0023_dry_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1748328877949,
+      "tag": "0024_unknown_kingpin",
+      "breakpoints": true
     }
   ]
 }
