@@ -169,10 +169,10 @@ export const meterActionLogs = pgTable(
   },
 );
 
-export const TechnicalMeters = pgTable("technicalMeters", {
+export const technicalMeters = pgTable("technical_meters", {
   id: serial("id").primaryKey(),
   quantity: integer("quantity").notNull(),
-  underVoltage: integer("underVoltage").notNull(),
+  underVoltage: integer("under_voltage").notNull(),
   transformerSubstationId: integer("transformer_substation_id")
     .references(() => transformerSubstations.id, {
       onDelete: "cascade",
