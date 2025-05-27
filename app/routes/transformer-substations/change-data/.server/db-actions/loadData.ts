@@ -1,7 +1,7 @@
 import { selectLastQuantity } from "~/.server/db-queries/electricityMeters";
 import { selectLastNotInSystem } from "~/.server/db-queries/notInSystemTable";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMeters";
-import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMetersTable";
+import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMeters";
 
 export default async function loadData(id: number, balanceGroup: BalanceGroup) {
   const year = new Date().getFullYear();

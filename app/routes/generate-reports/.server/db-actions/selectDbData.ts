@@ -7,7 +7,7 @@ import type { FormData } from "../../generateReports";
 import {
   selectMonthMetersOnDate,
   selectMonthPeriodMeters,
-} from "~/.server/db-queries/newMonthMetersTable";
+} from "~/.server/db-queries/newMonthMeters";
 
 export type TransSubs = {
   id: number;
