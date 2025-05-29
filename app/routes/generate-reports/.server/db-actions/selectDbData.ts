@@ -15,7 +15,7 @@ export type MetersType = Record<string, number>;
 interface SelectMetersArgs {
   substations: Substations;
   balanceGroup: BalanceGroup;
-  date: FormDataEntryValue;
+  date: string;
   func: ({
     balanceGroup,
     date,
@@ -34,7 +34,7 @@ export async function selectMeters({
   for (const substation of substations) {
     const quantity = await func({
       balanceGroup,
-      date: date as string,
+      date,
       transformerSubstationId: substation.id,
     });
 
@@ -51,7 +51,7 @@ export interface DifferentMeters {
 
 export async function selectLegalMeters(
   substations: Substations,
-  date: FormDataEntryValue,
+  date: string,
 ) {
   const [sims, p2] = await Promise.all([
     selectMeters({
