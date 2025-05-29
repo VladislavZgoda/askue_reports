@@ -1,4 +1,4 @@
-import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstations";
+import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import type { DbDataType } from "../view-data.types";
@@ -14,7 +14,7 @@ export default async function loadData({
   legalDate,
   odpyDate,
 }: LoadDates) {
-  const transSubs = await selectAllTransSubs();
+  const transSubs = await selectAllSubstations();
 
   const data: DbDataType = {};
 

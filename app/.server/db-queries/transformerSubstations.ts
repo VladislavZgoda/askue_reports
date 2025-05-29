@@ -62,11 +62,13 @@ export async function updateTransSub(id: string, name: string) {
     .where(eq(transformerSubstations.id, Number(id)));
 }
 
-export async function selectAllTransSubs() {
-  return await db
-    .select({
-      id: transformerSubstations.id,
-      name: transformerSubstations.name,
-    })
-    .from(transformerSubstations);
+export async function selectAllSubstations() {
+  const result = await db.query.transformerSubstations.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return result;
 }

@@ -1,5 +1,5 @@
 import exceljs from "exceljs";
-import { selectAllTransSubs } from "~/.server/db-queries/transformerSubstations";
+import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
 import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
@@ -26,7 +26,7 @@ export default async function writeDbData(formData: FormData) {
   const excel = new exceljs.Workbook();
   const path = "app/routes/generate-reports/.server/";
 
-  const transSubs = await selectAllTransSubs();
+  const transSubs = await selectAllSubstations();
 
   const [privateMeters, legalMeters, odpy] = await Promise.all([
     selectMeters({
