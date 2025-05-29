@@ -17,26 +17,27 @@ import type {
   MetersType,
   Odpy,
   DifferentMeters,
-  TransSubs,
 } from "./db-actions/selectDbData";
 
 import type { FormData } from "../generateReports";
+
+export type Substations = Awaited<ReturnType<typeof selectAllSubstations>>;
 
 export default async function writeDbData(formData: FormData) {
   const excel = new exceljs.Workbook();
   const path = "app/routes/generate-reports/.server/";
 
-  const transSubs = await selectAllSubstations();
+  const substations = await selectAllSubstations();
 
   const [privateMeters, legalMeters, odpy] = await Promise.all([
     selectMeters({
-      transSubs,
+      substations,
       balanceGroup: "Быт",
       date: formData.privateDate,
       func: selectMetersOnDate,
     }),
-    selectLegalMeters(transSubs, formData.legalDate),
-    calculateOdpy(formData, transSubs),
+    selectLegalMeters(substations, formData.legalDate),
+    calculateOdpy(formData, substations),
   ]);
 
   await handlePrivateSector(path, privateMeters, excel);
@@ -45,7 +46,7 @@ export default async function writeDbData(formData: FormData) {
     path,
     privateMeters,
     legalMeters,
-    transSubs,
+    substations,
     formData,
     odpy,
     excel,
@@ -57,7 +58,7 @@ export default async function writeDbData(formData: FormData) {
     odpy,
     excel,
     legalMeters,
-    transSubs,
+    substations,
     formData,
   });
 }
@@ -100,7 +101,7 @@ interface ReportType {
   path: string;
   privateMeters: MetersType;
   legalMeters: DifferentMeters;
-  transSubs: TransSubs;
+  substations: Substations;
   formData: FormData;
   odpy: Odpy;
   excel: exceljs.Workbook;
@@ -110,7 +111,7 @@ async function handleReport({
   path,
   privateMeters,
   legalMeters,
-  transSubs,
+  substations,
   formData,
   odpy,
   excel,
@@ -122,12 +123,12 @@ async function handleReport({
   const ws = wb.worksheets[0];
 
   const [notInSystem, yearMeters, monthMeters] = await Promise.all([
-    selectNotInSystem(transSubs, formData),
+    selectNotInSystem(substations, formData),
     selectPeriodMeters({
-      transSubs,
+      substations,
       formData,
     }),
-    selectMonthMeters(transSubs, formData),
+    selectMonthMeters(substations, formData),
   ]);
 
   // Первые 9 строк заняты и не изменяются, для динамического определения
@@ -193,7 +194,7 @@ interface SupplementThree {
   privateMeters: MetersType;
   legalMeters: DifferentMeters;
   odpy: Odpy;
-  transSubs: TransSubs;
+  substations: Substations;
   formData: FormData;
   excel: exceljs.Workbook;
 }
@@ -204,7 +205,7 @@ async function handleSupplementThree({
   legalMeters,
   odpy,
   formData,
-  transSubs,
+  substations,
   excel,
 }: SupplementThree) {
   const templatePath = path + "workbooks/supplement_three.xlsx";
@@ -214,7 +215,7 @@ async function handleSupplementThree({
   const ws = wb.worksheets[2];
 
   const notInSystemPrivate = await selectMeters({
-    transSubs,
+    substations,
     balanceGroup: "Быт",
     date: formData.privateDate,
     func: selectNotInSystemOnDate,
@@ -228,13 +229,13 @@ async function handleSupplementThree({
 
   const [notInSystemSims, notInSystemP2] = await Promise.all([
     selectMeters({
-      transSubs,
+      substations,
       balanceGroup: "ЮР Sims",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
-      transSubs,
+      substations,
       balanceGroup: "ЮР П2",
       date: formData.legalDate,
       func: selectNotInSystemOnDate,
