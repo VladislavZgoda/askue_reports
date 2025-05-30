@@ -13,11 +13,6 @@ import {
   selectMonthMeters,
 } from "./db-actions/selectDbData";
 
-import type {
-  MetersOnSubstation,
-  LegalMetersOnSubstation,
-} from "./db-actions/selectDbData";
-
 import type { FormData } from "../generateReports";
 
 export type Substations = Readonly<
@@ -25,6 +20,8 @@ export type Substations = Readonly<
 >;
 
 type Odpy = Readonly<Awaited<ReturnType<typeof selectOdpy>>>;
+type LegalMeters = Awaited<ReturnType<typeof selectLegalMeters>>;
+type PrivateMeters = Readonly<Awaited<ReturnType<typeof selectMeters>>>;
 
 export default async function writeDbData(formData: FormData) {
   const path = "app/routes/generate-reports/.server/";
@@ -63,10 +60,7 @@ export default async function writeDbData(formData: FormData) {
   });
 }
 
-async function handlePrivateSector(
-  path: string,
-  privateMeters: Readonly<MetersOnSubstation>,
-) {
+async function handlePrivateSector(path: string, privateMeters: PrivateMeters) {
   const templatePath = path + "workbooks/private_sector.xlsx";
   const savePath = path + "filled-reports/Развитие ЧС.xlsx";
 
@@ -99,8 +93,8 @@ async function handlePrivateSector(
 
 interface Report {
   path: string;
-  privateMeters: Readonly<MetersOnSubstation>;
-  legalMeters: Readonly<LegalMetersOnSubstation>;
+  privateMeters: PrivateMeters;
+  legalMeters: LegalMeters;
   substations: Substations;
   formData: FormData;
   odpy: Odpy;
@@ -192,8 +186,8 @@ async function handleReport({
 
 interface SupplementThree {
   path: string;
-  privateMeters: Readonly<MetersOnSubstation>;
-  legalMeters: Readonly<LegalMetersOnSubstation>;
+  privateMeters: PrivateMeters;
+  legalMeters: LegalMeters;
   odpy: Odpy;
   substations: Substations;
   formData: FormData;
@@ -280,7 +274,7 @@ function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
   ws.getRow(rowNumber).eachCell((cell) => (cell.model.result = undefined));
 }
 
-function calculateSum(meters: Readonly<MetersOnSubstation>) {
+function calculateSum(meters: PrivateMeters) {
   let sum = 0;
 
   for (const key of Object.keys(meters)) {

@@ -11,7 +11,7 @@ import {
 } from "~/.server/db-queries/newMonthMeters";
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
-export type MetersOnSubstation = Record<string, number>;
+type MetersOnSubstation = Record<string, number>;
 
 interface SelectMeters {
   substations: Substations;
@@ -45,11 +45,6 @@ export async function selectMeters({
   return meters;
 }
 
-export interface LegalMetersOnSubstation {
-  sims: MetersOnSubstation;
-  p2: MetersOnSubstation;
-}
-
 export async function selectLegalMeters(
   substations: Substations,
   date: string,
@@ -69,10 +64,10 @@ export async function selectLegalMeters(
     }),
   ]);
 
-  const meters: LegalMetersOnSubstation = {
+  const meters = {
     sims,
     p2,
-  };
+  } as const;
 
   return meters;
 }
