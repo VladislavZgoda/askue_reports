@@ -8,12 +8,7 @@ declare interface TransSubs {
   q: string | null | undefined;
 }
 
-declare type BalanceGroup =
-  | "Быт"
-  | "ЮР Sims"
-  | "ЮР П2"
-  | "ОДПУ Sims"
-  | "ОДПУ П2";
+declare type BalanceGroup = import("app/.server/schema").BalanceGroup;
 
 declare interface MetersValues {
   quantity: number;

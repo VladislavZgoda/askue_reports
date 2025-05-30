@@ -45,6 +45,8 @@ export const balanceGroupEnum = pgEnum("balance_group", [
   "ОДПУ П2",
 ]);
 
+export type BalanceGroup = (typeof balanceGroupEnum.enumValues)[number];
+
 const transformerSubstationForeignKey = {
   transformerSubstationId: integer("transformer_substation_id")
     .references(() => transformerSubstations.id, {
