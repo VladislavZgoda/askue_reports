@@ -309,33 +309,17 @@ function selectLastMonthDate(year: number, month: number) {
   return lastDayOfMonth;
 }
 
-export interface Odpy {
-  quantity: number;
-  notInSystem: number;
-  year: {
-    quantity: number;
-    added_to_system: number;
-  };
-  month: {
-    quantity: number;
-    added_to_system: number;
-  };
-}
-
-export async function calculateOdpy(
-  formData: FormData,
-  substations: Substations,
-) {
-  const odpy: Odpy = {
+export async function selectOdpy(formData: FormData, substations: Substations) {
+  const odpy = {
     quantity: 0,
     notInSystem: 0,
     year: {
       quantity: 0,
-      added_to_system: 0,
+      addedToSystem: 0,
     },
     month: {
       quantity: 0,
-      added_to_system: 0,
+      addedToSystem: 0,
     },
   };
 
@@ -403,13 +387,12 @@ export async function calculateOdpy(
 
     odpy.quantity += quantitySims + quantityP2;
     odpy.notInSystem += notInSystemSims + notInSystemP2;
-    odpy.year.quantity +=
-      (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
-    odpy.year.added_to_system +=
+    odpy.year.quantity += (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
+    odpy.year.addedToSystem +=
       (yearSims?.addedToSystem ?? 0) + (yearP2?.addedToSystem ?? 0);
     odpy.month.quantity +=
       (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
-    odpy.month.added_to_system +=
+    odpy.month.addedToSystem +=
       (monthSims?.addedToSystem ?? 0) + (monthP2?.addedToSystem ?? 0);
   }
 
@@ -417,7 +400,7 @@ export async function calculateOdpy(
     const date = formData.odpyMonth;
     const prevMonthMeters = await calculatePreviousMonthOdpy(substations, date);
     odpy.month.quantity += prevMonthMeters.quantity;
-    odpy.month.added_to_system += prevMonthMeters.addedToSystem;
+    odpy.month.addedToSystem += prevMonthMeters.addedToSystem;
   }
 
   return odpy;

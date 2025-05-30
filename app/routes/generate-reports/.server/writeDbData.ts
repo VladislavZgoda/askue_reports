@@ -7,7 +7,7 @@ import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 import {
   selectMeters,
   selectLegalMeters,
-  calculateOdpy,
+  selectOdpy,
   selectPeriodMeters,
   selectNotInSystem,
   selectMonthMeters,
@@ -15,7 +15,6 @@ import {
 
 import type {
   MetersOnSubstation,
-  Odpy,
   LegalMetersOnSubstation,
 } from "./db-actions/selectDbData";
 
@@ -24,6 +23,8 @@ import type { FormData } from "../generateReports";
 export type Substations = Readonly<
   Awaited<ReturnType<typeof selectAllSubstations>>
 >;
+
+type Odpy = Readonly<Awaited<ReturnType<typeof selectOdpy>>>;
 
 export default async function writeDbData(formData: FormData) {
   const path = "app/routes/generate-reports/.server/";
@@ -38,7 +39,7 @@ export default async function writeDbData(formData: FormData) {
       func: selectMetersOnDate,
     }),
     selectLegalMeters(substations, formData.legalDate),
-    calculateOdpy(formData, substations),
+    selectOdpy(formData, substations),
   ]);
 
   await handlePrivateSector(path, privateMeters);
@@ -102,7 +103,7 @@ interface Report {
   legalMeters: Readonly<LegalMetersOnSubstation>;
   substations: Substations;
   formData: FormData;
-  odpy: Readonly<Odpy>;
+  odpy: Odpy;
 }
 
 async function handleReport({
@@ -168,10 +169,12 @@ async function handleReport({
 
   ws.getCell(`H${odpyRow}`).value = odpy.quantity;
   ws.getCell(`P${odpyRow}`).value = odpy.notInSystem;
+
   ws.getCell(`Q${odpyRow}`).value = odpy.year.quantity;
-  ws.getCell(`R${odpyRow}`).value = odpy.year.added_to_system;
+  ws.getCell(`R${odpyRow}`).value = odpy.year.addedToSystem;
+
   ws.getCell(`S${odpyRow}`).value = odpy.month.quantity;
-  ws.getCell(`T${odpyRow}`).value = odpy.month.added_to_system;
+  ws.getCell(`T${odpyRow}`).value = odpy.month.addedToSystem;
 
   resetResult(ws, rowCount + 3);
 
@@ -191,7 +194,7 @@ interface SupplementThree {
   path: string;
   privateMeters: Readonly<MetersOnSubstation>;
   legalMeters: Readonly<LegalMetersOnSubstation>;
-  odpy: Readonly<Odpy>;
+  odpy: Odpy;
   substations: Substations;
   formData: FormData;
 }
