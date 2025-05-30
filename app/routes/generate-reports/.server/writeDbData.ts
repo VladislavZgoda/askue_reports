@@ -14,20 +14,21 @@ import {
 } from "./db-actions/selectDbData";
 
 import type {
-  MetersType,
+  MetersOnSubstation,
   Odpy,
-  DifferentMeters,
+  LegalMetersOnSubstation,
 } from "./db-actions/selectDbData";
 
 import type { FormData } from "../generateReports";
 
-export type Substations = Awaited<ReturnType<typeof selectAllSubstations>>;
+export type Substations = Readonly<
+  Awaited<ReturnType<typeof selectAllSubstations>>
+>;
 
 export default async function writeDbData(formData: FormData) {
-  const excel = new exceljs.Workbook();
   const path = "app/routes/generate-reports/.server/";
 
-  const substations = await selectAllSubstations();
+  const substations: Substations = await selectAllSubstations();
 
   const [privateMeters, legalMeters, odpy] = await Promise.all([
     selectMeters({
@@ -40,7 +41,7 @@ export default async function writeDbData(formData: FormData) {
     calculateOdpy(formData, substations),
   ]);
 
-  await handlePrivateSector(path, privateMeters, excel);
+  await handlePrivateSector(path, privateMeters);
 
   await handleReport({
     path,
@@ -49,14 +50,12 @@ export default async function writeDbData(formData: FormData) {
     substations,
     formData,
     odpy,
-    excel,
   });
 
   await handleSupplementThree({
     path,
     privateMeters,
     odpy,
-    excel,
     legalMeters,
     substations,
     formData,
@@ -65,12 +64,12 @@ export default async function writeDbData(formData: FormData) {
 
 async function handlePrivateSector(
   path: string,
-  privateMeters: MetersType,
-  excel: exceljs.Workbook,
+  privateMeters: Readonly<MetersOnSubstation>,
 ) {
   const templatePath = path + "workbooks/private_sector.xlsx";
   const savePath = path + "filled-reports/Развитие ЧС.xlsx";
 
+  const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
 
@@ -97,14 +96,13 @@ async function handlePrivateSector(
   await excel.xlsx.writeFile(savePath);
 }
 
-interface ReportType {
+interface Report {
   path: string;
-  privateMeters: MetersType;
-  legalMeters: DifferentMeters;
+  privateMeters: Readonly<MetersOnSubstation>;
+  legalMeters: Readonly<LegalMetersOnSubstation>;
   substations: Substations;
   formData: FormData;
-  odpy: Odpy;
-  excel: exceljs.Workbook;
+  odpy: Readonly<Odpy>;
 }
 
 async function handleReport({
@@ -114,11 +112,11 @@ async function handleReport({
   substations,
   formData,
   odpy,
-  excel,
-}: ReportType) {
+}: Report) {
   const templatePath = path + "workbooks/report.xlsx";
   const savePath = path + "filled-reports/Отчет по дистанционным съемам.xlsx";
 
+  const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
 
@@ -191,12 +189,11 @@ async function handleReport({
 
 interface SupplementThree {
   path: string;
-  privateMeters: MetersType;
-  legalMeters: DifferentMeters;
-  odpy: Odpy;
+  privateMeters: Readonly<MetersOnSubstation>;
+  legalMeters: Readonly<LegalMetersOnSubstation>;
+  odpy: Readonly<Odpy>;
   substations: Substations;
   formData: FormData;
-  excel: exceljs.Workbook;
 }
 
 async function handleSupplementThree({
@@ -206,11 +203,11 @@ async function handleSupplementThree({
   odpy,
   formData,
   substations,
-  excel,
 }: SupplementThree) {
   const templatePath = path + "workbooks/supplement_three.xlsx";
   const savePath = path + "filled-reports/Приложение №3.xlsx";
 
+  const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[2];
 
@@ -280,7 +277,7 @@ function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
   ws.getRow(rowNumber).eachCell((cell) => (cell.model.result = undefined));
 }
 
-function calculateSum(meters: MetersType) {
+function calculateSum(meters: Readonly<MetersOnSubstation>) {
   let sum = 0;
 
   for (const key of Object.keys(meters)) {

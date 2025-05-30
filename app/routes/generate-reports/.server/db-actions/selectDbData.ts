@@ -10,9 +10,10 @@ import {
   selectMonthPeriodMeters,
 } from "~/.server/db-queries/newMonthMeters";
 
-export type MetersType = Record<string, number>;
+// Key - номер ТП (ТП-777), value - количество счетчиков.
+export type MetersOnSubstation = Record<string, number>;
 
-interface SelectMetersArgs {
+interface SelectMeters {
   substations: Substations;
   balanceGroup: BalanceGroup;
   date: string;
@@ -28,8 +29,8 @@ export async function selectMeters({
   balanceGroup,
   date,
   func,
-}: SelectMetersArgs) {
-  const meters: MetersType = {};
+}: SelectMeters) {
+  const meters: MetersOnSubstation = {};
 
   for (const substation of substations) {
     const quantity = await func({
@@ -44,9 +45,9 @@ export async function selectMeters({
   return meters;
 }
 
-export interface DifferentMeters {
-  sims: MetersType;
-  p2: MetersType;
+export interface LegalMetersOnSubstation {
+  sims: MetersOnSubstation;
+  p2: MetersOnSubstation;
 }
 
 export async function selectLegalMeters(
@@ -68,7 +69,7 @@ export async function selectLegalMeters(
     }),
   ]);
 
-  const meters: DifferentMeters = {
+  const meters: LegalMetersOnSubstation = {
     sims,
     p2,
   };
@@ -101,7 +102,7 @@ export async function selectNotInSystem(
     }),
   ]);
 
-  const meters: MetersType = {};
+  const meters: MetersOnSubstation = {};
 
   for (const substation of substations) {
     const name = substation.name;
@@ -325,7 +326,7 @@ export async function calculateOdpy(
   formData: FormData,
   substations: Substations,
 ) {
-  const odpyData = {
+  const odpy: Odpy = {
     quantity: 0,
     notInSystem: 0,
     year: {
@@ -400,26 +401,26 @@ export async function calculateOdpy(
       }),
     ]);
 
-    odpyData.quantity += quantitySims + quantityP2;
-    odpyData.notInSystem += notInSystemSims + notInSystemP2;
-    odpyData.year.quantity +=
+    odpy.quantity += quantitySims + quantityP2;
+    odpy.notInSystem += notInSystemSims + notInSystemP2;
+    odpy.year.quantity +=
       (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
-    odpyData.year.added_to_system +=
+    odpy.year.added_to_system +=
       (yearSims?.addedToSystem ?? 0) + (yearP2?.addedToSystem ?? 0);
-    odpyData.month.quantity +=
+    odpy.month.quantity +=
       (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
-    odpyData.month.added_to_system +=
+    odpy.month.added_to_system +=
       (monthSims?.addedToSystem ?? 0) + (monthP2?.addedToSystem ?? 0);
   }
 
   if (formData?.odpyMonth) {
     const date = formData.odpyMonth;
     const prevMonthMeters = await calculatePreviousMonthOdpy(substations, date);
-    odpyData.month.quantity += prevMonthMeters.quantity;
-    odpyData.month.added_to_system += prevMonthMeters.addedToSystem;
+    odpy.month.quantity += prevMonthMeters.quantity;
+    odpy.month.added_to_system += prevMonthMeters.addedToSystem;
   }
 
-  return odpyData;
+  return odpy;
 }
 
 async function calculatePreviousMonthOdpy(
