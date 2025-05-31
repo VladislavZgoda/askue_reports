@@ -25,7 +25,7 @@ export async function selectYearQuantity({
   date,
   transformerSubstationId,
   year,
-}: SelectYearQuantity) {
+}: YearlyMeterSelectionCriteria) {
   const yearQuantity = await db
     .select({
       quantity: newYearMeters.quantity,
@@ -130,7 +130,7 @@ export async function getYearIds({
   date,
   transformerSubstationId,
   year,
-}: SelectYearQuantity) {
+}: YearlyMeterSelectionCriteria) {
   const ids = await db
     .select({ id: newYearMeters.id })
     .from(newYearMeters)
@@ -163,7 +163,7 @@ export async function getYearMetersForInsert({
   date,
   transformerSubstationId,
   year,
-}: SelectYearQuantity) {
+}: YearlyMeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: newYearMeters.quantity,
@@ -189,7 +189,7 @@ export async function selectYearMetersOnDate({
   date,
   transformerSubstationId,
   year,
-}: SelectYearQuantity) {
+}: YearlyMeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: newYearMeters.quantity,

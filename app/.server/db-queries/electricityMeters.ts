@@ -20,7 +20,7 @@ export async function checkMetersRecord({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues): Promise<number | undefined> {
+}: MeterSelectionCriteria): Promise<number | undefined> {
   const record = await db
     .select({
       quantity: electricityMeters.quantity,
@@ -110,7 +110,7 @@ export async function selectMetersOnDate({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues) {
+}: MeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: electricityMeters.quantity,
@@ -133,7 +133,7 @@ export async function getNewMetersIds({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues) {
+}: MeterSelectionCriteria) {
   const ids = await db
     .select({ id: electricityMeters.id })
     .from(electricityMeters)

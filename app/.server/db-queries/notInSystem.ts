@@ -40,7 +40,7 @@ export async function checkNotInSystem({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues): Promise<number | undefined> {
+}: MeterSelectionCriteria): Promise<number | undefined> {
   const record = await db
     .select({
       quantity: notInSystem.quantity,
@@ -112,7 +112,7 @@ export async function selectNotInSystemOnDate({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues) {
+}: MeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: notInSystem.quantity,
@@ -135,7 +135,7 @@ export async function getNotInSystemIds({
   balanceGroup,
   date,
   transformerSubstationId,
-}: CheckRecordValues) {
+}: MeterSelectionCriteria) {
   const ids = await db
     .select({ id: notInSystem.id })
     .from(notInSystem)

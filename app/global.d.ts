@@ -29,17 +29,18 @@ declare interface MonthMetersValues extends YearMetersValues {
   month: string;
 }
 
-declare interface CheckRecordValues {
+declare interface MeterSelectionCriteria {
   balanceGroup: BalanceGroup;
   date: string;
   transformerSubstationId: number;
 }
 
-declare interface SelectYearQuantity extends CheckRecordValues {
+declare interface YearlyMeterSelectionCriteria extends MeterSelectionCriteria {
   year: number;
 }
 
-declare interface SelectMonthQuantity extends SelectYearQuantity {
+declare interface MonthlyMeterSelectionCriteria
+  extends YearlyMeterSelectionCriteria {
   month: string;
 }
 

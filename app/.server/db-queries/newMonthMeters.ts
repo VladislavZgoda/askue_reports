@@ -28,7 +28,7 @@ export async function selectMonthQuantity({
   transformerSubstationId,
   month,
   year,
-}: SelectMonthQuantity) {
+}: MonthlyMeterSelectionCriteria) {
   const monthQuantity = await db
     .select({
       quantity: newMonthMeters.quantity,
@@ -141,7 +141,7 @@ export async function getMonthIds({
   transformerSubstationId,
   month,
   year,
-}: SelectMonthQuantity) {
+}: MonthlyMeterSelectionCriteria) {
   const ids = await db
     .select({ id: newMonthMeters.id })
     .from(newMonthMeters)
@@ -176,7 +176,7 @@ export async function getMonthMetersForInsert({
   transformerSubstationId,
   month,
   year,
-}: SelectMonthQuantity) {
+}: MonthlyMeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: newMonthMeters.quantity,
@@ -204,7 +204,7 @@ export async function selectMonthMetersOnDate({
   transformerSubstationId,
   month,
   year,
-}: SelectMonthQuantity) {
+}: MonthlyMeterSelectionCriteria) {
   const record = await db
     .select({
       quantity: newMonthMeters.quantity,
