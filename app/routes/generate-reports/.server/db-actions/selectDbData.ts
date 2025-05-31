@@ -12,16 +12,14 @@ import {
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
+type SelectMetersFuncArgs = Parameters<typeof selectMetersOnDate>[number];
+type SelectMetersFuncReturnType = ReturnType<typeof selectMetersOnDate>;
 
 interface SelectMeters {
   substations: Substations;
   balanceGroup: BalanceGroup;
   date: string;
-  func: ({
-    balanceGroup,
-    date,
-    transformerSubstationId,
-  }: CheckRecordValues) => Promise<number>;
+  func: (args: SelectMetersFuncArgs) => SelectMetersFuncReturnType;
 }
 
 export async function selectMeters({
