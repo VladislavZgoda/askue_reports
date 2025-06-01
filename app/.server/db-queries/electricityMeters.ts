@@ -106,27 +106,27 @@ export async function updateRecordOnId({ id, quantity }: UpdateOnIdType) {
     .where(eq(electricityMeters.id, id));
 }
 
-export async function selectMetersOnDate({
+export async function getMeterQuantityAtDate({
   balanceGroup,
-  date,
+  targetDate,
+  dateComparison,
   transformerSubstationId,
-}: MeterSelectionCriteria) {
-  const record = await db
-    .select({
-      quantity: electricityMeters.quantity,
-    })
-    .from(electricityMeters)
-    .where(
-      and(
-        eq(electricityMeters.transformerSubstationId, transformerSubstationId),
-        lte(electricityMeters.date, date),
-        eq(electricityMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .orderBy(desc(electricityMeters.date))
-    .limit(1);
+}: MeterQuantityQuery) {
+  const result = await db.query.electricityMeters.findFirst({
+    columns: {
+      quantity: true,
+    },
+    where: and(
+      eq(electricityMeters.balanceGroup, balanceGroup),
+      eq(electricityMeters.transformerSubstationId, transformerSubstationId),
+      dateComparison === "before"
+        ? lt(electricityMeters.date, targetDate)
+        : lte(electricityMeters.date, targetDate),
+    ),
+    orderBy: [desc(electricityMeters.date)],
+  });
 
-  return record[0]?.quantity ?? 0;
+  return result ? result.quantity : 0;
 }
 
 export async function getNewMetersIds({

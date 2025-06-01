@@ -29,6 +29,13 @@ declare interface MonthMetersValues extends YearMetersValues {
   month: string;
 }
 
+declare interface MeterQuantityQuery {
+  balanceGroup: BalanceGroup;
+  targetDate: string;
+  dateComparison: "before" | "upTo";
+  transformerSubstationId: number;
+}
+
 declare interface MeterSelectionCriteria {
   balanceGroup: BalanceGroup;
   date: string;

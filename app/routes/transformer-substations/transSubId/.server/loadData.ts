@@ -1,4 +1,4 @@
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
@@ -51,7 +51,12 @@ async function getDataFromDb(
   const values = handleValues(id, date, balanceGroup);
 
   const [inSystem, notInSystem] = await Promise.all([
-    selectMetersOnDate(values),
+    getMeterQuantityAtDate({
+      balanceGroup: values.balanceGroup,
+      targetDate: values.date,
+      dateComparison: "upTo",
+      transformerSubstationId: values.transformerSubstationId,
+    }),
     selectNotInSystemOnDate(values),
   ]);
 

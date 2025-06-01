@@ -1,4 +1,4 @@
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
@@ -12,20 +12,20 @@ import {
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
-type SelectMetersFuncArgs = Parameters<typeof selectMetersOnDate>[number];
-type SelectMetersFuncReturnType = ReturnType<typeof selectMetersOnDate>;
+type SelectMetersFuncArgs = Parameters<typeof getMeterQuantityAtDate>[number];
+type SelectMetersFuncReturnType = ReturnType<typeof getMeterQuantityAtDate>;
 
 interface SelectMeters {
   substations: Substations;
   balanceGroup: BalanceGroup;
-  date: string;
+  targetDate: string;
   func: (args: SelectMetersFuncArgs) => SelectMetersFuncReturnType;
 }
 
 export async function selectMeters({
   substations,
   balanceGroup,
-  date,
+  targetDate,
   func,
 }: SelectMeters) {
   const meters: MetersOnSubstation = {};
@@ -33,7 +33,8 @@ export async function selectMeters({
   for (const substation of substations) {
     const quantity = await func({
       balanceGroup,
-      date,
+      targetDate,
+      dateComparison: "upTo",
       transformerSubstationId: substation.id,
     });
 
@@ -45,20 +46,20 @@ export async function selectMeters({
 
 export async function selectLegalMeters(
   substations: Substations,
-  date: string,
+  targetDate: string,
 ) {
   const [sims, p2] = await Promise.all([
     selectMeters({
       substations,
       balanceGroup: "ЮР Sims",
-      date,
-      func: selectMetersOnDate,
+      targetDate,
+      func: getMeterQuantityAtDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
-      date,
-      func: selectMetersOnDate,
+      targetDate,
+      func: getMeterQuantityAtDate,
     }),
   ]);
 
@@ -330,15 +331,17 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
       monthSims,
       monthP2,
     ] = await Promise.all([
-      selectMetersOnDate({
-        transformerSubstationId: substation.id,
+      getMeterQuantityAtDate({
         balanceGroup: "ОДПУ Sims",
-        date: formData.odpyDate,
-      }),
-      selectMetersOnDate({
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
         transformerSubstationId: substation.id,
+      }),
+      getMeterQuantityAtDate({
         balanceGroup: "ОДПУ П2",
-        date: formData.odpyDate,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
       }),
       selectNotInSystemOnDate({
         transformerSubstationId: substation.id,

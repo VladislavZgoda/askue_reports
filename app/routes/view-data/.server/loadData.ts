@@ -1,5 +1,5 @@
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { selectMetersOnDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
 import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
 import type { DbDataType } from "../view-data.types";
 
@@ -33,29 +33,34 @@ export default async function loadData({
       notInSystemOdpySims,
       notInSystemOdpyP2,
     ] = await Promise.all([
-      selectMetersOnDate({
+      getMeterQuantityAtDate({
         balanceGroup: "Быт",
-        date: privateDate,
+        targetDate: privateDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectMetersOnDate({
+      getMeterQuantityAtDate({
         balanceGroup: "ЮР Sims",
-        date: legalDate,
+        targetDate: legalDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectMetersOnDate({
+      getMeterQuantityAtDate({
         balanceGroup: "ЮР П2",
-        date: legalDate,
+        targetDate: legalDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectMetersOnDate({
+      getMeterQuantityAtDate({
         balanceGroup: "ОДПУ Sims",
-        date: odpyDate,
+        targetDate: odpyDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectMetersOnDate({
+      getMeterQuantityAtDate({
         balanceGroup: "ОДПУ П2",
-        date: odpyDate,
+        targetDate: odpyDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
