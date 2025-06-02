@@ -79,19 +79,19 @@ export async function selectNotInSystem(
     selectMeters({
       substations,
       balanceGroup: "Быт",
-      date: formData.privateDate,
+      targetDate: formData.privateDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР Sims",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
   ]);
@@ -344,14 +344,16 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         transformerSubstationId: substation.id,
       }),
       selectNotInSystemOnDate({
-        transformerSubstationId: substation.id,
         balanceGroup: "ОДПУ Sims",
-        date: formData.odpyDate,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
       }),
       selectNotInSystemOnDate({
-        transformerSubstationId: substation.id,
         balanceGroup: "ОДПУ П2",
-        date: formData.odpyDate,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
       }),
       selectYearMetersOnDate({
         transformerSubstationId: substation.id,

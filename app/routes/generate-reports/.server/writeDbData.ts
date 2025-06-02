@@ -211,7 +211,7 @@ async function handleSupplementThree({
   const notInSystemPrivate = await selectMeters({
     substations,
     balanceGroup: "Быт",
-    date: formData.privateDate,
+    targetDate: formData.privateDate,
     func: selectNotInSystemOnDate,
   });
 
@@ -225,13 +225,13 @@ async function handleSupplementThree({
     selectMeters({
       substations,
       balanceGroup: "ЮР Sims",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       func: selectNotInSystemOnDate,
     }),
   ]);

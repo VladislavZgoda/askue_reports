@@ -65,27 +65,32 @@ export default async function loadData({
       }),
       selectNotInSystemOnDate({
         balanceGroup: "Быт",
-        date: privateDate,
+        targetDate: privateDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
         balanceGroup: "ЮР Sims",
-        date: legalDate,
+        targetDate: legalDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
         balanceGroup: "ЮР П2",
-        date: legalDate,
+        targetDate: legalDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
         balanceGroup: "ОДПУ Sims",
-        date: odpyDate,
+        targetDate: odpyDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
       selectNotInSystemOnDate({
         balanceGroup: "ОДПУ П2",
-        date: odpyDate,
+        targetDate: odpyDate,
+        dateComparison: "upTo",
         transformerSubstationId,
       }),
     ]);

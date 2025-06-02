@@ -110,25 +110,25 @@ export async function updateNotInSystemOnId({ id, quantity }: UpdateOnIdType) {
 
 export async function selectNotInSystemOnDate({
   balanceGroup,
-  date,
+  targetDate,
+  dateComparison,
   transformerSubstationId,
-}: MeterSelectionCriteria) {
-  const record = await db
-    .select({
-      quantity: notInSystem.quantity,
-    })
-    .from(notInSystem)
-    .where(
-      and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        lte(notInSystem.date, date),
-        eq(notInSystem.balanceGroup, balanceGroup),
-      ),
-    )
-    .orderBy(desc(notInSystem.date))
-    .limit(1);
+}: MeterQuantityQuery) {
+  const result = await db.query.notInSystem.findFirst({
+    columns: {
+      quantity: true,
+    },
+    where: and(
+      eq(notInSystem.balanceGroup, balanceGroup),
+      eq(notInSystem.transformerSubstationId, transformerSubstationId),
+      dateComparison === "before"
+        ? lt(notInSystem.date, targetDate)
+        : lte(notInSystem.date, targetDate),
+    ),
+    orderBy: [desc(notInSystem.date)],
+  });
 
-  return record[0]?.quantity ?? 0;
+  return result ? result.quantity : 0;
 }
 
 export async function getNotInSystemIds({

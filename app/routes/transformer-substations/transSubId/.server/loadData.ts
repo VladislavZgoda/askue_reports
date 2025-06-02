@@ -35,29 +35,24 @@ export default async function loadData({
   };
 }
 
-function handleValues(id: number, date: string, balanceGroup: BalanceGroup) {
-  return {
-    transformerSubstationId: id,
-    date,
-    balanceGroup,
-  };
-}
-
 async function getDataFromDb(
   id: number,
   date: string,
   balanceGroup: BalanceGroup,
 ) {
-  const values = handleValues(id, date, balanceGroup);
-
   const [inSystem, notInSystem] = await Promise.all([
     getMeterQuantityAtDate({
-      balanceGroup: values.balanceGroup,
-      targetDate: values.date,
+      balanceGroup,
+      targetDate: date,
       dateComparison: "upTo",
-      transformerSubstationId: values.transformerSubstationId,
+      transformerSubstationId: id,
     }),
-    selectNotInSystemOnDate(values),
+    selectNotInSystemOnDate({
+      balanceGroup,
+      targetDate: date,
+      dateComparison: "upTo",
+      transformerSubstationId: id,
+    }),
   ]);
 
   const data: DbData = {
