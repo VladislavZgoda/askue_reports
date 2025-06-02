@@ -122,11 +122,11 @@ export const newMonthMeters = pgTable(
   },
 );
 
-export const notInSystem = pgTable(
-  "not_in_system",
+export const unregisteredMeters = pgTable(
+  "unregistered_meters",
   {
     id: serial("id").primaryKey(),
-    quantity: integer("quantity").notNull(),
+    unregisteredCount: integer("unregistered_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     ...transformerSubstationForeignKey,
