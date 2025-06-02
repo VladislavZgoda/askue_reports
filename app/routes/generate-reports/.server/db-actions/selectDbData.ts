@@ -111,24 +111,18 @@ export async function selectNotInSystem(
   return meters;
 }
 
-type PeriodMetersType = Record<
-  string,
-  {
-    quantity: number;
-    addedToSystem: number;
-  }
->;
-
-interface FuncArgs {
-  balanceGroup: BalanceGroup;
-  date: string;
-  year: number;
+interface Meters {
+  quantity: number;
+  addedToSystem: number;
 }
 
+// Key - номер ТП (ТП-777)
+type PeriodMeters = Record<string, Meters>;
+
 interface GetPeriodMeters {
+  date: string;
   substations: Substations;
   balanceGroup: BalanceGroup;
-  date: string;
   periodType?: "month";
 }
 
@@ -138,37 +132,34 @@ async function getPeriodMeters({
   date,
   periodType,
 }: GetPeriodMeters) {
-  const meters: PeriodMetersType = {};
+  const meters: PeriodMeters = {};
 
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
 
-  const args: FuncArgs = {
-    balanceGroup,
+  const args = {
     date,
     year,
+    balanceGroup,
   };
 
-  let data: {
-    quantity: number;
-    addedToSystem: number;
-  };
+  let metersAtSubstation: Meters;
 
   for (const substation of substations) {
     if (periodType === "month") {
-      data = await selectMonthMetersOnDate({
+      metersAtSubstation = await selectMonthMetersOnDate({
         transformerSubstationId: substation.id,
         month,
         ...args,
       });
     } else {
-      data = await selectYearMetersOnDate({
+      metersAtSubstation = await selectYearMetersOnDate({
         transformerSubstationId: substation.id,
         ...args,
       });
     }
 
-    meters[substation.name] = data;
+    meters[substation.name] = metersAtSubstation;
   }
 
   return meters;
@@ -206,7 +197,7 @@ export async function selectPeriodMeters({
     }),
   ]);
 
-  const meters: PeriodMetersType = {};
+  const meters: PeriodMeters = {};
 
   for (const substation of substations) {
     const name = substation.name;
@@ -243,22 +234,22 @@ export async function selectMonthMeters(
 
   if (formData?.privateMonth) {
     const date = formData.privateMonth;
-    await addPreviousMonth(substations, meters, date, "Быт");
+    await addPreviousMonth(date, meters, substations, "Быт");
   }
 
   if (formData?.legalMonth) {
     const date = formData.legalMonth;
-    await addPreviousMonth(substations, meters, date, "ЮР Sims");
-    await addPreviousMonth(substations, meters, date, "ЮР П2");
+    await addPreviousMonth(date, meters, substations, "ЮР Sims");
+    await addPreviousMonth(date, meters, substations, "ЮР П2");
   }
 
   return meters;
 }
 
 async function addPreviousMonth(
-  substations: Substations,
-  meters: PeriodMetersType,
   date: string,
+  meters: PeriodMeters,
+  substations: Substations,
   balanceGroup: BalanceGroup,
 ) {
   const year = cutOutYear(date);
@@ -396,7 +387,7 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
 
   if (formData?.odpyMonth) {
     const date = formData.odpyMonth;
-    const prevMonthMeters = await calculatePreviousMonthOdpy(substations, date);
+    const prevMonthMeters = await calculatePreviousMonthOdpy(date, substations);
     odpy.month.quantity += prevMonthMeters.quantity;
     odpy.month.addedToSystem += prevMonthMeters.addedToSystem;
   }
@@ -405,8 +396,8 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
 }
 
 async function calculatePreviousMonthOdpy(
-  substations: Substations,
   date: string,
+  substations: Substations,
 ) {
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
