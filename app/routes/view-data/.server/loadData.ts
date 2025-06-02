@@ -1,6 +1,6 @@
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
 import type { DbDataType } from "../view-data.types";
 
 interface LoadDates {
@@ -63,31 +63,31 @@ export default async function loadData({
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "Быт",
         targetDate: privateDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ЮР Sims",
         targetDate: legalDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ЮР П2",
         targetDate: legalDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
         targetDate: odpyDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
         targetDate: odpyDate,
         dateComparison: "upTo",

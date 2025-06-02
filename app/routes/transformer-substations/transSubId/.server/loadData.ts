@@ -1,5 +1,5 @@
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 interface LoadDataProps {
@@ -47,7 +47,7 @@ async function getDataFromDb(
       dateComparison: "upTo",
       transformerSubstationId: id,
     }),
-    selectNotInSystemOnDate({
+    getUnregisteredMeterCountAtDate({
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",

@@ -1,7 +1,7 @@
 import exceljs from "exceljs";
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 import {
@@ -203,7 +203,7 @@ async function handleSupplementThree({
     substations,
     balanceGroup: "Быт",
     targetDate: formData.privateDate,
-    func: selectNotInSystemOnDate,
+    func: getUnregisteredMeterCountAtDate,
   });
 
   const privateSum = calculateSum(privateMeters);
@@ -217,13 +217,13 @@ async function handleSupplementThree({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
-      func: selectNotInSystemOnDate,
+      func: getUnregisteredMeterCountAtDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
-      func: selectNotInSystemOnDate,
+      func: getUnregisteredMeterCountAtDate,
     }),
   ]);
 

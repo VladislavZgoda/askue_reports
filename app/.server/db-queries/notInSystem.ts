@@ -108,7 +108,7 @@ export async function updateNotInSystemOnId({ id, quantity }: UpdateOnIdType) {
     .where(eq(notInSystem.id, id));
 }
 
-export async function selectNotInSystemOnDate({
+export async function getUnregisteredMeterCountAtDate({
   balanceGroup,
   targetDate,
   dateComparison,

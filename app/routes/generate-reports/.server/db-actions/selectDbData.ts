@@ -1,5 +1,5 @@
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { selectNotInSystemOnDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormData } from "../../generateReports";
@@ -80,19 +80,19 @@ export async function selectNotInSystem(
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
-      func: selectNotInSystemOnDate,
+      func: getUnregisteredMeterCountAtDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
-      func: selectNotInSystemOnDate,
+      func: getUnregisteredMeterCountAtDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
-      func: selectNotInSystemOnDate,
+      func: getUnregisteredMeterCountAtDate,
     }),
   ]);
 
@@ -334,13 +334,13 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
-      selectNotInSystemOnDate({
+      getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
