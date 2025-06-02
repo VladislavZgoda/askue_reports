@@ -1,15 +1,22 @@
 import { db } from "../db";
-import { notInSystem } from "../schema";
+import { unregisteredMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
+interface QueryValues {
+  unregisteredCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  transformerSubstationId: number;
+}
+
 export async function insertNotInSystem({
-  quantity,
+  unregisteredCount,
   balanceGroup,
   date,
   transformerSubstationId,
-}: MetersValues) {
-  await db.insert(notInSystem).values({
-    quantity,
+}: QueryValues) {
+  await db.insert(unregisteredMeters).values({
+    unregisteredCount,
     balanceGroup,
     date,
     transformerSubstationId,
@@ -17,21 +24,21 @@ export async function insertNotInSystem({
 }
 
 export async function updateNotInSystem({
-  quantity,
+  unregisteredCount,
   balanceGroup,
   date,
   transformerSubstationId,
-}: MetersValues) {
+}: QueryValues) {
   const updatedAt = new Date();
 
   await db
-    .update(notInSystem)
-    .set({ quantity, updatedAt })
+    .update(unregisteredMeters)
+    .set({ unregisteredCount, updatedAt })
     .where(
       and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        eq(notInSystem.date, date),
-        eq(notInSystem.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.date, date),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
     );
 }
@@ -43,18 +50,18 @@ export async function checkNotInSystem({
 }: MeterSelectionCriteria): Promise<number | undefined> {
   const record = await db
     .select({
-      quantity: notInSystem.quantity,
+      unregisteredCount: unregisteredMeters.unregisteredCount,
     })
-    .from(notInSystem)
+    .from(unregisteredMeters)
     .where(
       and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        eq(notInSystem.date, date),
-        eq(notInSystem.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.date, date),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
     );
 
-  return record[0]?.quantity;
+  return record[0]?.unregisteredCount;
 }
 
 export async function selectLastNotInSystem({
@@ -63,19 +70,19 @@ export async function selectLastNotInSystem({
 }: LastQuantity): Promise<number | undefined> {
   const record = await db
     .select({
-      quantity: notInSystem.quantity,
+      unregisteredCount: unregisteredMeters.unregisteredCount,
     })
-    .from(notInSystem)
+    .from(unregisteredMeters)
     .where(
       and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        eq(notInSystem.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(notInSystem.date))
+    .orderBy(desc(unregisteredMeters.date))
     .limit(1);
 
-  return record[0]?.quantity;
+  return record[0]?.unregisteredCount;
 }
 
 export async function getLastNotInSystemId({
@@ -84,28 +91,36 @@ export async function getLastNotInSystemId({
 }: LastQuantity): Promise<number | undefined> {
   const recordId = await db
     .select({
-      id: notInSystem.id,
+      id: unregisteredMeters.id,
     })
-    .from(notInSystem)
+    .from(unregisteredMeters)
     .where(
       and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        eq(notInSystem.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(notInSystem.date))
+    .orderBy(desc(unregisteredMeters.date))
     .limit(1);
 
   return recordId[0]?.id;
 }
 
-export async function updateNotInSystemOnId({ id, quantity }: UpdateOnIdType) {
+export interface UpdateOnId {
+  id: number;
+  unregisteredCount: number;
+}
+
+export async function updateNotInSystemOnId({
+  id,
+  unregisteredCount,
+}: UpdateOnId) {
   const updatedAt = new Date();
 
   await db
-    .update(notInSystem)
-    .set({ quantity, updatedAt })
-    .where(eq(notInSystem.id, id));
+    .update(unregisteredMeters)
+    .set({ unregisteredCount, updatedAt })
+    .where(eq(unregisteredMeters.id, id));
 }
 
 export async function getUnregisteredMeterCountAtDate({
@@ -114,21 +129,21 @@ export async function getUnregisteredMeterCountAtDate({
   dateComparison,
   transformerSubstationId,
 }: MeterQuantityQuery) {
-  const result = await db.query.notInSystem.findFirst({
+  const result = await db.query.unregisteredMeters.findFirst({
     columns: {
-      quantity: true,
+      unregisteredCount: true,
     },
     where: and(
-      eq(notInSystem.balanceGroup, balanceGroup),
-      eq(notInSystem.transformerSubstationId, transformerSubstationId),
+      eq(unregisteredMeters.balanceGroup, balanceGroup),
+      eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
       dateComparison === "before"
-        ? lt(notInSystem.date, targetDate)
-        : lte(notInSystem.date, targetDate),
+        ? lt(unregisteredMeters.date, targetDate)
+        : lte(unregisteredMeters.date, targetDate),
     ),
-    orderBy: [desc(notInSystem.date)],
+    orderBy: [desc(unregisteredMeters.date)],
   });
 
-  return result ? result.quantity : 0;
+  return result ? result.unregisteredCount : 0;
 }
 
 export async function getNotInSystemIds({
@@ -137,13 +152,13 @@ export async function getNotInSystemIds({
   transformerSubstationId,
 }: MeterSelectionCriteria) {
   const ids = await db
-    .select({ id: notInSystem.id })
-    .from(notInSystem)
+    .select({ id: unregisteredMeters.id })
+    .from(unregisteredMeters)
     .where(
       and(
-        gt(notInSystem.date, date),
-        eq(notInSystem.balanceGroup, balanceGroup),
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
+        gt(unregisteredMeters.date, date),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
       ),
     );
 
@@ -157,27 +172,27 @@ export async function getNotInSystemForInsert({
 }: QuantityForInsert) {
   const record = await db
     .select({
-      quantity: notInSystem.quantity,
+      unregisteredCount: unregisteredMeters.unregisteredCount,
     })
-    .from(notInSystem)
+    .from(unregisteredMeters)
     .where(
       and(
-        eq(notInSystem.transformerSubstationId, transformerSubstationId),
-        eq(notInSystem.balanceGroup, balanceGroup),
-        lt(notInSystem.date, date),
+        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
+        lt(unregisteredMeters.date, date),
       ),
     )
-    .orderBy(desc(notInSystem.date))
+    .orderBy(desc(unregisteredMeters.date))
     .limit(1);
 
-  return record[0]?.quantity ?? 0;
+  return record[0]?.unregisteredCount ?? 0;
 }
 
 export async function getNotInSystemOnID(id: number) {
   const record = await db
-    .select({ quantity: notInSystem.quantity })
-    .from(notInSystem)
-    .where(eq(notInSystem.id, id));
+    .select({ unregisteredCount: unregisteredMeters.unregisteredCount })
+    .from(unregisteredMeters)
+    .where(eq(unregisteredMeters.id, id));
 
-  return record[0].quantity;
+  return record[0].unregisteredCount;
 }

@@ -101,41 +101,6 @@ async function handleUpdate(
   });
 }
 
-interface NextRecords {
-  values: InsertMetersValues;
-  getIdsFunc: ({
-    balanceGroup,
-    date,
-    transformerSubstationId,
-  }: CheckRecordValues) => Promise<
-    {
-      id: number;
-    }[]
-  >;
-  getQuantityFunc: (id: number) => Promise<number>;
-  updateFunc: ({ id, quantity }: UpdateOnIdType) => Promise<void>;
-}
-
-async function updateNextRecords({
-  values,
-  getIdsFunc,
-  getQuantityFunc,
-  updateFunc,
-}: NextRecords) {
-  const ids = await getIdsFunc(values);
-
-  if (ids.length > 0) {
-    for (const { id } of ids) {
-      const quantity = await getQuantityFunc(id);
-
-      await updateFunc({
-        id,
-        quantity: quantity + values.quantity,
-      });
-    }
-  }
-}
-
 async function handleNotInSystem(insertValues: InsertMetersValues) {
   const prevNotInSystem = await checkNotInSystem(insertValues);
   const { quantity, addedToSystem } = insertValues;
@@ -144,7 +109,7 @@ async function handleNotInSystem(insertValues: InsertMetersValues) {
   if (typeof prevNotInSystem === "number") {
     await updateNotInSystem({
       ...insertValues,
-      quantity: updatedQuantity + prevNotInSystem,
+      unregisteredCount: updatedQuantity + prevNotInSystem,
     });
   } else {
     await handleInsertNotInSystem({
@@ -158,12 +123,18 @@ async function handleNotInSystem(insertValues: InsertMetersValues) {
     quantity: updatedQuantity,
   };
 
-  await updateNextRecords({
-    values: updatedValues,
-    getIdsFunc: getNotInSystemIds,
-    getQuantityFunc: getNotInSystemOnID,
-    updateFunc: updateNotInSystemOnId,
-  });
+  const ids = await getNotInSystemIds(updatedValues);
+
+  if (ids.length > 0) {
+    for (const { id } of ids) {
+      const quantity = await getNotInSystemOnID(id);
+
+      await updateNotInSystemOnId({
+        id,
+        unregisteredCount: quantity + updatedValues.quantity,
+      });
+    }
+  }
 }
 
 async function handleInsertNewMeters(insertValues: InsertMetersValues) {
@@ -178,12 +149,18 @@ async function handleInsertNewMeters(insertValues: InsertMetersValues) {
       await handleInsert(insertValues);
     }
 
-    await updateNextRecords({
-      values: insertValues,
-      getIdsFunc: getNewMetersIds,
-      getQuantityFunc: getQuantityOnID,
-      updateFunc: updateRecordOnId,
-    });
+    const ids = await getNewMetersIds(insertValues);
+
+    if (ids.length > 0) {
+      for (const { id } of ids) {
+        const quantity = await getQuantityOnID(id);
+
+        await updateRecordOnId({
+          id,
+          quantity: quantity + insertValues.quantity,
+        });
+      }
+    }
   }
 }
 
@@ -192,7 +169,7 @@ async function handleInsertNotInSystem(insertValues: InsertMetersValues) {
   const updatedQuantity = insertValues.quantity + lastQuantity;
   await insertNotInSystem({
     ...insertValues,
-    quantity: updatedQuantity,
+    unregisteredCount: updatedQuantity,
   });
 }
 

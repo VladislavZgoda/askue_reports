@@ -136,13 +136,13 @@ async function handleNotInSystem(
     if (!(prevQuantity === actualQuantity)) {
       await updateNotInSystemOnId({
         id: lastNotInSystemId,
-        quantity: actualQuantity,
+        unregisteredCount: actualQuantity,
       });
     }
   } else {
     await insertNotInSystem({
       transformerSubstationId: id,
-      quantity: totalMeters - inSystemTotal,
+      unregisteredCount: totalMeters - inSystemTotal,
       date,
       balanceGroup,
     });
