@@ -1,5 +1,5 @@
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormData } from "../../generateReports";

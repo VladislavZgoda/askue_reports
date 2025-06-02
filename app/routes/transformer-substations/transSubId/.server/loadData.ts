@@ -1,5 +1,5 @@
 import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
-import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/notInSystem";
+import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 interface LoadDataProps {
