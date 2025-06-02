@@ -73,13 +73,13 @@ async function handlePrivateSector(path: string, privateMeters: PrivateMeters) {
   let rowCount = 2;
 
   ws.getColumn("A").eachCell((cell, rowNumber) => {
-    const transSub = cell.text.trim();
+    const tp = cell.text.trim();
 
-    if (!transSub.startsWith("ТП")) return;
+    if (!tp.startsWith("ТП")) return;
 
     rowCount += 1;
 
-    ws.getCell("B" + rowNumber).value = privateMeters[transSub] ?? 0;
+    ws.getCell("B" + rowNumber).value = privateMeters[tp] ?? 0;
     ws.getCell("G" + rowNumber).model.result = undefined;
     ws.getCell("H" + rowNumber).model.result = undefined;
   });
@@ -95,9 +95,9 @@ interface Report {
   path: string;
   privateMeters: PrivateMeters;
   legalMeters: LegalMeters;
+  odpy: Odpy;
   substations: Substations;
   formData: FormData;
-  odpy: Odpy;
 }
 
 async function handleReport({
@@ -129,23 +129,23 @@ async function handleReport({
   let rowCount = 9;
 
   ws.getColumn("B").eachCell((cell, rowNumber) => {
-    const transSub = cell.text.trim();
+    const tp = cell.text.trim();
 
-    if (!transSub.startsWith("ТП")) return;
+    if (!tp.startsWith("ТП")) return;
 
     rowCount += 1;
 
-    const privateM = privateMeters[transSub] ?? 0;
-    const legalM = legalMeters.sims[transSub] + legalMeters.p2[transSub] || 0;
+    const privateM = privateMeters[tp] ?? 0;
+    const legalM = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
 
-    const p2 = legalMeters.p2[transSub] ?? 0;
-    const notInSystemMeters = notInSystem[transSub] ?? 0;
+    const p2 = legalMeters.p2[tp] ?? 0;
+    const notInSystemMeters = notInSystem[tp] ?? 0;
 
-    const yearQuantity = yearMeters[transSub]?.quantity ?? 0;
-    const yearInSystem = yearMeters[transSub]?.addedToSystem ?? 0;
+    const yearQuantity = yearMeters[tp]?.quantity ?? 0;
+    const yearInSystem = yearMeters[tp]?.addedToSystem ?? 0;
 
-    const monthQuantity = monthMeters[transSub]?.quantity ?? 0;
-    const monthInSystem = monthMeters[transSub]?.addedToSystem ?? 0;
+    const monthQuantity = monthMeters[tp]?.quantity ?? 0;
+    const monthInSystem = monthMeters[tp]?.addedToSystem ?? 0;
 
     ws.getCell("H" + rowNumber).value = privateM + legalM;
     ws.getCell("I" + rowNumber).value = privateM;
@@ -184,15 +184,6 @@ async function handleReport({
   await excel.xlsx.writeFile(savePath);
 }
 
-interface SupplementThree {
-  path: string;
-  privateMeters: PrivateMeters;
-  legalMeters: LegalMeters;
-  odpy: Odpy;
-  substations: Substations;
-  formData: FormData;
-}
-
 async function handleSupplementThree({
   path,
   privateMeters,
@@ -200,7 +191,7 @@ async function handleSupplementThree({
   odpy,
   formData,
   substations,
-}: SupplementThree) {
+}: Report) {
   const templatePath = path + "workbooks/supplement_three.xlsx";
   const savePath = path + "filled-reports/Приложение №3.xlsx";
 
