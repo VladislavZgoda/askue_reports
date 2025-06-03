@@ -225,6 +225,13 @@
       "when": 1748887605373,
       "tag": "0031_great_triton",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1748946735500,
+      "tag": "0032_brief_queen_noir",
+      "breakpoints": true
     }
   ]
 }

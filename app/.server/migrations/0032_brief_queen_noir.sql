@@ -1,0 +1,1 @@
+ALTER TABLE "unregistered_meters" RENAME COLUMN "unregistered_count" TO "unregistered_meter_count";

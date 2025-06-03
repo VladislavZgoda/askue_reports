@@ -76,6 +76,25 @@ export const electricityMeters = pgTable(
   },
 );
 
+export const unregisteredMeters = pgTable(
+  "unregistered_meters",
+  {
+    id: serial("id").primaryKey(),
+    unregisteredMeterCount: integer("unregistered_meter_count").notNull(),
+    balanceGroup: balanceGroupEnum("balance_group").notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    ...transformerSubstationForeignKey,
+    ...timestamps,
+  },
+  (table) => {
+    return [
+      index("not_in_system_foreign_key").on(table.transformerSubstationId),
+      index("not_in_system_type_index").on(table.balanceGroup),
+      index("not_in_system_date_index").on(table.date),
+    ];
+  },
+);
+
 export const newYearMeters = pgTable(
   "new_year_meters",
   {
@@ -118,25 +137,6 @@ export const newMonthMeters = pgTable(
       index("month_date_index").on(table.date),
       index("month_index").on(table.month),
       index("month_year_index").on(table.year),
-    ];
-  },
-);
-
-export const unregisteredMeters = pgTable(
-  "unregistered_meters",
-  {
-    id: serial("id").primaryKey(),
-    unregisteredCount: integer("unregistered_count").notNull(),
-    balanceGroup: balanceGroupEnum("balance_group").notNull(),
-    date: date("date", { mode: "string" }).notNull(),
-    ...transformerSubstationForeignKey,
-    ...timestamps,
-  },
-  (table) => {
-    return [
-      index("not_in_system_foreign_key").on(table.transformerSubstationId),
-      index("not_in_system_type_index").on(table.balanceGroup),
-      index("not_in_system_date_index").on(table.date),
     ];
   },
 );
