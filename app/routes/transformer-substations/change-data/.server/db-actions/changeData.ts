@@ -108,12 +108,12 @@ async function handleMetersQuantity(
     if (!(prevQuantity === inSystemTotal)) {
       await updateRecordOnId({
         id: lastMetersQuantityId,
-        quantity: inSystemTotal,
+        registeredMeterCount: inSystemTotal,
       });
     }
   } else {
     await insertNewMeters({
-      quantity: inSystemTotal,
+      registeredMeterCount: inSystemTotal,
       transformerSubstationId: id,
       date,
       balanceGroup,

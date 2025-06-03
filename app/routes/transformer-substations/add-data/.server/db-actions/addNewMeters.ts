@@ -84,7 +84,7 @@ async function handleInsert(insertValues: InsertMetersValues) {
 
   await insertNewMeters({
     ...insertValues,
-    quantity: insertValues.quantity + lastQuantity,
+    registeredMeterCount: insertValues.quantity + lastQuantity,
   });
 }
 
@@ -97,7 +97,7 @@ async function handleUpdate(
 
   await updateMetersRecord({
     ...insertValues,
-    quantity: updatedQuantity,
+    registeredMeterCount: updatedQuantity,
   });
 }
 
@@ -157,7 +157,7 @@ async function handleInsertNewMeters(insertValues: InsertMetersValues) {
 
         await updateRecordOnId({
           id,
-          quantity: quantity + insertValues.quantity,
+          registeredMeterCount: quantity + insertValues.quantity,
         });
       }
     }
