@@ -1,4 +1,4 @@
-import { selectLastQuantity } from "~/.server/db-queries/electricityMeters";
+import { selectLastQuantity } from "~/.server/db-queries/registeredMeters";
 import { selectLastNotInSystem } from "~/.server/db-queries/unregisteredMeters";
 import { selectLastYearQuantity } from "~/.server/db-queries/newYearMeters";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMeters";

@@ -2,7 +2,7 @@ import {
   getLastRecordId,
   updateRecordOnId,
   insertNewMeters,
-} from "~/.server/db-queries/electricityMeters";
+} from "~/.server/db-queries/registeredMeters";
 import {
   getLastNotInSystemId,
   updateNotInSystemOnId,

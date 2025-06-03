@@ -1,6 +1,6 @@
 import exceljs from "exceljs";
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 

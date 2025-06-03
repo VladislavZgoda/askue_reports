@@ -1,4 +1,4 @@
-import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";

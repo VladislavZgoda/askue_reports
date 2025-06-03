@@ -1,5 +1,5 @@
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getMeterQuantityAtDate } from "~/.server/db-queries/electricityMeters";
+import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import type { DbDataType } from "../view-data.types";
 
