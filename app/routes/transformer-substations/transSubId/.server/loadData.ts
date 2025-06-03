@@ -1,4 +1,4 @@
-import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
+import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
@@ -41,7 +41,7 @@ async function getDataFromDb(
   balanceGroup: BalanceGroup,
 ) {
   const [inSystem, notInSystem] = await Promise.all([
-    getMeterQuantityAtDate({
+    getRegisteredMeterCountAtDate({
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",

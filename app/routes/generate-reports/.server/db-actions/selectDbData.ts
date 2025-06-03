@@ -1,4 +1,4 @@
-import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
+import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
@@ -12,8 +12,14 @@ import {
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
-type SelectMetersFuncArgs = Parameters<typeof getMeterQuantityAtDate>[number];
-type SelectMetersFuncReturnType = ReturnType<typeof getMeterQuantityAtDate>;
+
+type SelectMetersFuncArgs = Parameters<
+  typeof getRegisteredMeterCountAtDate
+>[number];
+
+type SelectMetersFuncReturnType = ReturnType<
+  typeof getRegisteredMeterCountAtDate
+>;
 
 interface SelectMeters {
   substations: Substations;
@@ -53,13 +59,13 @@ export async function selectLegalMeters(
       substations,
       balanceGroup: "ЮР Sims",
       targetDate,
-      func: getMeterQuantityAtDate,
+      func: getRegisteredMeterCountAtDate,
     }),
     selectMeters({
       substations,
       balanceGroup: "ЮР П2",
       targetDate,
-      func: getMeterQuantityAtDate,
+      func: getRegisteredMeterCountAtDate,
     }),
   ]);
 
@@ -322,13 +328,13 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
       monthSims,
       monthP2,
     ] = await Promise.all([
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",

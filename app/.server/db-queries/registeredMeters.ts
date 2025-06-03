@@ -121,7 +121,7 @@ export async function updateRecordOnId({
     .where(eq(registeredMeters.id, id));
 }
 
-export async function getMeterQuantityAtDate({
+export async function getRegisteredMeterCountAtDate({
   balanceGroup,
   targetDate,
   dateComparison,

@@ -1,5 +1,5 @@
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
+import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import type { DbDataType } from "../view-data.types";
 
@@ -33,31 +33,31 @@ export default async function loadData({
       notInSystemOdpySims,
       notInSystemOdpyP2,
     ] = await Promise.all([
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "Быт",
         targetDate: privateDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ЮР Sims",
         targetDate: legalDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ЮР П2",
         targetDate: legalDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
         targetDate: odpyDate,
         dateComparison: "upTo",
         transformerSubstationId,
       }),
-      getMeterQuantityAtDate({
+      getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
         targetDate: odpyDate,
         dateComparison: "upTo",

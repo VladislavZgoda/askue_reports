@@ -1,6 +1,6 @@
 import exceljs from "exceljs";
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getMeterQuantityAtDate } from "~/.server/db-queries/registeredMeters";
+import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
@@ -33,7 +33,7 @@ export default async function writeDbData(formData: FormData) {
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
-      func: getMeterQuantityAtDate,
+      func: getRegisteredMeterCountAtDate,
     }),
     selectLegalMeters(substations, formData.legalDate),
     selectOdpy(formData, substations),
