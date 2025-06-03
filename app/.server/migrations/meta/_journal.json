@@ -232,6 +232,13 @@
       "when": 1748946735500,
       "tag": "0032_brief_queen_noir",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1748949635404,
+      "tag": "0033_curly_energizer",
+      "breakpoints": true
     }
   ]
 }

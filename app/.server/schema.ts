@@ -55,11 +55,11 @@ const transformerSubstationForeignKey = {
     .notNull(),
 };
 
-export const electricityMeters = pgTable(
-  "electricity_meters",
+export const registeredMeters = pgTable(
+  "registered_meters",
   {
     id: serial("id").primaryKey(),
-    quantity: integer("quantity").notNull(),
+    registeredMeterCount: integer("registered_meter_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     ...transformerSubstationForeignKey,
