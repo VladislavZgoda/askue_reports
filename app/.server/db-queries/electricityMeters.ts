@@ -111,7 +111,7 @@ export async function getMeterQuantityAtDate({
   targetDate,
   dateComparison,
   transformerSubstationId,
-}: MeterQuantityQuery) {
+}: MeterCountQueryParams) {
   const result = await db.query.electricityMeters.findFirst({
     columns: {
       quantity: true,

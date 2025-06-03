@@ -128,7 +128,7 @@ export async function getUnregisteredMeterCountAtDate({
   targetDate,
   dateComparison,
   transformerSubstationId,
-}: MeterQuantityQuery) {
+}: MeterCountQueryParams) {
   const result = await db.query.unregisteredMeters.findFirst({
     columns: {
       unregisteredCount: true,
