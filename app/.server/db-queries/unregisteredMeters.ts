@@ -3,20 +3,20 @@ import { unregisteredMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
 interface QueryValues {
-  unregisteredCount: number;
+  unregisteredMeterCount: number;
   balanceGroup: BalanceGroup;
   date: string;
   transformerSubstationId: number;
 }
 
 export async function insertNotInSystem({
-  unregisteredCount,
+  unregisteredMeterCount,
   balanceGroup,
   date,
   transformerSubstationId,
 }: QueryValues) {
   await db.insert(unregisteredMeters).values({
-    unregisteredCount,
+    unregisteredMeterCount,
     balanceGroup,
     date,
     transformerSubstationId,
@@ -24,7 +24,7 @@ export async function insertNotInSystem({
 }
 
 export async function updateNotInSystem({
-  unregisteredCount,
+  unregisteredMeterCount,
   balanceGroup,
   date,
   transformerSubstationId,
@@ -33,7 +33,7 @@ export async function updateNotInSystem({
 
   await db
     .update(unregisteredMeters)
-    .set({ unregisteredCount, updatedAt })
+    .set({ unregisteredMeterCount, updatedAt })
     .where(
       and(
         eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
@@ -50,7 +50,7 @@ export async function checkNotInSystem({
 }: MeterSelectionCriteria): Promise<number | undefined> {
   const record = await db
     .select({
-      unregisteredCount: unregisteredMeters.unregisteredCount,
+      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
     })
     .from(unregisteredMeters)
     .where(
@@ -61,7 +61,7 @@ export async function checkNotInSystem({
       ),
     );
 
-  return record[0]?.unregisteredCount;
+  return record[0]?.unregisteredMeterCount;
 }
 
 export async function selectLastNotInSystem({
@@ -70,7 +70,7 @@ export async function selectLastNotInSystem({
 }: LastQuantity): Promise<number | undefined> {
   const record = await db
     .select({
-      unregisteredCount: unregisteredMeters.unregisteredCount,
+      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
     })
     .from(unregisteredMeters)
     .where(
@@ -82,7 +82,7 @@ export async function selectLastNotInSystem({
     .orderBy(desc(unregisteredMeters.date))
     .limit(1);
 
-  return record[0]?.unregisteredCount;
+  return record[0]?.unregisteredMeterCount;
 }
 
 export async function getLastNotInSystemId({
@@ -108,18 +108,18 @@ export async function getLastNotInSystemId({
 
 export interface UpdateOnId {
   id: number;
-  unregisteredCount: number;
+  unregisteredMeterCount: number;
 }
 
 export async function updateNotInSystemOnId({
   id,
-  unregisteredCount,
+  unregisteredMeterCount,
 }: UpdateOnId) {
   const updatedAt = new Date();
 
   await db
     .update(unregisteredMeters)
-    .set({ unregisteredCount, updatedAt })
+    .set({ unregisteredMeterCount, updatedAt })
     .where(eq(unregisteredMeters.id, id));
 }
 
@@ -131,7 +131,7 @@ export async function getUnregisteredMeterCountAtDate({
 }: MeterCountQueryParams) {
   const result = await db.query.unregisteredMeters.findFirst({
     columns: {
-      unregisteredCount: true,
+      unregisteredMeterCount: true,
     },
     where: and(
       eq(unregisteredMeters.balanceGroup, balanceGroup),
@@ -143,7 +143,7 @@ export async function getUnregisteredMeterCountAtDate({
     orderBy: [desc(unregisteredMeters.date)],
   });
 
-  return result ? result.unregisteredCount : 0;
+  return result ? result.unregisteredMeterCount : 0;
 }
 
 export async function getNotInSystemIds({
@@ -172,7 +172,7 @@ export async function getNotInSystemForInsert({
 }: QuantityForInsert) {
   const record = await db
     .select({
-      unregisteredCount: unregisteredMeters.unregisteredCount,
+      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
     })
     .from(unregisteredMeters)
     .where(
@@ -185,14 +185,16 @@ export async function getNotInSystemForInsert({
     .orderBy(desc(unregisteredMeters.date))
     .limit(1);
 
-  return record[0]?.unregisteredCount ?? 0;
+  return record[0]?.unregisteredMeterCount ?? 0;
 }
 
 export async function getNotInSystemOnID(id: number) {
   const record = await db
-    .select({ unregisteredCount: unregisteredMeters.unregisteredCount })
+    .select({
+      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
+    })
     .from(unregisteredMeters)
     .where(eq(unregisteredMeters.id, id));
 
-  return record[0].unregisteredCount;
+  return record[0].unregisteredMeterCount;
 }

@@ -109,7 +109,7 @@ async function handleNotInSystem(insertValues: InsertMetersValues) {
   if (typeof prevNotInSystem === "number") {
     await updateNotInSystem({
       ...insertValues,
-      unregisteredCount: updatedQuantity + prevNotInSystem,
+      unregisteredMeterCount: updatedQuantity + prevNotInSystem,
     });
   } else {
     await handleInsertNotInSystem({
@@ -131,7 +131,7 @@ async function handleNotInSystem(insertValues: InsertMetersValues) {
 
       await updateNotInSystemOnId({
         id,
-        unregisteredCount: quantity + updatedValues.quantity,
+        unregisteredMeterCount: quantity + updatedValues.quantity,
       });
     }
   }
@@ -169,7 +169,7 @@ async function handleInsertNotInSystem(insertValues: InsertMetersValues) {
   const updatedQuantity = insertValues.quantity + lastQuantity;
   await insertNotInSystem({
     ...insertValues,
-    unregisteredCount: updatedQuantity,
+    unregisteredMeterCount: updatedQuantity,
   });
 }
 
