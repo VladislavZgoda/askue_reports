@@ -1,6 +1,6 @@
 import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
-import { selectYearMetersOnDate } from "~/.server/db-queries/newYearMeters";
+import { getYearlyMeterInstallationSummary } from "~/.server/db-queries/newYearMeters";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormData } from "../../generateReports";
 import type { Substations } from "../writeDbData";
@@ -117,7 +117,7 @@ export async function selectNotInSystem(
   return meters;
 }
 
-type Meters = Awaited<ReturnType<typeof selectYearMetersOnDate>>;
+type Meters = Awaited<ReturnType<typeof getYearlyMeterInstallationSummary>>;
 
 // Key - номер ТП (ТП-777)
 type PeriodMeters = Record<string, Meters>;
@@ -157,7 +157,7 @@ async function getPeriodMeters({
         ...args,
       });
     } else {
-      metersAtSubstation = await selectYearMetersOnDate({
+      metersAtSubstation = await getYearlyMeterInstallationSummary({
         balanceGroup,
         targetDate: date,
         dateComparison: "upTo",
@@ -353,14 +353,14 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
-      selectYearMetersOnDate({
+      getYearlyMeterInstallationSummary({
         balanceGroup: "ОДПУ Sims",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         year,
       }),
-      selectYearMetersOnDate({
+      getYearlyMeterInstallationSummary({
         balanceGroup: "ОДПУ П2",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",

@@ -184,7 +184,7 @@ export async function getYearMetersForInsert({
   return record;
 }
 
-export async function selectYearMetersOnDate({
+export async function getYearlyMeterInstallationSummary({
   balanceGroup,
   targetDate,
   dateComparison,
