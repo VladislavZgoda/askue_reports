@@ -34,8 +34,8 @@ import {
   checkNotInSystem,
   getNotInSystemIds,
   getNotInSystemOnID,
-  getNotInSystemForInsert,
   updateNotInSystemOnId,
+  getUnregisteredMeterCountAtDate,
 } from "~/.server/db-queries/unregisteredMeters";
 
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
@@ -170,7 +170,13 @@ async function handleInsertNewMeters(insertValues: InsertMetersValues) {
 }
 
 async function handleInsertNotInSystem(insertValues: InsertMetersValues) {
-  const lastQuantity = await getNotInSystemForInsert(insertValues);
+  const lastQuantity = await getUnregisteredMeterCountAtDate({
+    balanceGroup: insertValues.balanceGroup,
+    targetDate: insertValues.date,
+    dateComparison: "before",
+    transformerSubstationId: insertValues.transformerSubstationId,
+  });
+
   const updatedQuantity = insertValues.quantity + lastQuantity;
   await insertNotInSystem({
     ...insertValues,

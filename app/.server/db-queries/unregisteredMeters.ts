@@ -165,29 +165,6 @@ export async function getNotInSystemIds({
   return ids;
 }
 
-export async function getNotInSystemForInsert({
-  transformerSubstationId,
-  date,
-  balanceGroup,
-}: QuantityForInsert) {
-  const record = await db
-    .select({
-      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
-    })
-    .from(unregisteredMeters)
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-        lt(unregisteredMeters.date, date),
-      ),
-    )
-    .orderBy(desc(unregisteredMeters.date))
-    .limit(1);
-
-  return record[0]?.unregisteredMeterCount ?? 0;
-}
-
 export async function getNotInSystemOnID(id: number) {
   const record = await db
     .select({
