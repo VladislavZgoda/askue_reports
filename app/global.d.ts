@@ -37,7 +37,7 @@ declare interface MeterCountQueryParams {
 }
 
 declare interface YearlyMeterCountQueryParams extends MeterCountQueryParams {
-  targetYear: number;
+  year: number;
 }
 
 declare interface MeterSelectionCriteria {

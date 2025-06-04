@@ -162,7 +162,7 @@ async function getPeriodMeters({
         targetDate: date,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
-        targetYear: year,
+        year,
       });
     }
 
@@ -358,14 +358,14 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
-        targetYear: year,
+        year,
       }),
       selectYearMetersOnDate({
         balanceGroup: "ОДПУ П2",
         targetDate: formData.odpyDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
-        targetYear: year,
+        year,
       }),
       selectMonthMetersOnDate({
         transformerSubstationId: substation.id,

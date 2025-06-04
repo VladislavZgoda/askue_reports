@@ -189,7 +189,7 @@ export async function selectYearMetersOnDate({
   targetDate,
   dateComparison,
   transformerSubstationId,
-  targetYear,
+  year,
 }: YearlyMeterCountQueryParams) {
   const result = await db.query.newYearMeters.findFirst({
     columns: {
@@ -198,7 +198,7 @@ export async function selectYearMetersOnDate({
     },
     where: and(
       eq(newYearMeters.balanceGroup, balanceGroup),
-      eq(newYearMeters.year, targetYear),
+      eq(newYearMeters.year, year),
       eq(newYearMeters.transformerSubstationId, transformerSubstationId),
       dateComparison === "before"
         ? lt(newYearMeters.date, targetDate)
