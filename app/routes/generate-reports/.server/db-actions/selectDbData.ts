@@ -121,7 +121,6 @@ type Meters = Awaited<ReturnType<typeof getYearlyMeterInstallationSummary>>;
 
 // Key - номер ТП (ТП-777)
 type PeriodMeters = Record<string, Meters>;
-type ReceivedPeriodMeters = Record<string, NonNullable<Meters>>;
 
 interface GetPeriodMeters {
   date: string;
@@ -204,7 +203,7 @@ export async function selectPeriodMeters({
     }),
   ]);
 
-  const meters: ReceivedPeriodMeters = {};
+  const meters: PeriodMeters = {};
 
   for (const substation of substations) {
     const name = substation.name;
@@ -214,7 +213,7 @@ export async function selectPeriodMeters({
     const legalP2 = legalMetersP2[name];
 
     const quantity =
-      (privateM?.quantity ?? 0) +
+      (privateM.quantity ?? 0) +
       (legalSims?.quantity ?? 0) +
       (legalP2?.quantity ?? 0);
 
@@ -255,7 +254,7 @@ export async function selectMonthMeters(
 
 async function addPreviousMonth(
   date: string,
-  meters: ReceivedPeriodMeters,
+  meters: PeriodMeters,
   substations: Substations,
   balanceGroup: BalanceGroup,
 ) {

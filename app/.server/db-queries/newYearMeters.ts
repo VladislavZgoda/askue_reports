@@ -207,5 +207,5 @@ export async function getYearlyMeterInstallationSummary({
     orderBy: [desc(newYearMeters.date)],
   });
 
-  return result;
+  return result ?? { quantity: 0, addedToSystem: 0 };
 }
