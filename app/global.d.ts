@@ -10,6 +10,15 @@ declare interface TransSubs {
 
 declare type BalanceGroup = import("app/.server/schema").BalanceGroup;
 
+declare interface YearlyMetersQueryParams {
+  totalInstalled: number;
+  registeredCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  transformerSubstationId: number;
+  year: number;
+}
+
 declare interface MetersValues {
   quantity: number;
   balanceGroup: BalanceGroup;

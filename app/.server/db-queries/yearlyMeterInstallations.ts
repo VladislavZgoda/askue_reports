@@ -1,18 +1,18 @@
 import { db } from "../db";
-import { newYearMeters } from "../schema";
+import { yearlyMeterInstallations } from "../schema";
 import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
 
 export async function insertYearMeters({
-  quantity,
-  addedToSystem,
+  totalInstalled,
+  registeredCount,
   balanceGroup,
   date,
   transformerSubstationId,
   year,
-}: YearMetersValues) {
-  await db.insert(newYearMeters).values({
-    quantity,
-    addedToSystem,
+}: YearlyMetersQueryParams) {
+  await db.insert(yearlyMeterInstallations).values({
+    totalInstalled,
+    registeredCount,
     balanceGroup,
     date,
     transformerSubstationId,
@@ -28,16 +28,19 @@ export async function selectYearQuantity({
 }: YearlyMeterSelectionCriteria) {
   const yearQuantity = await db
     .select({
-      quantity: newYearMeters.quantity,
-      addedToSystem: newYearMeters.addedToSystem,
+      totalInstalled: yearlyMeterInstallations.totalInstalled,
+      registeredCount: yearlyMeterInstallations.registeredCount,
     })
-    .from(newYearMeters)
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.date, date),
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        eq(newYearMeters.year, year),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(yearlyMeterInstallations.date, date),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(yearlyMeterInstallations.year, year),
       ),
     );
 
@@ -51,42 +54,48 @@ export async function selectLastYearQuantity({
 }: LastYearQuantity) {
   const yearQuantity = await db
     .select({
-      quantity: newYearMeters.quantity,
-      addedToSystem: newYearMeters.addedToSystem,
+      totalInstalled: yearlyMeterInstallations.totalInstalled,
+      registeredCount: yearlyMeterInstallations.registeredCount,
     })
-    .from(newYearMeters)
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        eq(newYearMeters.year, year),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(yearlyMeterInstallations.year, year),
       ),
     )
-    .orderBy(desc(newYearMeters.date))
+    .orderBy(desc(yearlyMeterInstallations.date))
     .limit(1);
 
   return yearQuantity;
 }
 
 export async function updateYearMeters({
-  quantity,
-  addedToSystem,
+  totalInstalled,
+  registeredCount,
   balanceGroup,
   date,
   transformerSubstationId,
   year,
-}: YearMetersValues) {
+}: YearlyMetersQueryParams) {
   const updatedAt = new Date();
 
   await db
-    .update(newYearMeters)
-    .set({ quantity, addedToSystem, updatedAt })
+    .update(yearlyMeterInstallations)
+    .set({ totalInstalled, registeredCount, updatedAt })
     .where(
       and(
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.date, date),
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        eq(newYearMeters.year, year),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(yearlyMeterInstallations.date, date),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(yearlyMeterInstallations.year, year),
       ),
     );
 }
@@ -97,32 +106,41 @@ export async function getLastYearId({
   year,
 }: LastYearQuantity): Promise<number | undefined> {
   const recordId = await db
-    .select({ id: newYearMeters.id })
-    .from(newYearMeters)
+    .select({ id: yearlyMeterInstallations.id })
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        eq(newYearMeters.year, year),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(yearlyMeterInstallations.year, year),
       ),
     )
-    .orderBy(desc(newYearMeters.date))
+    .orderBy(desc(yearlyMeterInstallations.date))
     .limit(1);
 
   return recordId[0]?.id;
 }
 
+interface UpdateYearlyMetersOnId {
+  id: number;
+  totalInstalled: number;
+  registeredCount: number;
+}
+
 export async function updateYearOnId({
   id,
-  quantity,
-  addedToSystem,
-}: UpdateYearOnIdType) {
+  totalInstalled,
+  registeredCount,
+}: UpdateYearlyMetersOnId) {
   const updatedAt = new Date();
 
   await db
-    .update(newYearMeters)
-    .set({ quantity, addedToSystem, updatedAt })
-    .where(eq(newYearMeters.id, id));
+    .update(yearlyMeterInstallations)
+    .set({ totalInstalled, registeredCount, updatedAt })
+    .where(eq(yearlyMeterInstallations.id, id));
 }
 
 export async function getYearIds({
@@ -132,14 +150,17 @@ export async function getYearIds({
   year,
 }: YearlyMeterSelectionCriteria) {
   const ids = await db
-    .select({ id: newYearMeters.id })
-    .from(newYearMeters)
+    .select({ id: yearlyMeterInstallations.id })
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        gt(newYearMeters.date, date),
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.year, year),
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
+        gt(yearlyMeterInstallations.date, date),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(yearlyMeterInstallations.year, year),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
       ),
     );
 
@@ -149,11 +170,11 @@ export async function getYearIds({
 export async function getYearMetersOnID(id: number) {
   const record = await db
     .select({
-      quantity: newYearMeters.quantity,
-      addedToSystem: newYearMeters.addedToSystem,
+      totalInstalled: yearlyMeterInstallations.totalInstalled,
+      registeredCount: yearlyMeterInstallations.registeredCount,
     })
-    .from(newYearMeters)
-    .where(eq(newYearMeters.id, id));
+    .from(yearlyMeterInstallations)
+    .where(eq(yearlyMeterInstallations.id, id));
 
   return record[0];
 }
@@ -166,19 +187,22 @@ export async function getYearMetersForInsert({
 }: YearlyMeterSelectionCriteria) {
   const record = await db
     .select({
-      quantity: newYearMeters.quantity,
-      addedToSystem: newYearMeters.addedToSystem,
+      totalInstalled: yearlyMeterInstallations.totalInstalled,
+      registeredCount: yearlyMeterInstallations.registeredCount,
     })
-    .from(newYearMeters)
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.year, year),
-        lt(newYearMeters.date, date),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(yearlyMeterInstallations.year, year),
+        lt(yearlyMeterInstallations.date, date),
       ),
     )
-    .orderBy(desc(newYearMeters.date))
+    .orderBy(desc(yearlyMeterInstallations.date))
     .limit(1);
 
   return record;
@@ -191,21 +215,24 @@ export async function getYearlyMeterInstallationSummary({
   transformerSubstationId,
   year,
 }: YearlyMeterCountQueryParams) {
-  const result = await db.query.newYearMeters.findFirst({
+  const result = await db.query.yearlyMeterInstallations.findFirst({
     columns: {
-      quantity: true,
-      addedToSystem: true,
+      totalInstalled: true,
+      registeredCount: true,
     },
     where: and(
-      eq(newYearMeters.balanceGroup, balanceGroup),
-      eq(newYearMeters.year, year),
-      eq(newYearMeters.transformerSubstationId, transformerSubstationId),
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(yearlyMeterInstallations.year, year),
+      eq(
+        yearlyMeterInstallations.transformerSubstationId,
+        transformerSubstationId,
+      ),
       dateComparison === "before"
-        ? lt(newYearMeters.date, targetDate)
-        : lte(newYearMeters.date, targetDate),
+        ? lt(yearlyMeterInstallations.date, targetDate)
+        : lte(yearlyMeterInstallations.date, targetDate),
     ),
-    orderBy: [desc(newYearMeters.date)],
+    orderBy: [desc(yearlyMeterInstallations.date)],
   });
 
-  return result ?? { quantity: 0, addedToSystem: 0 };
+  return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
