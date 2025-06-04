@@ -36,6 +36,10 @@ declare interface MeterCountQueryParams {
   transformerSubstationId: number;
 }
 
+declare interface YearlyMeterCountQueryParams extends MeterCountQueryParams {
+  targetYear: number;
+}
+
 declare interface MeterSelectionCriteria {
   balanceGroup: BalanceGroup;
   date: string;
