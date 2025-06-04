@@ -16,7 +16,7 @@ import {
   getYearMetersOnID,
   updateYearOnId,
   getYearMetersForInsert,
-} from "~/.server/db-queries/newYearMeters";
+} from "~/.server/db-queries/yearlyMeterInstallations";
 
 import {
   insertMonthMeters,

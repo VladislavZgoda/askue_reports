@@ -1,6 +1,6 @@
 import { selectLastQuantity } from "~/.server/db-queries/registeredMeters";
 import { selectLastNotInSystem } from "~/.server/db-queries/unregisteredMeters";
-import { selectLastYearQuantity } from "~/.server/db-queries/newYearMeters";
+import { selectLastYearQuantity } from "~/.server/db-queries/yearlyMeterInstallations";
 import { selectLastMonthQuantity } from "~/.server/db-queries/newMonthMeters";
 
 export default async function loadData(id: number, balanceGroup: BalanceGroup) {

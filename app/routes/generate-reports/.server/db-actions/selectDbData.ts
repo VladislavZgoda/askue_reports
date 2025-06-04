@@ -1,6 +1,6 @@
 import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
-import { getYearlyMeterInstallationSummary } from "~/.server/db-queries/newYearMeters";
+import { getYearlyMeterInstallationSummary } from "~/.server/db-queries/yearlyMeterInstallations";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { FormData } from "../../generateReports";
 import type { Substations } from "../writeDbData";
