@@ -117,13 +117,11 @@ export async function selectNotInSystem(
   return meters;
 }
 
-interface Meters {
-  quantity: number;
-  addedToSystem: number;
-}
+type Meters = Awaited<ReturnType<typeof selectYearMetersOnDate>>;
 
 // Key - номер ТП (ТП-777)
 type PeriodMeters = Record<string, Meters>;
+type ReceivedPeriodMeters = Record<string, NonNullable<Meters>>;
 
 interface GetPeriodMeters {
   date: string;
@@ -160,8 +158,11 @@ async function getPeriodMeters({
       });
     } else {
       metersAtSubstation = await selectYearMetersOnDate({
+        balanceGroup,
+        targetDate: date,
+        dateComparison: "upTo",
         transformerSubstationId: substation.id,
-        ...args,
+        targetYear: year,
       });
     }
 
@@ -203,7 +204,7 @@ export async function selectPeriodMeters({
     }),
   ]);
 
-  const meters: PeriodMeters = {};
+  const meters: ReceivedPeriodMeters = {};
 
   for (const substation of substations) {
     const name = substation.name;
@@ -254,7 +255,7 @@ export async function selectMonthMeters(
 
 async function addPreviousMonth(
   date: string,
-  meters: PeriodMeters,
+  meters: ReceivedPeriodMeters,
   substations: Substations,
   balanceGroup: BalanceGroup,
 ) {
@@ -353,16 +354,18 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         transformerSubstationId: substation.id,
       }),
       selectYearMetersOnDate({
-        transformerSubstationId: substation.id,
         balanceGroup: "ОДПУ Sims",
-        date: formData.odpyDate,
-        year,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
+        targetYear: year,
       }),
       selectYearMetersOnDate({
-        transformerSubstationId: substation.id,
         balanceGroup: "ОДПУ П2",
-        date: formData.odpyDate,
-        year,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
+        targetYear: year,
       }),
       selectMonthMetersOnDate({
         transformerSubstationId: substation.id,

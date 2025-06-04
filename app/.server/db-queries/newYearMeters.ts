@@ -186,26 +186,26 @@ export async function getYearMetersForInsert({
 
 export async function selectYearMetersOnDate({
   balanceGroup,
-  date,
+  targetDate,
+  dateComparison,
   transformerSubstationId,
-  year,
-}: YearlyMeterSelectionCriteria) {
-  const record = await db
-    .select({
-      quantity: newYearMeters.quantity,
-      addedToSystem: newYearMeters.addedToSystem,
-    })
-    .from(newYearMeters)
-    .where(
-      and(
-        eq(newYearMeters.transformerSubstationId, transformerSubstationId),
-        lte(newYearMeters.date, date),
-        eq(newYearMeters.balanceGroup, balanceGroup),
-        eq(newYearMeters.year, year),
-      ),
-    )
-    .orderBy(desc(newYearMeters.date))
-    .limit(1);
+  targetYear,
+}: YearlyMeterCountQueryParams) {
+  const result = await db.query.newYearMeters.findFirst({
+    columns: {
+      quantity: true,
+      addedToSystem: true,
+    },
+    where: and(
+      eq(newYearMeters.balanceGroup, balanceGroup),
+      eq(newYearMeters.year, targetYear),
+      eq(newYearMeters.transformerSubstationId, transformerSubstationId),
+      dateComparison === "before"
+        ? lt(newYearMeters.date, targetDate)
+        : lte(newYearMeters.date, targetDate),
+    ),
+    orderBy: [desc(newYearMeters.date)],
+  });
 
-  return record[0];
+  return result;
 }
