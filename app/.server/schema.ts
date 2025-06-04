@@ -95,12 +95,12 @@ export const unregisteredMeters = pgTable(
   },
 );
 
-export const newYearMeters = pgTable(
-  "new_year_meters",
+export const yearlyMeterInstallations = pgTable(
+  "yearly_meter_installations",
   {
     id: serial("id").primaryKey(),
-    quantity: integer("quantity").notNull(),
-    addedToSystem: integer("added_to_system").notNull(),
+    totalInstalled: integer("total_installed").notNull(),
+    registeredCount: integer("registered_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     year: integer("year").notNull(),
     date: date("date", { mode: "string" }).notNull(),

@@ -239,6 +239,13 @@
       "when": 1748949635404,
       "tag": "0033_curly_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1749061358477,
+      "tag": "0034_acoustic_ego",
+      "breakpoints": true
     }
   ]
 }
