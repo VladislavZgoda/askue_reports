@@ -163,29 +163,6 @@ export async function getNewMetersIds({
   return ids;
 }
 
-export async function getQuantityForInsert({
-  transformerSubstationId,
-  date,
-  balanceGroup,
-}: QuantityForInsert) {
-  const record = await db
-    .select({
-      registeredMeterCount: registeredMeters.registeredMeterCount,
-    })
-    .from(registeredMeters)
-    .where(
-      and(
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
-        eq(registeredMeters.balanceGroup, balanceGroup),
-        lt(registeredMeters.date, date),
-      ),
-    )
-    .orderBy(desc(registeredMeters.date))
-    .limit(1);
-
-  return record[0]?.registeredMeterCount ?? 0;
-}
-
 export async function getQuantityOnID(id: number) {
   const record = await db
     .select({ registeredMeterCount: registeredMeters.registeredMeterCount })

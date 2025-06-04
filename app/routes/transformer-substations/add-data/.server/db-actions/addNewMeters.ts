@@ -3,9 +3,9 @@ import {
   checkMetersRecord,
   updateMetersRecord,
   getNewMetersIds,
-  getQuantityForInsert,
   getQuantityOnID,
   updateRecordOnId,
+  getRegisteredMeterCountAtDate,
 } from "~/.server/db-queries/registeredMeters";
 
 import {
@@ -80,7 +80,12 @@ function handleInsertValues(values: ActionValues) {
 }
 
 async function handleInsert(insertValues: InsertMetersValues) {
-  const lastQuantity = await getQuantityForInsert(insertValues);
+  const lastQuantity = await getRegisteredMeterCountAtDate({
+    balanceGroup: insertValues.balanceGroup,
+    targetDate: insertValues.date,
+    dateComparison: "before",
+    transformerSubstationId: insertValues.transformerSubstationId,
+  });
 
   await insertNewMeters({
     ...insertValues,
