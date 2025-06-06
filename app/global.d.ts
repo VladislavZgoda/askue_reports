@@ -45,7 +45,7 @@ declare interface MeterCountQueryParams {
   transformerSubstationId: number;
 }
 
-declare interface YearlyMeterCountQueryParams extends MeterCountQueryParams {
+declare interface YearlyMeterSummaryParams extends MeterCountQueryParams {
   year: number;
 }
 

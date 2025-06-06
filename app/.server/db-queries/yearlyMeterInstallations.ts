@@ -185,7 +185,7 @@ export async function getYearlyMeterInstallationSummary({
   dateComparison,
   transformerSubstationId,
   year,
-}: YearlyMeterCountQueryParams) {
+}: YearlyMeterSummaryParams) {
   const result = await db.query.yearlyMeterInstallations.findFirst({
     columns: {
       totalInstalled: true,
