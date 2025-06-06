@@ -179,35 +179,6 @@ export async function getYearMetersOnID(id: number) {
   return record[0];
 }
 
-export async function getYearMetersForInsert({
-  balanceGroup,
-  date,
-  transformerSubstationId,
-  year,
-}: YearlyMeterSelectionCriteria) {
-  const record = await db
-    .select({
-      totalInstalled: yearlyMeterInstallations.totalInstalled,
-      registeredCount: yearlyMeterInstallations.registeredCount,
-    })
-    .from(yearlyMeterInstallations)
-    .where(
-      and(
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.year, year),
-        lt(yearlyMeterInstallations.date, date),
-      ),
-    )
-    .orderBy(desc(yearlyMeterInstallations.date))
-    .limit(1);
-
-  return record;
-}
-
 export async function getYearlyMeterInstallationSummary({
   balanceGroup,
   targetDate,

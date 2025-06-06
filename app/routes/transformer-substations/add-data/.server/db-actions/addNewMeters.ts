@@ -15,7 +15,7 @@ import {
   getYearIds,
   getYearMetersOnID,
   updateYearOnId,
-  getYearMetersForInsert,
+  getYearlyMeterInstallationSummary,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
 import {
@@ -219,22 +219,22 @@ async function insertTotalYearMeters(
     transformerSubstationId,
   } = insertValues;
 
-  const lastYearQuantity = await getYearMetersForInsert({
+  const lastYearQuantity = await getYearlyMeterInstallationSummary({
     balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
     transformerSubstationId,
     year,
-    date,
   });
 
-  const updatedLastYearQuantity =
-    quantity + (lastYearQuantity[0]?.totalInstalled ?? 0);
-  const updatedLastYearAddedToSystem =
-    addedToSystem + (lastYearQuantity[0]?.registeredCount ?? 0);
+  const updatedTotalInstalled = quantity + lastYearQuantity.totalInstalled;
+  const updatedRegisteredCount =
+    addedToSystem + lastYearQuantity.registeredCount;
 
   await insertYearMeters({
     ...insertValues,
-    totalInstalled: updatedLastYearQuantity,
-    registeredCount: updatedLastYearAddedToSystem,
+    totalInstalled: updatedTotalInstalled,
+    registeredCount: updatedRegisteredCount,
     year,
   });
 }
