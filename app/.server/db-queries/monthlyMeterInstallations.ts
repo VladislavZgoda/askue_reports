@@ -1,19 +1,26 @@
 import { db } from "../db";
-import { newMonthMeters } from "../schema";
+import { monthlyMeterInstallations } from "../schema";
 import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 
+type TableColumns = typeof monthlyMeterInstallations.$inferSelect;
+
+type AddMonthlyMeterInstallations = Omit<
+  TableColumns,
+  "id" | "createdAt" | "updatedAt"
+>;
+
 export async function insertMonthMeters({
-  quantity,
-  addedToSystem,
+  totalInstalled,
+  registeredCount,
   balanceGroup,
   date,
   transformerSubstationId,
   month,
   year,
-}: MonthMetersValues) {
-  await db.insert(newMonthMeters).values({
-    quantity,
-    addedToSystem,
+}: AddMonthlyMeterInstallations) {
+  await db.insert(monthlyMeterInstallations).values({
+    totalInstalled,
+    registeredCount,
     balanceGroup,
     date,
     transformerSubstationId,
@@ -31,17 +38,20 @@ export async function selectMonthQuantity({
 }: MonthlyMeterSelectionCriteria) {
   const monthQuantity = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.date, date),
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(monthlyMeterInstallations.date, date),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
       ),
     );
 
@@ -56,45 +66,53 @@ export async function selectLastMonthQuantity({
 }: LastMonthQuantity) {
   const monthQuantity = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
       ),
     )
-    .orderBy(desc(newMonthMeters.date))
+    .orderBy(desc(monthlyMeterInstallations.date))
     .limit(1);
 
   return monthQuantity;
 }
 
+type UpdateMonthlyMeterInstallations = AddMonthlyMeterInstallations;
+
 export async function updateMonthMeters({
-  quantity,
-  addedToSystem,
+  totalInstalled,
+  registeredCount,
   balanceGroup,
   date,
   transformerSubstationId,
   month,
   year,
-}: MonthMetersValues) {
+}: UpdateMonthlyMeterInstallations) {
   const updatedAt = new Date();
 
   await db
-    .update(newMonthMeters)
-    .set({ quantity, addedToSystem, updatedAt })
+    .update(monthlyMeterInstallations)
+    .set({ totalInstalled, registeredCount, updatedAt })
     .where(
       and(
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.date, date),
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(monthlyMeterInstallations.date, date),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
       ),
     );
 }
@@ -106,33 +124,41 @@ export async function getLastMonthId({
   year,
 }: LastMonthQuantity): Promise<number | undefined> {
   const recordId = await db
-    .select({ id: newMonthMeters.id })
-    .from(newMonthMeters)
+    .select({ id: monthlyMeterInstallations.id })
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
       ),
     )
-    .orderBy(desc(newMonthMeters.date))
+    .orderBy(desc(monthlyMeterInstallations.date))
     .limit(1);
 
   return recordId[0]?.id;
 }
 
+type UpdateMonthlyInstallationsAtId = Pick<
+  TableColumns,
+  "id" | "totalInstalled" | "registeredCount"
+>;
+
 export async function updateMonthOnId({
   id,
-  quantity,
-  addedToSystem,
-}: UpdateMonthOnIdType) {
+  totalInstalled,
+  registeredCount,
+}: UpdateMonthlyInstallationsAtId) {
   const updatedAt = new Date();
 
   await db
-    .update(newMonthMeters)
-    .set({ quantity, addedToSystem, updatedAt })
-    .where(eq(newMonthMeters.id, id));
+    .update(monthlyMeterInstallations)
+    .set({ totalInstalled, registeredCount, updatedAt })
+    .where(eq(monthlyMeterInstallations.id, id));
 }
 
 export async function getMonthIds({
@@ -143,15 +169,18 @@ export async function getMonthIds({
   year,
 }: MonthlyMeterSelectionCriteria) {
   const ids = await db
-    .select({ id: newMonthMeters.id })
-    .from(newMonthMeters)
+    .select({ id: monthlyMeterInstallations.id })
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        gt(newMonthMeters.date, date),
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
+        gt(monthlyMeterInstallations.date, date),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
       ),
     );
 
@@ -161,11 +190,11 @@ export async function getMonthIds({
 export async function getMonthMetersOnID(id: number) {
   const record = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
-    .where(eq(newMonthMeters.id, id));
+    .from(monthlyMeterInstallations)
+    .where(eq(monthlyMeterInstallations.id, id));
 
   return record[0];
 }
@@ -179,20 +208,23 @@ export async function getMonthMetersForInsert({
 }: MonthlyMeterSelectionCriteria) {
   const record = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
-        lt(newMonthMeters.date, date),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
+        lt(monthlyMeterInstallations.date, date),
       ),
     )
-    .orderBy(desc(newMonthMeters.date))
+    .orderBy(desc(monthlyMeterInstallations.date))
     .limit(1);
 
   return record;
@@ -207,20 +239,23 @@ export async function selectMonthMetersOnDate({
 }: MonthlyMeterSelectionCriteria) {
   const record = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        lte(newMonthMeters.date, date),
-        eq(newMonthMeters.balanceGroup, balanceGroup),
-        eq(newMonthMeters.month, month),
-        eq(newMonthMeters.year, year),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        lte(monthlyMeterInstallations.date, date),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(monthlyMeterInstallations.month, month),
+        eq(monthlyMeterInstallations.year, year),
       ),
     )
-    .orderBy(desc(newMonthMeters.date))
+    .orderBy(desc(monthlyMeterInstallations.date))
     .limit(1);
 
   return record[0];
@@ -241,19 +276,22 @@ export async function selectMonthPeriodMeters({
 }: monthPeriod) {
   const record = await db
     .select({
-      quantity: newMonthMeters.quantity,
-      addedToSystem: newMonthMeters.addedToSystem,
+      totalInstalled: monthlyMeterInstallations.totalInstalled,
+      registeredCount: monthlyMeterInstallations.registeredCount,
     })
-    .from(newMonthMeters)
+    .from(monthlyMeterInstallations)
     .where(
       and(
-        eq(newMonthMeters.transformerSubstationId, transformerSubstationId),
-        lte(newMonthMeters.date, lastDate),
-        gte(newMonthMeters.date, firstDate),
-        eq(newMonthMeters.balanceGroup, balanceGroup),
+        eq(
+          monthlyMeterInstallations.transformerSubstationId,
+          transformerSubstationId,
+        ),
+        lte(monthlyMeterInstallations.date, lastDate),
+        gte(monthlyMeterInstallations.date, firstDate),
+        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
       ),
     )
-    .orderBy(desc(newMonthMeters.date))
+    .orderBy(desc(monthlyMeterInstallations.date))
     .limit(1);
 
   return record[0];
