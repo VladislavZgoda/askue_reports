@@ -117,12 +117,12 @@ export const yearlyMeterInstallations = pgTable(
   },
 );
 
-export const newMonthMeters = pgTable(
-  "new_month_meters",
+export const monthlyMeterInstallations = pgTable(
+  "monthly_meter_installations",
   {
     id: serial("id").primaryKey(),
-    quantity: integer("quantity").notNull(),
-    addedToSystem: integer("added_to_system").notNull(),
+    totalInstalled: integer("total_installed").notNull(),
+    registeredCount: integer("registered_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     month: varchar("month", { length: 2 }).notNull(),
     year: integer("year").notNull(),

@@ -246,6 +246,13 @@
       "when": 1749061358477,
       "tag": "0034_acoustic_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1749196585618,
+      "tag": "0035_faithful_lord_tyger",
+      "breakpoints": true
     }
   ]
 }
