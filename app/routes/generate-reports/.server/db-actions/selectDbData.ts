@@ -8,7 +8,7 @@ import type { Substations } from "../writeDbData";
 import {
   selectMonthMetersOnDate,
   selectMonthPeriodMeters,
-} from "~/.server/db-queries/newMonthMeters";
+} from "~/.server/db-queries/monthlyMeterInstallations";
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
