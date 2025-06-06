@@ -49,6 +49,10 @@ declare interface YearlyMeterSummaryParams extends MeterCountQueryParams {
   year: number;
 }
 
+declare interface MonthlyMeterSummaryParams extends YearlyMeterSummaryParams {
+  month: string;
+}
+
 declare interface MeterSelectionCriteria {
   balanceGroup: BalanceGroup;
   date: string;
