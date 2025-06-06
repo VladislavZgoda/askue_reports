@@ -144,8 +144,8 @@ async function handleReport({
     const yearQuantity = yearMeters[tp]?.totalInstalled ?? 0;
     const yearInSystem = yearMeters[tp]?.registeredCount ?? 0;
 
-    const monthQuantity = monthMeters[tp]?.quantity ?? 0;
-    const monthInSystem = monthMeters[tp]?.addedToSystem ?? 0;
+    const monthQuantity = monthMeters[tp]?.totalInstalled ?? 0;
+    const monthInSystem = monthMeters[tp]?.registeredCount ?? 0;
 
     ws.getCell("H" + rowNumber).value = privateM + legalM;
     ws.getCell("I" + rowNumber).value = privateM;

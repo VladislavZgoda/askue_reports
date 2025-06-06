@@ -212,17 +212,17 @@ export async function selectPeriodMeters({
     const legalSims = legalMetersSims[name];
     const legalP2 = legalMetersP2[name];
 
-    const quantity =
-      (privateM.quantity ?? 0) +
-      (legalSims?.quantity ?? 0) +
-      (legalP2?.quantity ?? 0);
+    const totalInstalled =
+      (privateM?.totalInstalled ?? 0) +
+      (legalSims?.totalInstalled ?? 0) +
+      (legalP2?.totalInstalled ?? 0);
 
-    const addedToSystem =
-      (privateM?.addedToSystem ?? 0) +
-      (legalSims?.addedToSystem ?? 0) +
-      (legalP2?.addedToSystem ?? 0);
+    const registeredCount =
+      (privateM?.registeredCount ?? 0) +
+      (legalSims?.registeredCount ?? 0) +
+      (legalP2?.registeredCount ?? 0);
 
-    meters[name] = { quantity, addedToSystem };
+    meters[name] = { totalInstalled, registeredCount };
   }
 
   return meters;
@@ -280,14 +280,16 @@ async function addPreviousMonth(
       year,
     });
 
-    const quantity =
-      periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
+    const totalInstalled =
+      periodMeters.totalInstalled -
+      (metersBeforeFirstDate?.totalInstalled ?? 0);
 
-    const addedToSystem =
-      periodMeters.addedToSystem - (metersBeforeFirstDate?.addedToSystem ?? 0);
+    const registeredCount =
+      periodMeters.registeredCount -
+      (metersBeforeFirstDate?.registeredCount ?? 0);
 
-    meters[substation.name].quantity += quantity;
-    meters[substation.name].addedToSystem += addedToSystem;
+    meters[substation.name].totalInstalled += totalInstalled;
+    meters[substation.name].registeredCount += registeredCount;
   }
 }
 
@@ -384,13 +386,18 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
 
     odpy.quantity += quantitySims + quantityP2;
     odpy.notInSystem += notInSystemSims + notInSystemP2;
-    odpy.year.quantity += (yearSims?.quantity ?? 0) + (yearP2?.quantity ?? 0);
+
+    odpy.year.quantity +=
+      (yearSims?.totalInstalled ?? 0) + (yearP2?.totalInstalled ?? 0);
+
     odpy.year.addedToSystem +=
-      (yearSims?.addedToSystem ?? 0) + (yearP2?.addedToSystem ?? 0);
+      (yearSims?.registeredCount ?? 0) + (yearP2?.registeredCount ?? 0);
+
     odpy.month.quantity +=
-      (monthSims?.quantity ?? 0) + (monthP2?.quantity ?? 0);
+      (monthSims?.totalInstalled ?? 0) + (monthP2?.totalInstalled ?? 0);
+
     odpy.month.addedToSystem +=
-      (monthSims?.addedToSystem ?? 0) + (monthP2?.addedToSystem ?? 0);
+      (monthSims?.registeredCount ?? 0) + (monthP2?.registeredCount ?? 0);
   }
 
   if (formData?.odpyMonth) {
@@ -436,11 +443,12 @@ async function calculatePreviousMonthOdpy(
       });
 
       const quantity =
-        periodMeters.quantity - (metersBeforeFirstDate?.quantity ?? 0);
+        periodMeters.totalInstalled -
+        (metersBeforeFirstDate?.totalInstalled ?? 0);
 
       const addedToSystem =
-        periodMeters.addedToSystem -
-        (metersBeforeFirstDate?.addedToSystem ?? 0);
+        periodMeters.registeredCount -
+        (metersBeforeFirstDate?.registeredCount ?? 0);
 
       meters.quantity += quantity;
       meters.addedToSystem += addedToSystem;
