@@ -45,8 +45,8 @@ async function handleYearMeters(
   const yearData = await selectLastYearQuantity(argsObj);
 
   const yearQuantity = {
-    quantity: yearData[0]?.quantity ?? 0,
-    addedToSystem: yearData[0]?.addedToSystem ?? 0,
+    quantity: yearData[0]?.totalInstalled ?? 0,
+    addedToSystem: yearData[0]?.registeredCount ?? 0,
   };
 
   return yearQuantity;

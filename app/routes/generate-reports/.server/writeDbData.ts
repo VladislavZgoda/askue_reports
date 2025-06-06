@@ -141,8 +141,8 @@ async function handleReport({
     const p2 = legalMeters.p2[tp] ?? 0;
     const notInSystemMeters = notInSystem[tp] ?? 0;
 
-    const yearQuantity = yearMeters[tp]?.quantity ?? 0;
-    const yearInSystem = yearMeters[tp]?.addedToSystem ?? 0;
+    const yearQuantity = yearMeters[tp]?.totalInstalled ?? 0;
+    const yearInSystem = yearMeters[tp]?.registeredCount ?? 0;
 
     const monthQuantity = monthMeters[tp]?.quantity ?? 0;
     const monthInSystem = monthMeters[tp]?.addedToSystem ?? 0;

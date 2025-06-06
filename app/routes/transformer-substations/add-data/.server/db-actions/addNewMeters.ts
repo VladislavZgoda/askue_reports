@@ -195,7 +195,7 @@ async function handleYearMeters(insertValues: InsertMetersValues) {
     year,
   });
 
-  if (prevYearQuantity[0]?.quantity !== undefined) {
+  if (prevYearQuantity[0]?.totalInstalled !== undefined) {
     await updateTotalYearMeters(insertValues, prevYearQuantity[0], year);
   } else {
     await insertTotalYearMeters(insertValues, year);
@@ -227,32 +227,34 @@ async function insertTotalYearMeters(
   });
 
   const updatedLastYearQuantity =
-    quantity + (lastYearQuantity[0]?.quantity ?? 0);
+    quantity + (lastYearQuantity[0]?.totalInstalled ?? 0);
   const updatedLastYearAddedToSystem =
-    addedToSystem + (lastYearQuantity[0]?.addedToSystem ?? 0);
+    addedToSystem + (lastYearQuantity[0]?.registeredCount ?? 0);
 
   await insertYearMeters({
     ...insertValues,
-    quantity: updatedLastYearQuantity,
-    addedToSystem: updatedLastYearAddedToSystem,
+    totalInstalled: updatedLastYearQuantity,
+    registeredCount: updatedLastYearAddedToSystem,
     year,
   });
 }
 
+type YearlyMeterCount = Awaited<ReturnType<typeof selectYearQuantity>>[number];
+
 async function updateTotalYearMeters(
   insertValues: InsertMetersValues,
-  prevYearQuantity: TotalMeters,
+  prevYearQuantity: YearlyMeterCount,
   year: number,
 ) {
   const { quantity, addedToSystem } = insertValues;
-  const updatedYearQuantity = quantity + prevYearQuantity.quantity;
-  const updatedAddedToSystem = addedToSystem + prevYearQuantity.addedToSystem;
+  const updatedYearQuantity = quantity + prevYearQuantity.totalInstalled;
+  const updatedAddedToSystem = addedToSystem + prevYearQuantity.registeredCount;
 
   await updateYearMeters({
     ...insertValues,
     year,
-    quantity: updatedYearQuantity,
-    addedToSystem: updatedAddedToSystem,
+    totalInstalled: updatedYearQuantity,
+    registeredCount: updatedAddedToSystem,
   });
 }
 
@@ -265,8 +267,8 @@ async function updateNextYearRecords(values: YearMetersValues) {
 
       await updateYearOnId({
         id,
-        quantity: meters.quantity + values.quantity,
-        addedToSystem: meters.addedToSystem + values.addedToSystem,
+        totalInstalled: meters.totalInstalled + values.quantity,
+        registeredCount: meters.registeredCount + values.addedToSystem,
       });
     }
   }

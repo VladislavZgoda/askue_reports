@@ -175,14 +175,14 @@ async function handleYearMeters(
     if (!isEqual) {
       await updateYearOnId({
         id: lastYearId,
-        quantity: yearTotal,
-        addedToSystem: inSystemYear,
+        totalInstalled: yearTotal,
+        registeredCount: inSystemYear,
       });
     }
   } else {
     await insertYearMeters({
-      quantity: yearTotal,
-      addedToSystem: inSystemYear,
+      totalInstalled: yearTotal,
+      registeredCount: inSystemYear,
       transformerSubstationId: id,
       date,
       balanceGroup,
