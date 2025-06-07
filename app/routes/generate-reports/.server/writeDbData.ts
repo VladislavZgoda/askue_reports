@@ -232,6 +232,7 @@ async function handleSupplementThree({
     calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
   const legalNotInSystemSum =
     calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
+
   const technicalMeters = await selectSumTechnicalMeters();
 
   const technicalMetersQuantity = Number(technicalMeters[0].quantity ?? 0);
