@@ -258,13 +258,13 @@ async function addPreviousMonth(
 ) {
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
-  const lastMonthDatePrivate = selectLastMonthDate(year, Number(month));
+  const lastPreviousMonthDay = getPreviousMonthDay(year, Number(month));
 
   for (const substation of substations) {
     const periodMeters = await selectMonthPeriodMeters({
       balanceGroup,
       firstDate: date,
-      lastDate: lastMonthDatePrivate,
+      lastDate: lastPreviousMonthDay,
       transformerSubstationId: substation.id,
     });
 
@@ -280,7 +280,7 @@ async function addPreviousMonth(
     });
 
     const totalInstalled =
-      periodMeters.totalInstalled - metersBeforeFirstDate?.totalInstalled;
+      periodMeters.totalInstalled - metersBeforeFirstDate.totalInstalled;
 
     const registeredCount =
       periodMeters.registeredCount - metersBeforeFirstDate.registeredCount;
@@ -290,13 +290,15 @@ async function addPreviousMonth(
   }
 }
 
-function selectLastMonthDate(year: number, month: number) {
+function getPreviousMonthDay(year: number, month: number) {
   // Первый месяц имеет индекс 0,
   // поэтому month здесь это следующий месяц, а не текущий.
   // При передаче 0 в "date?: number" даст последний день предыдущего месяца.
-  const lastDayOfMonth = new Date(year, month, 0).toLocaleDateString("en-CA");
+  const lastPreviousMonthDay = new Date(year, month, 0).toLocaleDateString(
+    "en-CA",
+  );
 
-  return lastDayOfMonth;
+  return lastPreviousMonthDay;
 }
 
 export async function selectOdpy(formData: FormData, substations: Substations) {
@@ -413,7 +415,7 @@ async function calculatePreviousMonthOdpy(
 ) {
   const year = cutOutYear(date);
   const month = cutOutMonth(date);
-  const lastMonthDatePrivate = selectLastMonthDate(year, Number(month));
+  const lastPreviousMonthDay = getPreviousMonthDay(year, Number(month));
 
   const meters = {
     quantity: 0,
@@ -425,7 +427,7 @@ async function calculatePreviousMonthOdpy(
       const periodMeters = await selectMonthPeriodMeters({
         balanceGroup,
         firstDate: date,
-        lastDate: lastMonthDatePrivate,
+        lastDate: lastPreviousMonthDay,
         transformerSubstationId: substation.id,
       });
 
