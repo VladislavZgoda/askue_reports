@@ -199,37 +199,6 @@ export async function getMonthMetersOnID(id: number) {
   return record[0];
 }
 
-export async function getMonthMetersForInsert({
-  balanceGroup,
-  date,
-  transformerSubstationId,
-  month,
-  year,
-}: MonthlyMeterSelectionCriteria) {
-  const record = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-        lt(monthlyMeterInstallations.date, date),
-      ),
-    )
-    .orderBy(desc(monthlyMeterInstallations.date))
-    .limit(1);
-
-  return record;
-}
-
 export async function getMonthlyMeterInstallationSummary({
   balanceGroup,
   targetDate,

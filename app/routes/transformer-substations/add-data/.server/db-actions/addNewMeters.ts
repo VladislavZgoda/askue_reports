@@ -24,8 +24,8 @@ import {
   selectMonthQuantity,
   getMonthIds,
   getMonthMetersOnID,
-  getMonthMetersForInsert,
   updateMonthOnId,
+  getMonthlyMeterInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
@@ -317,18 +317,19 @@ async function insertTotalMonthMeters(
     transformerSubstationId,
   } = insertValues;
 
-  const lastMonthQuantity = await getMonthMetersForInsert({
+  const lastMonthQuantity = await getMonthlyMeterInstallationSummary({
     balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
     transformerSubstationId,
     month,
     year,
-    date,
   });
 
-  const updatedLastMonthQuantity =
-    quantity + (lastMonthQuantity[0]?.totalInstalled ?? 0);
+  const updatedLastMonthQuantity = quantity + lastMonthQuantity.totalInstalled;
+
   const updatedLastMonthAddedToSystem =
-    addedToSystem + (lastMonthQuantity[0]?.registeredCount ?? 0);
+    addedToSystem + lastMonthQuantity.registeredCount;
 
   await insertMonthMeters({
     ...insertValues,
