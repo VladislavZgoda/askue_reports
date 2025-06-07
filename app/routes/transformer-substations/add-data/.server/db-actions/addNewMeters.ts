@@ -286,7 +286,7 @@ async function handleMonthMeters(insertValues: InsertMetersValues) {
     year,
   });
 
-  if (prevMonthQuantity[0]?.quantity !== undefined) {
+  if (prevMonthQuantity[0]?.totalInstalled !== undefined) {
     await updateTotalMonthMeters(
       insertValues,
       prevMonthQuantity[0],
@@ -324,37 +324,43 @@ async function insertTotalMonthMeters(
     year,
     date,
   });
+
   const updatedLastMonthQuantity =
-    quantity + (lastMonthQuantity[0]?.quantity ?? 0);
+    quantity + (lastMonthQuantity[0]?.totalInstalled ?? 0);
   const updatedLastMonthAddedToSystem =
-    addedToSystem + (lastMonthQuantity[0]?.addedToSystem ?? 0);
+    addedToSystem + (lastMonthQuantity[0]?.registeredCount ?? 0);
 
   await insertMonthMeters({
     ...insertValues,
-    quantity: updatedLastMonthQuantity,
-    addedToSystem: updatedLastMonthAddedToSystem,
+    totalInstalled: updatedLastMonthQuantity,
+    registeredCount: updatedLastMonthAddedToSystem,
     month,
     year,
   });
 }
 
+type PreviousMonthlyMeterInstallations = Awaited<
+  ReturnType<typeof selectMonthQuantity>
+>[number];
+
 async function updateTotalMonthMeters(
   insertValues: InsertMetersValues,
-  prevMonthQuantity: TotalMeters,
+  prevMonthQuantity: PreviousMonthlyMeterInstallations,
   month: string,
   year: number,
 ) {
   const { quantity, addedToSystem } = insertValues;
-  const updatedMonthQuantity = quantity + prevMonthQuantity.quantity;
+  const updatedMonthQuantity = quantity + prevMonthQuantity.totalInstalled;
+
   const updatedMonthAddedToSystem =
-    addedToSystem + prevMonthQuantity.addedToSystem;
+    addedToSystem + prevMonthQuantity.registeredCount;
 
   await updateMonthMeters({
     ...insertValues,
     year,
     month,
-    quantity: updatedMonthQuantity,
-    addedToSystem: updatedMonthAddedToSystem,
+    totalInstalled: updatedMonthQuantity,
+    registeredCount: updatedMonthAddedToSystem,
   });
 }
 
@@ -367,8 +373,8 @@ async function updateNextMonthRecords(values: MonthMetersValues) {
 
       await updateMonthOnId({
         id,
-        quantity: meters.quantity + values.quantity,
-        addedToSystem: meters.addedToSystem + values.addedToSystem,
+        totalInstalled: meters.totalInstalled + values.quantity,
+        registeredCount: meters.registeredCount + values.addedToSystem,
       });
     }
   }

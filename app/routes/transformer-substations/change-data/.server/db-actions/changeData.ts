@@ -219,14 +219,14 @@ async function handleMonthMeters(
     if (!isEqual) {
       await updateMonthOnId({
         id: lastMonthId,
-        quantity: monthTotal,
-        addedToSystem: inSystemMonth,
+        totalInstalled: monthTotal,
+        registeredCount: inSystemMonth,
       });
     }
   } else {
     await insertMonthMeters({
-      quantity: monthTotal,
-      addedToSystem: inSystemMonth,
+      totalInstalled: monthTotal,
+      registeredCount: inSystemMonth,
       transformerSubstationId: id,
       balanceGroup,
       date,

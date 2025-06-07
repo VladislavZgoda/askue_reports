@@ -73,8 +73,8 @@ async function handleMonthMeters(
   const monthData = await selectLastMonthQuantity(argsObj);
 
   const monthQuantity = {
-    quantity: monthData[0]?.quantity ?? 0,
-    addedToSystem: monthData[0]?.addedToSystem ?? 0,
+    quantity: monthData[0]?.totalInstalled ?? 0,
+    addedToSystem: monthData[0]?.registeredCount ?? 0,
   };
 
   return monthQuantity;
