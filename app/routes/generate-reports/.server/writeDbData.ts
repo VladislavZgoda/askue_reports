@@ -120,6 +120,7 @@ async function handleReport({
     selectPeriodMeters({
       substations,
       formData,
+      period: "year",
     }),
     selectMonthMeters(substations, formData),
   ]);

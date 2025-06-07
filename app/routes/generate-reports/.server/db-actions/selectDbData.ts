@@ -117,6 +117,7 @@ export async function selectNotInSystem(
   return meters;
 }
 
+type Period = "month" | "year";
 type Meters = Awaited<ReturnType<typeof getYearlyMeterInstallationSummary>>;
 
 // Key - номер ТП (ТП-777)
@@ -126,14 +127,14 @@ interface GetPeriodMeters {
   targetDate: string;
   substations: Substations;
   balanceGroup: BalanceGroup;
-  periodType?: "month";
+  period: Period;
 }
 
 async function getPeriodMeters({
   substations,
   balanceGroup,
   targetDate,
-  periodType,
+  period,
 }: GetPeriodMeters) {
   const meters: PeriodMeters = {};
 
@@ -143,7 +144,7 @@ async function getPeriodMeters({
   let metersAtSubstation: Meters;
 
   for (const substation of substations) {
-    if (periodType === "month") {
+    if (period === "month") {
       metersAtSubstation = await getMonthlyMeterInstallationSummary({
         balanceGroup,
         targetDate,
@@ -171,32 +172,32 @@ async function getPeriodMeters({
 interface SelectPeriodMeters {
   substations: Substations;
   formData: FormData;
-  periodType?: "month";
+  period: Period;
 }
 
 export async function selectPeriodMeters({
   substations,
   formData,
-  periodType,
+  period,
 }: SelectPeriodMeters) {
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
     getPeriodMeters({
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
-      periodType,
+      period,
     }),
     getPeriodMeters({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
-      periodType,
+      period,
     }),
     getPeriodMeters({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
-      periodType,
+      period,
     }),
   ]);
 
@@ -232,7 +233,7 @@ export async function selectMonthMeters(
   const meters = await selectPeriodMeters({
     substations,
     formData,
-    periodType: "month",
+    period: "month",
   });
 
   if (formData?.privateMonth) {
