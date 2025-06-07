@@ -6,8 +6,8 @@ import type { FormData } from "../../generateReports";
 import type { Substations } from "../writeDbData";
 
 import {
-  selectMonthMetersOnDate,
   selectMonthPeriodMeters,
+  getMonthlyMeterInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
@@ -123,7 +123,7 @@ type Meters = Awaited<ReturnType<typeof getYearlyMeterInstallationSummary>>;
 type PeriodMeters = Record<string, Meters>;
 
 interface GetPeriodMeters {
-  date: string;
+  targetDate: string;
   substations: Substations;
   balanceGroup: BalanceGroup;
   periodType?: "month";
@@ -132,33 +132,30 @@ interface GetPeriodMeters {
 async function getPeriodMeters({
   substations,
   balanceGroup,
-  date,
+  targetDate,
   periodType,
 }: GetPeriodMeters) {
   const meters: PeriodMeters = {};
 
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
-
-  const args = {
-    date,
-    year,
-    balanceGroup,
-  };
+  const year = cutOutYear(targetDate);
+  const month = cutOutMonth(targetDate);
 
   let metersAtSubstation: Meters;
 
   for (const substation of substations) {
     if (periodType === "month") {
-      metersAtSubstation = await selectMonthMetersOnDate({
+      metersAtSubstation = await getMonthlyMeterInstallationSummary({
+        balanceGroup,
+        targetDate,
+        dateComparison: "upTo",
         transformerSubstationId: substation.id,
         month,
-        ...args,
+        year,
       });
     } else {
       metersAtSubstation = await getYearlyMeterInstallationSummary({
         balanceGroup,
-        targetDate: date,
+        targetDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         year,
@@ -186,19 +183,19 @@ export async function selectPeriodMeters({
     getPeriodMeters({
       substations,
       balanceGroup: "Быт",
-      date: formData.privateDate,
+      targetDate: formData.privateDate,
       periodType,
     }),
     getPeriodMeters({
       substations,
       balanceGroup: "ЮР Sims",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       periodType,
     }),
     getPeriodMeters({
       substations,
       balanceGroup: "ЮР П2",
-      date: formData.legalDate,
+      targetDate: formData.legalDate,
       periodType,
     }),
   ]);
@@ -272,10 +269,11 @@ async function addPreviousMonth(
 
     if (typeof periodMeters === "undefined") continue;
 
-    const metersBeforeFirstDate = await selectMonthMetersOnDate({
-      transformerSubstationId: substation.id,
+    const metersBeforeFirstDate = await getMonthlyMeterInstallationSummary({
       balanceGroup,
-      date,
+      targetDate: date,
+      dateComparison: "upTo",
+      transformerSubstationId: substation.id,
       month,
       year,
     });
@@ -368,17 +366,19 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
         transformerSubstationId: substation.id,
         year,
       }),
-      selectMonthMetersOnDate({
-        transformerSubstationId: substation.id,
+      getMonthlyMeterInstallationSummary({
         balanceGroup: "ОДПУ Sims",
-        date: formData.odpyDate,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
         month,
         year,
       }),
-      selectMonthMetersOnDate({
-        transformerSubstationId: substation.id,
+      getMonthlyMeterInstallationSummary({
         balanceGroup: "ОДПУ П2",
-        date: formData.odpyDate,
+        targetDate: formData.odpyDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
         month,
         year,
       }),
@@ -434,10 +434,11 @@ async function calculatePreviousMonthOdpy(
 
       if (typeof periodMeters === "undefined") continue;
 
-      const metersBeforeFirstDate = await selectMonthMetersOnDate({
-        transformerSubstationId: substation.id,
+      const metersBeforeFirstDate = await getMonthlyMeterInstallationSummary({
         balanceGroup,
-        date,
+        targetDate: date,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
         month,
         year,
       });

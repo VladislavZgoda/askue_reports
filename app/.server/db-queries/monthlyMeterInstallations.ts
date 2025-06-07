@@ -230,35 +230,35 @@ export async function getMonthMetersForInsert({
   return record;
 }
 
-export async function selectMonthMetersOnDate({
+export async function getMonthlyMeterInstallationSummary({
   balanceGroup,
-  date,
+  targetDate,
+  dateComparison,
   transformerSubstationId,
   month,
   year,
-}: MonthlyMeterSelectionCriteria) {
-  const record = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        lte(monthlyMeterInstallations.date, date),
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
+}: MonthlyMeterSummaryParams) {
+  const result = await db.query.monthlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: and(
+      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(monthlyMeterInstallations.year, year),
+      eq(monthlyMeterInstallations.month, month),
+      eq(
+        monthlyMeterInstallations.transformerSubstationId,
+        transformerSubstationId,
       ),
-    )
-    .orderBy(desc(monthlyMeterInstallations.date))
-    .limit(1);
+      dateComparison === "before"
+        ? lt(monthlyMeterInstallations.date, targetDate)
+        : lte(monthlyMeterInstallations.date, targetDate),
+    ),
+    orderBy: [desc(monthlyMeterInstallations.date)],
+  });
 
-  return record[0];
+  return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
 
 interface monthPeriod {
