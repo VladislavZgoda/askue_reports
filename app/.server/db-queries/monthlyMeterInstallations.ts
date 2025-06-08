@@ -243,25 +243,22 @@ export async function selectMonthPeriodMeters({
   lastDate,
   transformerSubstationId,
 }: monthPeriod) {
-  const record = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        lte(monthlyMeterInstallations.date, lastDate),
-        gte(monthlyMeterInstallations.date, firstDate),
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+  const result = await db.query.monthlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: and(
+      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+      gte(monthlyMeterInstallations.date, firstDate),
+      lte(monthlyMeterInstallations.date, lastDate),
+      eq(
+        monthlyMeterInstallations.transformerSubstationId,
+        transformerSubstationId,
       ),
-    )
-    .orderBy(desc(monthlyMeterInstallations.date))
-    .limit(1);
+    ),
+    orderBy: desc(monthlyMeterInstallations.date),
+  });
 
-  return record[0];
+  return result;
 }
