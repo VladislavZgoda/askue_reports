@@ -230,19 +230,33 @@ export async function getMonthlyMeterInstallationSummary({
   return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
 
-interface monthPeriod {
+interface PreviousMonthInstallationSummaryParams {
   balanceGroup: BalanceGroup;
-  firstDate: string;
-  lastDate: string;
+  periodStart: string;
+  periodEnd: string;
   transformerSubstationId: number;
 }
 
-export async function selectMonthPeriodMeters({
+/**
+ * Retrieves the latest meter installation summary for the previous month
+ * within the specified date period range
+ *
+ * @param periodStart Start date of the period (YYYY-MM-DD format)
+ * @param periodEnd End date of the period (YYYY-MM-DD format)
+ * @returns The latest installation summary or underfined if not found
+ *
+ * @throws {Error} If periodStart > periodEnd
+ */
+export async function getPreviousMonthInstallationSummary({
   balanceGroup,
-  firstDate,
-  lastDate,
+  periodStart,
+  periodEnd,
   transformerSubstationId,
-}: monthPeriod) {
+}: PreviousMonthInstallationSummaryParams) {
+  if (new Date(periodStart) > new Date(periodEnd)) {
+    throw new Error("periodStart must be before periodEnd");
+  }
+
   const result = await db.query.monthlyMeterInstallations.findFirst({
     columns: {
       totalInstalled: true,
@@ -250,8 +264,8 @@ export async function selectMonthPeriodMeters({
     },
     where: and(
       eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      gte(monthlyMeterInstallations.date, firstDate),
-      lte(monthlyMeterInstallations.date, lastDate),
+      gte(monthlyMeterInstallations.date, periodStart),
+      lte(monthlyMeterInstallations.date, periodEnd),
       eq(
         monthlyMeterInstallations.transformerSubstationId,
         transformerSubstationId,

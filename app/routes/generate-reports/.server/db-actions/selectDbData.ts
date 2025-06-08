@@ -6,8 +6,8 @@ import type { FormData } from "../../generateReports";
 import type { Substations } from "../writeDbData";
 
 import {
-  selectMonthPeriodMeters,
   getMonthlyMeterInstallationSummary,
+  getPreviousMonthInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 // Key - номер ТП (ТП-777), value - количество счетчиков.
@@ -261,10 +261,10 @@ async function addPreviousMonth(
   const lastPreviousMonthDay = getPreviousMonthDay(year, Number(month));
 
   for (const substation of substations) {
-    const periodMeters = await selectMonthPeriodMeters({
+    const periodMeters = await getPreviousMonthInstallationSummary({
       balanceGroup,
-      firstDate: date,
-      lastDate: lastPreviousMonthDay,
+      periodStart: date,
+      periodEnd: lastPreviousMonthDay,
       transformerSubstationId: substation.id,
     });
 
@@ -424,10 +424,10 @@ async function calculatePreviousMonthOdpy(
 
   const calculate = async (balanceGroup: "ОДПУ Sims" | "ОДПУ П2") => {
     for (const substation of substations) {
-      const periodMeters = await selectMonthPeriodMeters({
+      const periodMeters = await getPreviousMonthInstallationSummary({
         balanceGroup,
-        firstDate: date,
-        lastDate: lastPreviousMonthDay,
+        periodStart: date,
+        periodEnd: lastPreviousMonthDay,
         transformerSubstationId: substation.id,
       });
 
