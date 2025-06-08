@@ -238,55 +238,84 @@ export async function selectMonthMeters(
 
   if (formData?.privateMonth) {
     const date = formData.privateMonth;
-    await addPreviousMonth(date, meters, substations, "Быт");
+    await accumulatePreviousMonthInstallationChanges(
+      date,
+      meters,
+      substations,
+      "Быт",
+    );
   }
 
   if (formData?.legalMonth) {
     const date = formData.legalMonth;
-    await addPreviousMonth(date, meters, substations, "ЮР Sims");
-    await addPreviousMonth(date, meters, substations, "ЮР П2");
+    await accumulatePreviousMonthInstallationChanges(
+      date,
+      meters,
+      substations,
+      "ЮР Sims",
+    );
+    await accumulatePreviousMonthInstallationChanges(
+      date,
+      meters,
+      substations,
+      "ЮР П2",
+    );
   }
 
   return meters;
 }
 
-async function addPreviousMonth(
-  date: string,
+/**
+ * Accumulates monthly installation changes by calculating the difference between:
+ * 1. Installations at the end of the previous month
+ * 2. Installations before the start of the period
+ *
+ * For each substation, adds the net installation changes to the meter totals
+ *
+ * @param periodStart Start date of the period (YYYY-MM-DD format)
+ * @param meters Record to accumulate changes into
+ * @param substations List of substations to process
+ * @param balanceGroup Balance group filter
+ */
+async function accumulatePreviousMonthInstallationChanges(
+  periodStartDate: string,
   meters: PeriodMeters,
   substations: Substations,
   balanceGroup: BalanceGroup,
 ) {
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
-  const lastPreviousMonthDay = getPreviousMonthDay(year, Number(month));
+  const year = cutOutYear(periodStartDate);
+  const month = cutOutMonth(periodStartDate);
+  const periodEnd = getPreviousMonthDay(year, Number(month));
 
   for (const substation of substations) {
-    const periodMeters = await getPreviousMonthInstallationSummary({
-      balanceGroup,
-      periodStart: date,
-      periodEnd: lastPreviousMonthDay,
-      transformerSubstationId: substation.id,
-    });
+    const previousMonthInstallation = await getPreviousMonthInstallationSummary(
+      {
+        balanceGroup,
+        periodStart: periodStartDate,
+        periodEnd,
+        transformerSubstationId: substation.id,
+      },
+    );
 
-    if (typeof periodMeters === "undefined") continue;
+    if (typeof previousMonthInstallation === "undefined") continue;
 
-    const metersBeforeFirstDate = await getMonthlyMeterInstallationSummary({
-      balanceGroup,
-      targetDate: date,
-      dateComparison: "upTo",
-      transformerSubstationId: substation.id,
-      month,
-      year,
-    });
+    const installationBeforePeriodStart =
+      await getMonthlyMeterInstallationSummary({
+        balanceGroup,
+        targetDate: periodStartDate,
+        dateComparison: "upTo",
+        transformerSubstationId: substation.id,
+        month,
+        year,
+      });
 
-    const totalInstalled =
-      periodMeters.totalInstalled - metersBeforeFirstDate.totalInstalled;
+    const monthlyChange = calculateMonthlyInstallationChange(
+      previousMonthInstallation,
+      installationBeforePeriodStart,
+    );
 
-    const registeredCount =
-      periodMeters.registeredCount - metersBeforeFirstDate.registeredCount;
-
-    meters[substation.name].totalInstalled += totalInstalled;
-    meters[substation.name].registeredCount += registeredCount;
+    meters[substation.name].totalInstalled += monthlyChange.total;
+    meters[substation.name].registeredCount += monthlyChange.registered;
   }
 }
 
@@ -299,6 +328,16 @@ function getPreviousMonthDay(year: number, month: number) {
   );
 
   return lastPreviousMonthDay;
+}
+
+function calculateMonthlyInstallationChange(end: Meters, start: Meters) {
+  const total = end.totalInstalled - start.totalInstalled;
+  const registered = end.registeredCount - start.registeredCount;
+
+  return {
+    total,
+    registered,
+  } as const;
 }
 
 export async function selectOdpy(formData: FormData, substations: Substations) {
