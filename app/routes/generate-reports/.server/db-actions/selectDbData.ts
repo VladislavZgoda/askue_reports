@@ -340,17 +340,17 @@ function calculateMonthlyInstallationChange(end: Meters, start: Meters) {
   } as const;
 }
 
-export async function selectOdpy(formData: FormData, substations: Substations) {
-  const odpy = {
-    quantity: 0,
-    notInSystem: 0,
+export async function getODPUMeterCount(formData: FormData, substations: Substations) {
+  const odpu = {
+    registeredMeterCount: 0,
+    unregisteredMeterCount: 0,
     year: {
-      quantity: 0,
-      addedToSystem: 0,
+      totalInstalled: 0,
+      registeredCount: 0,
     },
     month: {
-      quantity: 0,
-      addedToSystem: 0,
+      totalInstalled: 0,
+      registeredCount: 0,
     },
   };
 
@@ -359,10 +359,10 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
 
   for (const substation of substations) {
     const [
-      quantitySims,
-      quantityP2,
-      notInSystemSims,
-      notInSystemP2,
+      registeredMeterCountSims,
+      registeredMeterCountP2,
+      unregisteredMeterCountSims,
+      unregisteredMeterCountP2,
       yearSims,
       yearP2,
       monthSims,
@@ -424,31 +424,35 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
       }),
     ]);
 
-    odpy.quantity += quantitySims + quantityP2;
-    odpy.notInSystem += notInSystemSims + notInSystemP2;
+    odpu.registeredMeterCount +=
+      registeredMeterCountSims + registeredMeterCountP2;
 
-    odpy.year.quantity += yearSims.totalInstalled + yearP2.totalInstalled;
+    odpu.unregisteredMeterCount +=
+      unregisteredMeterCountSims + unregisteredMeterCountP2;
 
-    odpy.year.addedToSystem +=
+    odpu.year.totalInstalled += yearSims.totalInstalled + yearP2.totalInstalled;
+
+    odpu.year.registeredCount +=
       yearSims.registeredCount + yearP2.registeredCount;
 
-    odpy.month.quantity += monthSims.totalInstalled + monthP2.totalInstalled;
+    odpu.month.totalInstalled +=
+      monthSims.totalInstalled + monthP2.totalInstalled;
 
-    odpy.month.addedToSystem +=
+    odpu.month.registeredCount +=
       monthSims.registeredCount + monthP2.registeredCount;
   }
 
   if (formData?.odpyMonth) {
     const date = formData.odpyMonth;
 
-    const prevMonthMeters =
+    const previousMonthInstallations =
       await accumulatePreviousMonthODPUInstallationChanges(date, substations);
 
-    odpy.month.quantity += prevMonthMeters.totalInstalled;
-    odpy.month.addedToSystem += prevMonthMeters.registeredCount;
+    odpu.month.totalInstalled += previousMonthInstallations.totalInstalled;
+    odpu.month.registeredCount += previousMonthInstallations.registeredCount;
   }
 
-  return odpy;
+  return odpu;
 }
 
 type ODPUBalanceGroup = "ОДПУ Sims" | "ОДПУ П2";

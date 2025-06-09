@@ -7,10 +7,10 @@ import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 import {
   selectMeters,
   selectLegalMeters,
-  selectOdpy,
   selectPeriodMeters,
   selectNotInSystem,
   selectMonthMeters,
+  getODPUMeterCount,
 } from "./db-actions/selectDbData";
 
 import type { FormData } from "../generateReports";
@@ -19,7 +19,7 @@ export type Substations = Readonly<
   Awaited<ReturnType<typeof selectAllSubstations>>
 >;
 
-type Odpy = Readonly<Awaited<ReturnType<typeof selectOdpy>>>;
+type Odpy = Readonly<Awaited<ReturnType<typeof getODPUMeterCount>>>;
 type LegalMeters = Awaited<ReturnType<typeof selectLegalMeters>>;
 type PrivateMeters = Readonly<Awaited<ReturnType<typeof selectMeters>>>;
 
@@ -36,7 +36,7 @@ export default async function writeDbData(formData: FormData) {
       func: getRegisteredMeterCountAtDate,
     }),
     selectLegalMeters(substations, formData.legalDate),
-    selectOdpy(formData, substations),
+    getODPUMeterCount(formData, substations),
   ]);
 
   await handlePrivateSector(path, privateMeters);
@@ -162,14 +162,14 @@ async function handleReport({
 
   const odpyRow = rowCount + 1;
 
-  ws.getCell(`H${odpyRow}`).value = odpy.quantity;
-  ws.getCell(`P${odpyRow}`).value = odpy.notInSystem;
+  ws.getCell(`H${odpyRow}`).value = odpy.registeredMeterCount;
+  ws.getCell(`P${odpyRow}`).value = odpy.unregisteredMeterCount;
 
-  ws.getCell(`Q${odpyRow}`).value = odpy.year.quantity;
-  ws.getCell(`R${odpyRow}`).value = odpy.year.addedToSystem;
+  ws.getCell(`Q${odpyRow}`).value = odpy.year.totalInstalled;
+  ws.getCell(`R${odpyRow}`).value = odpy.year.registeredCount;
 
-  ws.getCell(`S${odpyRow}`).value = odpy.month.quantity;
-  ws.getCell(`T${odpyRow}`).value = odpy.month.addedToSystem;
+  ws.getCell(`S${odpyRow}`).value = odpy.month.totalInstalled;
+  ws.getCell(`T${odpyRow}`).value = odpy.month.registeredCount;
 
   resetResult(ws, rowCount + 3);
 
@@ -250,8 +250,10 @@ async function handleSupplementThree({
   ws.getCell("F29").value = legalSum + legalNotInSystemSum;
   ws.getCell("G29").value = legalSum;
 
-  ws.getCell("H29").value = odpy.quantity + odpy.notInSystem;
-  ws.getCell("I29").value = odpy.quantity;
+  ws.getCell("H29").value =
+    odpy.registeredMeterCount + odpy.unregisteredMeterCount;
+
+  ws.getCell("I29").value = odpy.registeredMeterCount;
 
   resetResult(ws, 29);
   resetResult(ws, 33);
