@@ -440,60 +440,74 @@ export async function selectOdpy(formData: FormData, substations: Substations) {
 
   if (formData?.odpyMonth) {
     const date = formData.odpyMonth;
-    const prevMonthMeters = await calculatePreviousMonthOdpy(date, substations);
-    odpy.month.quantity += prevMonthMeters.quantity;
-    odpy.month.addedToSystem += prevMonthMeters.addedToSystem;
+
+    const prevMonthMeters =
+      await accumulatePreviousMonthODPUInstallationChanges(date, substations);
+
+    odpy.month.quantity += prevMonthMeters.totalInstalled;
+    odpy.month.addedToSystem += prevMonthMeters.registeredCount;
   }
 
   return odpy;
 }
 
-async function calculatePreviousMonthOdpy(
-  date: string,
+type ODPUBalanceGroup = "ОДПУ Sims" | "ОДПУ П2";
+
+/**
+ * Accumulates installation changes for ODPU balance groups ("ОДПУ Sims" and "ОДПУ П2")
+ * across all substations for the previous month
+ *
+ * @param periodStartDate Start date of the period (YYYY-MM-DD format)
+ * @param substations List of substations to process
+ * @returns Aggregated installation changes for all ODPU groups
+ */
+async function accumulatePreviousMonthODPUInstallationChanges(
+  periodStartDate: string,
   substations: Substations,
 ) {
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
-  const lastPreviousMonthDay = getPreviousMonthDay(year, Number(month));
+  const year = cutOutYear(periodStartDate);
+  const month = cutOutMonth(periodStartDate);
+  const periodEndDate = getPreviousMonthDay(year, Number(month));
 
   const meters = {
-    quantity: 0,
-    addedToSystem: 0,
+    totalInstalled: 0,
+    registeredCount: 0,
   };
 
-  const calculate = async (balanceGroup: "ОДПУ Sims" | "ОДПУ П2") => {
+  const accumulateForGroup = async (balanceGroup: ODPUBalanceGroup) => {
     for (const substation of substations) {
-      const periodMeters = await getPreviousMonthInstallationSummary({
-        balanceGroup,
-        periodStart: date,
-        periodEnd: lastPreviousMonthDay,
-        transformerSubstationId: substation.id,
-      });
+      const previousMonthInstallation =
+        await getPreviousMonthInstallationSummary({
+          balanceGroup,
+          periodStart: periodStartDate,
+          periodEnd: periodEndDate,
+          transformerSubstationId: substation.id,
+        });
 
-      if (typeof periodMeters === "undefined") continue;
+      if (typeof previousMonthInstallation === "undefined") continue;
 
-      const metersBeforeFirstDate = await getMonthlyMeterInstallationSummary({
-        balanceGroup,
-        targetDate: date,
-        dateComparison: "upTo",
-        transformerSubstationId: substation.id,
-        month,
-        year,
-      });
+      const installationBeforePeriodStart =
+        await getMonthlyMeterInstallationSummary({
+          balanceGroup,
+          targetDate: periodStartDate,
+          dateComparison: "upTo",
+          transformerSubstationId: substation.id,
+          month,
+          year,
+        });
 
-      const quantity =
-        periodMeters.totalInstalled - metersBeforeFirstDate.totalInstalled;
+      const monthlyChange = calculateMonthlyInstallationChange(
+        previousMonthInstallation,
+        installationBeforePeriodStart,
+      );
 
-      const addedToSystem =
-        periodMeters.registeredCount - metersBeforeFirstDate.registeredCount;
-
-      meters.quantity += quantity;
-      meters.addedToSystem += addedToSystem;
+      meters.totalInstalled += monthlyChange.total;
+      meters.registeredCount += monthlyChange.registered;
     }
   };
 
-  await calculate("ОДПУ Sims");
-  await calculate("ОДПУ П2");
+  await accumulateForGroup("ОДПУ Sims");
+  await accumulateForGroup("ОДПУ П2");
 
   return meters;
 }
