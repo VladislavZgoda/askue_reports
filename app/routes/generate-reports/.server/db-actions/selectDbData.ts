@@ -285,14 +285,14 @@ async function accumulatePreviousMonthInstallationChanges(
 ) {
   const year = cutOutYear(periodStartDate);
   const month = cutOutMonth(periodStartDate);
-  const periodEnd = getPreviousMonthDay(year, Number(month));
+  const periodEndDate = getPreviousMonthDay(year, Number(month));
 
   for (const substation of substations) {
     const previousMonthInstallation = await getPreviousMonthInstallationSummary(
       {
         balanceGroup,
         periodStart: periodStartDate,
-        periodEnd,
+        periodEnd: periodEndDate,
         transformerSubstationId: substation.id,
       },
     );
