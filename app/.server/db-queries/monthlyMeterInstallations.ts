@@ -243,7 +243,7 @@ interface PreviousMonthInstallationSummaryParams {
  *
  * @param periodStart Start date of the period (YYYY-MM-DD format)
  * @param periodEnd End date of the period (YYYY-MM-DD format)
- * @returns The latest installation summary or underfined if not found
+ * @returns The latest installation summary or undefined if not found
  *
  * @throws {Error} If periodStart > periodEnd
  */
