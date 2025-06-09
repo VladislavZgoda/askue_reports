@@ -4,7 +4,7 @@ import Select from "../../components/Select";
 import InputExcel from "./components/InputExcel";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import * as z from "zod";
+import * as z from "zod/v4";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "../../components/Input";
@@ -21,85 +21,99 @@ import {
 
 const formSchema = z
   .object({
-    privateDate: z.string().min(1, { message: "Выберите дату." }),
-    legalDate: z.string().min(1, { message: "Выберите дату." }),
-    odpyDate: z.string().min(1, { message: "Выберите дату." }),
-    privateMonth: z.string().optional(),
-    legalMonth: z.string().optional(),
-    odpyMonth: z.string().optional(),
-    upload: z
-      .instanceof(File)
-      .optional()
-      .superRefine(async (file, ctx) => {
-        if (file && file.size > 0) {
+    privateDate: z.string().min(1, { error: "Выберите дату." }),
+    legalDate: z.string().min(1, { error: "Выберите дату." }),
+    odpyDate: z.string().min(1, { error: "Выберите дату." }),
+    privateMonth: z.optional(z.string()),
+    legalMonth: z.optional(z.string()),
+    odpyMonth: z.optional(z.string()),
+    upload: z.optional(
+      z.file().check(async (ctx) => {
+        if (ctx.value && ctx.value.size > 0) {
           if (
-            file.type !==
+            ctx.value.type !==
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           ) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+            ctx.issues.push({
+              code: "invalid_type",
               message: "Тип файла не xlsx.",
+              input: ctx.value,
+              expected: "custom",
             });
-          } else if (!(await validateExcel(file))) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
+          } else if (!(await validateExcel(ctx.value))) {
+            ctx.issues.push({
+              code: "custom",
               message: "Не корректные столбцы в приложении №9.",
+              input: ctx.value,
+              expected: "custom",
             });
           }
         }
       }),
-    month: z.string().optional(),
-    year: z.coerce.string().optional(),
+    ),
+    month: z.optional(z.string()),
+    year: z.optional(
+      z.custom<string>((year) => {
+        if (typeof year === "number") {
+          return String(year);
+        }
+      }),
+    ),
   })
-  .superRefine((data, ctx) => {
-    if (data.upload && data.upload.size > 0) {
-      if (!data.month) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+  .check((ctx) => {
+    if (ctx.value.upload && ctx.value.upload.size > 0) {
+      if (!ctx.value.month) {
+        ctx.issues.push({
+          code: "custom",
           message: "Выберите месяц.",
+          input: ctx.value.month,
           path: ["month"],
         });
       }
-      if (!data.year) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+      if (!ctx.value.year) {
+        ctx.issues.push({
+          code: "custom",
           message: "Выберите год.",
+          input: ctx.value.year,
           path: ["year"],
         });
       }
     }
-    if (data.privateMonth) {
-      const { privateDate, privateMonth } = data;
+    if (ctx.value.privateMonth) {
+      const { privateDate, privateMonth } = ctx.value;
       const validationResult = validatePreviousMonthDate(
         privateDate,
         privateMonth,
       );
       if (!validationResult) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: "custom",
           message: "Диапазон больше одного месяца.",
+          input: ctx.value.privateMonth,
           path: ["privateMonth"],
         });
       }
     }
-    if (data.legalMonth) {
-      const { legalDate, legalMonth } = data;
+    if (ctx.value.legalMonth) {
+      const { legalDate, legalMonth } = ctx.value;
       const validationResult = validatePreviousMonthDate(legalDate, legalMonth);
       if (!validationResult) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: "custom",
           message: "Диапазон больше одного месяца.",
+          input: ctx.value.legalMonth,
           path: ["legalMonth"],
         });
       }
     }
-    if (data.odpyMonth) {
-      const { odpyDate, odpyMonth } = data;
+    if (ctx.value.odpyMonth) {
+      const { odpyDate, odpyMonth } = ctx.value;
       const validationResult = validatePreviousMonthDate(odpyDate, odpyMonth);
       if (!validationResult) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+        ctx.issues.push({
+          code: "custom",
           message: "Диапазон больше одного месяца.",
+          input: ctx.value.odpyMonth,
           path: ["odpyMonth"],
         });
       }
