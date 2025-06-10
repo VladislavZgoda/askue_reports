@@ -13,22 +13,20 @@ import {
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
 
-type SelectMetersFuncArgs = Parameters<
+type getMetersFuncArgs = Parameters<
   typeof getRegisteredMeterCountAtDate
 >[number];
 
-type SelectMetersFuncReturnType = ReturnType<
-  typeof getRegisteredMeterCountAtDate
->;
+type getMetersFuncReturnType = ReturnType<typeof getRegisteredMeterCountAtDate>;
 
 interface SelectMeters {
   substations: Substations;
   balanceGroup: BalanceGroup;
   targetDate: string;
-  func: (args: SelectMetersFuncArgs) => SelectMetersFuncReturnType;
+  func: (args: getMetersFuncArgs) => getMetersFuncReturnType;
 }
 
-export async function selectMeters({
+export async function getMeterCountAtDate({
   substations,
   balanceGroup,
   targetDate,
@@ -50,18 +48,18 @@ export async function selectMeters({
   return meters;
 }
 
-export async function selectLegalMeters(
+export async function getLegalMeterCountAtDate(
   substations: Substations,
   targetDate: string,
 ) {
   const [sims, p2] = await Promise.all([
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate,
       func: getRegisteredMeterCountAtDate,
     }),
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР П2",
       targetDate,
@@ -77,24 +75,24 @@ export async function selectLegalMeters(
   return meters;
 }
 
-export async function selectNotInSystem(
+export async function countUnregisteredMetersAtDate(
   substations: Substations,
   formData: FormData,
 ) {
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
       func: getUnregisteredMeterCountAtDate,
     }),
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
       func: getUnregisteredMeterCountAtDate,
     }),
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
@@ -130,7 +128,7 @@ interface GetPeriodMeters {
   period: Period;
 }
 
-async function getPeriodMeters({
+async function getPeriodMeterInstallationSummary({
   substations,
   balanceGroup,
   targetDate,
@@ -175,25 +173,25 @@ interface SelectPeriodMeters {
   period: Period;
 }
 
-export async function selectPeriodMeters({
+export async function accumulatePeriodInstallationChanges({
   substations,
   formData,
   period,
 }: SelectPeriodMeters) {
   const [privateMeters, legalMetersSims, legalMetersP2] = await Promise.all([
-    getPeriodMeters({
+    getPeriodMeterInstallationSummary({
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
       period,
     }),
-    getPeriodMeters({
+    getPeriodMeterInstallationSummary({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
       period,
     }),
-    getPeriodMeters({
+    getPeriodMeterInstallationSummary({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
@@ -226,11 +224,11 @@ export async function selectPeriodMeters({
   return meters;
 }
 
-export async function selectMonthMeters(
+export async function accumulateMonthInstallationChanges(
   substations: Substations,
   formData: FormData,
 ) {
-  const meters = await selectPeriodMeters({
+  const meters = await accumulatePeriodInstallationChanges({
     substations,
     formData,
     period: "month",
@@ -340,7 +338,10 @@ function calculateMonthlyInstallationChange(end: Meters, start: Meters) {
   } as const;
 }
 
-export async function getODPUMeterCount(formData: FormData, substations: Substations) {
+export async function getODPUMeterCount(
+  formData: FormData,
+  substations: Substations,
+) {
   const odpu = {
     registeredMeterCount: 0,
     unregisteredMeterCount: 0,

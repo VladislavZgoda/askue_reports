@@ -5,12 +5,12 @@ import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregister
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 import {
-  selectMeters,
-  selectLegalMeters,
-  selectPeriodMeters,
-  selectNotInSystem,
-  selectMonthMeters,
   getODPUMeterCount,
+  getMeterCountAtDate,
+  getLegalMeterCountAtDate,
+  countUnregisteredMetersAtDate,
+  accumulateMonthInstallationChanges,
+  accumulatePeriodInstallationChanges,
 } from "./db-actions/selectDbData";
 
 import type { FormData } from "../generateReports";
@@ -19,23 +19,23 @@ export type Substations = Readonly<
   Awaited<ReturnType<typeof selectAllSubstations>>
 >;
 
-type Odpy = Readonly<Awaited<ReturnType<typeof getODPUMeterCount>>>;
-type LegalMeters = Awaited<ReturnType<typeof selectLegalMeters>>;
-type PrivateMeters = Readonly<Awaited<ReturnType<typeof selectMeters>>>;
+type ODPU = Readonly<Awaited<ReturnType<typeof getODPUMeterCount>>>;
+type LegalMeters = Awaited<ReturnType<typeof getLegalMeterCountAtDate>>;
+type PrivateMeters = Readonly<Awaited<ReturnType<typeof getMeterCountAtDate>>>;
 
 export default async function writeDbData(formData: FormData) {
   const path = "app/routes/generate-reports/.server/";
 
   const substations: Substations = await selectAllSubstations();
 
-  const [privateMeters, legalMeters, odpy] = await Promise.all([
-    selectMeters({
+  const [privateMeters, legalMeters, odpu] = await Promise.all([
+    getMeterCountAtDate({
       substations,
       balanceGroup: "Быт",
       targetDate: formData.privateDate,
       func: getRegisteredMeterCountAtDate,
     }),
-    selectLegalMeters(substations, formData.legalDate),
+    getLegalMeterCountAtDate(substations, formData.legalDate),
     getODPUMeterCount(formData, substations),
   ]);
 
@@ -47,13 +47,13 @@ export default async function writeDbData(formData: FormData) {
     legalMeters,
     substations,
     formData,
-    odpy,
+    odpu,
   });
 
   await handleSupplementThree({
     path,
     privateMeters,
-    odpy,
+    odpu,
     legalMeters,
     substations,
     formData,
@@ -95,7 +95,7 @@ interface Report {
   path: string;
   privateMeters: PrivateMeters;
   legalMeters: LegalMeters;
-  odpy: Odpy;
+  odpu: ODPU;
   substations: Substations;
   formData: FormData;
 }
@@ -106,7 +106,7 @@ async function handleReport({
   legalMeters,
   substations,
   formData,
-  odpy,
+  odpu,
 }: Report) {
   const templatePath = path + "workbooks/report.xlsx";
   const savePath = path + "filled-reports/Отчет по дистанционным съемам.xlsx";
@@ -115,14 +115,14 @@ async function handleReport({
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
 
-  const [notInSystem, yearMeters, monthMeters] = await Promise.all([
-    selectNotInSystem(substations, formData),
-    selectPeriodMeters({
+  const [unregisteredMeterCount, yearMeters, monthMeters] = await Promise.all([
+    countUnregisteredMetersAtDate(substations, formData),
+    accumulatePeriodInstallationChanges({
       substations,
       formData,
       period: "year",
     }),
-    selectMonthMeters(substations, formData),
+    accumulateMonthInstallationChanges(substations, formData),
   ]);
 
   // Первые 9 строк заняты и не изменяются, для динамического определения
@@ -140,36 +140,36 @@ async function handleReport({
     const legalM = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
 
     const p2 = legalMeters.p2[tp] ?? 0;
-    const notInSystemMeters = notInSystem[tp] ?? 0;
+    const unregisteredMeters = unregisteredMeterCount[tp] ?? 0;
 
-    const yearQuantity = yearMeters[tp]?.totalInstalled ?? 0;
-    const yearInSystem = yearMeters[tp]?.registeredCount ?? 0;
+    const yearRegisteredMeters = yearMeters[tp]?.totalInstalled ?? 0;
+    const yearUnregisteredMeters = yearMeters[tp]?.registeredCount ?? 0;
 
-    const monthQuantity = monthMeters[tp]?.totalInstalled ?? 0;
-    const monthInSystem = monthMeters[tp]?.registeredCount ?? 0;
+    const monthRegisteredMeters = monthMeters[tp]?.totalInstalled ?? 0;
+    const monthUnregisteredMeters = monthMeters[tp]?.registeredCount ?? 0;
 
     ws.getCell("H" + rowNumber).value = privateM + legalM;
     ws.getCell("I" + rowNumber).value = privateM;
     ws.getCell("J" + rowNumber).value = legalM;
     ws.getCell("K" + rowNumber).value = p2;
-    ws.getCell("P" + rowNumber).value = notInSystemMeters;
-    ws.getCell("Q" + rowNumber).value = yearQuantity;
-    ws.getCell("R" + rowNumber).value = yearInSystem;
-    ws.getCell("S" + rowNumber).value = monthQuantity;
-    ws.getCell("T" + rowNumber).value = monthInSystem;
+    ws.getCell("P" + rowNumber).value = unregisteredMeters;
+    ws.getCell("Q" + rowNumber).value = yearRegisteredMeters;
+    ws.getCell("R" + rowNumber).value = yearUnregisteredMeters;
+    ws.getCell("S" + rowNumber).value = monthRegisteredMeters;
+    ws.getCell("T" + rowNumber).value = monthUnregisteredMeters;
     ws.getCell("O" + rowNumber).model.result = undefined;
   });
 
   const odpyRow = rowCount + 1;
 
-  ws.getCell(`H${odpyRow}`).value = odpy.registeredMeterCount;
-  ws.getCell(`P${odpyRow}`).value = odpy.unregisteredMeterCount;
+  ws.getCell(`H${odpyRow}`).value = odpu.registeredMeterCount;
+  ws.getCell(`P${odpyRow}`).value = odpu.unregisteredMeterCount;
 
-  ws.getCell(`Q${odpyRow}`).value = odpy.year.totalInstalled;
-  ws.getCell(`R${odpyRow}`).value = odpy.year.registeredCount;
+  ws.getCell(`Q${odpyRow}`).value = odpu.year.totalInstalled;
+  ws.getCell(`R${odpyRow}`).value = odpu.year.registeredCount;
 
-  ws.getCell(`S${odpyRow}`).value = odpy.month.totalInstalled;
-  ws.getCell(`T${odpyRow}`).value = odpy.month.registeredCount;
+  ws.getCell(`S${odpyRow}`).value = odpu.month.totalInstalled;
+  ws.getCell(`T${odpyRow}`).value = odpu.month.registeredCount;
 
   resetResult(ws, rowCount + 3);
 
@@ -189,7 +189,7 @@ async function handleSupplementThree({
   path,
   privateMeters,
   legalMeters,
-  odpy,
+  odpu,
   formData,
   substations,
 }: Report) {
@@ -200,27 +200,27 @@ async function handleSupplementThree({
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[2];
 
-  const notInSystemPrivate = await selectMeters({
+  const unregisteredMetersPrivate = await getMeterCountAtDate({
     substations,
     balanceGroup: "Быт",
     targetDate: formData.privateDate,
     func: getUnregisteredMeterCountAtDate,
   });
 
-  const privateSum = calculateSum(privateMeters);
-  const privateNotInSystemSum = calculateSum(notInSystemPrivate);
+  const privateRegisteredMeters = calculateSum(privateMeters);
+  const privateUnregisteredMeters = calculateSum(unregisteredMetersPrivate);
 
-  ws.getCell("D29").value = privateSum + privateNotInSystemSum;
-  ws.getCell("E29").value = privateSum;
+  ws.getCell("D29").value = privateRegisteredMeters + privateUnregisteredMeters;
+  ws.getCell("E29").value = privateRegisteredMeters;
 
-  const [notInSystemSims, notInSystemP2] = await Promise.all([
-    selectMeters({
+  const [unregisteredMetersSims, unregisteredMetersP2] = await Promise.all([
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР Sims",
       targetDate: formData.legalDate,
       func: getUnregisteredMeterCountAtDate,
     }),
-    selectMeters({
+    getMeterCountAtDate({
       substations,
       balanceGroup: "ЮР П2",
       targetDate: formData.legalDate,
@@ -228,10 +228,10 @@ async function handleSupplementThree({
     }),
   ]);
 
-  const legalSum =
+  const legalRegisteredMeters =
     calculateSum(legalMeters.sims) + calculateSum(legalMeters.p2);
-  const legalNotInSystemSum =
-    calculateSum(notInSystemSims) + calculateSum(notInSystemP2);
+  const legalUnregisteredMeters =
+    calculateSum(unregisteredMetersSims) + calculateSum(unregisteredMetersP2);
 
   const technicalMeters = await selectSumTechnicalMeters();
 
@@ -247,13 +247,13 @@ async function handleSupplementThree({
   ws.getCell("AB29").value =
     `Технический учет - ${notUnderVoltage} шт. не под напряжением`;
 
-  ws.getCell("F29").value = legalSum + legalNotInSystemSum;
-  ws.getCell("G29").value = legalSum;
+  ws.getCell("F29").value = legalRegisteredMeters + legalUnregisteredMeters;
+  ws.getCell("G29").value = legalRegisteredMeters;
 
   ws.getCell("H29").value =
-    odpy.registeredMeterCount + odpy.unregisteredMeterCount;
+    odpu.registeredMeterCount + odpu.unregisteredMeterCount;
 
-  ws.getCell("I29").value = odpy.registeredMeterCount;
+  ws.getCell("I29").value = odpu.registeredMeterCount;
 
   resetResult(ws, 29);
   resetResult(ws, 33);
