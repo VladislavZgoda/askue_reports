@@ -11,7 +11,7 @@ import {
   countUnregisteredMetersAtDate,
   accumulateMonthInstallationChanges,
   accumulatePeriodInstallationChanges,
-} from "./db-actions/selectDbData";
+} from "./db-actions/queryDbData";
 
 import type { FormData } from "../generateReports";
 
