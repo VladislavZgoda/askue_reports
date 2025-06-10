@@ -23,10 +23,10 @@ const formSchema = z
   .object({
     privateDate: z.string().min(1, { error: "Выберите дату." }),
     legalDate: z.string().min(1, { error: "Выберите дату." }),
-    odpyDate: z.string().min(1, { error: "Выберите дату." }),
+    odpuDate: z.string().min(1, { error: "Выберите дату." }),
     privateMonth: z.optional(z.string()),
     legalMonth: z.optional(z.string()),
-    odpyMonth: z.optional(z.string()),
+    odpuMonth: z.optional(z.string()),
     upload: z.optional(
       z.file().check(async (ctx) => {
         if (ctx.value && ctx.value.size > 0) {
@@ -106,14 +106,14 @@ const formSchema = z
         });
       }
     }
-    if (ctx.value.odpyMonth) {
-      const { odpyDate, odpyMonth } = ctx.value;
-      const validationResult = validatePreviousMonthDate(odpyDate, odpyMonth);
+    if (ctx.value.odpuMonth) {
+      const { odpuDate, odpuMonth } = ctx.value;
+      const validationResult = validatePreviousMonthDate(odpuDate, odpuMonth);
       if (!validationResult) {
         ctx.issues.push({
           code: "custom",
           message: "Диапазон больше одного месяца.",
-          input: ctx.value.odpyMonth,
+          input: ctx.value.odpuMonth,
           path: ["odpyMonth"],
         });
       }
@@ -173,10 +173,10 @@ export default function GenerateReports() {
     defaultValues: {
       privateDate: defaultDate,
       legalDate: defaultDate,
-      odpyDate: defaultDate,
+      odpuDate: defaultDate,
       privateMonth: "",
       legalMonth: "",
-      odpyMonth: "",
+      odpuMonth: "",
       month: "Выбрать месяц",
       year: "Выбрать год",
     },
@@ -258,8 +258,8 @@ export default function GenerateReports() {
             <Fieldset className="w-full" legend={<div>ОДПУ{redStar}</div>}>
               <Input
                 type="date"
-                error={errors?.odpyDate?.message}
-                {...register("odpyDate")}
+                error={errors?.odpuDate?.message}
+                {...register("odpuDate")}
               />
             </Fieldset>
 
@@ -269,8 +269,8 @@ export default function GenerateReports() {
             >
               <Input
                 type="date"
-                error={errors?.odpyMonth?.message}
-                {...register("odpyMonth")}
+                error={errors?.odpuMonth?.message}
+                {...register("odpuMonth")}
               />
             </Fieldset>
           </div>

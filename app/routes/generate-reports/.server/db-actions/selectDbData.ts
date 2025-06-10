@@ -354,8 +354,8 @@ export async function getODPUMeterCount(formData: FormData, substations: Substat
     },
   };
 
-  const year = cutOutYear(formData.odpyDate);
-  const month = cutOutMonth(formData.odpyDate);
+  const year = cutOutYear(formData.odpuDate);
+  const month = cutOutMonth(formData.odpuDate);
 
   for (const substation of substations) {
     const [
@@ -370,45 +370,45 @@ export async function getODPUMeterCount(formData: FormData, substations: Substat
     ] = await Promise.all([
       getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
       getRegisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
       getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ Sims",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
       getUnregisteredMeterCountAtDate({
         balanceGroup: "ОДПУ П2",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
       }),
       getYearlyMeterInstallationSummary({
         balanceGroup: "ОДПУ Sims",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         year,
       }),
       getYearlyMeterInstallationSummary({
         balanceGroup: "ОДПУ П2",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         year,
       }),
       getMonthlyMeterInstallationSummary({
         balanceGroup: "ОДПУ Sims",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         month,
@@ -416,7 +416,7 @@ export async function getODPUMeterCount(formData: FormData, substations: Substat
       }),
       getMonthlyMeterInstallationSummary({
         balanceGroup: "ОДПУ П2",
-        targetDate: formData.odpyDate,
+        targetDate: formData.odpuDate,
         dateComparison: "upTo",
         transformerSubstationId: substation.id,
         month,
@@ -442,8 +442,8 @@ export async function getODPUMeterCount(formData: FormData, substations: Substat
       monthSims.registeredCount + monthP2.registeredCount;
   }
 
-  if (formData?.odpyMonth) {
-    const date = formData.odpyMonth;
+  if (formData?.odpuMonth) {
+    const date = formData.odpuMonth;
 
     const previousMonthInstallations =
       await accumulatePreviousMonthODPUInstallationChanges(date, substations);
