@@ -137,7 +137,7 @@ async function handleReport({
     rowCount += 1;
 
     const privateM = privateMeters[tp] ?? 0;
-    const legalM = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
+    const legalSum = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
 
     const p2 = legalMeters.p2[tp] ?? 0;
     const unregisteredMeters = unregisteredMeterCount[tp] ?? 0;
@@ -148,9 +148,9 @@ async function handleReport({
     const monthRegisteredMeters = monthMeters[tp]?.totalInstalled ?? 0;
     const monthUnregisteredMeters = monthMeters[tp]?.registeredCount ?? 0;
 
-    ws.getCell("H" + rowNumber).value = privateM + legalM;
+    ws.getCell("H" + rowNumber).value = privateM + legalSum;
     ws.getCell("I" + rowNumber).value = privateM;
-    ws.getCell("J" + rowNumber).value = legalM;
+    ws.getCell("J" + rowNumber).value = legalSum;
     ws.getCell("K" + rowNumber).value = p2;
     ws.getCell("P" + rowNumber).value = unregisteredMeters;
     ws.getCell("Q" + rowNumber).value = yearRegisteredMeters;
