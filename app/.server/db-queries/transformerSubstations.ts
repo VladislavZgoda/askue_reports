@@ -72,3 +72,80 @@ export async function selectAllSubstations() {
 
   return result;
 }
+
+export async function testGetWithMeters(
+  balanceGroup: BalanceGroup,
+  targetDate: string,
+  month: string,
+  year: number,
+) {
+  const result = await db.query.transformerSubstations.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      registeredMeters: {
+        columns: {
+          registeredMeterCount: true,
+        },
+        where: (registeredMeters, { eq, and, lte }) =>
+          and(
+            eq(registeredMeters.balanceGroup, balanceGroup),
+            lte(registeredMeters.date, targetDate),
+          ),
+        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
+        limit: 1,
+      },
+      unregisteredMeters: {
+        columns: {
+          unregisteredMeterCount: true,
+        },
+        where: (unregisteredMeters, { eq, and, lte }) =>
+          and(
+            eq(unregisteredMeters.balanceGroup, balanceGroup),
+            lte(unregisteredMeters.date, targetDate),
+          ),
+        orderBy: (unregisteredMeters, { desc }) => [
+          desc(unregisteredMeters.date),
+        ],
+        limit: 1,
+      },
+      yearlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (yearlyMeterInstallations, { eq, and, lte }) =>
+          and(
+            eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+            lte(yearlyMeterInstallations.date, targetDate),
+            eq(yearlyMeterInstallations.year, year),
+          ),
+        orderBy: (yearlyMeterInstallations, { desc }) => [
+          desc(yearlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+      monthlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (monthlyMeterInstallations, { eq, and, lte }) =>
+          and(
+            eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+            lte(monthlyMeterInstallations.date, targetDate),
+            eq(monthlyMeterInstallations.month, month),
+            eq(monthlyMeterInstallations.year, year),
+          ),
+        orderBy: (monthlyMeterInstallations, { desc }) => [
+          desc(monthlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+    },
+  });
+
+  return result;
+}
