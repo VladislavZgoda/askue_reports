@@ -10,6 +10,8 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
+import { relations } from "drizzle-orm";
+
 const timestamps = {
   createdAt: timestamp("created_at", {
     withTimezone: true,
@@ -35,6 +37,16 @@ export const transformerSubstations = pgTable(
   (table) => {
     return [index("id_index").on(table.id)];
   },
+);
+
+export const transformerSubstationsRelations = relations(
+  transformerSubstations,
+  ({ many }) => ({
+    registeredMeters: many(registeredMeters),
+    unregisteredMeters: many(unregisteredMeters),
+    yearlyMeterInstallations: many(yearlyMeterInstallations),
+    monthlyMeterInstallations: many(monthlyMeterInstallations),
+  }),
 );
 
 export const balanceGroupEnum = pgEnum("balance_group", [
@@ -76,6 +88,16 @@ export const registeredMeters = pgTable(
   },
 );
 
+export const registeredMetersRelations = relations(
+  registeredMeters,
+  ({ one }) => ({
+    transformerSubstation: one(transformerSubstations, {
+      fields: [registeredMeters.transformerSubstationId],
+      references: [transformerSubstations.id],
+    }),
+  }),
+);
+
 export const unregisteredMeters = pgTable(
   "unregistered_meters",
   {
@@ -93,6 +115,16 @@ export const unregisteredMeters = pgTable(
       index("not_in_system_date_index").on(table.date),
     ];
   },
+);
+
+export const unregisteredMetersRelations = relations(
+  unregisteredMeters,
+  ({ one }) => ({
+    transformerSubstation: one(transformerSubstations, {
+      fields: [unregisteredMeters.transformerSubstationId],
+      references: [transformerSubstations.id],
+    }),
+  }),
 );
 
 export const yearlyMeterInstallations = pgTable(
@@ -117,6 +149,16 @@ export const yearlyMeterInstallations = pgTable(
   },
 );
 
+export const yearlyMeterInstallationsRelations = relations(
+  yearlyMeterInstallations,
+  ({ one }) => ({
+    transformerSubstation: one(transformerSubstations, {
+      fields: [yearlyMeterInstallations.transformerSubstationId],
+      references: [transformerSubstations.id],
+    }),
+  }),
+);
+
 export const monthlyMeterInstallations = pgTable(
   "monthly_meter_installations",
   {
@@ -139,6 +181,16 @@ export const monthlyMeterInstallations = pgTable(
       index("month_year_index").on(table.year),
     ];
   },
+);
+
+export const monthlyMeterInstallationsRelations = relations(
+  monthlyMeterInstallations,
+  ({ one }) => ({
+    transformerSubstation: one(transformerSubstations, {
+      fields: [monthlyMeterInstallations.transformerSubstationId],
+      references: [transformerSubstations.id],
+    }),
+  }),
 );
 
 export const meterActionLogs = pgTable(
