@@ -73,12 +73,50 @@ export async function selectAllSubstations() {
   return result;
 }
 
-export async function testGetWithMeters(
-  balanceGroup: BalanceGroup,
-  targetDate: string,
-  month: string,
-  year: number,
-) {
+interface SubstationMeterReportParams {
+  balanceGroup: BalanceGroup;
+  targetDate: string;
+  month: string;
+  year: number;
+}
+
+interface InstallationRecord {
+  totalInstalled: number;
+  registeredCount: number;
+}
+
+interface MeterReport {
+  id: number;
+  name: string;
+  registeredMeters: { registeredMeterCount: number } | null;
+  unregisteredMeters: { unregisteredMeterCount: number } | null;
+  yearlyMeterInstallations: InstallationRecord | null;
+  monthlyMeterInstallations: InstallationRecord | null;
+}
+
+/**
+ * Retrieves comprehensive meter reports for all substations as of a specific date
+ *
+ * Report includes for each substation:
+ * - Current registered meter counts (latest before/on targetDate)
+ * - Current unregistered meter counts (latest before/on targetDate)
+ * - Yearly installation summary for specified year (latest before/on targetDate)
+ * - Monthly installation summary for specified month/year (latest before/on targetDate)
+ *
+ * @param params Report parameters
+ * @param params.balanceGroup Balance group to filter by
+ * @param params.targetDate The "as-of" date for all reports (YYYY-MM-DD format)
+ * @param params.month Target month for monthly installation data (MM format)
+ * @param params.year Target year for yearly/monthly installation data
+ *
+ * @returns Array of substations with their meter reports
+ */
+export async function getSubstationMeterReportsAtDate({
+  balanceGroup,
+  targetDate,
+  month,
+  year,
+}: SubstationMeterReportParams): Promise<MeterReport[]> {
   const result = await db.query.transformerSubstations.findMany({
     columns: {
       id: true,
@@ -101,7 +139,7 @@ export async function testGetWithMeters(
         columns: {
           unregisteredMeterCount: true,
         },
-        where: (unregisteredMeters, { eq, and, lte }) =>
+        where: (unregisteredMeters, { and, eq, lte }) =>
           and(
             eq(unregisteredMeters.balanceGroup, balanceGroup),
             lte(unregisteredMeters.date, targetDate),
@@ -116,7 +154,7 @@ export async function testGetWithMeters(
           totalInstalled: true,
           registeredCount: true,
         },
-        where: (yearlyMeterInstallations, { eq, and, lte }) =>
+        where: (yearlyMeterInstallations, { and, eq, lte }) =>
           and(
             eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
             lte(yearlyMeterInstallations.date, targetDate),
@@ -132,7 +170,7 @@ export async function testGetWithMeters(
           totalInstalled: true,
           registeredCount: true,
         },
-        where: (monthlyMeterInstallations, { eq, and, lte }) =>
+        where: (monthlyMeterInstallations, { and, eq, lte }) =>
           and(
             eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
             lte(monthlyMeterInstallations.date, targetDate),
@@ -147,5 +185,139 @@ export async function testGetWithMeters(
     },
   });
 
-  return result;
+  const transformedResult = result.map((substation) => ({
+    id: substation.id,
+    name: substation.name,
+    registeredMeters: substation.registeredMeters[0] || null,
+    unregisteredMeters: substation.unregisteredMeters[0] || null,
+    yearlyMeterInstallations: substation.yearlyMeterInstallations[0] || null,
+    monthlyMeterInstallations: substation.monthlyMeterInstallations[0] || null,
+  }));
+
+  return transformedResult;
+}
+
+interface SubstationMeterInstallationPeriodQuery {
+  balanceGroup: BalanceGroup;
+  periodStart: string;
+  periodEnd: string;
+}
+
+interface SubstationWithInstallation {
+  id: number;
+  name: string;
+  installation: InstallationRecord | null;
+}
+
+export async function getLatestMeterInstallationsBySubstation({
+  balanceGroup,
+  periodStart,
+  periodEnd,
+}: SubstationMeterInstallationPeriodQuery): Promise<
+  SubstationWithInstallation[]
+> {
+  if (new Date(periodStart) > new Date(periodEnd)) {
+    throw new Error("periodStart must be before periodEnd");
+  }
+
+  const result = await db.query.transformerSubstations.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      monthlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (monthlyMeterInstallations, { and, eq, gte, lte }) =>
+          and(
+            eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+            gte(monthlyMeterInstallations.date, periodStart),
+            lte(monthlyMeterInstallations.date, periodEnd),
+          ),
+        orderBy: (monthlyMeterInstallations, { desc }) => [
+          desc(monthlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+    },
+  });
+
+  const transformedResult = result.map((substation) => ({
+    id: substation.id,
+    name: substation.name,
+    installation: substation.monthlyMeterInstallations[0] || null,
+  }));
+
+  return transformedResult;
+}
+
+type LatestMonthlyInstallationsBySubstationParams = Omit<
+  SubstationMeterReportParams,
+  "targetDate"
+> & { cutoffDate: string };
+
+/**
+ * Retrieves the latest monthly installation records for each substation
+ * up to a specific cutoff date within a given month/year period
+ *
+ * @param balanceGroup Balance group to filter by
+ * @param cutoffDate Maximum date to include (YYYY-MM-DD format)
+ * @param month Target month (01-12 format)
+ * @param year Target year
+ * @returns Array of substations with their latest installation summary
+ */
+export async function getLatestMonthlyInstallationsBySubstation({
+  balanceGroup,
+  cutoffDate,
+  month,
+  year,
+}: LatestMonthlyInstallationsBySubstationParams): Promise<
+  SubstationWithInstallation[]
+> {
+  if (!/^(0[1-9]|1[0-2])$/.test(month)) {
+    throw new Error("Month must be 01-12 format");
+  }
+
+  const monthStart = `${year}-${month}-01`;
+
+  if (new Date(cutoffDate) < new Date(monthStart)) {
+    throw new Error("cutoffDate cannot be before month start");
+  }
+
+  const result = await db.query.transformerSubstations.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      monthlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (monthlyMeterInstallations, { and, eq, lte }) =>
+          and(
+            eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+            lte(monthlyMeterInstallations.date, cutoffDate),
+            eq(monthlyMeterInstallations.month, month),
+            eq(monthlyMeterInstallations.year, year),
+          ),
+        orderBy: (monthlyMeterInstallations, { desc }) => [
+          desc(monthlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+    },
+  });
+
+  const transformedResult = result.map((substation) => ({
+    id: substation.id,
+    name: substation.name,
+    installation: substation.monthlyMeterInstallations[0] || null,
+  }));
+
+  return transformedResult;
 }
