@@ -10,6 +10,12 @@ import {
   getPreviousMonthInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
+import {
+  getSubstationMeterReportsAtDate,
+  getLatestMeterInstallationsBySubstation,
+  getLatestMonthlyInstallationsBySubstation,
+} from "~/.server/db-queries/transformerSubstations";
+
 // Key - номер ТП (ТП-777), value - количество счетчиков.
 type MetersOnSubstation = Record<string, number>;
 
@@ -515,4 +521,93 @@ async function accumulatePreviousMonthODPUInstallationChanges(
   await accumulateForGroup("ОДПУ П2");
 
   return meters;
+}
+
+/**
+ * Generates a private meter report with optional adjustments for installation changes
+ *
+ * @param reportDate Primary date for the base report (YYYY-MM-DD)
+ * @param adjustmentPeriodStart Optional start date for installation adjustments
+ * @returns Meter report with installations adjusted if adjustment period is provided
+ */
+export async function getPrivateMeterReportWithAdjustments(
+  reportDate: string,
+  adjustmentPeriodStart: string | undefined,
+) {
+  const reportYear = cutOutYear(reportDate);
+  const reportMonth = cutOutMonth(reportDate);
+
+  const baseReport = await getSubstationMeterReportsAtDate({
+    balanceGroup: "Быт",
+    targetDate: reportDate,
+    month: reportMonth,
+    year: reportYear,
+  });
+
+  if (!adjustmentPeriodStart) return baseReport;
+
+  const adjustYear = cutOutYear(adjustmentPeriodStart);
+  const adjustMonth = cutOutMonth(adjustmentPeriodStart);
+  const adjustPeriodEnd = getPreviousMonthDay(adjustYear, Number(adjustMonth));
+
+  const previousMonthInstallations =
+    await getLatestMeterInstallationsBySubstation({
+      balanceGroup: "Быт",
+      periodStart: adjustmentPeriodStart,
+      periodEnd: adjustPeriodEnd,
+    });
+
+  const prePeriodInstallations =
+    await getLatestMonthlyInstallationsBySubstation({
+      balanceGroup: "Быт",
+      cutoffDate: adjustmentPeriodStart,
+      month: adjustMonth,
+      year: adjustYear,
+    });
+
+  applyInstallationAdjustments(
+    baseReport,
+    previousMonthInstallations,
+    prePeriodInstallations,
+  );
+
+  return baseReport;
+}
+
+type SubstationReport = Awaited<
+  ReturnType<typeof getSubstationMeterReportsAtDate>
+  >;
+
+type InstallationData = Awaited<
+  ReturnType<typeof getLatestMeterInstallationsBySubstation>
+>;
+
+function applyInstallationAdjustments(
+  baseReport: SubstationReport,
+  endPeriodInstallations: InstallationData,
+  startPeriodInstallations: InstallationData,
+) {
+  if (
+    endPeriodInstallations.length !== startPeriodInstallations.length ||
+    endPeriodInstallations.length !== baseReport.length
+  ) {
+    throw new Error("Installation data arrays have inconsistent lengths");
+  }
+
+  baseReport.forEach((stationReport, index) => {
+    const endPeriodData = endPeriodInstallations[index].installation;
+    const startPeriodData = startPeriodInstallations[index].installation;
+
+    if (!endPeriodData?.totalInstalled) return;
+
+    const monthlyChange = calculateMonthlyInstallationChange(
+      endPeriodData,
+      startPeriodData,
+    );
+
+    stationReport.monthlyMeterInstallations.totalInstalled +=
+      monthlyChange.total;
+    stationReport.monthlyMeterInstallations.registeredCount +=
+      monthlyChange.registered;
+  });
 }
