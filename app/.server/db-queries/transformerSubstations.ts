@@ -80,20 +80,6 @@ interface SubstationMeterReportParams {
   year: number;
 }
 
-interface InstallationRecord {
-  totalInstalled: number;
-  registeredCount: number;
-}
-
-interface MeterReport {
-  id: number;
-  name: string;
-  registeredMeters: { registeredMeterCount: number } | null;
-  unregisteredMeters: { unregisteredMeterCount: number } | null;
-  yearlyMeterInstallations: InstallationRecord | null;
-  monthlyMeterInstallations: InstallationRecord | null;
-}
-
 /**
  * Retrieves comprehensive meter reports for all substations as of a specific date
  *
@@ -116,7 +102,7 @@ export async function getSubstationMeterReportsAtDate({
   targetDate,
   month,
   year,
-}: SubstationMeterReportParams): Promise<MeterReport[]> {
+}: SubstationMeterReportParams) {
   const result = await db.query.transformerSubstations.findMany({
     columns: {
       id: true,
@@ -188,10 +174,17 @@ export async function getSubstationMeterReportsAtDate({
   const transformedResult = result.map((substation) => ({
     id: substation.id,
     name: substation.name,
-    registeredMeters: substation.registeredMeters[0] || null,
-    unregisteredMeters: substation.unregisteredMeters[0] || null,
-    yearlyMeterInstallations: substation.yearlyMeterInstallations[0] || null,
-    monthlyMeterInstallations: substation.monthlyMeterInstallations[0] || null,
+    registeredMeters: substation.registeredMeters[0]?.registeredMeterCount || 0,
+    unregisteredMeters:
+      substation.unregisteredMeters[0]?.unregisteredMeterCount || 0,
+    yearlyMeterInstallations: substation.yearlyMeterInstallations[0] || {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
+    monthlyMeterInstallations: substation.monthlyMeterInstallations[0] || {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
   }));
 
   return transformedResult;
@@ -203,19 +196,11 @@ interface SubstationMeterInstallationPeriodQuery {
   periodEnd: string;
 }
 
-interface SubstationWithInstallation {
-  id: number;
-  name: string;
-  installation: InstallationRecord | null;
-}
-
 export async function getLatestMeterInstallationsBySubstation({
   balanceGroup,
   periodStart,
   periodEnd,
-}: SubstationMeterInstallationPeriodQuery): Promise<
-  SubstationWithInstallation[]
-> {
+}: SubstationMeterInstallationPeriodQuery) {
   if (new Date(periodStart) > new Date(periodEnd)) {
     throw new Error("periodStart must be before periodEnd");
   }
@@ -248,7 +233,10 @@ export async function getLatestMeterInstallationsBySubstation({
   const transformedResult = result.map((substation) => ({
     id: substation.id,
     name: substation.name,
-    installation: substation.monthlyMeterInstallations[0] || null,
+    installation: substation.monthlyMeterInstallations[0] || {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
   }));
 
   return transformedResult;
@@ -274,9 +262,7 @@ export async function getLatestMonthlyInstallationsBySubstation({
   cutoffDate,
   month,
   year,
-}: LatestMonthlyInstallationsBySubstationParams): Promise<
-  SubstationWithInstallation[]
-> {
+}: LatestMonthlyInstallationsBySubstationParams) {
   if (!/^(0[1-9]|1[0-2])$/.test(month)) {
     throw new Error("Month must be 01-12 format");
   }
@@ -316,7 +302,10 @@ export async function getLatestMonthlyInstallationsBySubstation({
   const transformedResult = result.map((substation) => ({
     id: substation.id,
     name: substation.name,
-    installation: substation.monthlyMeterInstallations[0] || null,
+    installation: substation.monthlyMeterInstallations[0] || {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
   }));
 
   return transformedResult;
