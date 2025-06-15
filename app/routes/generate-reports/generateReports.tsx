@@ -51,34 +51,17 @@ const formSchema = z
         }
       }),
     ),
-    month: z.optional(z.string()),
-    year: z.optional(
-      z.custom<string>((year) => {
+    month: z.string({ error: "Выберите месяц." }),
+    year: z.custom<string>(
+      (year) => {
         if (typeof year === "number") {
           return String(year);
         }
-      }),
+      },
+      { error: "Выберите год." },
     ),
   })
   .check((ctx) => {
-    if (ctx.value.upload && ctx.value.upload.size > 0) {
-      if (!ctx.value.month) {
-        ctx.issues.push({
-          code: "custom",
-          message: "Выберите месяц.",
-          input: ctx.value.month,
-          path: ["month"],
-        });
-      }
-      if (!ctx.value.year) {
-        ctx.issues.push({
-          code: "custom",
-          message: "Выберите год.",
-          input: ctx.value.year,
-          path: ["year"],
-        });
-      }
-    }
     if (ctx.value.privateMonth) {
       const { privateDate, privateMonth } = ctx.value;
       const validationResult = validatePreviousMonthDate(
@@ -167,7 +150,7 @@ export default function GenerateReports() {
   const [errors, setErrors] = useState(fetcher.data);
   const redStar = <span className="text-red-600 text-sm">*</span>;
 
-  const { formState, handleSubmit, register, reset } = useRemixForm<FormData>({
+  const { handleSubmit, register, reset } = useRemixForm<FormData>({
     resolver,
     fetcher,
     defaultValues: {
@@ -276,40 +259,36 @@ export default function GenerateReports() {
           </div>
         </section>
 
-        <h2 className="font-semibold -mb-5 -mt-1">
+        <h2 className="font-semibold -mb-5">
+          Выберите месяц и год для заголовков отчётов
+        </h2>
+
+        <section className="flex gap-18">
+          <Fieldset className="w-full" legend={<div>Месяц{redStar}</div>}>
+            <Select error={errors?.month?.message} {...register("month")}>
+              <option disabled={true}>Выбрать месяц</option>
+              {months.map((item, index) => (
+                <option key={index}>{item}</option>
+              ))}
+            </Select>
+          </Fieldset>
+
+          <Fieldset className="w-full" legend={<div>Год{redStar}</div>}>
+            <Select error={errors?.year?.message} {...register("year")}>
+              <option disabled={true}>Выбрать год</option>
+              <option>{year - 1}</option>
+              <option>{year}</option>
+            </Select>
+          </Fieldset>
+        </section>
+
+        <h2 className="font-semibold -mb-5">
           Добавить данные из приложения №9 (необязательно)
         </h2>
 
         <Fieldset legend="Файл Приложение №9">
           <InputExcel error={errors?.upload?.message} {...register("upload")} />
         </Fieldset>
-
-        {formState.dirtyFields.upload && (
-          <section className="flex gap-18">
-            <Fieldset
-              className="w-full"
-              legend={<div>Месяц для заголовков таблиц Excel{redStar}</div>}
-            >
-              <Select error={errors?.month?.message} {...register("month")}>
-                <option disabled={true}>Выбрать месяц</option>
-                {months.map((item, index) => (
-                  <option key={index}>{item}</option>
-                ))}
-              </Select>
-            </Fieldset>
-
-            <Fieldset
-              className="w-full"
-              legend={<div>Год для заголовков таблиц Excel{redStar}</div>}
-            >
-              <Select error={errors?.year?.message} {...register("year")}>
-                <option disabled={true}>Выбрать год</option>
-                <option>{year - 1}</option>
-                <option>{year}</option>
-              </Select>
-            </Fieldset>
-          </section>
-        )}
 
         <div className="mt-2.5 flex gap-18">
           <Button
