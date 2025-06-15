@@ -576,7 +576,7 @@ export async function getPrivateMeterReportWithAdjustments(
 
 type SubstationReport = Awaited<
   ReturnType<typeof getSubstationMeterReportsAtDate>
-  >;
+>;
 
 type InstallationData = Awaited<
   ReturnType<typeof getLatestMeterInstallationsBySubstation>

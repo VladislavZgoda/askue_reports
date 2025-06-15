@@ -1,6 +1,5 @@
 import exceljs from "exceljs";
 import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
@@ -11,6 +10,7 @@ import {
   countUnregisteredMetersAtDate,
   accumulateMonthInstallationChanges,
   accumulatePeriodInstallationChanges,
+  getPrivateMeterReportWithAdjustments,
 } from "./db-actions/queryDbData";
 
 import type { FormData } from "../generateReports";
@@ -21,7 +21,11 @@ export type Substations = Readonly<
 
 type ODPU = Readonly<Awaited<ReturnType<typeof getODPUMeterCount>>>;
 type LegalMeters = Awaited<ReturnType<typeof getLegalMeterCountAtDate>>;
-type PrivateMeters = Readonly<Awaited<ReturnType<typeof getMeterCountAtDate>>>;
+type MeterCount = Readonly<Awaited<ReturnType<typeof getMeterCountAtDate>>>;
+
+type PrivateMeterReport = Readonly<
+  Awaited<ReturnType<typeof getPrivateMeterReportWithAdjustments>>
+>;
 
 export default async function writeDbData(formData: FormData) {
   const path = "app/routes/generate-reports/.server/";
@@ -29,12 +33,10 @@ export default async function writeDbData(formData: FormData) {
   const substations: Substations = await selectAllSubstations();
 
   const [privateMeters, legalMeters, odpu] = await Promise.all([
-    getMeterCountAtDate({
-      substations,
-      balanceGroup: "Быт",
-      targetDate: formData.privateDate,
-      func: getRegisteredMeterCountAtDate,
-    }),
+    getPrivateMeterReportWithAdjustments(
+      formData.privateDate,
+      formData.privateMonth,
+    ),
     getLegalMeterCountAtDate(substations, formData.legalDate),
     getODPUMeterCount(formData, substations),
   ]);
@@ -60,7 +62,10 @@ export default async function writeDbData(formData: FormData) {
   });
 }
 
-async function handlePrivateSector(path: string, privateMeters: PrivateMeters) {
+async function handlePrivateSector(
+  path: string,
+  privateMeters: PrivateMeterReport,
+) {
   const templatePath = path + "workbooks/private_sector.xlsx";
   const savePath = path + "filled-reports/Развитие ЧС.xlsx";
 
@@ -79,7 +84,13 @@ async function handlePrivateSector(path: string, privateMeters: PrivateMeters) {
 
     rowCount += 1;
 
-    ws.getCell("B" + rowNumber).value = privateMeters[tp] ?? 0;
+    const searchedStation = privateMeters.find(
+      (station) => station.name === tp,
+    );
+
+    const registeredMeters = searchedStation?.registeredMeters ?? 0;
+
+    ws.getCell("B" + rowNumber).value = registeredMeters;
     ws.getCell("G" + rowNumber).model.result = undefined;
     ws.getCell("H" + rowNumber).model.result = undefined;
   });
@@ -93,7 +104,7 @@ async function handlePrivateSector(path: string, privateMeters: PrivateMeters) {
 
 interface Report {
   path: string;
-  privateMeters: PrivateMeters;
+  privateMeters: PrivateMeterReport;
   legalMeters: LegalMeters;
   odpu: ODPU;
   substations: Substations;
@@ -136,9 +147,10 @@ async function handleReport({
 
     rowCount += 1;
 
-    const privateM = privateMeters[tp] ?? 0;
-    const legalSum = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
+    const privateStation = privateMeters.find((station) => station.name === tp);
+    const privateRegisteredMeters = privateStation?.registeredMeters ?? 0;
 
+    const legalSum = legalMeters.sims[tp] + legalMeters.p2[tp] || 0;
     const p2 = legalMeters.p2[tp] ?? 0;
     const unregisteredMeters = unregisteredMeterCount[tp] ?? 0;
 
@@ -148,8 +160,8 @@ async function handleReport({
     const monthRegisteredMeters = monthMeters[tp]?.totalInstalled ?? 0;
     const monthUnregisteredMeters = monthMeters[tp]?.registeredCount ?? 0;
 
-    ws.getCell("H" + rowNumber).value = privateM + legalSum;
-    ws.getCell("I" + rowNumber).value = privateM;
+    ws.getCell("H" + rowNumber).value = privateRegisteredMeters + legalSum;
+    ws.getCell("I" + rowNumber).value = privateRegisteredMeters;
     ws.getCell("J" + rowNumber).value = legalSum;
     ws.getCell("K" + rowNumber).value = p2;
     ws.getCell("P" + rowNumber).value = unregisteredMeters;
@@ -200,18 +212,13 @@ async function handleSupplementThree({
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[2];
 
-  const unregisteredMetersPrivate = await getMeterCountAtDate({
-    substations,
-    balanceGroup: "Быт",
-    targetDate: formData.privateDate,
-    func: getUnregisteredMeterCountAtDate,
-  });
+  const privateMetersTotal = calculateMetersTotal(privateMeters);
 
-  const privateRegisteredMeters = calculateSum(privateMeters);
-  const privateUnregisteredMeters = calculateSum(unregisteredMetersPrivate);
+  ws.getCell("D29").value =
+    privateMetersTotal.registeredMetersTotal +
+    privateMetersTotal.unregisteredMetersTotal;
 
-  ws.getCell("D29").value = privateRegisteredMeters + privateUnregisteredMeters;
-  ws.getCell("E29").value = privateRegisteredMeters;
+  ws.getCell("E29").value = privateMetersTotal.registeredMetersTotal;
 
   const [unregisteredMetersSims, unregisteredMetersP2] = await Promise.all([
     getMeterCountAtDate({
@@ -269,7 +276,7 @@ function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
   ws.getRow(rowNumber).eachCell((cell) => (cell.model.result = undefined));
 }
 
-function calculateSum(meters: PrivateMeters) {
+function calculateSum(meters: MeterCount) {
   let sum = 0;
 
   for (const key of Object.keys(meters)) {
@@ -277,4 +284,19 @@ function calculateSum(meters: PrivateMeters) {
   }
 
   return sum;
+}
+
+function calculateMetersTotal(stationReport: PrivateMeterReport) {
+  let registeredMetersTotal = 0;
+  let unregisteredMetersTotal = 0;
+
+  stationReport.forEach((stationReport) => {
+    registeredMetersTotal += stationReport.registeredMeters;
+    unregisteredMetersTotal += stationReport.unregisteredMeters;
+  });
+
+  return {
+    registeredMetersTotal,
+    unregisteredMetersTotal,
+  } as const;
 }
