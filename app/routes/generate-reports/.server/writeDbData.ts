@@ -3,9 +3,6 @@ import { selectAllSubstations } from "~/.server/db-queries/transformerSubstation
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 import {
-  countUnregisteredMetersAtDate,
-  accumulateMonthInstallationChanges,
-  accumulatePeriodInstallationChanges,
   getPrivateMeterReportWithAdjustments,
   getMeterReportsWithAdjustments,
 } from "./db-actions/queryDbData";
@@ -22,14 +19,12 @@ type ODPU = Readonly<
 
 type LegalMeters = Awaited<ReturnType<typeof getMeterReportsWithAdjustments>>;
 
-type PrivateMeterReport = Readonly<
+type MeterReport = Readonly<
   Awaited<ReturnType<typeof getPrivateMeterReportWithAdjustments>>
 >;
 
 export default async function writeDbData(formData: FormData) {
   const path = "app/routes/generate-reports/.server/";
-
-  const substations: Substations = await selectAllSubstations();
 
   const [privateMeters, legalMeters, odpu] = await Promise.all([
     getPrivateMeterReportWithAdjustments(
@@ -54,7 +49,6 @@ export default async function writeDbData(formData: FormData) {
     path,
     privateMeters,
     legalMeters,
-    substations,
     formData,
     odpu,
   });
@@ -68,10 +62,7 @@ export default async function writeDbData(formData: FormData) {
   });
 }
 
-async function handlePrivateSector(
-  path: string,
-  privateMeters: PrivateMeterReport,
-) {
+async function handlePrivateSector(path: string, privateMeters: MeterReport) {
   const templatePath = path + "workbooks/private_sector.xlsx";
   const savePath = path + "filled-reports/Развитие ЧС.xlsx";
 
@@ -110,10 +101,9 @@ async function handlePrivateSector(
 
 interface Report {
   path: string;
-  privateMeters: PrivateMeterReport;
+  privateMeters: MeterReport;
   legalMeters: LegalMeters;
   odpu: ODPU;
-  substations: Substations;
   formData: FormData;
 }
 
@@ -121,7 +111,6 @@ async function handleReport({
   path,
   privateMeters,
   legalMeters,
-  substations,
   formData,
   odpu,
 }: Report) {
@@ -131,16 +120,6 @@ async function handleReport({
   const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(templatePath);
   const ws = wb.worksheets[0];
-
-  const [unregisteredMeterCount, yearMeters, monthMeters] = await Promise.all([
-    countUnregisteredMetersAtDate(substations, formData),
-    accumulatePeriodInstallationChanges({
-      substations,
-      formData,
-      period: "year",
-    }),
-    accumulateMonthInstallationChanges(substations, formData),
-  ]);
 
   // Первые 9 строк заняты и не изменяются, для динамического определения
   // строк после линий с ТП, их необходимо учесть в начальном отсчете.
@@ -155,38 +134,62 @@ async function handleReport({
 
     const privateStation = privateMeters.find((station) => station.name === tp);
     const privateRegisteredMeters = privateStation?.registeredMeters ?? 0;
+    const privateUnregisteredMeters = privateStation?.unregisteredMeters ?? 0;
 
     const legalSimsStation = legalMeters.simsReport.find(
       (station) => station.name === tp,
     );
 
+    const legalSimsRegisteredMeters = legalSimsStation?.registeredMeters ?? 0;
+    const legalSimsUnregisteredMeters =
+      legalSimsStation?.unregisteredMeters ?? 0;
+
     const legalP2Station = legalMeters.p2Report.find(
       (station) => station.name === tp,
     );
 
-    const legalSimsRegisteredMeters = legalSimsStation?.registeredMeters ?? 0;
     const legalP2RegisteredMeters = legalP2Station?.registeredMeters ?? 0;
+    const legalP2UnregisteredMeters = legalP2Station?.unregisteredMeters ?? 0;
+
     const legalMetersTotal =
       legalSimsRegisteredMeters + legalP2RegisteredMeters;
 
-    const unregisteredMeters = unregisteredMeterCount[tp] ?? 0;
+    const unregisteredMetersTotal =
+      privateUnregisteredMeters +
+      legalSimsUnregisteredMeters +
+      legalP2UnregisteredMeters;
 
-    const yearRegisteredMeters = yearMeters[tp]?.totalInstalled ?? 0;
-    const yearUnregisteredMeters = yearMeters[tp]?.registeredCount ?? 0;
+    const yearTotalInstalled =
+      (privateStation?.yearlyMeterInstallations.totalInstalled ?? 0) +
+      (legalSimsStation?.yearlyMeterInstallations.totalInstalled ?? 0) +
+      (legalP2Station?.yearlyMeterInstallations.totalInstalled ?? 0);
 
-    const monthRegisteredMeters = monthMeters[tp]?.totalInstalled ?? 0;
-    const monthUnregisteredMeters = monthMeters[tp]?.registeredCount ?? 0;
+    const yearRegisteredCount =
+      (privateStation?.yearlyMeterInstallations.registeredCount ?? 0) +
+      (legalSimsStation?.yearlyMeterInstallations.registeredCount ?? 0) +
+      (legalP2Station?.yearlyMeterInstallations.registeredCount ?? 0);
+
+    const monthTotalInstalled =
+      (privateStation?.monthlyMeterInstallations.totalInstalled ?? 0) +
+      (legalSimsStation?.monthlyMeterInstallations.totalInstalled ?? 0) +
+      (legalP2Station?.monthlyMeterInstallations.totalInstalled ?? 0);
+
+    const monthRegisteredCount =
+      (privateStation?.monthlyMeterInstallations.registeredCount ?? 0) +
+      (legalSimsStation?.monthlyMeterInstallations.registeredCount ?? 0) +
+      (legalP2Station?.monthlyMeterInstallations.registeredCount ?? 0);
 
     ws.getCell("H" + rowNumber).value =
       privateRegisteredMeters + legalMetersTotal;
+
     ws.getCell("I" + rowNumber).value = privateRegisteredMeters;
     ws.getCell("J" + rowNumber).value = legalMetersTotal;
     ws.getCell("K" + rowNumber).value = legalP2RegisteredMeters;
-    ws.getCell("P" + rowNumber).value = unregisteredMeters;
-    ws.getCell("Q" + rowNumber).value = yearRegisteredMeters;
-    ws.getCell("R" + rowNumber).value = yearUnregisteredMeters;
-    ws.getCell("S" + rowNumber).value = monthRegisteredMeters;
-    ws.getCell("T" + rowNumber).value = monthUnregisteredMeters;
+    ws.getCell("P" + rowNumber).value = unregisteredMetersTotal;
+    ws.getCell("Q" + rowNumber).value = yearTotalInstalled;
+    ws.getCell("R" + rowNumber).value = yearRegisteredCount;
+    ws.getCell("S" + rowNumber).value = monthTotalInstalled;
+    ws.getCell("T" + rowNumber).value = monthRegisteredCount;
     ws.getCell("O" + rowNumber).model.result = undefined;
   });
 
@@ -244,15 +247,13 @@ async function handleReport({
   await excel.xlsx.writeFile(savePath);
 }
 
-type SupplementThree = Omit<Report, "substations">;
-
 async function handleSupplementThree({
   path,
   privateMeters,
   legalMeters,
   odpu,
   formData,
-}: SupplementThree) {
+}: Report) {
   const templatePath = path + "workbooks/supplement_three.xlsx";
   const savePath = path + "filled-reports/Приложение №3.xlsx";
 
@@ -323,7 +324,7 @@ function resetResult(ws: exceljs.Worksheet, rowNumber: number) {
   ws.getRow(rowNumber).eachCell((cell) => (cell.model.result = undefined));
 }
 
-function calculateMetersTotal(stationReport: PrivateMeterReport) {
+function calculateMetersTotal(stationReport: MeterReport) {
   let registeredMetersTotal = 0;
   let unregisteredMetersTotal = 0;
 
@@ -338,7 +339,7 @@ function calculateMetersTotal(stationReport: PrivateMeterReport) {
   } as const;
 }
 
-function calculatePeriodMetersTotal(stationReport: PrivateMeterReport) {
+function calculatePeriodMetersTotal(stationReport: MeterReport) {
   let yearTotalInstalled = 0;
   let yearRegisteredCount = 0;
   let monthTotalInstalled = 0;
