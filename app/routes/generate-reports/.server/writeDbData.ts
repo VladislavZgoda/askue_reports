@@ -1,5 +1,4 @@
 import exceljs from "exceljs";
-import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 import {
@@ -8,10 +7,6 @@ import {
 } from "./db-actions/queryDbData";
 
 import type { FormData } from "../generateReports";
-
-export type Substations = Readonly<
-  Awaited<ReturnType<typeof selectAllSubstations>>
->;
 
 type ODPU = Readonly<
   Awaited<ReturnType<typeof getMeterReportsWithAdjustments>>
