@@ -626,22 +626,33 @@ async function getPrePeriodInstallations(params: PrePeriodInstallations) {
   return getLatestMonthlyInstallationsBySubstation(params);
 }
 
-export async function getLegalMeterReportsWithAdjustments(
+export async function getMeterReportsWithAdjustments(
+  balanceGroup: "legal" | "odpu",
   reportDate: string,
   adjustmentPeriodStart: string | undefined,
 ) {
+  let groups: ["ЮР Sims", "ЮР П2"] | ["ОДПУ Sims", "ОДПУ П2"];
+
+  if (balanceGroup === "legal") {
+    groups = ["ЮР Sims", "ЮР П2"];
+  } else {
+    groups = ["ОДПУ Sims", "ОДПУ П2"];
+  }
+
+  const [sims, p2] = groups;
+
   const reportYear = cutOutYear(reportDate);
   const reportMonth = cutOutMonth(reportDate);
 
   const baseSimsReport = await getSubstationMeterReportsAtDate({
-    balanceGroup: "ЮР Sims",
+    balanceGroup: sims,
     targetDate: reportDate,
     month: reportMonth,
     year: reportYear,
   });
 
   const baseP2Report = await getSubstationMeterReportsAtDate({
-    balanceGroup: "ЮР П2",
+    balanceGroup: p2,
     targetDate: reportDate,
     month: reportMonth,
     year: reportYear,
@@ -659,26 +670,26 @@ export async function getLegalMeterReportsWithAdjustments(
   const adjustmentPeriodEnd = getMonthEndDate(adjustYear, Number(adjustMonth));
 
   const previousSimsMonthInstallations = await getInstallationsForPeriod({
-    balanceGroup: "ЮР Sims",
+    balanceGroup: sims,
     periodStart: adjustmentPeriodStart,
     periodEnd: adjustmentPeriodEnd,
   });
 
   const preSimsPeriodInstallations = await getPrePeriodInstallations({
-    balanceGroup: "ЮР Sims",
+    balanceGroup: sims,
     cutoffDate: adjustmentPeriodStart,
     month: adjustMonth,
     year: adjustYear,
   });
 
   const previousP2MonthInstallations = await getInstallationsForPeriod({
-    balanceGroup: "ЮР П2",
+    balanceGroup: p2,
     periodStart: adjustmentPeriodStart,
     periodEnd: adjustmentPeriodEnd,
   });
 
   const preP2PeriodInstallations = await getPrePeriodInstallations({
-    balanceGroup: "ЮР П2",
+    balanceGroup: p2,
     cutoffDate: adjustmentPeriodStart,
     month: adjustMonth,
     year: adjustYear,

@@ -3,12 +3,11 @@ import { selectAllSubstations } from "~/.server/db-queries/transformerSubstation
 import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
 
 import {
-  getODPUMeterCount,
   countUnregisteredMetersAtDate,
   accumulateMonthInstallationChanges,
   accumulatePeriodInstallationChanges,
   getPrivateMeterReportWithAdjustments,
-  getLegalMeterReportsWithAdjustments,
+  getMeterReportsWithAdjustments,
 } from "./db-actions/queryDbData";
 
 import type { FormData } from "../generateReports";
@@ -17,11 +16,11 @@ export type Substations = Readonly<
   Awaited<ReturnType<typeof selectAllSubstations>>
 >;
 
-type ODPU = Readonly<Awaited<ReturnType<typeof getODPUMeterCount>>>;
-
-type LegalMeters = Awaited<
-  ReturnType<typeof getLegalMeterReportsWithAdjustments>
+type ODPU = Readonly<
+  Awaited<ReturnType<typeof getMeterReportsWithAdjustments>>
 >;
+
+type LegalMeters = Awaited<ReturnType<typeof getMeterReportsWithAdjustments>>;
 
 type PrivateMeterReport = Readonly<
   Awaited<ReturnType<typeof getPrivateMeterReportWithAdjustments>>
@@ -37,8 +36,16 @@ export default async function writeDbData(formData: FormData) {
       formData.privateDate,
       formData.privateMonth,
     ),
-    getLegalMeterReportsWithAdjustments(formData.legalDate, formData.legalDate),
-    getODPUMeterCount(formData, substations),
+    getMeterReportsWithAdjustments(
+      "legal",
+      formData.legalDate,
+      formData.legalMonth,
+    ),
+    getMeterReportsWithAdjustments(
+      "odpu",
+      formData.odpuDate,
+      formData.odpuMonth,
+    ),
   ]);
 
   await handlePrivateSector(path, privateMeters);
@@ -185,14 +192,43 @@ async function handleReport({
 
   const odpyRow = rowCount + 1;
 
-  ws.getCell(`H${odpyRow}`).value = odpu.registeredMeterCount;
-  ws.getCell(`P${odpyRow}`).value = odpu.unregisteredMeterCount;
+  const odpuSimsMeters = calculateMetersTotal(odpu.simsReport);
+  const odpuP2Meters = calculateMetersTotal(odpu.p2Report);
 
-  ws.getCell(`Q${odpyRow}`).value = odpu.year.totalInstalled;
-  ws.getCell(`R${odpyRow}`).value = odpu.year.registeredCount;
+  const odpuRegisteredMeters =
+    odpuSimsMeters.registeredMetersTotal + odpuP2Meters.registeredMetersTotal;
 
-  ws.getCell(`S${odpyRow}`).value = odpu.month.totalInstalled;
-  ws.getCell(`T${odpyRow}`).value = odpu.month.registeredCount;
+  const odpuUnregisteredMeters =
+    odpuSimsMeters.unregisteredMetersTotal +
+    odpuP2Meters.unregisteredMetersTotal;
+
+  const odpuPeriodSimsMeters = calculatePeriodMetersTotal(odpu.simsReport);
+  const odpuPeriodP2Meters = calculatePeriodMetersTotal(odpu.p2Report);
+
+  const yearOdpuTotalInstalled =
+    odpuPeriodSimsMeters.yearTotalInstalled +
+    odpuPeriodP2Meters.yearTotalInstalled;
+
+  const yearOdpuRegisteredCount =
+    odpuPeriodSimsMeters.yearRegisteredCount +
+    odpuPeriodP2Meters.yearRegisteredCount;
+
+  const monthOdpuTotalInstalled =
+    odpuPeriodSimsMeters.monthTotalInstalled +
+    odpuPeriodP2Meters.monthTotalInstalled;
+
+  const monthOdpuRegisteredCount =
+    odpuPeriodSimsMeters.monthRegisteredCount +
+    odpuPeriodP2Meters.monthRegisteredCount;
+
+  ws.getCell(`H${odpyRow}`).value = odpuRegisteredMeters;
+  ws.getCell(`P${odpyRow}`).value = odpuUnregisteredMeters;
+
+  ws.getCell(`Q${odpyRow}`).value = yearOdpuTotalInstalled;
+  ws.getCell(`R${odpyRow}`).value = yearOdpuRegisteredCount;
+
+  ws.getCell(`S${odpyRow}`).value = monthOdpuTotalInstalled;
+  ws.getCell(`T${odpyRow}`).value = monthOdpuRegisteredCount;
 
   resetResult(ws, rowCount + 3);
 
@@ -242,6 +278,22 @@ async function handleSupplementThree({
     legalSimsMeters.unregisteredMetersTotal +
     legalP2Meters.unregisteredMetersTotal;
 
+  ws.getCell("F29").value = legalRegisteredMeters + legalUnregisteredMeters;
+  ws.getCell("G29").value = legalRegisteredMeters;
+
+  const odpuSimsMeters = calculateMetersTotal(odpu.simsReport);
+  const odpuP2Meters = calculateMetersTotal(odpu.p2Report);
+
+  const odpuRegisteredMeters =
+    odpuSimsMeters.registeredMetersTotal + odpuP2Meters.registeredMetersTotal;
+
+  const odpuUnregisteredMeters =
+    odpuSimsMeters.unregisteredMetersTotal +
+    odpuP2Meters.unregisteredMetersTotal;
+
+  ws.getCell("H29").value = odpuRegisteredMeters + odpuUnregisteredMeters;
+  ws.getCell("I29").value = odpuRegisteredMeters;
+
   const technicalMeters = await selectSumTechnicalMeters();
 
   const technicalMetersQuantity = Number(technicalMeters[0].quantity ?? 0);
@@ -253,16 +305,9 @@ async function handleSupplementThree({
   ws.getCell("Z29").value = technicalMetersUnderVoltage;
 
   const notUnderVoltage = technicalMetersQuantity - technicalMetersUnderVoltage;
+
   ws.getCell("AB29").value =
     `Технический учет - ${notUnderVoltage} шт. не под напряжением`;
-
-  ws.getCell("F29").value = legalRegisteredMeters + legalUnregisteredMeters;
-  ws.getCell("G29").value = legalRegisteredMeters;
-
-  ws.getCell("H29").value =
-    odpu.registeredMeterCount + odpu.unregisteredMeterCount;
-
-  ws.getCell("I29").value = odpu.registeredMeterCount;
 
   resetResult(ws, 29);
   resetResult(ws, 33);
@@ -290,5 +335,29 @@ function calculateMetersTotal(stationReport: PrivateMeterReport) {
   return {
     registeredMetersTotal,
     unregisteredMetersTotal,
+  } as const;
+}
+
+function calculatePeriodMetersTotal(stationReport: PrivateMeterReport) {
+  let yearTotalInstalled = 0;
+  let yearRegisteredCount = 0;
+  let monthTotalInstalled = 0;
+  let monthRegisteredCount = 0;
+
+  stationReport.forEach((stationReport) => {
+    yearTotalInstalled += stationReport.yearlyMeterInstallations.totalInstalled;
+    yearRegisteredCount +=
+      stationReport.yearlyMeterInstallations.registeredCount;
+    monthTotalInstalled +=
+      stationReport.monthlyMeterInstallations.totalInstalled;
+    monthRegisteredCount +=
+      stationReport.monthlyMeterInstallations.registeredCount;
+  });
+
+  return {
+    yearTotalInstalled,
+    yearRegisteredCount,
+    monthTotalInstalled,
+    monthRegisteredCount,
   } as const;
 }
