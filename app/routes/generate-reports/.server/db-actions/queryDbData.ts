@@ -647,7 +647,12 @@ export async function getLegalMeterReportsWithAdjustments(
     year: reportYear,
   });
 
-  if (!adjustmentPeriodStart) return { baseSimsReport, baseP2Report } as const;
+  if (!adjustmentPeriodStart) {
+    return {
+      simsReport: baseSimsReport,
+      p2Report: baseP2Report,
+    } as const;
+  }
 
   const adjustYear = cutOutYear(adjustmentPeriodStart);
   const adjustMonth = cutOutMonth(adjustmentPeriodStart);
@@ -691,5 +696,8 @@ export async function getLegalMeterReportsWithAdjustments(
     preP2PeriodInstallations,
   );
 
-  return { baseSimsReport, baseP2Report } as const;
+  return {
+    simsReport: baseSimsReport,
+    p2Report: baseP2Report,
+  } as const;
 }
