@@ -6,17 +6,20 @@ import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
 import type { Route } from "./+types/viewData";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
+import * as z from "zod/v4";
+
+const dateSchema = z
+  .string()
+  .transform((val) => (val.length === 0 ? todayDate() : val));
 
 export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
 
   const url = new URL(request.url);
-  
-  /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-  const privateDate = url.searchParams.get("privateDate") || todayDate();
-  const legalDate = url.searchParams.get("legalDate") || todayDate();
-  const odpyDate = url.searchParams.get("odpyDate") || todayDate();
-  /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
+
+  const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));
+  const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
+  const odpyDate = dateSchema.parse(url.searchParams.get("odpyDate"));
 
   const loadValues = { privateDate, legalDate, odpyDate };
   const transSubData = await loadData(loadValues);
