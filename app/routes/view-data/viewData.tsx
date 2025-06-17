@@ -21,10 +21,10 @@ export async function loader({ request }: Route.LoaderArgs) {
   const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
   const odpyDate = dateSchema.parse(url.searchParams.get("odpyDate"));
 
-  const loadValues = { privateDate, legalDate, odpyDate };
-  const transSubData = await loadData(loadValues);
+  const dates = { privateDate, legalDate, odpyDate };
+  const transSubData = await loadData(dates);
 
-  return { loadValues, transSubData };
+  return { dates, transSubData };
 }
 
 export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
@@ -34,7 +34,7 @@ export default CacheRoute(function ViewData({
 }: Route.ComponentProps) {
   const submit = useSubmit();
 
-  const { loadValues, transSubData } = loaderData;
+  const { dates, transSubData } = loaderData;
 
   const transSubs = Object.keys(transSubData).sort((a, b) =>
     a.localeCompare(b, undefined, {
@@ -96,7 +96,7 @@ export default CacheRoute(function ViewData({
             <Input
               type="date"
               name="privateDate"
-              defaultValue={loadValues.privateDate}
+              defaultValue={dates.privateDate}
             />
           </Fieldset>
         </div>
@@ -106,7 +106,7 @@ export default CacheRoute(function ViewData({
             <Input
               type="date"
               name="legalDate"
-              defaultValue={loadValues.legalDate}
+              defaultValue={dates.legalDate}
             />
           </Fieldset>
         </div>
@@ -116,7 +116,7 @@ export default CacheRoute(function ViewData({
             <Input
               type="date"
               name="odpyDate"
-              defaultValue={loadValues.odpyDate}
+              defaultValue={dates.odpyDate}
             />
           </Fieldset>
         </div>
