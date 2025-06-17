@@ -3,7 +3,7 @@ import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMe
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import type { DbDataType } from "../view-data.types";
 
-interface LoadDates {
+interface Dates {
   privateDate: string;
   legalDate: string;
   odpyDate: string;
@@ -13,7 +13,7 @@ export default async function loadData({
   privateDate,
   legalDate,
   odpyDate,
-}: LoadDates) {
+}: Dates) {
   const transSubs = await selectAllSubstations();
 
   const data: DbDataType = {};
