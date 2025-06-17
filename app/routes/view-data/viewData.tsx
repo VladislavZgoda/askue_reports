@@ -11,9 +11,12 @@ export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
 
   const url = new URL(request.url);
-  const privateDate = url.searchParams.get("privateDate") ?? todayDate();
-  const legalDate = url.searchParams.get("legalDate") ?? todayDate();
-  const odpyDate = url.searchParams.get("odpyDate") ?? todayDate();
+  
+  /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+  const privateDate = url.searchParams.get("privateDate") || todayDate();
+  const legalDate = url.searchParams.get("legalDate") || todayDate();
+  const odpyDate = url.searchParams.get("odpyDate") || todayDate();
+  /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
 
   const loadValues = { privateDate, legalDate, odpyDate };
   const transSubData = await loadData(loadValues);
