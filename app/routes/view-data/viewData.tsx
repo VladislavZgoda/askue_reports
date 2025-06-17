@@ -113,11 +113,7 @@ export default CacheRoute(function ViewData({
 
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">
           <Fieldset legend="ОДПУ">
-            <Input
-              type="date"
-              name="odpyDate"
-              defaultValue={dates.odpyDate}
-            />
+            <Input type="date" name="odpyDate" defaultValue={dates.odpyDate} />
           </Fieldset>
         </div>
       </Form>
