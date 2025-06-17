@@ -33,18 +33,20 @@ export async function getPrivateMeterReportWithAdjustments(
   const adjustMonth = cutOutMonth(adjustmentPeriodStart);
   const adjustmentPeriodEnd = getMonthEndDate(adjustYear, Number(adjustMonth));
 
-  const previousMonthInstallations = await getInstallationsForPeriod({
-    balanceGroup: "Быт",
-    periodStart: adjustmentPeriodStart,
-    periodEnd: adjustmentPeriodEnd,
-  });
-
-  const prePeriodInstallations = await getPrePeriodInstallations({
-    balanceGroup: "Быт",
-    cutoffDate: adjustmentPeriodStart,
-    month: adjustMonth,
-    year: adjustYear,
-  });
+  const [previousMonthInstallations, prePeriodInstallations] =
+    await Promise.all([
+      getInstallationsForPeriod({
+        balanceGroup: "Быт",
+        periodStart: adjustmentPeriodStart,
+        periodEnd: adjustmentPeriodEnd,
+      }),
+      getPrePeriodInstallations({
+        balanceGroup: "Быт",
+        cutoffDate: adjustmentPeriodStart,
+        month: adjustMonth,
+        year: adjustYear,
+      }),
+    ]);
 
   applyAdjustmentsToReport(
     baseReport,
@@ -155,19 +157,20 @@ export async function getMeterReportsWithAdjustments(
   const reportYear = cutOutYear(reportDate);
   const reportMonth = cutOutMonth(reportDate);
 
-  const baseSimsReport = await getSubstationMeterReportsAtDate({
-    balanceGroup: sims,
-    targetDate: reportDate,
-    month: reportMonth,
-    year: reportYear,
-  });
-
-  const baseP2Report = await getSubstationMeterReportsAtDate({
-    balanceGroup: p2,
-    targetDate: reportDate,
-    month: reportMonth,
-    year: reportYear,
-  });
+  const [baseSimsReport, baseP2Report] = await Promise.all([
+    getSubstationMeterReportsAtDate({
+      balanceGroup: sims,
+      targetDate: reportDate,
+      month: reportMonth,
+      year: reportYear,
+    }),
+    getSubstationMeterReportsAtDate({
+      balanceGroup: p2,
+      targetDate: reportDate,
+      month: reportMonth,
+      year: reportYear,
+    }),
+  ]);
 
   if (!adjustmentPeriodStart) {
     return {
@@ -180,31 +183,35 @@ export async function getMeterReportsWithAdjustments(
   const adjustMonth = cutOutMonth(adjustmentPeriodStart);
   const adjustmentPeriodEnd = getMonthEndDate(adjustYear, Number(adjustMonth));
 
-  const previousSimsMonthInstallations = await getInstallationsForPeriod({
-    balanceGroup: sims,
-    periodStart: adjustmentPeriodStart,
-    periodEnd: adjustmentPeriodEnd,
-  });
-
-  const preSimsPeriodInstallations = await getPrePeriodInstallations({
-    balanceGroup: sims,
-    cutoffDate: adjustmentPeriodStart,
-    month: adjustMonth,
-    year: adjustYear,
-  });
-
-  const previousP2MonthInstallations = await getInstallationsForPeriod({
-    balanceGroup: p2,
-    periodStart: adjustmentPeriodStart,
-    periodEnd: adjustmentPeriodEnd,
-  });
-
-  const preP2PeriodInstallations = await getPrePeriodInstallations({
-    balanceGroup: p2,
-    cutoffDate: adjustmentPeriodStart,
-    month: adjustMonth,
-    year: adjustYear,
-  });
+  const [
+    previousSimsMonthInstallations,
+    preSimsPeriodInstallations,
+    previousP2MonthInstallations,
+    preP2PeriodInstallations,
+  ] = await Promise.all([
+    getInstallationsForPeriod({
+      balanceGroup: sims,
+      periodStart: adjustmentPeriodStart,
+      periodEnd: adjustmentPeriodEnd,
+    }),
+    getPrePeriodInstallations({
+      balanceGroup: sims,
+      cutoffDate: adjustmentPeriodStart,
+      month: adjustMonth,
+      year: adjustYear,
+    }),
+    getInstallationsForPeriod({
+      balanceGroup: p2,
+      periodStart: adjustmentPeriodStart,
+      periodEnd: adjustmentPeriodEnd,
+    }),
+    getPrePeriodInstallations({
+      balanceGroup: p2,
+      cutoffDate: adjustmentPeriodStart,
+      month: adjustMonth,
+      year: adjustYear,
+    }),
+  ]);
 
   applyAdjustmentsToReport(
     baseSimsReport,
