@@ -1,5 +1,6 @@
 import { Form, useSubmit } from "react-router";
-import DateInput from "~/components/DateInput";
+import Input from "~/components/Input";
+import Fieldset from "~/components/Fieldset";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { todayDate } from "~/utils/dateFunctions";
 import loadData from "./.server/loadData";
@@ -85,27 +86,33 @@ export default CacheRoute(function ViewData({
         }}
       >
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">
-          <DateInput
-            labelText="БЫТ"
-            inputName="privateDate"
-            defValue={loadValues.privateDate}
-          />
+          <Fieldset legend="БЫТ">
+            <Input
+              type="date"
+              name="privateDate"
+              defaultValue={loadValues.privateDate}
+            />
+          </Fieldset>
         </div>
 
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">
-          <DateInput
-            labelText="ЮР"
-            inputName="legalDate"
-            defValue={loadValues.legalDate}
-          />
+          <Fieldset legend="ЮР">
+            <Input
+              type="date"
+              name="legalDate"
+              defaultValue={loadValues.legalDate}
+            />
+          </Fieldset>
         </div>
 
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">
-          <DateInput
-            labelText="ОДПУ"
-            inputName="odpyDate"
-            defValue={loadValues.odpyDate}
-          />
+          <Fieldset legend="ОДПУ">
+            <Input
+              type="date"
+              name="odpyDate"
+              defaultValue={loadValues.odpyDate}
+            />
+          </Fieldset>
         </div>
       </Form>
 
