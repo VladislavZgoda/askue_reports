@@ -310,3 +310,53 @@ export async function getLatestMonthlyInstallationsBySubstation({
 
   return transformedResult;
 }
+
+export async function getSubstationMeterCountsAsOfDate(
+  balanceGroup: BalanceGroup,
+  targetDate: string,
+) {
+  const result = await db.query.transformerSubstations.findMany({
+    columns: {
+      id: true,
+      name: true,
+    },
+    with: {
+      registeredMeters: {
+        columns: {
+          registeredMeterCount: true,
+        },
+        where: (registeredMeters, { eq, and, lte }) =>
+          and(
+            eq(registeredMeters.balanceGroup, balanceGroup),
+            lte(registeredMeters.date, targetDate),
+          ),
+        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
+        limit: 1,
+      },
+      unregisteredMeters: {
+        columns: {
+          unregisteredMeterCount: true,
+        },
+        where: (unregisteredMeters, { and, eq, lte }) =>
+          and(
+            eq(unregisteredMeters.balanceGroup, balanceGroup),
+            lte(unregisteredMeters.date, targetDate),
+          ),
+        orderBy: (unregisteredMeters, { desc }) => [
+          desc(unregisteredMeters.date),
+        ],
+        limit: 1,
+      },
+    },
+  });
+
+  const transformedResult = result.map((substation) => ({
+    id: substation.id,
+    name: substation.name,
+    registeredMeters: substation.registeredMeters[0]?.registeredMeterCount || 0,
+    unregisteredMeters:
+      substation.unregisteredMeters[0]?.unregisteredMeterCount || 0,
+  }));
+
+  return transformedResult;
+}
