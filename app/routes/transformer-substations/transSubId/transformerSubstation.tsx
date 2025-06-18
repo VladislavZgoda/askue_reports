@@ -1,5 +1,5 @@
 import { Form, useSubmit } from "react-router";
-import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import StatTable from "./StatTable";
 import NavigateForm from "./NavigateForm";
 import DateInput from "~/components/DateInput";
@@ -22,7 +22,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   await isNotAuthenticated(request);
 
-  const transSub = await selectTransSub(params.id);
+  const transSub = await getTransformerSubstationById(Number(params.id));
 
   if (!transSub) {
     throw new Error("Not Found");

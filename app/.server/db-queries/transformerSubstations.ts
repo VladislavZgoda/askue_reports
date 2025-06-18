@@ -35,16 +35,22 @@ export async function selectTransSubs(searchParam: string | null) {
   }
 }
 
-export async function selectTransSub(id: string) {
-  const transSubs = await db
-    .select({
-      id: transformerSubstations.id,
-      name: transformerSubstations.name,
-    })
-    .from(transformerSubstations)
-    .where(eq(transformerSubstations.id, Number(id)));
+/**
+ * Retrieves basic transformer substation details by ID
+ *
+ * @param id Substation ID to retrieve
+ * @returns Object with {id, name} or undefined if not found
+ */
+export async function getTransformerSubstationById(id: number) {
+  const result = await db.query.transformerSubstations.findFirst({
+    columns: {
+      id: true,
+      name: true,
+    },
+    where: eq(transformerSubstations.id, id),
+  });
 
-  return transSubs[0];
+  return result;
 }
 
 export async function deleteTransSub(id: string) {
