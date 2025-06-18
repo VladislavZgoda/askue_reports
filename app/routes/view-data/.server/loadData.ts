@@ -6,17 +6,17 @@ interface CategoryDates {
   odpuDate: string;
 }
 
-export default async function fetchMeterCountsByCategory({
+export default async function getSubstationCategorySummary({
   privateDate,
   legalDate,
   odpuDate,
 }: CategoryDates) {
   const [
-    privateCounts,
-    legalSimsCounts,
-    legalP2Counts,
-    odpuSimsCounts,
-    odpuP2Counts,
+    privateResults,
+    legalSimsResults,
+    legalP2Results,
+    odpuSimsResults,
+    odpuP2Results,
   ] = await Promise.all([
     getSubstationMeterCountsAsOfDate("Быт", privateDate),
     getSubstationMeterCountsAsOfDate("ЮР Sims", legalDate),
@@ -25,25 +25,38 @@ export default async function fetchMeterCountsByCategory({
     getSubstationMeterCountsAsOfDate("ОДПУ П2", odpuDate),
   ]);
 
-  const combinedLegalCounts = legalSimsCounts.map((substation, i) => ({
+  const legalSummary = legalSimsResults.map((substation, i) => ({
     ...substation,
     registeredMeters:
-      substation.registeredMeters + legalP2Counts[i].registeredMeters,
+      substation.registeredMeters + legalP2Results[i].registeredMeters,
     unregisteredMeters:
-      substation.unregisteredMeters + legalP2Counts[i].unregisteredMeters,
+      substation.unregisteredMeters + legalP2Results[i].unregisteredMeters,
   }));
 
-  const combinedOdpuCounts = odpuSimsCounts.map((substation, i) => ({
+  const odpuSummary = odpuSimsResults.map((substation, i) => ({
     ...substation,
     registeredMeters:
-      substation.registeredMeters + odpuP2Counts[i].registeredMeters,
+      substation.registeredMeters + odpuP2Results[i].registeredMeters,
     unregisteredMeters:
-      substation.unregisteredMeters + odpuP2Counts[i].unregisteredMeters,
+      substation.unregisteredMeters + odpuP2Results[i].unregisteredMeters,
   }));
 
-  return {
-    privateCounts,
-    legalCounts: combinedLegalCounts,
-    odpuCounts: combinedOdpuCounts,
-  } as const;
+  const substationSummaries = privateResults.map((substation, i) => ({
+    id: substation.id,
+    name: substation.name,
+    privateCounts: {
+      registeredMeters: substation.registeredMeters,
+      unregisteredMeters: substation.unregisteredMeters,
+    },
+    legalCounts: {
+      registeredMeters: legalSummary[i].registeredMeters,
+      unregisteredMeters: legalSummary[i].unregisteredMeters,
+    },
+    odpuCounts: {
+      registeredMeters: odpuSummary[i].registeredMeters,
+      unregisteredMeters: odpuSummary[i].unregisteredMeters,
+    },
+  }));
+
+  return substationSummaries;
 }
