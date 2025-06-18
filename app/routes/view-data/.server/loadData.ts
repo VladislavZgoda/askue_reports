@@ -48,7 +48,7 @@ export default async function getSubstationCategorySummary({
       registeredMeters: substation.registeredMeters,
       unregisteredMeters: substation.unregisteredMeters,
     },
-    legalSimsResults: {
+    legal: {
       registeredMeters: legalSummary[i].registeredMeters,
       unregisteredMeters: legalSummary[i].unregisteredMeters,
     },
