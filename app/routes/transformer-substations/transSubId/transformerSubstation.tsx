@@ -8,6 +8,12 @@ import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/transformerSubstation";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
+import * as z from "zod/v4";
+
+const dateSchema = z
+  .string()
+  .nullable()
+  .transform((val) => (!val || val.length === 0 ? todayDate() : val));
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
@@ -23,15 +29,15 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   }
 
   const url = new URL(request.url);
-  const privateDate = url.searchParams.get("privateDate") ?? todayDate();
-  const legalDate = url.searchParams.get("legalDate") ?? todayDate();
-  const odpyDate = url.searchParams.get("odpyDate") ?? todayDate();
+  const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));
+  const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
+  const odpuDate = dateSchema.parse(url.searchParams.get("odpuDate"));
 
   const loadValues = {
     id: transSub.id,
     privateDate,
     legalDate,
-    odpyDate,
+    odpuDate,
   };
 
   const transSubData = await loadData(loadValues);
@@ -119,8 +125,8 @@ export default CacheRoute(function TransformerSubstation({
 
           <DateInput
             labelText="ОДПУ"
-            inputName="odpyDate"
-            defValue={loadValues.odpyDate}
+            inputName="odpuDate"
+            defValue={loadValues.odpuDate}
           />
         </Form>
       </section>

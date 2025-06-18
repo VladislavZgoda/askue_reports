@@ -6,22 +6,22 @@ interface LoadDataProps {
   id: number;
   privateDate: string;
   legalDate: string;
-  odpyDate: string;
+  odpuDate: string;
 }
 
 export default async function loadData({
   id,
   privateDate,
   legalDate,
-  odpyDate,
+  odpuDate,
 }: LoadDataProps) {
   const [privateMeters, legalSims, legalP2, odpySims, odpyP2, techMeters] =
     await Promise.all([
       getDataFromDb(id, privateDate, "Быт"),
       getDataFromDb(id, legalDate, "ЮР Sims"),
       getDataFromDb(id, legalDate, "ЮР П2"),
-      getDataFromDb(id, odpyDate, "ОДПУ Sims"),
-      getDataFromDb(id, odpyDate, "ОДПУ П2"),
+      getDataFromDb(id, odpuDate, "ОДПУ Sims"),
+      getDataFromDb(id, odpuDate, "ОДПУ П2"),
       getTechMetersFromDb(id),
     ]);
 
