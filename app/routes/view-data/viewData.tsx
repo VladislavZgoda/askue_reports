@@ -3,14 +3,15 @@ import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { todayDate } from "~/utils/dateFunctions";
-import loadData from "./.server/loadData";
+import getSubstationCategorySummary from "./.server/loadData";
 import type { Route } from "./+types/viewData";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
 import * as z from "zod/v4";
 
 const dateSchema = z
   .string()
-  .transform((val) => (val.length === 0 ? todayDate() : val));
+  .nullable()
+  .transform((val) => (!val || val.length === 0 ? todayDate() : val));
 
 export async function loader({ request }: Route.LoaderArgs) {
   await isNotAuthenticated(request);
@@ -19,12 +20,12 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));
   const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
-  const odpyDate = dateSchema.parse(url.searchParams.get("odpyDate"));
+  const odpuDate = dateSchema.parse(url.searchParams.get("odpuDate"));
 
-  const dates = { privateDate, legalDate, odpyDate };
-  const transSubData = await loadData(dates);
+  const dates = { privateDate, legalDate, odpuDate };
+  const substationSummaries = await getSubstationCategorySummary(dates);
 
-  return { dates, transSubData };
+  return { dates, substationSummaries };
 }
 
 export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
@@ -34,54 +35,75 @@ export default CacheRoute(function ViewData({
 }: Route.ComponentProps) {
   const submit = useSubmit();
 
-  const { dates, transSubData } = loaderData;
+  const { dates, substationSummaries } = loaderData;
 
-  const transSubs = Object.keys(transSubData).sort((a, b) =>
-    a.localeCompare(b, undefined, {
+  const sortedSummaries = substationSummaries.sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, {
       numeric: true,
       sensitivity: "base",
     }),
   );
 
-  const tableRows = transSubs.map((transSub, index) => (
-    <tr key={transSubData[transSub].id} className="hover:bg-base-300">
-      <th>{index + 1}</th>
-      <td>{transSub}</td>
-      <td>{transSubData[transSub].private}</td>
-      <td>{transSubData[transSub].legal}</td>
-      <td>{transSubData[transSub].odpy}</td>
-      <td>{transSubData[transSub].notInSystem}</td>
-      <td>
-        {transSubData[transSub].private +
-          transSubData[transSub].legal +
-          transSubData[transSub].odpy +
-          transSubData[transSub].notInSystem}
+  const tableRows = sortedSummaries.map((substation, i) => (
+    <tr key={substation.id} className="hover:bg-base-300">
+      <th>{i + 1}</th>
+      <td>{substation.name}</td>
+      <td className="text-center">{substation.private.registeredMeters}</td>
+      <td className="text-center">{substation.private.unregisteredMeters}</td>
+      <td className="text-center">{substation.legal.registeredMeters}</td>
+      <td className="text-center">{substation.legal.unregisteredMeters}</td>
+      <td className="text-center">{substation.odpu.registeredMeters}</td>
+      <td className="text-center">{substation.odpu.unregisteredMeters}</td>
+      <td className="text-center">
+        {substation.private.unregisteredMeters +
+          substation.legal.unregisteredMeters +
+          substation.odpu.unregisteredMeters}
+      </td>
+      <td className="text-center">
+        {substation.private.registeredMeters +
+          substation.legal.registeredMeters +
+          substation.odpu.registeredMeters}
       </td>
     </tr>
   ));
 
-  const privateTotal = transSubs.reduce(
-    (sum, transSub) => sum + transSubData[transSub].private,
+  const privateRegisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.private.registeredMeters,
     0,
   );
 
-  const legalTotal = transSubs.reduce(
-    (sum, transSub) => sum + transSubData[transSub].legal,
+  const privateUnregisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.private.unregisteredMeters,
     0,
   );
 
-  const odpyTotal = transSubs.reduce(
-    (sum, transSub) => sum + transSubData[transSub].odpy,
+  const legalRegisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.legal.registeredMeters,
     0,
   );
 
-  const totalInSystem = privateTotal + legalTotal + odpyTotal;
+  const legalUnregisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.legal.unregisteredMeters,
+    0,
+  );
 
-  const totalCount =
-    transSubs.reduce(
-      (sum, transSub) => sum + transSubData[transSub].notInSystem,
-      0,
-    ) + totalInSystem;
+  const odpuRegisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.odpu.registeredMeters,
+    0,
+  );
+
+  const odpuUnregisteredTotal = substationSummaries.reduce(
+    (sum, substation) => sum + substation.odpu.unregisteredMeters,
+    0,
+  );
+
+  const registeredTotal =
+    privateRegisteredTotal + legalRegisteredTotal + odpuRegisteredTotal;
+
+  const unregisteredTotal =
+    privateUnregisteredTotal + legalUnregisteredTotal + odpuUnregisteredTotal;
+
+  const metersTotal = unregisteredTotal + registeredTotal;
 
   return (
     <main className="w-[70%] mr-auto ml-auto">
@@ -113,7 +135,7 @@ export default CacheRoute(function ViewData({
 
         <div className="w-52 sm:w-56 md:w-64 lg:w-72">
           <Fieldset legend="ОДПУ">
-            <Input type="date" name="odpyDate" defaultValue={dates.odpyDate} />
+            <Input type="date" name="odpuDate" defaultValue={dates.odpuDate} />
           </Fieldset>
         </div>
       </Form>
@@ -124,35 +146,65 @@ export default CacheRoute(function ViewData({
             <tr>
               <th></th>
               <th>ТП</th>
-              <th>БЫТ</th>
+              <th>Быт</th>
+              <th>не в ПО</th>
               <th>ЮР</th>
+              <th>не в ПО</th>
               <th>ОДПУ</th>
-              <th>Не в системе</th>
-              <th>Всего</th>
+              <th>не в ПО</th>
+              <th>Всего не в ПО</th>
+              <th>Всего в ПО</th>
             </tr>
           </thead>
           <tbody>{tableRows}</tbody>
         </table>
       </div>
 
-      <div className="mb-5 flex flex-col items-end gap-1">
-        <p>
-          Всего БЫТ: <span className="font-bold">{privateTotal}</span>
-        </p>
-        <p>
-          Всего ЮР: <span className="font-bold">{legalTotal}</span>
-        </p>
-        <p>
-          Всего ОДПУ: <span className="font-bold">{odpyTotal}</span>
-        </p>
-        <p>
-          Всего с возможностью опроса через ПО:{" "}
-          <span className="font-bold">{totalInSystem}</span>
-        </p>
-        <p>
-          Общее количество ТУ с возможностью опроса:{" "}
-          <span className="font-bold">{totalCount}</span>
-        </p>
+      <div className="mb-5 flex justify-end gap-8">
+        <div className="flex flex-col gap-0.5">
+          <p className="flex justify-between gap-2">
+            Всего БЫТ в ПО:{" "}
+            <span className="font-bold">{privateRegisteredTotal}</span>
+          </p>
+          <p className="flex justify-between gap-2">
+            Всего БЫТ в не ПО:{" "}
+            <span className="font-bold">{privateUnregisteredTotal}</span>
+          </p>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <p className="flex justify-between gap-2">
+            Всего ЮР в ПО:{" "}
+            <span className="font-bold">{legalRegisteredTotal}</span>
+          </p>
+          <p className="flex justify-between gap-2">
+            Всего ЮР в не ПО:{" "}
+            <span className="font-bold">{legalUnregisteredTotal}</span>
+          </p>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <p className="flex justify-between gap-2">
+            Всего ОДПУ в ПО:{" "}
+            <span className="font-bold">{odpuRegisteredTotal}</span>
+          </p>
+          <p className="flex justify-between gap-2">
+            Всего ОДПУ в не ПО:{" "}
+            <span className="font-bold">{odpuUnregisteredTotal}</span>
+          </p>
+        </div>
+        <div className="flex flex-col justify-end gap-0.5">
+          <p className="flex gap-2">
+            Всего с возможностью опроса через ПО:{" "}
+            <span className="font-bold">{registeredTotal}</span>
+          </p>
+          <p className="flex gap-2">
+            Всего не зарегистрированных в ПО:{" "}
+            <span className="font-bold">{unregisteredTotal}</span>
+          </p>
+          <p className="flex gap-2">
+            Общее количество ТУ с возможностью опроса:{" "}
+            <span className="font-bold">{metersTotal}</span>
+          </p>
+        </div>
       </div>
     </main>
   );
