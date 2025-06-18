@@ -51,7 +51,7 @@ export const updateTechnicalMeters = async ({
     );
 };
 
-export const selectSumTechnicalMeters = async () => {
+export const getTechnicalMetersTotals = async () => {
   const meters = await db
     .select({
       quantity: sum(technicalMeters.quantity),
@@ -59,5 +59,5 @@ export const selectSumTechnicalMeters = async () => {
     })
     .from(technicalMeters);
 
-  return meters;
+  return meters[0];
 };

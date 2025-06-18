@@ -1,5 +1,5 @@
 import exceljs from "exceljs";
-import { selectSumTechnicalMeters } from "~/.server/db-queries/technicalMeters";
+import { getTechnicalMetersTotals } from "~/.server/db-queries/technicalMeters";
 
 import {
   getPrivateMeterReportWithAdjustments,
@@ -290,12 +290,10 @@ async function handleSupplementThree({
   ws.getCell("H29").value = odpuRegisteredMeters + odpuUnregisteredMeters;
   ws.getCell("I29").value = odpuRegisteredMeters;
 
-  const technicalMeters = await selectSumTechnicalMeters();
+  const technicalMeters = await getTechnicalMetersTotals();
 
-  const technicalMetersQuantity = Number(technicalMeters[0].quantity ?? 0);
-  const technicalMetersUnderVoltage = Number(
-    technicalMeters[0].underVoltage ?? 0,
-  );
+  const technicalMetersQuantity = Number(technicalMeters.quantity ?? 0);
+  const technicalMetersUnderVoltage = Number(technicalMeters.underVoltage ?? 0);
 
   ws.getCell("Y29").value = technicalMetersQuantity;
   ws.getCell("Z29").value = technicalMetersUnderVoltage;
