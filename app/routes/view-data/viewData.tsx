@@ -64,6 +64,14 @@ export default CacheRoute(function ViewData({
           substation.legal.registeredMeters +
           substation.odpu.registeredMeters}
       </td>
+      <td className="text-center">
+        {substation.private.unregisteredMeters +
+          substation.legal.unregisteredMeters +
+          substation.odpu.unregisteredMeters +
+          substation.private.registeredMeters +
+          substation.legal.registeredMeters +
+          substation.odpu.registeredMeters}
+      </td>
     </tr>
   ));
 
@@ -106,9 +114,9 @@ export default CacheRoute(function ViewData({
   const metersTotal = unregisteredTotal + registeredTotal;
 
   return (
-    <main className="w-[70%] mr-auto ml-auto">
+    <main className="w-[90%] mr-auto ml-auto">
       <Form
-        className="mt-5 flex justify-between"
+        className="mt-5 flex justify-center gap-8"
         onChange={(e) => {
           void submit(e.currentTarget);
         }}
@@ -146,14 +154,15 @@ export default CacheRoute(function ViewData({
             <tr>
               <th></th>
               <th>ТП</th>
-              <th>Быт</th>
-              <th>не в ПО</th>
-              <th>ЮР</th>
-              <th>не в ПО</th>
-              <th>ОДПУ</th>
-              <th>не в ПО</th>
-              <th>Всего не в ПО</th>
-              <th>Всего в ПО</th>
+              <th className="text-center">Быт</th>
+              <th className="text-center">не в ПО</th>
+              <th className="text-center">ЮР</th>
+              <th className="text-center">не в ПО</th>
+              <th className="text-center">ОДПУ</th>
+              <th className="text-center">не в ПО</th>
+              <th className="text-center">Всего не в ПО</th>
+              <th className="text-center">Всего в ПО</th>
+              <th className="text-center">Всего ТУ</th>
             </tr>
           </thead>
           <tbody>{tableRows}</tbody>
