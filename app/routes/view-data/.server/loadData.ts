@@ -44,15 +44,15 @@ export default async function getSubstationCategorySummary({
   const substationSummaries = privateResults.map((substation, i) => ({
     id: substation.id,
     name: substation.name,
-    privateCounts: {
+    private: {
       registeredMeters: substation.registeredMeters,
       unregisteredMeters: substation.unregisteredMeters,
     },
-    legalCounts: {
+    legalSimsResults: {
       registeredMeters: legalSummary[i].registeredMeters,
       unregisteredMeters: legalSummary[i].unregisteredMeters,
     },
-    odpuCounts: {
+    odpu: {
       registeredMeters: odpuSummary[i].registeredMeters,
       unregisteredMeters: odpuSummary[i].unregisteredMeters,
     },
