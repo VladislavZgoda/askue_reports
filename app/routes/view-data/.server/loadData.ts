@@ -1,113 +1,49 @@
-import { selectAllSubstations } from "~/.server/db-queries/transformerSubstations";
-import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
-import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
-import type { DbDataType } from "../view-data.types";
+import { getSubstationMeterCountsAsOfDate } from "~/.server/db-queries/transformerSubstations";
 
-interface Dates {
+interface CategoryDates {
   privateDate: string;
   legalDate: string;
-  odpyDate: string;
+  odpuDate: string;
 }
 
-export default async function loadData({
+export default async function fetchMeterCountsByCategory({
   privateDate,
   legalDate,
-  odpyDate,
-}: Dates) {
-  const transSubs = await selectAllSubstations();
+  odpuDate,
+}: CategoryDates) {
+  const [
+    privateCounts,
+    legalSimsCounts,
+    legalP2Counts,
+    odpuSimsCounts,
+    odpuP2Counts,
+  ] = await Promise.all([
+    getSubstationMeterCountsAsOfDate("Быт", privateDate),
+    getSubstationMeterCountsAsOfDate("ЮР Sims", legalDate),
+    getSubstationMeterCountsAsOfDate("ЮР П2", legalDate),
+    getSubstationMeterCountsAsOfDate("ОДПУ Sims", odpuDate),
+    getSubstationMeterCountsAsOfDate("ОДПУ П2", odpuDate),
+  ]);
 
-  const data: DbDataType = {};
+  const combinedLegalCounts = legalSimsCounts.map((substation, i) => ({
+    ...substation,
+    registeredMeters:
+      substation.registeredMeters + legalP2Counts[i].registeredMeters,
+    unregisteredMeters:
+      substation.unregisteredMeters + legalP2Counts[i].unregisteredMeters,
+  }));
 
-  for (const transSub of transSubs) {
-    const transformerSubstationId = transSub.id;
+  const combinedOdpuCounts = odpuSimsCounts.map((substation, i) => ({
+    ...substation,
+    registeredMeters:
+      substation.registeredMeters + odpuP2Counts[i].registeredMeters,
+    unregisteredMeters:
+      substation.unregisteredMeters + odpuP2Counts[i].unregisteredMeters,
+  }));
 
-    const [
-      privateMeters,
-      legalMetersSims,
-      legalMetersP2,
-      odpyMetersSims,
-      odpyMetersP2,
-      notInSystemPrivate,
-      notInSystemLegalSims,
-      notInSystemLegalP2,
-      notInSystemOdpySims,
-      notInSystemOdpyP2,
-    ] = await Promise.all([
-      getRegisteredMeterCountAtDate({
-        balanceGroup: "Быт",
-        targetDate: privateDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getRegisteredMeterCountAtDate({
-        balanceGroup: "ЮР Sims",
-        targetDate: legalDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getRegisteredMeterCountAtDate({
-        balanceGroup: "ЮР П2",
-        targetDate: legalDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getRegisteredMeterCountAtDate({
-        balanceGroup: "ОДПУ Sims",
-        targetDate: odpyDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getRegisteredMeterCountAtDate({
-        balanceGroup: "ОДПУ П2",
-        targetDate: odpyDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getUnregisteredMeterCountAtDate({
-        balanceGroup: "Быт",
-        targetDate: privateDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getUnregisteredMeterCountAtDate({
-        balanceGroup: "ЮР Sims",
-        targetDate: legalDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getUnregisteredMeterCountAtDate({
-        balanceGroup: "ЮР П2",
-        targetDate: legalDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getUnregisteredMeterCountAtDate({
-        balanceGroup: "ОДПУ Sims",
-        targetDate: odpyDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-      getUnregisteredMeterCountAtDate({
-        balanceGroup: "ОДПУ П2",
-        targetDate: odpyDate,
-        dateComparison: "upTo",
-        transformerSubstationId,
-      }),
-    ]);
-
-    data[transSub.name] = {
-      id: transSub.id,
-      private: privateMeters,
-      legal: legalMetersSims + legalMetersP2,
-      odpy: odpyMetersSims + odpyMetersP2,
-      notInSystem:
-        notInSystemPrivate +
-        notInSystemLegalSims +
-        notInSystemLegalP2 +
-        notInSystemOdpySims +
-        notInSystemOdpyP2,
-    };
-  }
-
-  return data;
+  return {
+    privateCounts,
+    legalCounts: combinedLegalCounts,
+    odpuCounts: combinedOdpuCounts,
+  } as const;
 }
