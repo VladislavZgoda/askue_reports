@@ -20,20 +20,25 @@ export const insertTechnicalMeters = async ({
   });
 };
 
-export const selectTechnicalMeters = async (
-  transformerSubstationId: number,
+/**
+ * Retrieves technical meter statistics for a transformer substation
+ *
+ * @param substationId ID of the transformer substation
+ * @returns Object containing {quantity, underVoltage} counts,
+ *          or undefined if no record exists
+ */
+export const getTechnicalMeterStatsForSubstation = async (
+  substationId: number,
 ) => {
-  const prevValues = await db
-    .select({
-      quantity: technicalMeters.quantity,
-      underVoltage: technicalMeters.underVoltage,
-    })
-    .from(technicalMeters)
-    .where(
-      eq(technicalMeters.transformerSubstationId, transformerSubstationId),
-    );
+  const result = await db.query.technicalMeters.findFirst({
+    columns: {
+      quantity: true,
+      underVoltage: true,
+    },
+    where: eq(technicalMeters.transformerSubstationId, substationId),
+  });
 
-  return prevValues;
+  return result;
 };
 
 export const updateTechnicalMeters = async ({
