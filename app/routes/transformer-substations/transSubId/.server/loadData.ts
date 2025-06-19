@@ -2,72 +2,78 @@ import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMe
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 
-interface LoadDataProps {
-  id: number;
+interface SubstationMeterDataParams {
+  substationId: number;
   privateDate: string;
   legalDate: string;
   odpuDate: string;
 }
 
-export default async function loadData({
-  id,
+export default async function getSubstationMeterSummary({
+  substationId,
   privateDate,
   legalDate,
   odpuDate,
-}: LoadDataProps) {
-  const [privateMeters, legalSims, legalP2, odpySims, odpyP2, techMeters] =
-    await Promise.all([
-      getDataFromDb(id, privateDate, "Быт"),
-      getDataFromDb(id, legalDate, "ЮР Sims"),
-      getDataFromDb(id, legalDate, "ЮР П2"),
-      getDataFromDb(id, odpuDate, "ОДПУ Sims"),
-      getDataFromDb(id, odpuDate, "ОДПУ П2"),
-      getTechMetersFromDb(id),
-    ]);
+}: SubstationMeterDataParams) {
+  const [
+    privateMeters,
+    legalSimsMeters,
+    legalP2Meters,
+    odpuSimsMeters,
+    odpuP2Meters,
+    technicalMeters,
+  ] = await Promise.all([
+    getMeterCountsByGroup(substationId, privateDate, "Быт"),
+    getMeterCountsByGroup(substationId, legalDate, "ЮР Sims"),
+    getMeterCountsByGroup(substationId, legalDate, "ЮР П2"),
+    getMeterCountsByGroup(substationId, odpuDate, "ОДПУ Sims"),
+    getMeterCountsByGroup(substationId, odpuDate, "ОДПУ П2"),
+    getTechnicalMeterStats(substationId),
+  ]);
 
   return {
     privateMeters,
-    legalSims,
-    legalP2,
-    odpySims,
-    odpyP2,
-    techMeters,
+    legalSimsMeters,
+    legalP2Meters,
+    odpuSimsMeters,
+    odpuP2Meters,
+    technicalMeters,
   };
 }
 
-async function getDataFromDb(
-  id: number,
+async function getMeterCountsByGroup(
+  substationId: number,
   date: string,
   balanceGroup: BalanceGroup,
 ) {
-  const [inSystem, notInSystem] = await Promise.all([
+  const [registeredCount, unregisteredCount] = await Promise.all([
     getRegisteredMeterCountAtDate({
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",
-      transformerSubstationId: id,
+      transformerSubstationId: substationId,
     }),
     getUnregisteredMeterCountAtDate({
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",
-      transformerSubstationId: id,
+      transformerSubstationId: substationId,
     }),
   ]);
 
-  const data: DbData = {
-    inSystem,
-    notInSystem,
+  const meterStats = {
+    registeredMeterCount: registeredCount,
+    unregisteredMeterCount: unregisteredCount,
   };
 
-  return data;
+  return meterStats;
 }
 
-async function getTechMetersFromDb(id: number) {
-  const data = await getTechnicalMeterStatsForSubstation(id);
+async function getTechnicalMeterStats(substationId: number) {
+  const stats = await getTechnicalMeterStatsForSubstation(substationId);
 
   return {
-    quantity: data?.quantity ?? 0,
-    underVoltage: data?.underVoltage ?? 0,
+    quantity: stats?.quantity ?? 0,
+    underVoltage: stats?.underVoltage ?? 0,
   };
 }
