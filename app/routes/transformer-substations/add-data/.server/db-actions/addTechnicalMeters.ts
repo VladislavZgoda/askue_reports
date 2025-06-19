@@ -1,6 +1,6 @@
 import {
   insertTechnicalMeters,
-  selectTechnicalMeters,
+  getTechnicalMeterStatsForSubstation,
   updateTechnicalMeters,
 } from "~/.server/db-queries/technicalMeters";
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
@@ -15,15 +15,15 @@ export default async function addTechnicalMeters(
   values: TechnicalMetersAction,
 ) {
   const processedValues = handleValues(values);
-  const prevValues = await selectTechnicalMeters(
+  const prevValues = await getTechnicalMeterStatsForSubstation(
     processedValues.transformerSubstationId,
   );
 
-  if (prevValues[0]?.quantity !== undefined) {
+  if (prevValues) {
     const updatedValues = {
       ...processedValues,
-      quantity: processedValues.quantity + prevValues[0].quantity,
-      underVoltage: processedValues.underVoltage + prevValues[0].underVoltage,
+      quantity: processedValues.quantity + prevValues.quantity,
+      underVoltage: processedValues.underVoltage + prevValues.underVoltage,
     };
     await updateTechnicalMeters(updatedValues);
   } else {

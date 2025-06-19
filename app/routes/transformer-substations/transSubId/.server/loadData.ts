@@ -1,6 +1,6 @@
 import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
-import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
+import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 
 interface LoadDataProps {
   id: number;
@@ -64,10 +64,10 @@ async function getDataFromDb(
 }
 
 async function getTechMetersFromDb(id: number) {
-  const data = await selectTechnicalMeters(id);
+  const data = await getTechnicalMeterStatsForSubstation(id);
 
   return {
-    quantity: data[0]?.quantity ?? 0,
-    underVoltage: data[0]?.underVoltage ?? 0,
+    quantity: data?.quantity ?? 0,
+    underVoltage: data?.underVoltage ?? 0,
   };
 }

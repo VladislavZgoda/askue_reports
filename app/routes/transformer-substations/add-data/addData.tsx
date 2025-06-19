@@ -1,5 +1,5 @@
 import { useFetcher } from "react-router";
-import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
 import SelectInput from "./SelectInput";
@@ -22,7 +22,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await selectTransSub(params.id);
+  const transSub = await getTransformerSubstationById(Number(params.id));
 
   if (!transSub) {
     throw new Error("Not Found");

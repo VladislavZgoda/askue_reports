@@ -1,7 +1,7 @@
 import { useActionData, useNavigation, redirect } from "react-router";
 import {
-  selectTransSub,
   updateTransSub,
+  getTransformerSubstationById,
 } from "~/.server/db-queries/transformerSubstations";
 import TransSubName from "~/components/TransSubName";
 import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
@@ -13,7 +13,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await selectTransSub(params.id);
+  const transSub = await getTransformerSubstationById(Number(params.id));
 
   if (!transSub) {
     throw new Error("Not Found");

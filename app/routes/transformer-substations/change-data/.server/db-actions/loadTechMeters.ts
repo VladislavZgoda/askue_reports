@@ -1,9 +1,9 @@
-import { selectTechnicalMeters } from "~/.server/db-queries/technicalMeters";
+import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 
 export default async function loadTechMeters(id: number) {
-  const techMeters = await selectTechnicalMeters(id);
+  const techMeters = await getTechnicalMeterStatsForSubstation(id);
   return {
-    quantity: techMeters[0]?.quantity ?? 0,
-    addedToSystem: techMeters[0]?.underVoltage ?? 0,
+    quantity: techMeters?.quantity ?? 0,
+    addedToSystem: techMeters?.underVoltage ?? 0,
   };
 }

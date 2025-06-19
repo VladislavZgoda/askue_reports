@@ -1,7 +1,7 @@
 import {
-  selectTechnicalMeters,
   updateTechnicalMeters,
   insertTechnicalMeters,
+  getTechnicalMeterStatsForSubstation,
 } from "~/.server/db-queries/technicalMeters";
 
 export default async function changeTechMeters(
@@ -10,12 +10,14 @@ export default async function changeTechMeters(
   const { quantity, underVoltage, transformerSubstationId } =
     handleValues(values);
 
-  const prevValues = await selectTechnicalMeters(transformerSubstationId);
+  const prevValues = await getTechnicalMeterStatsForSubstation(
+    transformerSubstationId,
+  );
 
-  if (prevValues[0]?.quantity !== undefined) {
+  if (prevValues) {
     const isEqual =
-      prevValues[0].quantity === quantity &&
-      prevValues[0].underVoltage === underVoltage;
+      prevValues.quantity === quantity &&
+      prevValues.underVoltage === underVoltage;
 
     if (!isEqual) {
       await updateTechnicalMeters({

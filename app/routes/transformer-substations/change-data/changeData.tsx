@@ -1,4 +1,4 @@
-import { selectTransSub } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToTransSub from "~/components/LinkToTransSub";
 import loadData from "./.server/db-actions/loadData";
@@ -26,7 +26,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await selectTransSub(params.id);
+  const transSub = await getTransformerSubstationById(Number(params.id));
 
   if (!transSub) {
     throw new Error("Not Found");
