@@ -1,23 +1,27 @@
-interface MeterCount {
+interface MeterRegistrationStats {
   registeredMeterCount: number;
   unregisteredMeterCount: number;
 }
 
-interface MeterSummary {
-  meterSummary: {
-    privateMeters: MeterCount;
-    legalSimsMeters: MeterCount;
-    legalP2Meters: MeterCount;
-    odpuSimsMeters: MeterCount;
-    odpuP2Meters: MeterCount;
-    technicalMeters: {
-      quantity: number;
-      underVoltage: number;
-    };
-  };
+interface TechnicalMeterStats {
+  quantity: number;
+  underVoltage: number;
 }
 
-export default function StatTable({ meterSummary }: MeterSummary) {
+interface MeterSummaryData {
+  privateMeters: MeterRegistrationStats;
+  legalSimsMeters: MeterRegistrationStats;
+  legalP2Meters: MeterRegistrationStats;
+  odpuSimsMeters: MeterRegistrationStats;
+  odpuP2Meters: MeterRegistrationStats;
+  technicalMeters: TechnicalMeterStats;
+}
+
+interface StatTableProps {
+  summary: MeterSummaryData;
+}
+
+export default function StatTable({ summary }: StatTableProps) {
   const {
     privateMeters,
     legalSimsMeters,
@@ -25,7 +29,7 @@ export default function StatTable({ meterSummary }: MeterSummary) {
     odpuSimsMeters,
     odpuP2Meters,
     technicalMeters,
-  } = meterSummary;
+  } = summary;
 
   const privateTotal =
     privateMeters.registeredMeterCount + privateMeters.unregisteredMeterCount;

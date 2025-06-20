@@ -126,7 +126,7 @@ export default CacheRoute(function TransformerSubstation({
       </section>
 
       <section className="mt-2 w-[60%]">
-        <StatTable meterSummary={meterSummary} />
+        <StatTable summary={meterSummary} />
       </section>
     </main>
   );
