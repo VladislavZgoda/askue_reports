@@ -28,28 +28,24 @@ const formSchema = z
     legalMonth: z.optional(z.string()),
     odpuMonth: z.optional(z.string()),
     upload: z.optional(
-      z.file().check(async (ctx) => {
-        if (ctx.value && ctx.value.size > 0) {
-          if (
-            ctx.value.type !==
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          ) {
-            ctx.issues.push({
-              code: "invalid_type",
-              message: "Тип файла не xlsx.",
-              input: ctx.value,
-              expected: "custom",
-            });
-          } else if (!(await validateExcel(ctx.value))) {
-            ctx.issues.push({
-              code: "custom",
-              message: "Не корректные столбцы в приложении №9.",
-              input: ctx.value,
-              expected: "custom",
-            });
+      z
+        .file()
+        .mime(
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          { error: "Тип файла не xlsx." },
+        )
+        .check(async (ctx) => {
+          if (ctx.value && ctx.value.size > 0) {
+            if (!(await validateExcel(ctx.value))) {
+              ctx.issues.push({
+                code: "custom",
+                message: "Не корректные столбцы в приложении №9.",
+                input: ctx.value,
+                expected: "custom",
+              });
+            }
           }
-        }
-      }),
+        }),
     ),
     month: z.string({ error: "Выберите месяц." }),
     year: z.custom<string>(
