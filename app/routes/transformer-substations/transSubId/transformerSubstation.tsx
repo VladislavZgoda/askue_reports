@@ -1,7 +1,6 @@
 import { Form, useSubmit } from "react-router";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import StatTable from "./StatTable";
-import NavigateForm from "./NavigateForm";
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
 import getSubstationMeterSummary from "./.server/loadData";
@@ -70,36 +69,24 @@ export default CacheRoute(function TransformerSubstation({
             <h2 className="menu-title">{substation.name}</h2>
             <ul>
               <li>
-                <NavigateForm
-                  actionName="add-data"
-                  btnText="Добавить данные"
-                  onDelete={undefined}
-                  methodType="GET"
-                />
+                <Form action="add-data" method="GET">
+                  <button>Добавить данные</button>
+                </Form>
               </li>
               <li>
-                <NavigateForm
-                  actionName="change-data"
-                  btnText="Изменить данные"
-                  onDelete={undefined}
-                  methodType="GET"
-                />
+                <Form action="change-data" method="GET">
+                  <button>Изменить данные</button>
+                </Form>
               </li>
               <li>
-                <NavigateForm
-                  actionName="edit"
-                  btnText="Переименовать ТП"
-                  onDelete={undefined}
-                  methodType="GET"
-                />
+                <Form action="edit" method="GET">
+                  <button>Переименовать ТП</button>
+                </Form>
               </li>
               <li>
-                <NavigateForm
-                  actionName="destroy"
-                  btnText="Удалить ТП"
-                  onDelete={onDelete}
-                  methodType="POST"
-                />
+                <Form action="destroy" method="POST" onSubmit={onDelete}>
+                  <button>Удалить ТП</button>
+                </Form>
               </li>
             </ul>
           </li>
