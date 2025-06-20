@@ -2,7 +2,8 @@ import { Form, useSubmit } from "react-router";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import StatTable from "./StatTable";
 import NavigateForm from "./NavigateForm";
-import DateInput from "~/components/DateInput";
+import Input from "~/components/Input";
+import Fieldset from "~/components/Fieldset";
 import getSubstationMeterSummary from "./.server/loadData";
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
@@ -111,23 +112,29 @@ export default CacheRoute(function TransformerSubstation({
           }}
         >
           <p>Выберете даты для данных</p>
-          <DateInput
-            labelText="БЫТ"
-            inputName="privateDate"
-            defValue={loadValues.privateDate}
-          />
+          <Fieldset legend="БЫТ">
+            <Input
+              type="date"
+              name="privateDate"
+              defaultValue={loadValues.privateDate}
+            />
+          </Fieldset>
 
-          <DateInput
-            labelText="ЮР"
-            inputName="legalDate"
-            defValue={loadValues.legalDate}
-          />
+          <Fieldset legend="ЮР">
+            <Input
+              type="date"
+              name="legalDate"
+              defaultValue={loadValues.legalDate}
+            />
+          </Fieldset>
 
-          <DateInput
-            labelText="ОДПУ"
-            inputName="odpuDate"
-            defValue={loadValues.odpuDate}
-          />
+          <Fieldset legend="ОДПУ">
+            <Input
+              type="date"
+              name="odpuDate"
+              defaultValue={loadValues.odpuDate}
+            />
+          </Fieldset>
         </Form>
       </section>
 
