@@ -1,6 +1,6 @@
 import { Form, useSubmit } from "react-router";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
-import StatTable from "./StatTable";
+import StatsTable from "./components/StatsTable";
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
 import getSubstationMeterSummary from "./.server/loadData";
@@ -126,7 +126,7 @@ export default CacheRoute(function TransformerSubstation({
       </section>
 
       <section className="mt-2 w-[60%]">
-        <StatTable summary={meterSummary} />
+        <StatsTable summary={meterSummary} />
       </section>
     </main>
   );
