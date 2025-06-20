@@ -3,7 +3,7 @@ import { getTransformerSubstationById } from "~/.server/db-queries/transformerSu
 import StatTable from "./StatTable";
 import NavigateForm from "./NavigateForm";
 import DateInput from "~/components/DateInput";
-import loadData from "./.server/loadData";
+import getSubstationMeterSummary from "./.server/loadData";
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/transformerSubstation";
@@ -22,9 +22,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   await isNotAuthenticated(request);
 
-  const transSub = await getTransformerSubstationById(Number(params.id));
+  const substation = await getTransformerSubstationById(Number(params.id));
 
-  if (!transSub) {
+  if (!substation) {
     throw new Error("Not Found");
   }
 
@@ -34,15 +34,15 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const odpuDate = dateSchema.parse(url.searchParams.get("odpuDate"));
 
   const loadValues = {
-    id: transSub.id,
+    substationId: substation.id,
     privateDate,
     legalDate,
     odpuDate,
   };
 
-  const transSubData = await loadData(loadValues);
+  const meterSummary = await getSubstationMeterSummary(loadValues);
 
-  return { transSub, transSubData, loadValues };
+  return { substation, meterSummary, loadValues };
 };
 
 export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
@@ -50,7 +50,7 @@ export const clientLoader = createClientLoaderCache<Route.ClientLoaderArgs>();
 export default CacheRoute(function TransformerSubstation({
   loaderData,
 }: Route.ComponentProps) {
-  const { transSub, transSubData, loadValues } = loaderData;
+  const { substation, meterSummary, loadValues } = loaderData;
 
   const submit = useSubmit();
 
@@ -66,7 +66,7 @@ export default CacheRoute(function TransformerSubstation({
       <section className="flex justify-between w-[60%]">
         <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1 shadow-md">
           <li>
-            <h2 className="menu-title">{transSub.name}</h2>
+            <h2 className="menu-title">{substation.name}</h2>
             <ul>
               <li>
                 <NavigateForm
@@ -132,7 +132,7 @@ export default CacheRoute(function TransformerSubstation({
       </section>
 
       <section className="mt-2 w-[60%]">
-        <StatTable data={transSubData} />
+        <StatTable meterSummary={meterSummary} />
       </section>
     </main>
   );

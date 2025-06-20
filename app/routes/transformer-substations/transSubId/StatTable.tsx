@@ -1,35 +1,57 @@
-interface StatTableProps {
-  data: {
-    privateMeters: DbData;
-    legalSims: DbData;
-    legalP2: DbData;
-    odpySims: DbData;
-    odpyP2: DbData;
-    techMeters: {
+interface MeterCount {
+  registeredMeterCount: number;
+  unregisteredMeterCount: number;
+}
+
+interface MeterSummary {
+  meterSummary: {
+    privateMeters: MeterCount;
+    legalSimsMeters: MeterCount;
+    legalP2Meters: MeterCount;
+    odpuSimsMeters: MeterCount;
+    odpuP2Meters: MeterCount;
+    technicalMeters: {
       quantity: number;
       underVoltage: number;
     };
   };
 }
 
-export default function StatTable({ data }: StatTableProps) {
+export default function StatTable({ meterSummary }: MeterSummary) {
+  const {
+    privateMeters,
+    legalSimsMeters,
+    legalP2Meters,
+    odpuSimsMeters,
+    odpuP2Meters,
+    technicalMeters,
+  } = meterSummary;
+
   const privateTotal =
-    data.privateMeters.inSystem + data.privateMeters.notInSystem;
+    privateMeters.registeredMeterCount + privateMeters.unregisteredMeterCount;
 
-  const legalSimsTotal = data.legalSims.inSystem + data.legalSims.notInSystem;
-  const legalP2Total = data.legalP2.inSystem + data.legalP2.notInSystem;
-  const odpySimsTotal = data.odpySims.inSystem + data.odpySims.notInSystem;
-  const odpyP2Total = data.odpyP2.inSystem + data.odpyP2.notInSystem;
+  const legalSimsTotal =
+    legalSimsMeters.registeredMeterCount +
+    legalSimsMeters.unregisteredMeterCount;
 
-  const totalMeters =
-    privateTotal + legalSimsTotal + legalP2Total + odpySimsTotal + odpyP2Total;
+  const legalP2Total =
+    legalP2Meters.registeredMeterCount + legalP2Meters.unregisteredMeterCount;
 
-  const inSystemTotal =
-    data.privateMeters.inSystem +
-    data.legalSims.inSystem +
-    data.legalP2.inSystem +
-    data.odpySims.inSystem +
-    data.odpyP2.inSystem;
+  const odpuSimsTotal =
+    odpuSimsMeters.registeredMeterCount + odpuSimsMeters.unregisteredMeterCount;
+
+  const odpuP2Total =
+    odpuP2Meters.registeredMeterCount + odpuP2Meters.unregisteredMeterCount;
+
+  const metersTotal =
+    privateTotal + legalSimsTotal + legalP2Total + odpuSimsTotal + odpuP2Total;
+
+  const registeredMeterTotal =
+    privateMeters.registeredMeterCount +
+    legalSimsMeters.registeredMeterCount +
+    legalP2Meters.registeredMeterCount +
+    odpuSimsMeters.registeredMeterCount +
+    odpuP2Meters.registeredMeterCount;
 
   return (
     <div className="overflow-auto max-h-[50vh] mt-5 mb-5">
@@ -46,13 +68,13 @@ export default function StatTable({ data }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>1</th>
             <td>Техучеты</td>
-            <td>{data.techMeters.quantity}</td>
+            <td>{technicalMeters.quantity}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>2</th>
             <td>Техучеты не под напряжением</td>
-            <td>{data.techMeters.quantity - data.techMeters.underVoltage}</td>
+            <td>{technicalMeters.quantity - technicalMeters.underVoltage}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -64,7 +86,7 @@ export default function StatTable({ data }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>4</th>
             <td>БЫТ в системе</td>
-            <td>{data.privateMeters.inSystem}</td>
+            <td>{privateMeters.registeredMeterCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -76,7 +98,7 @@ export default function StatTable({ data }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>7</th>
             <td>ЮР Sims в системе</td>
-            <td>{data.legalSims.inSystem}</td>
+            <td>{legalSimsMeters.registeredMeterCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -88,43 +110,43 @@ export default function StatTable({ data }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>10</th>
             <td>ЮР П2 в системе</td>
-            <td>{data.legalP2.inSystem}</td>
+            <td>{legalP2Meters.registeredMeterCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>13</th>
             <td>ОДПУ Sims всего</td>
-            <td>{odpySimsTotal}</td>
+            <td>{odpuSimsTotal}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>14</th>
             <td>ОДПУ Sims в системе</td>
-            <td>{data.odpySims.inSystem}</td>
+            <td>{odpuSimsMeters.registeredMeterCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>16</th>
             <td>ОДПУ П2 всего</td>
-            <td>{odpyP2Total}</td>
+            <td>{odpuP2Total}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>16</th>
             <td>ОДПУ П2 в системе</td>
-            <td>{data.odpyP2.inSystem}</td>
+            <td>{odpuP2Meters.registeredMeterCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>18</th>
             <td>Всего коммерческих ПУ</td>
-            <td>{totalMeters}</td>
+            <td>{metersTotal}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
             <th>19</th>
             <td>Всего коммерческих ПУ в работе</td>
-            <td>{inSystemTotal}</td>
+            <td>{registeredMeterTotal}</td>
           </tr>
         </tbody>
       </table>
