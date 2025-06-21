@@ -22,17 +22,17 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await getTransformerSubstationById(Number(params.id));
+  const substation = await getTransformerSubstationById(Number(params.id));
 
-  if (!transSub) {
+  if (!substation) {
     throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
 
-  const logMessages = await selectMessages(params.id);
+  const logMessages = await selectMessages(substation.id);
 
-  return { transSub, logMessages };
+  return { substation, logMessages };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
@@ -79,7 +79,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 type ErrorType = Record<string, string>;
 
 export default function AddData({ loaderData }: Route.ComponentProps) {
-  const { transSub, logMessages } = loaderData;
+  const { substation, logMessages } = loaderData;
   const fetcher = useFetcher<typeof action>();
 
   const actionErrors = fetcher.data;
@@ -149,7 +149,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   return (
     <main>
-      <LinkToTransSub id={transSub.id} name={transSub.name} />
+      <LinkToTransSub id={substation.id} name={substation.name} />
 
       <div className="flex ml-6 gap-x-8">
         <FetcherForm
