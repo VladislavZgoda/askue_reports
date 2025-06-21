@@ -12,21 +12,22 @@ export const insertMessage = async (
   });
 };
 
-export const selectMessages = async (transformerSubstationId: string) => {
-  const messages = await db
-    .select({
-      id: meterActionLogs.id,
-      message: meterActionLogs.message,
-    })
-    .from(meterActionLogs)
-    .where(
-      eq(
-        meterActionLogs.transformerSubstationId,
-        Number(transformerSubstationId),
-      ),
-    )
-    .orderBy(desc(meterActionLogs.created_at))
-    .limit(8);
+/**
+ * Retrieves recent action logs for a transformer substation
+ *
+ * @param substationId ID of the transformer substation
+ * @returns Array of the 8 most recent log entries (id and message)
+ */
+export async function getRecentActionLogsForSubstation(substationId: number) {
+  const result = await db.query.meterActionLogs.findMany({
+    columns: {
+      id: true,
+      message: true,
+    },
+    where: eq(meterActionLogs.transformerSubstationId, substationId),
+    orderBy: [desc(meterActionLogs.created_at)],
+    limit: 8,
+  });
 
-  return messages;
-};
+  return result;
+}

@@ -4,7 +4,7 @@ import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
 import SelectInput from "./SelectInput";
 import addNewMeters from "./.server/db-actions/addNewMeters";
-import { selectMessages } from "~/.server/db-queries/meterActionLogs";
+import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
 import addTechnicalMeters from "./.server/db-actions/addTechnicalMeters";
 import SubmitButton from "./SubmitButton";
 import validateInputNewMeters from "./.server/validation/newMetersInput";
@@ -30,9 +30,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   await isNotAuthenticated(request);
 
-  const logMessages = await selectMessages(substation.id);
+  const actionLogs = await getRecentActionLogsForSubstation(substation.id);
 
-  return { substation, logMessages };
+  return { substation, actionLogs };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
@@ -79,7 +79,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 type ErrorType = Record<string, string>;
 
 export default function AddData({ loaderData }: Route.ComponentProps) {
-  const { substation, logMessages } = loaderData;
+  const { substation, actionLogs } = loaderData;
   const fetcher = useFetcher<typeof action>();
 
   const actionErrors = fetcher.data;
@@ -204,7 +204,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           />
         </FetcherForm>
 
-        <Log logMessages={logMessages} />
+        <Log logMessages={actionLogs} />
       </div>
 
       <Toast isVisible={isVisible} message="Данные успешно добавлены." />
