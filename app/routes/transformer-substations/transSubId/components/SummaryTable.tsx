@@ -21,7 +21,7 @@ interface StatTableProps {
   summary: MeterSummaryData;
 }
 
-export default function StatsTable({ summary }: StatTableProps) {
+export default function SummaryTable({ summary }: StatTableProps) {
   const {
     privateMeters,
     legalSimsMeters,
