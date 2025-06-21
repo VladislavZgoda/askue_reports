@@ -1,6 +1,6 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
-import LinkToTransSub from "~/components/LinkToTransSub";
+import LinkToSubstation from "~/components/LinkToSubstation";
 import loadData from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
@@ -232,7 +232,10 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
   return (
     <main>
-      <LinkToTransSub id={transSub.id} name={transSub.name} />
+      <LinkToSubstation
+        substationId={transSub.id.toString()}
+        name={transSub.name}
+      />
 
       <div
         role="tablist"

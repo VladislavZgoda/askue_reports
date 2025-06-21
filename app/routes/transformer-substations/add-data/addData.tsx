@@ -11,7 +11,7 @@ import validateInputNewMeters from "./.server/validation/newMetersInput";
 import validateInputTechnicalMeters from "./.server/validation/technicalMetersInput";
 import { useEffect, useRef, useState } from "react";
 import FetcherForm from "./FetcherForm";
-import LinkToTransSub from "~/components/LinkToTransSub";
+import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import Log from "./Log";
@@ -149,7 +149,10 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   return (
     <main>
-      <LinkToTransSub id={substation.id} name={substation.name} />
+      <LinkToSubstation
+        substationId={substation.id.toString()}
+        name={substation.name}
+      />
 
       <div className="flex ml-6 gap-x-8">
         <FetcherForm

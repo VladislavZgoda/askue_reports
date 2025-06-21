@@ -1,14 +1,14 @@
-import { Link } from "react-router";
+import { href, Link } from "react-router";
 
 interface LinkProps {
-  id: number;
+  substationId: string;
   name: string;
 }
 
-export default function LinkToTransSub({ id, name }: LinkProps) {
+export default function LinkToSubstation({ substationId, name }: LinkProps) {
   return (
     <Link
-      to={`/transformer-substations/${id}`}
+      to={href("/transformer-substations/:id", { id: substationId })}
       className="link link-neutral"
       prefetch="intent"
     >
