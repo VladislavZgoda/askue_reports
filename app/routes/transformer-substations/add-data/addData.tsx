@@ -141,6 +141,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     if (!fetcherBillingMeters.data && fetcherBillingMeters.state === "idle") {
       setBillingErrors(undefined);
+      handleIsVisible();
       billingForm.reset();
     }
 
@@ -198,7 +199,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
             })}
             className="flex flex-col gap-5 h-full"
           >
-            <Fieldset legend="Количество новых ПУ">
+            <Fieldset legend="Количество ПУ">
               <Input
                 type="number"
                 min={0}
