@@ -22,6 +22,10 @@ export default [
       "./routes/transformer-substations/add-data/addData.tsx",
     ),
     route(
+      ":id/add-billing-meters",
+      "./routes/transformer-substations/add-data/addBillingMeters.ts",
+    ),
+    route(
       ":id/change-data",
       "./routes/transformer-substations/change-data/changeData.tsx",
     ),
