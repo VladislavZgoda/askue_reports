@@ -13,7 +13,7 @@ const billingFormSchema = z.object({
   date: z
     .string()
     .min(1, { error: "Выберете дату." })
-    .refine((val) => val <= todayDate(), { error: "Дата в будующем." }),
+    .refine((val) => val <= todayDate(), { error: "Дата в будущем." }),
 });
 
 export const billingFormResolver = zodResolver(billingFormSchema);
