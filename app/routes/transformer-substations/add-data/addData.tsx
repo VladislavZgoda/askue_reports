@@ -217,7 +217,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
                 {...billingForm.register("registeredCount")}
               />
             </Fieldset>
-            <Fieldset legend="Выберете балансовую принадлежность">
+            <Fieldset legend="Балансова группа">
               <Select
                 defaultValue="Выбрать группу"
                 error={billingErrors?.balanceGroup?.message}
