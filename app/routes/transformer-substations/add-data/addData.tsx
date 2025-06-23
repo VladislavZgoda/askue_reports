@@ -94,6 +94,15 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
 
+  const billingAction = href(
+    "/transformer-substations/:id/add-billing-meters",
+    {
+      id: substation.id.toString(),
+    },
+  );
+
+  const isBillingAction = fetcherBillingMeters.formAction === billingAction;
+
   const [billingErrors, setBillingErrors] = useState(fetcherBillingMeters.data);
 
   const billingForm = useRemixForm<BillingFormData>({
@@ -139,7 +148,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   };
 
   useEffect(() => {
-    if (!fetcherBillingMeters.data && fetcherBillingMeters.state === "idle") {
+    if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
       setBillingErrors(undefined);
       handleIsVisible();
       billingForm.reset();
@@ -147,7 +156,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
     if (fetcherBillingMeters.data)
       setBillingErrors({ ...fetcherBillingMeters.data });
-  }, [fetcherBillingMeters.data, fetcherBillingMeters.state]);
+  }, [fetcherBillingMeters.data, isSubmittingBilling, isBillingAction]);
 
   useEffect(() => {
     // if (!isSubmittingNewMeters && !actionErrors?.errors && isNewMetersAction) {
@@ -194,9 +203,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           <fetcherBillingMeters.Form
             onSubmit={void billingForm.handleSubmit()}
             method="POST"
-            action={href("/transformer-substations/:id/add-billing-meters", {
-              id: substation.id.toString(),
-            })}
+            action={billingAction}
             className="flex flex-col gap-5 h-full"
           >
             <Fieldset legend="Количество ПУ">
