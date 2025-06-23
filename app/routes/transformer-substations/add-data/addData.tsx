@@ -7,14 +7,10 @@ import Input from "~/components/Input";
 import Select from "~/components/Select";
 import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
-import DateInput from "~/components/DateInput";
 import NumberInput from "./NumberInput";
-import SelectInput from "./SelectInput";
-import addNewMeters from "./.server/db-actions/addNewMeters";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
 import addTechnicalMeters from "./.server/db-actions/addTechnicalMeters";
 import SubmitButton from "./SubmitButton";
-import validateInputNewMeters from "./.server/validation/newMetersInput";
 import validateInputTechnicalMeters from "./.server/validation/technicalMetersInput";
 import { useEffect, useRef, useState } from "react";
 import FetcherForm from "./FetcherForm";
@@ -46,24 +42,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-
-  if (_action === "addNewMeters") {
-    const errors = validateInputNewMeters(values);
-
-    if (Object.keys(errors).length > 0) {
-      return { errors };
-    }
-
-    const data = {
-      transSubId: params.id,
-      newMeters: values.newMeters as string,
-      addedToSystem: values.addedToSystem as string,
-      balanceGroup: values.type as BalanceGroup,
-      date: values.date as string,
-    };
-
-    await addNewMeters(data);
-  }
 
   if (_action === "addTechnicalMeters") {
     const errors = validateInputTechnicalMeters(values);
@@ -126,16 +104,10 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     return dataType && isSubmitting;
   };
 
-  const isNewMetersAction = checkWhatForm("addNewMeters");
-  const isSubmittingNewMeters = checkFormSubmit(isNewMetersAction);
-
   const isTechnicalMetersAction = checkWhatForm("addTechnicalMeters");
   const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
 
-  //const newMetesRef = useRef<HTMLFormElement>(null);
   const technicalMetersRef = useRef<HTMLFormElement>(null);
-
-  //const [errNewMeters, setErrNewMeters] = useState<ErrorType>({});
   const [errTechnicalMeters, setErrTechnicalMeters] = useState<ErrorType>({});
 
   const [isVisible, setIsVisible] = useState(false);
@@ -159,12 +131,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   }, [fetcherBillingMeters.data, isSubmittingBilling, isBillingAction]);
 
   useEffect(() => {
-    // if (!isSubmittingNewMeters && !actionErrors?.errors && isNewMetersAction) {
-    //   newMetesRef.current?.reset();
-    //   setErrNewMeters({});
-    //   handleIsVisible();
-    // }
-
     if (
       !isSubmittingTechnicalMeters &&
       !actionErrors?.errors &&
@@ -175,20 +141,10 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       handleIsVisible();
     }
 
-    // if (actionErrors?.errors && isNewMetersAction) {
-    //   setErrNewMeters(actionErrors.errors);
-    // }
-
     if (actionErrors?.errors && isTechnicalMetersAction) {
       setErrTechnicalMeters(actionErrors.errors);
     }
-  }, [
-    isSubmittingNewMeters,
-    isSubmittingTechnicalMeters,
-    isNewMetersAction,
-    isTechnicalMetersAction,
-    actionErrors?.errors,
-  ]);
+  }, [isTechnicalMetersAction, actionErrors?.errors]);
 
   return (
     <main>
@@ -256,30 +212,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
             </Button>
           </fetcherBillingMeters.Form>
         </section>
-        {/* <FetcherForm
-          fetcher={fetcher}
-          metesRef={newMetesRef}
-          h2Title="Добавить новые потребительские ПУ"
-        >
-          <NumberInput
-            labelName="Количество новых ПУ"
-            inputName="newMeters"
-            error={errNewMeters?.newMeters || errNewMeters?.difference}
-          />
-
-          <NumberInput
-            labelName="Из них добавлено в систему"
-            inputName="addedToSystem"
-            error={errNewMeters?.addedToSystem || errNewMeters?.difference}
-          />
-
-          <SelectInput error={errNewMeters?.type} />
-          <DateInput labelText="Дата" inputName="date" />
-          <SubmitButton
-            buttonValue="addNewMeters"
-            isSubmitting={isSubmittingNewMeters}
-          />
-        </FetcherForm> */}
 
         <FetcherForm
           fetcher={fetcher}
