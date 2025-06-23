@@ -20,11 +20,9 @@ export const billingFormResolver = zodResolver(billingFormSchema);
 
 export type BillingFormData = z.infer<typeof billingFormSchema>;
 
-const billingFormWithoutGroup = billingFormSchema.omit({ balanceGroup: true });
-
 const billingValidationSchema = z
   .object({
-    ...billingFormWithoutGroup.shape,
+    ...billingFormSchema.shape,
     balanceGroup: z.literal(
       ["Быт", "ЮР Sims", "ЮР П2", "ОДПУ Sims", "ОДПУ П2"],
       {
