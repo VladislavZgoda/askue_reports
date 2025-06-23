@@ -26,6 +26,10 @@ export default [
       "./routes/transformer-substations/add-data/addBillingMeters.ts",
     ),
     route(
+      ":id/add-technical-meters",
+      "./routes/transformer-substations/add-data/addTechnicalMeters.ts",
+    ),
+    route(
       ":id/change-data",
       "./routes/transformer-substations/change-data/changeData.tsx",
     ),
