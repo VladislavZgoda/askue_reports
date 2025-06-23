@@ -40,7 +40,7 @@ import {
 
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
-import type { BillingValidationForm } from "../../zodSchemes";
+import type { BillingValidationForm } from "../../validation/billingFormSchema";
 
 type FormData = BillingValidationForm & { readonly substationId: number };
 

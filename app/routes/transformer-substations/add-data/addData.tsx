@@ -1,6 +1,6 @@
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
-import { billingFormResolver } from "./zodSchemes";
+import { billingFormResolver } from "./validation/billingFormSchema";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { todayDate } from "~/utils/dateFunctions";
 import Input from "~/components/Input";
@@ -19,7 +19,7 @@ import Toast from "~/components/Toast";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import Log from "./Log";
 import type { Route } from "./+types/addData";
-import type { BillingFormData, BillingFormErrors } from "./zodSchemes";
+import type { BillingFormData, BillingFormErrors } from "./validation/billingFormSchema";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {

@@ -1,8 +1,8 @@
 import type { Route } from "./+types/addBillingMeters";
-import type { BillingValidationForm } from "./zodSchemes";
+import type { BillingValidationForm } from "./validation/billingFormSchema";
 
 import { getValidatedFormData } from "remix-hook-form";
-import { billingValidationFormResolver } from "./zodSchemes";
+import { billingValidationFormResolver } from "./validation/billingFormSchema";
 import addNewMeters from "./.server/db-actions/addNewMeters";
 
 export async function action({ request, params }: Route.ActionArgs) {
