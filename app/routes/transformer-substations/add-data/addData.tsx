@@ -1,25 +1,36 @@
+import { useEffect, useRef, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver } from "./validation/billingFormSchema";
+import { techicalFormResolver } from "./validation/technicalFormSchema";
+import { isNotAuthenticated } from "~/.server/services/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
+import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
 import { todayDate } from "~/utils/dateFunctions";
 import Input from "~/components/Input";
 import Select from "~/components/Select";
 import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
 import NumberInput from "./NumberInput";
-import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
 import addTechnicalMeters from "./.server/db-actions/addTechnicalMeters";
 import SubmitButton from "./SubmitButton";
 import validateInputTechnicalMeters from "./.server/validation/technicalMetersInput";
-import { useEffect, useRef, useState } from "react";
 import FetcherForm from "./FetcherForm";
 import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
-import { isNotAuthenticated } from "~/.server/services/auth";
 import Log from "./Log";
+
 import type { Route } from "./+types/addData";
-import type { BillingFormData, BillingFormErrors } from "./validation/billingFormSchema";
+
+import type {
+  BillingFormData,
+  BillingFormErrors,
+} from "./validation/billingFormSchema";
+
+import type {
+  TechicalForm,
+  TechicalFormErrors,
+} from "./validation/technicalFormSchema";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
@@ -39,36 +50,37 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   return { substation, actionLogs };
 };
 
-export const action = async ({ request, params }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const { _action, ...values } = Object.fromEntries(formData);
+// export const action = async ({ request, params }: Route.ActionArgs) => {
+//   const formData = await request.formData();
+//   const { _action, ...values } = Object.fromEntries(formData);
 
-  if (_action === "addTechnicalMeters") {
-    const errors = validateInputTechnicalMeters(values);
+//   if (_action === "addTechnicalMeters") {
+//     const errors = validateInputTechnicalMeters(values);
 
-    if (Object.keys(errors).length > 0) {
-      return { errors };
-    }
+//     if (Object.keys(errors).length > 0) {
+//       return { errors };
+//     }
 
-    const data = {
-      transSubId: params.id,
-      techMeters: values.techMeters as string,
-      underVoltage: values.underVoltage as string,
-    };
+//     const data = {
+//       transSubId: params.id,
+//       techMeters: values.techMeters as string,
+//       underVoltage: values.underVoltage as string,
+//     };
 
-    await addTechnicalMeters(data);
-  }
+//     await addTechnicalMeters(data);
+//   }
 
-  return null;
-};
+//   return null;
+// };
 
-type ErrorType = Record<string, string>;
+//type ErrorType = Record<string, string>;
 
 export default function AddData({ loaderData }: Route.ComponentProps) {
   const { substation, actionLogs } = loaderData;
-  const fetcher = useFetcher<typeof action>();
-
   const defaultDate = todayDate();
+
+  //const fetcher = useFetcher<typeof action>();
+
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
 
@@ -80,7 +92,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   );
 
   const isBillingAction = fetcherBillingMeters.formAction === billingAction;
-
   const [billingErrors, setBillingErrors] = useState(fetcherBillingMeters.data);
 
   const billingForm = useRemixForm<BillingFormData>({
@@ -92,59 +103,99 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     },
   });
 
-  const actionErrors = fetcher.data;
-  const formAction = fetcher.formData?.get("_action");
-  const isSubmitting = fetcher.state === "submitting";
+  const fetcherTechnicalMeters = useFetcher<TechicalFormErrors>();
+  const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
 
-  const checkWhatForm = (formBtnName: string) => {
-    return formAction === formBtnName;
-  };
+  const technicalAction = href(
+    "/transformer-substations/:id/add-technical-meters",
+    { id: substation.id.toString() },
+  );
 
-  const checkFormSubmit = (dataType: boolean) => {
-    return dataType && isSubmitting;
-  };
+  const isTechnicalAction =
+    fetcherTechnicalMeters.formAction === technicalAction;
 
-  const isTechnicalMetersAction = checkWhatForm("addTechnicalMeters");
-  const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
+  const [technicalErrors, setTechnicalErrors] = useState(
+    fetcherTechnicalMeters.data,
+  );
 
-  const technicalMetersRef = useRef<HTMLFormElement>(null);
-  const [errTechnicalMeters, setErrTechnicalMeters] = useState<ErrorType>({});
+  const techicalForm = useRemixForm<TechicalForm>({
+    resolver: techicalFormResolver,
+    fetcher: fetcherTechnicalMeters,
+  });
+
+  // const actionErrors = fetcher.data;
+  // const formAction = fetcher.formData?.get("_action");
+  // const isSubmitting = fetcher.state === "submitting";
+
+  // const checkWhatForm = (formBtnName: string) => {
+  //   return formAction === formBtnName;
+  // };
+
+  // const checkFormSubmit = (dataType: boolean) => {
+  //   return dataType && isSubmitting;
+  // };
+
+  // const isTechnicalMetersAction = checkWhatForm("addTechnicalMeters");
+  // const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
+
+  // const technicalMetersRef = useRef<HTMLFormElement>(null);
+  // const [errTechnicalMeters, setErrTechnicalMeters] = useState<ErrorType>({});
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const handleIsVisible = () => {
+  const showToast = () => {
     setIsVisible(true);
     setTimeout(() => {
       setIsVisible(false);
-    }, 5000);
+    }, 4000);
   };
 
   useEffect(() => {
     if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
       setBillingErrors(undefined);
-      handleIsVisible();
+      showToast();
       billingForm.reset();
     }
 
-    if (fetcherBillingMeters.data)
-      setBillingErrors({ ...fetcherBillingMeters.data });
-  }, [fetcherBillingMeters.data, isSubmittingBilling, isBillingAction]);
+    if (fetcherBillingMeters.data) setBillingErrors(fetcherBillingMeters.data);
 
-  useEffect(() => {
     if (
-      !isSubmittingTechnicalMeters &&
-      !actionErrors?.errors &&
-      isTechnicalMetersAction
+      !isSubmittingTechnical &&
+      !fetcherTechnicalMeters.data &&
+      isTechnicalAction
     ) {
-      technicalMetersRef.current?.reset();
-      setErrTechnicalMeters({});
-      handleIsVisible();
+      setTechnicalErrors(undefined);
+      showToast();
+      techicalForm.reset();
     }
 
-    if (actionErrors?.errors && isTechnicalMetersAction) {
-      setErrTechnicalMeters(actionErrors.errors);
+    if (fetcherTechnicalMeters.data) {
+      setTechnicalErrors(fetcherTechnicalMeters.data);
     }
-  }, [isTechnicalMetersAction, actionErrors?.errors]);
+  }, [
+    fetcherBillingMeters.data,
+    isSubmittingBilling,
+    isBillingAction,
+    fetcherTechnicalMeters.data,
+    isSubmittingTechnical,
+    isTechnicalAction,
+  ]);
+
+  // useEffect(() => {
+  //   if (
+  //     !isSubmittingTechnicalMeters &&
+  //     !actionErrors?.errors &&
+  //     isTechnicalMetersAction
+  //   ) {
+  //     technicalMetersRef.current?.reset();
+  //     setErrTechnicalMeters({});
+  //     handleIsVisible();
+  //   }
+
+  //   if (actionErrors?.errors && isTechnicalMetersAction) {
+  //     setErrTechnicalMeters(actionErrors.errors);
+  //   }
+  // }, [isTechnicalMetersAction, actionErrors?.errors]);
 
   return (
     <main>
@@ -213,7 +264,18 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           </fetcherBillingMeters.Form>
         </section>
 
-        <FetcherForm
+        <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
+          <h2>Добавить техучеты</h2>
+          <fetcherTechnicalMeters.Form
+            onSubmit={void techicalForm.handleSubmit()}
+            method="POST"
+            action={technicalAction}
+            className="flex flex-col gap-5 h-full"
+          >
+            
+          </fetcherTechnicalMeters.Form>
+        </section>
+        {/* <FetcherForm
           fetcher={fetcher}
           metesRef={technicalMetersRef}
           h2Title="Добавить техучеты"
@@ -238,7 +300,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
             buttonValue="addTechnicalMeters"
             isSubmitting={isSubmittingTechnicalMeters}
           />
-        </FetcherForm>
+        </FetcherForm> */}
 
         <Log logMessages={actionLogs} />
       </div>
