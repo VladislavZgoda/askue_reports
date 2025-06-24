@@ -13,7 +13,7 @@ import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
 import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
-import Log from "./Log";
+import Log from "./components/Log";
 
 import type { Route } from "./+types/addData";
 
