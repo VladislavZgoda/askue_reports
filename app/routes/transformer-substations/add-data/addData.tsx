@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver } from "./validation/billingFormSchema";
@@ -11,11 +11,6 @@ import Input from "~/components/Input";
 import Select from "~/components/Select";
 import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
-import NumberInput from "./NumberInput";
-import addTechnicalMeters from "./.server/db-actions/addTechnicalMeters";
-import SubmitButton from "./SubmitButton";
-import validateInputTechnicalMeters from "./.server/validation/technicalMetersInput";
-import FetcherForm from "./FetcherForm";
 import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
 import Log from "./Log";
@@ -50,36 +45,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   return { substation, actionLogs };
 };
 
-// export const action = async ({ request, params }: Route.ActionArgs) => {
-//   const formData = await request.formData();
-//   const { _action, ...values } = Object.fromEntries(formData);
-
-//   if (_action === "addTechnicalMeters") {
-//     const errors = validateInputTechnicalMeters(values);
-
-//     if (Object.keys(errors).length > 0) {
-//       return { errors };
-//     }
-
-//     const data = {
-//       transSubId: params.id,
-//       techMeters: values.techMeters as string,
-//       underVoltage: values.underVoltage as string,
-//     };
-
-//     await addTechnicalMeters(data);
-//   }
-
-//   return null;
-// };
-
-//type ErrorType = Record<string, string>;
-
 export default function AddData({ loaderData }: Route.ComponentProps) {
   const { substation, actionLogs } = loaderData;
   const defaultDate = todayDate();
-
-  //const fetcher = useFetcher<typeof action>();
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
@@ -123,24 +91,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     fetcher: fetcherTechnicalMeters,
   });
 
-  // const actionErrors = fetcher.data;
-  // const formAction = fetcher.formData?.get("_action");
-  // const isSubmitting = fetcher.state === "submitting";
-
-  // const checkWhatForm = (formBtnName: string) => {
-  //   return formAction === formBtnName;
-  // };
-
-  // const checkFormSubmit = (dataType: boolean) => {
-  //   return dataType && isSubmitting;
-  // };
-
-  // const isTechnicalMetersAction = checkWhatForm("addTechnicalMeters");
-  // const isSubmittingTechnicalMeters = checkFormSubmit(isTechnicalMetersAction);
-
-  // const technicalMetersRef = useRef<HTMLFormElement>(null);
-  // const [errTechnicalMeters, setErrTechnicalMeters] = useState<ErrorType>({});
-
   const [isVisible, setIsVisible] = useState(false);
 
   const showToast = () => {
@@ -180,22 +130,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     isSubmittingTechnical,
     isTechnicalAction,
   ]);
-
-  // useEffect(() => {
-  //   if (
-  //     !isSubmittingTechnicalMeters &&
-  //     !actionErrors?.errors &&
-  //     isTechnicalMetersAction
-  //   ) {
-  //     technicalMetersRef.current?.reset();
-  //     setErrTechnicalMeters({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (actionErrors?.errors && isTechnicalMetersAction) {
-  //     setErrTechnicalMeters(actionErrors.errors);
-  //   }
-  // }, [isTechnicalMetersAction, actionErrors?.errors]);
 
   return (
     <main>
@@ -272,35 +206,35 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
             action={technicalAction}
             className="flex flex-col gap-5 h-full"
           >
-            
+            <Fieldset legend="Количество Техучетов">
+              <Input
+                type="number"
+                min={0}
+                placeholder="0"
+                error={technicalErrors?.quantity?.message}
+                {...technicalForm.register("quantity")}
+              />
+            </Fieldset>
+            <Fieldset legend="Из них под напряжением">
+              <Input
+                type="number"
+                min={0}
+                placeholder="0"
+                error={technicalErrors?.underVoltage?.message}
+                {...technicalForm.register("underVoltage")}
+              />
+            </Fieldset>
+            <Button
+              type={isSubmittingTechnical ? "button" : "submit"}
+              className={`btn-outline btn-success mt-auto ${isSubmittingTechnical && "btn-active"}`}
+            >
+              {isSubmittingTechnical && (
+                <span className="loading loading-spinner"></span>
+              )}
+              {isSubmittingTechnical ? "Запись..." : "Добавить"}
+            </Button>
           </fetcherTechnicalMeters.Form>
         </section>
-        {/* <FetcherForm
-          fetcher={fetcher}
-          metesRef={technicalMetersRef}
-          h2Title="Добавить техучеты"
-        >
-          <NumberInput
-            labelName="Количество Техучетов"
-            inputName="techMeters"
-            error={
-              errTechnicalMeters?.techMeters || errTechnicalMeters?.techDif
-            }
-          />
-
-          <NumberInput
-            labelName="Из них под напряжением"
-            inputName="underVoltage"
-            error={
-              errTechnicalMeters?.underVoltage || errTechnicalMeters?.techDif
-            }
-          />
-
-          <SubmitButton
-            buttonValue="addTechnicalMeters"
-            isSubmitting={isSubmittingTechnicalMeters}
-          />
-        </FetcherForm> */}
 
         <Log logMessages={actionLogs} />
       </div>
