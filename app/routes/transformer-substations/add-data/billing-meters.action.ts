@@ -1,4 +1,4 @@
-import type { Route } from "./+types/addBillingMeters";
+import type { Route } from "./+types/billing-meters.action";
 import type { BillingValidationForm } from "./validation/billingFormSchema";
 
 import { getValidatedFormData } from "remix-hook-form";

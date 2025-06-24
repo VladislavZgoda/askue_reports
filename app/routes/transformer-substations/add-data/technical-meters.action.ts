@@ -1,4 +1,4 @@
-import type { Route } from "./+types/addTechnicalMeters";
+import type { Route } from "./+types/technical-meters.action";
 import { getValidatedFormData } from "remix-hook-form";
 
 export async function action({ request, params }: Route.ActionArgs) {

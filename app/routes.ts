@@ -23,11 +23,11 @@ export default [
     ),
     route(
       ":id/add-billing-meters",
-      "./routes/transformer-substations/add-data/addBillingMeters.ts",
+      "./routes/transformer-substations/add-data/billing-meters.action.ts",
     ),
     route(
       ":id/add-technical-meters",
-      "./routes/transformer-substations/add-data/addTechnicalMeters.ts",
+      "./routes/transformer-substations/add-data/technical-meters.action.ts",
     ),
     route(
       ":id/change-data",
