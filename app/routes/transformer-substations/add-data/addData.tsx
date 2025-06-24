@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver } from "./validation/billingFormSchema";
-import { techicalFormResolver } from "./validation/technicalFormSchema";
+import { technicalFormResolver } from "./validation/technicalFormSchema";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
@@ -103,7 +103,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     },
   });
 
-  const fetcherTechnicalMeters = useFetcher<TechicalFormErrors>();
+  const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
   const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
 
   const technicalAction = href(
@@ -118,8 +118,8 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     fetcherTechnicalMeters.data,
   );
 
-  const techicalForm = useRemixForm<TechicalForm>({
-    resolver: techicalFormResolver,
+  const technicalForm = useRemixForm<TechnicalForm>({
+    resolver: technicalFormResolver,
     fetcher: fetcherTechnicalMeters,
   });
 

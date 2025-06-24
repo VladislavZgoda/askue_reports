@@ -2,7 +2,7 @@ import type { FieldErrors } from "react-hook-form";
 import * as z from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const techicalFormSchema = z
+const technicalFormSchema = z
   .object({
     quantity: z.number({ error: "Введите число." }).int().gte(0),
     underVoltage: z.number({ error: "Введите число." }).int().gte(0),
@@ -29,7 +29,7 @@ const techicalFormSchema = z
   })
   .readonly();
 
-export type TechicalForm = z.infer<typeof techicalFormSchema>;
-export type TechicalFormErrors = FieldErrors<TechicalForm>;
+export type TechnicalForm = z.infer<typeof techicalFormSchema>;
+export type TechnicalFormErrors = FieldErrors<TechnicalForm>;
 
-export const techicalFormResolver = zodResolver(techicalFormSchema);
+export const technicalFormResolver = zodResolver(techicalFormSchema);
