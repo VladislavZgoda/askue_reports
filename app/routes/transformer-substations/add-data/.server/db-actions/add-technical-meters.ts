@@ -5,48 +5,37 @@ import {
 } from "~/.server/db-queries/technicalMeters";
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 
-interface TechnicalMetersAction {
-  transSubId: string;
-  techMeters: string;
-  underVoltage: string;
+interface FormData {
+  substationId: number;
+  quantity: number;
+  underVoltage: number;
 }
 
-export default async function addTechnicalMeters(
-  values: TechnicalMetersAction,
-) {
-  const processedValues = handleValues(values);
+export default async function addTechnicalMeters(formData: FormData) {
   const prevValues = await getTechnicalMeterStatsForSubstation(
-    processedValues.transformerSubstationId,
+    formData.substationId,
   );
 
   if (prevValues) {
-    const updatedValues = {
-      ...processedValues,
-      quantity: processedValues.quantity + prevValues.quantity,
-      underVoltage: processedValues.underVoltage + prevValues.underVoltage,
-    };
-    await updateTechnicalMeters(updatedValues);
+    await updateTechnicalMeters({
+      quantity: formData.quantity + prevValues.quantity,
+      underVoltage: formData.underVoltage + prevValues.underVoltage,
+      transformerSubstationId: formData.substationId,
+    });
   } else {
-    await insertTechnicalMeters(processedValues);
+    await insertTechnicalMeters({
+      quantity: formData.quantity,
+      underVoltage: formData.underVoltage,
+      transformerSubstationId: formData.substationId,
+    });
   }
 
-  await addMessageToLog(values);
+  await addMessageToLog(formData);
 }
 
-const handleValues = (values: TechnicalMetersAction) => {
-  const processedValues = {
-    quantity: Number(values.techMeters),
-    underVoltage: Number(values.underVoltage),
-    transformerSubstationId: Number(values.transSubId),
-  };
-
-  return processedValues;
-};
-
-const addMessageToLog = async (values: TechnicalMetersAction) => {
-  const { techMeters, underVoltage } = values;
-  const transformerSubstationId = Number(values.transSubId);
+const addMessageToLog = async (formData: FormData) => {
   const time = new Date().toLocaleString("ru");
-  const message = `Техучеты: ${techMeters} ${underVoltage} ${time}`;
-  await insertMessage(message, transformerSubstationId);
+  const message = `Техучеты: ${formData.quantity} ${formData.underVoltage} ${time}`;
+
+  await insertMessage(message, formData.substationId);
 };
