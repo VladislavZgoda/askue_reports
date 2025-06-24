@@ -44,7 +44,7 @@ import type { BillingValidationForm } from "../../validation/billingFormSchema";
 
 type FormData = BillingValidationForm & { readonly substationId: number };
 
-export default async function addNewMeters(formData: FormData) {
+export default async function addBillingMeters(formData: FormData) {
   const { totalCount, registeredCount } = formData;
 
   if (totalCount > registeredCount) {

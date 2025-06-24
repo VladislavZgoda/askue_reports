@@ -3,7 +3,7 @@ import type { BillingValidationForm } from "./validation/billingFormSchema";
 
 import { getValidatedFormData } from "remix-hook-form";
 import { billingValidationFormResolver } from "./validation/billingFormSchema";
-import addNewMeters from "./.server/db-actions/add-billing-meters";
+import addBillingMeters from "./.server/db-actions/add-billing-meters";
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { errors, data } = await getValidatedFormData<BillingValidationForm>(
@@ -15,7 +15,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const substationId = Number(params.id);
 
-  await addNewMeters({
+  await addBillingMeters({
     ...data,
     substationId,
   });
