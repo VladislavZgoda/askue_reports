@@ -29,7 +29,7 @@ const technicalFormSchema = z
   })
   .readonly();
 
-export type TechnicalForm = z.infer<typeof techicalFormSchema>;
+export type TechnicalForm = z.infer<typeof technicalFormSchema>;
 export type TechnicalFormErrors = FieldErrors<TechnicalForm>;
 
-export const technicalFormResolver = zodResolver(techicalFormSchema);
+export const technicalFormResolver = zodResolver(technicalFormSchema);
