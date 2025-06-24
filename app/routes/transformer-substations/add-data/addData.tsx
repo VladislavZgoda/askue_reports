@@ -28,8 +28,8 @@ import type {
 } from "./validation/billingFormSchema";
 
 import type {
-  TechicalForm,
-  TechicalFormErrors,
+  TechnicalForm,
+  TechnicalFormErrors,
 } from "./validation/technicalFormSchema";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
@@ -166,7 +166,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     ) {
       setTechnicalErrors(undefined);
       showToast();
-      techicalForm.reset();
+      technicalForm.reset();
     }
 
     if (fetcherTechnicalMeters.data) {
@@ -267,7 +267,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить техучеты</h2>
           <fetcherTechnicalMeters.Form
-            onSubmit={void techicalForm.handleSubmit()}
+            onSubmit={void technicalForm.handleSubmit()}
             method="POST"
             action={technicalAction}
             className="flex flex-col gap-5 h-full"
