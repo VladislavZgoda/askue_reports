@@ -43,25 +43,39 @@ export async function updateNotInSystem({
     );
 }
 
-export async function checkNotInSystem({
-  balanceGroup,
-  date,
-  transformerSubstationId,
-}: MeterSelectionCriteria): Promise<number | undefined> {
-  const record = await db
-    .select({
-      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
-    })
-    .from(unregisteredMeters)
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
-        eq(unregisteredMeters.date, date),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-      ),
-    );
+interface UnregisteredMeterQuery {
+  date: string;
+  balanceGroup: BalanceGroup;
+  substationId: number;
+}
 
-  return record[0]?.unregisteredMeterCount;
+/**
+ * Retrieves unregistered meter count value for specific date,
+ * balance group and substation
+ *
+ * @param date Date of record (YYYY-MM-DD format)
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @returns Number of unregistered meters,
+ *          or undefined if no record exists
+ */
+export async function getUnregisteredMeterCount({
+  date,
+  balanceGroup,
+  substationId,
+}: UnregisteredMeterQuery) {
+  const result = await db.query.unregisteredMeters.findFirst({
+    columns: {
+      unregisteredMeterCount: true,
+    },
+    where: and(
+      eq(unregisteredMeters.date, date),
+      eq(unregisteredMeters.balanceGroup, balanceGroup),
+      eq(unregisteredMeters.transformerSubstationId, substationId),
+    ),
+  });
+
+  return result?.unregisteredMeterCount;
 }
 
 export async function selectLastNotInSystem({

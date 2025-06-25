@@ -31,10 +31,10 @@ import {
 import {
   insertNotInSystem,
   updateNotInSystem,
-  checkNotInSystem,
   getNotInSystemIds,
   getNotInSystemOnID,
   updateNotInSystemOnId,
+  getUnregisteredMeterCount,
   getUnregisteredMeterCountAtDate,
 } from "~/.server/db-queries/unregisteredMeters";
 
@@ -91,11 +91,7 @@ async function handleUpdate(formData: FormData, prevMetersQuantity: number) {
 }
 
 async function handleNotInSystem(formData: FormData) {
-  const prevNotInSystem = await checkNotInSystem({
-    date: formData.date,
-    balanceGroup: formData.balanceGroup,
-    transformerSubstationId: formData.substationId,
-  });
+  const prevNotInSystem = await getUnregisteredMeterCount(formData);
 
   const { totalCount, registeredCount } = formData;
   const updatedQuantity = totalCount - registeredCount;
