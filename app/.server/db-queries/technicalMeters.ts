@@ -2,21 +2,21 @@ import { eq, sum } from "drizzle-orm";
 import { db } from "../db";
 import { technicalMeters } from "../schema";
 
-interface TechnicalMetersValues {
+interface TechnicalMetersParams {
   quantity: number;
   underVoltage: number;
-  transformerSubstationId: number;
+  substationId: number;
 }
 
 export const insertTechnicalMeters = async ({
   quantity,
   underVoltage,
-  transformerSubstationId,
-}: TechnicalMetersValues) => {
+  substationId,
+}: TechnicalMetersParams) => {
   await db.insert(technicalMeters).values({
     quantity,
     underVoltage,
-    transformerSubstationId,
+    transformerSubstationId: substationId,
   });
 };
 
@@ -44,16 +44,14 @@ export const getTechnicalMeterStatsForSubstation = async (
 export const updateTechnicalMeters = async ({
   quantity,
   underVoltage,
-  transformerSubstationId,
-}: TechnicalMetersValues) => {
+  substationId,
+}: TechnicalMetersParams) => {
   const updatedAt = new Date();
 
   await db
     .update(technicalMeters)
     .set({ quantity, underVoltage, updatedAt })
-    .where(
-      eq(technicalMeters.transformerSubstationId, transformerSubstationId),
-    );
+    .where(eq(technicalMeters.transformerSubstationId, substationId));
 };
 
 export const getTechnicalMetersTotals = async () => {

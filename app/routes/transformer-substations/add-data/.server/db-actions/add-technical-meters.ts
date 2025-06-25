@@ -20,14 +20,10 @@ export default async function addTechnicalMeters(formData: FormData) {
     await updateTechnicalMeters({
       quantity: formData.quantity + prevValues.quantity,
       underVoltage: formData.underVoltage + prevValues.underVoltage,
-      transformerSubstationId: formData.substationId,
+      substationId: formData.substationId,
     });
   } else {
-    await insertTechnicalMeters({
-      quantity: formData.quantity,
-      underVoltage: formData.underVoltage,
-      transformerSubstationId: formData.substationId,
-    });
+    await insertTechnicalMeters(formData);
   }
 
   await addMessageToLog(formData);

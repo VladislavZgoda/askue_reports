@@ -23,14 +23,14 @@ export default async function changeTechMeters(
       await updateTechnicalMeters({
         quantity,
         underVoltage,
-        transformerSubstationId,
+        substationId: transformerSubstationId,
       });
     }
   } else {
     await insertTechnicalMeters({
       quantity,
       underVoltage,
-      transformerSubstationId,
+      substationId: transformerSubstationId,
     });
   }
 }
