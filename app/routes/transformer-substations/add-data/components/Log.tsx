@@ -1,14 +1,14 @@
-interface LogMessages {
-  logMessages: {
+interface LogProps {
+  actionLogs: {
     id: number;
     message: string;
   }[];
 }
 
-export default function Log({ logMessages }: LogMessages) {
+export default function Log({ actionLogs }: LogProps) {
   return (
     <section className="w-96">
-      {logMessages.length > 0 && (
+      {actionLogs.length > 0 && (
         <div className="bg-base-100 border-base-300 collapse border">
           <input type="checkbox" className="peer" />
           <div
@@ -22,8 +22,8 @@ export default function Log({ logMessages }: LogMessages) {
                 peer-checked:bg-secondary peer-checked:text-secondary-content"
           >
             <ul>
-              {logMessages.map((message) => (
-                <li key={message.id}>{message.message}</li>
+              {actionLogs.map((log) => (
+                <li key={log.id}>{log.message}</li>
               ))}
             </ul>
           </div>

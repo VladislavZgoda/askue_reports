@@ -236,7 +236,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           </fetcherTechnicalMeters.Form>
         </section>
 
-        <Log logMessages={actionLogs} />
+        <Log actionLogs={actionLogs} />
       </div>
 
       <Toast isVisible={isVisible} message="Данные успешно добавлены." />
