@@ -38,7 +38,7 @@ import {
   getUnregisteredMeterCountAtDate,
 } from "~/.server/db-queries/unregisteredMeters";
 
-import { insertMessage } from "~/.server/db-queries/meterActionLogs";
+import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { BillingValidationForm } from "../../validation/billing-form-schema";
 
@@ -391,5 +391,5 @@ async function addMessageToLog(formData: FormData) {
 
   const time = new Date().toLocaleString("ru");
   const message = `Добавлено: ${totalCount} ${registeredCount} ${balanceGroup} ${time}`;
-  await insertMessage(message, substationId);
+  await insertMeterActionLog(message, substationId);
 }

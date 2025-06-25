@@ -2,13 +2,13 @@ import { db } from "../db";
 import { meterActionLogs } from "../schema";
 import { eq, desc } from "drizzle-orm";
 
-export const insertMessage = async (
-  message: string,
-  transformerSubstationId: number,
+export const insertMeterActionLog = async (
+  action: string,
+  substationId: number,
 ) => {
   await db.insert(meterActionLogs).values({
-    message,
-    transformerSubstationId,
+    message: action,
+    transformerSubstationId: substationId,
   });
 };
 

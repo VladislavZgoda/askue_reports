@@ -3,7 +3,7 @@ import {
   getTechnicalMeterStatsForSubstation,
   updateTechnicalMetersForSubstation,
 } from "~/.server/db-queries/technicalMeters";
-import { insertMessage } from "~/.server/db-queries/meterActionLogs";
+import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
 interface FormData {
   substationId: number;
@@ -33,5 +33,5 @@ const addMessageToLog = async (formData: FormData) => {
   const time = new Date().toLocaleString("ru");
   const message = `Техучеты: ${formData.quantity} ${formData.underVoltage} ${time}`;
 
-  await insertMessage(message, formData.substationId);
+  await insertMeterActionLog(message, formData.substationId);
 };
