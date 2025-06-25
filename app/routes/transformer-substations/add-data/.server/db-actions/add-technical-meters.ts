@@ -5,33 +5,35 @@ import {
 } from "~/.server/db-queries/technicalMeters";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
-interface FormData {
+interface TechnicalMeterInput {
   substationId: number;
   quantity: number;
   underVoltage: number;
 }
 
-export default async function addTechnicalMeters(formData: FormData) {
-  const prevValues = await getTechnicalMeterStatsForSubstation(
-    formData.substationId,
+export default async function addOrUpdateTechnicalMeters(
+  input: TechnicalMeterInput,
+) {
+  const existingStats = await getTechnicalMeterStatsForSubstation(
+    input.substationId,
   );
 
-  if (prevValues) {
+  if (existingStats) {
     await updateTechnicalMetersForSubstation({
-      quantity: formData.quantity + prevValues.quantity,
-      underVoltage: formData.underVoltage + prevValues.underVoltage,
-      substationId: formData.substationId,
+      quantity: input.quantity + existingStats.quantity,
+      underVoltage: input.underVoltage + existingStats.underVoltage,
+      substationId: input.substationId,
     });
   } else {
-    await insertTechnicalMeters(formData);
+    await insertTechnicalMeters(input);
   }
 
-  await addMessageToLog(formData);
+  await logTechnicalMeterAction(input);
 }
 
-const addMessageToLog = async (formData: FormData) => {
-  const time = new Date().toLocaleString("ru");
-  const message = `Техучеты: ${formData.quantity} ${formData.underVoltage} ${time}`;
+const logTechnicalMeterAction = async (input: TechnicalMeterInput) => {
+  const timestamp = new Date().toLocaleString("ru");
+  const message = `Техучеты: ${input.quantity} ${input.underVoltage} ${timestamp}`;
 
-  await insertMeterActionLog(message, formData.substationId);
+  await insertMeterActionLog(message, input.substationId);
 };
