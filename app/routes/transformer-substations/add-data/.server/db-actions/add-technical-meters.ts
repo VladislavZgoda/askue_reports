@@ -1,7 +1,7 @@
 import {
   insertTechnicalMeters,
   getTechnicalMeterStatsForSubstation,
-  updateTechnicalMeters,
+  updateTechnicalMetersForSubstation,
 } from "~/.server/db-queries/technicalMeters";
 import { insertMessage } from "~/.server/db-queries/meterActionLogs";
 
@@ -17,7 +17,7 @@ export default async function addTechnicalMeters(formData: FormData) {
   );
 
   if (prevValues) {
-    await updateTechnicalMeters({
+    await updateTechnicalMetersForSubstation({
       quantity: formData.quantity + prevValues.quantity,
       underVoltage: formData.underVoltage + prevValues.underVoltage,
       substationId: formData.substationId,

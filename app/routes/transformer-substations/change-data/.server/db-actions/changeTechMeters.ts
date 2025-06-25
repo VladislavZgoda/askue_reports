@@ -1,6 +1,6 @@
 import {
-  updateTechnicalMeters,
   insertTechnicalMeters,
+  updateTechnicalMetersForSubstation,
   getTechnicalMeterStatsForSubstation,
 } from "~/.server/db-queries/technicalMeters";
 
@@ -20,7 +20,7 @@ export default async function changeTechMeters(
       prevValues.underVoltage === underVoltage;
 
     if (!isEqual) {
-      await updateTechnicalMeters({
+      await updateTechnicalMetersForSubstation({
         quantity,
         underVoltage,
         substationId: transformerSubstationId,

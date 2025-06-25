@@ -41,7 +41,7 @@ export const getTechnicalMeterStatsForSubstation = async (
   return result;
 };
 
-export const updateTechnicalMeters = async ({
+export const updateTechnicalMetersForSubstation = async ({
   quantity,
   underVoltage,
   substationId,
