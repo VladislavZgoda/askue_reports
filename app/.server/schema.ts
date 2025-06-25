@@ -207,7 +207,11 @@ export const meterActionLogs = pgTable(
     ...transformerSubstationForeignKey,
   },
   (table) => {
-    return [index("log_foreign_key").on(table.transformerSubstationId)];
+    return [
+      index("meter_action_logs_transformer_substation_id_idx").on(
+        table.transformerSubstationId,
+      ),
+    ];
   },
 );
 

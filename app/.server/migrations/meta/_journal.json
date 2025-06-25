@@ -253,6 +253,13 @@
       "when": 1749196585618,
       "tag": "0035_faithful_lord_tyger",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1750855829863,
+      "tag": "0036_silky_ego",
+      "breakpoints": true
     }
   ]
 }
