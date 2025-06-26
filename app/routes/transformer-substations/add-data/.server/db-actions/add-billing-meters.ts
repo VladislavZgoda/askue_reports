@@ -10,11 +10,11 @@ import {
 
 import {
   insertYearMeters,
-  selectYearQuantity,
   updateYearMeters,
   getYearIds,
   getYearMetersOnID,
   updateYearOnId,
+  getYearlyMeterInstallationsStats,
   getYearlyMeterInstallationSummary,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
@@ -182,18 +182,15 @@ async function handleInsertNotInSystem(formData: FormData) {
 }
 
 async function handleYearMeters(formData: FormData) {
-  const { balanceGroup, date, substationId } = formData;
-  const year = cutOutYear(date);
+  const year = cutOutYear(formData.date);
 
-  const prevYearQuantity = await selectYearQuantity({
-    balanceGroup,
-    date,
-    transformerSubstationId: substationId,
+  const prevYearQuantity = await getYearlyMeterInstallationsStats({
+    ...formData,
     year,
   });
 
-  if (prevYearQuantity[0]?.totalInstalled !== undefined) {
-    await updateTotalYearMeters(formData, prevYearQuantity[0], year);
+  if (prevYearQuantity) {
+    await updateTotalYearMeters(formData, prevYearQuantity, year);
   } else {
     await insertTotalYearMeters(formData, year);
   }
@@ -229,11 +226,13 @@ async function insertTotalYearMeters(formData: FormData, year: number) {
   });
 }
 
-type YearlyMeterCount = Awaited<ReturnType<typeof selectYearQuantity>>[number];
+type YearlyMeterCount = Awaited<
+  ReturnType<typeof getYearlyMeterInstallationsStats>
+>;
 
 async function updateTotalYearMeters(
   formData: FormData,
-  prevYearQuantity: YearlyMeterCount,
+  prevYearQuantity: NonNullable<YearlyMeterCount>,
   year: number,
 ) {
   const updatedYearQuantity =

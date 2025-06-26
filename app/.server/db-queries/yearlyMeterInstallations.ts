@@ -2,6 +2,8 @@ import { db } from "../db";
 import { yearlyMeterInstallations } from "../schema";
 import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
 
+type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
+
 export async function insertYearMeters({
   totalInstalled,
   registeredCount,
@@ -20,31 +22,33 @@ export async function insertYearMeters({
   });
 }
 
-export async function selectYearQuantity({
+interface YearlyMeterInstallationsStatsParams {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  date: YearlyMeterInstallations["date"];
+  year: YearlyMeterInstallations["year"];
+  substationId: number;
+}
+
+export async function getYearlyMeterInstallationsStats({
   balanceGroup,
   date,
-  transformerSubstationId,
+  substationId,
   year,
-}: YearlyMeterSelectionCriteria) {
-  const yearQuantity = await db
-    .select({
-      totalInstalled: yearlyMeterInstallations.totalInstalled,
-      registeredCount: yearlyMeterInstallations.registeredCount,
-    })
-    .from(yearlyMeterInstallations)
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.date, date),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(yearlyMeterInstallations.year, year),
-      ),
-    );
+}: YearlyMeterInstallationsStatsParams) {
+  const result = await db.query.yearlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: and(
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(yearlyMeterInstallations.date, date),
+      eq(yearlyMeterInstallations.year, year),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+    ),
+  });
 
-  return yearQuantity;
+  return result;
 }
 
 export async function selectLastYearQuantity({
