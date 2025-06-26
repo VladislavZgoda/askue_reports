@@ -2,33 +2,33 @@ import { db } from "../db";
 import { unregisteredMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
-interface QueryValues {
+interface UnregisteredMeterParams {
   unregisteredMeterCount: number;
   balanceGroup: BalanceGroup;
   date: string;
-  transformerSubstationId: number;
+  substationId: number;
 }
 
-export async function insertNotInSystem({
+export async function insertUnregisteredMeters({
   unregisteredMeterCount,
   balanceGroup,
   date,
-  transformerSubstationId,
-}: QueryValues) {
+  substationId,
+}: UnregisteredMeterParams) {
   await db.insert(unregisteredMeters).values({
     unregisteredMeterCount,
     balanceGroup,
     date,
-    transformerSubstationId,
+    transformerSubstationId: substationId,
   });
 }
 
-export async function updateNotInSystem({
+export async function updateUnregisteredMeters({
   unregisteredMeterCount,
   balanceGroup,
   date,
-  transformerSubstationId,
-}: QueryValues) {
+  substationId,
+}: UnregisteredMeterParams) {
   const updatedAt = new Date();
 
   await db
@@ -36,7 +36,7 @@ export async function updateNotInSystem({
     .set({ unregisteredMeterCount, updatedAt })
     .where(
       and(
-        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
+        eq(unregisteredMeters.transformerSubstationId, substationId),
         eq(unregisteredMeters.date, date),
         eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
