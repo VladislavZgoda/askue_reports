@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { yearlyMeterInstallations } from "../schema";
-import { eq, and, desc, gt, lt, lte } from "drizzle-orm";
+import { eq, and, desc, gt, lt } from "drizzle-orm";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
@@ -199,13 +199,29 @@ export async function getYearMetersOnID(id: number) {
   return record[0];
 }
 
-export async function getYearlyMeterInstallationSummary({
+interface YearlyInstallationSummaryQuery {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  cutoffDate: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
+
+/**
+ * Retrieves the latest yearly installation summary before a cutoff date
+ *
+ * @param cutoffDate Exclusive upper bound date (YYYY-MM-DD format)
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @param year Year filter
+ * @returns Summary object with total installed and registered counts,
+ *          or default zero values if not found
+ */
+export async function getYearlyInstallationSummaryBeforeCutoff({
   balanceGroup,
-  targetDate,
-  dateComparison,
-  transformerSubstationId,
+  cutoffDate,
+  substationId,
   year,
-}: YearlyMeterSummaryParams) {
+}: YearlyInstallationSummaryQuery) {
   const result = await db.query.yearlyMeterInstallations.findFirst({
     columns: {
       totalInstalled: true,
@@ -214,13 +230,8 @@ export async function getYearlyMeterInstallationSummary({
     where: and(
       eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
       eq(yearlyMeterInstallations.year, year),
-      eq(
-        yearlyMeterInstallations.transformerSubstationId,
-        transformerSubstationId,
-      ),
-      dateComparison === "before"
-        ? lt(yearlyMeterInstallations.date, targetDate)
-        : lte(yearlyMeterInstallations.date, targetDate),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+      lt(yearlyMeterInstallations.date, cutoffDate),
     ),
     orderBy: [desc(yearlyMeterInstallations.date)],
   });

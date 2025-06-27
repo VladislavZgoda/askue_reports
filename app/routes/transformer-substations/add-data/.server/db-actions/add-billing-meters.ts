@@ -15,7 +15,7 @@ import {
   updateYearOnId,
   updateYearlyMeterInstallation,
   getYearlyMeterInstallationsStats,
-  getYearlyMeterInstallationSummary,
+  getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
 import {
@@ -202,11 +202,10 @@ async function handleYearMeters(formData: FormData) {
 }
 
 async function insertTotalYearMeters(formData: FormData, year: number) {
-  const lastYearQuantity = await getYearlyMeterInstallationSummary({
+  const lastYearQuantity = await getYearlyInstallationSummaryBeforeCutoff({
     balanceGroup: formData.balanceGroup,
-    targetDate: formData.date,
-    dateComparison: "before",
-    transformerSubstationId: formData.substationId,
+    cutoffDate: formData.date,
+    substationId: formData.substationId,
     year,
   });
 
