@@ -78,14 +78,33 @@ export async function selectLastYearQuantity({
   return yearQuantity;
 }
 
-export async function updateYearMeters({
+interface YearlyMeterInstallationUpdateParams {
+  totalInstalled: YearlyMeterInstallations["totalInstalled"];
+  registeredCount: YearlyMeterInstallations["registeredCount"];
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  date: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
+
+/**
+ * Updates an existing yearly meter installation record
+ *
+ * @param totalInstalled New total installed meters count
+ * @param registeredCount New registered meters count
+ * @param balanceGroup Balance group for the record
+ * @param date Date of the installation record
+ * @param substationId ID of the transformer substation
+ * @param year Year of the installation record
+ */
+export async function updateYearlyMeterInstallation({
   totalInstalled,
   registeredCount,
   balanceGroup,
   date,
-  transformerSubstationId,
+  substationId,
   year,
-}: YearlyMetersQueryParams) {
+}: YearlyMeterInstallationUpdateParams) {
   const updatedAt = new Date();
 
   await db
@@ -95,10 +114,7 @@ export async function updateYearMeters({
       and(
         eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
         eq(yearlyMeterInstallations.date, date),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
+        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
         eq(yearlyMeterInstallations.year, year),
       ),
     );
