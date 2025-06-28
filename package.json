@@ -19,7 +19,7 @@
     "@react-router/node": "^7.1.0",
     "@react-router/serve": "^7.1.0",
     "@tailwindcss/vite": "^4.0.12",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.0.0",
     "drizzle-orm": "^0.44.0",
     "drizzle-zod": "^0.8.1",
     "exceljs": "^4.4.0",
