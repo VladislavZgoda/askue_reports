@@ -4,20 +4,39 @@ import { eq, and, desc, gt, lt } from "drizzle-orm";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
-export async function insertYearMeters({
+interface YearlyMeterInstallationInput {
+  totalInstalled: YearlyMeterInstallations["totalInstalled"];
+  registeredCount: YearlyMeterInstallations["registeredCount"];
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  date: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
+
+/**
+ * Creates a new yearly meter installation record
+ *
+ * @param totalInstalled Total meters installed for the year
+ * @param registeredCount Meters registered in ASCAPC system
+ * @param balanceGroup Balance group category
+ * @param date Date of the record
+ * @param substationId Transformer substation ID
+ * @param year Year of the installation record
+ */
+export async function insertYearlyMeterInstallation({
   totalInstalled,
   registeredCount,
   balanceGroup,
   date,
-  transformerSubstationId,
+  substationId,
   year,
-}: YearlyMetersQueryParams) {
+}: YearlyMeterInstallationInput) {
   await db.insert(yearlyMeterInstallations).values({
     totalInstalled,
     registeredCount,
     balanceGroup,
     date,
-    transformerSubstationId,
+    transformerSubstationId: substationId,
     year,
   });
 }

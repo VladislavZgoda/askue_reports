@@ -9,10 +9,10 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  insertYearMeters,
   getYearIds,
   getYearMetersOnID,
   updateYearOnId,
+  insertYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyMeterInstallationsStats,
   getYearlyInstallationSummaryBeforeCutoff,
@@ -215,12 +215,12 @@ async function insertTotalYearMeters(formData: FormData, year: number) {
   const updatedRegisteredCount =
     formData.registeredCount + lastYearQuantity.registeredCount;
 
-  await insertYearMeters({
+  await insertYearlyMeterInstallation({
     totalInstalled: updatedTotalInstalled,
     registeredCount: updatedRegisteredCount,
     balanceGroup: formData.balanceGroup,
     date: formData.date,
-    transformerSubstationId: formData.substationId,
+    substationId: formData.substationId,
     year,
   });
 }

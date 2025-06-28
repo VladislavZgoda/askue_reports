@@ -11,7 +11,7 @@ import {
 import {
   getLastYearId,
   updateYearOnId,
-  insertYearMeters,
+  insertYearlyMeterInstallation,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 import {
   getLastMonthId,
@@ -180,10 +180,10 @@ async function handleYearMeters(
       });
     }
   } else {
-    await insertYearMeters({
+    await insertYearlyMeterInstallation({
       totalInstalled: yearTotal,
       registeredCount: inSystemYear,
-      transformerSubstationId: id,
+      substationId: id,
       date,
       balanceGroup,
       year,
