@@ -123,6 +123,7 @@ interface YearlyMeterInstallationUpdateParams {
  * @param year Year of the installation record
  *
  * @throws Will throw if registeredCount more than totalInstalled
+ * @throws Will throw if no record exists
  */
 export async function updateYearlyMeterInstallation({
   totalInstalled,
@@ -138,7 +139,7 @@ export async function updateYearlyMeterInstallation({
 
   const updatedAt = new Date();
 
-  await db
+  const updatedRecords = await db
     .update(yearlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
     .where(
@@ -148,7 +149,12 @@ export async function updateYearlyMeterInstallation({
         eq(yearlyMeterInstallations.transformerSubstationId, substationId),
         eq(yearlyMeterInstallations.year, year),
       ),
-    );
+    )
+    .returning();
+
+  if (updatedRecords.length === 0) {
+    throw new Error(`Yearly installation record not found`);
+  }
 }
 
 export async function getLastYearId({
