@@ -2,10 +2,10 @@ import { db } from "../db";
 import { monthlyMeterInstallations } from "../schema";
 import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 
-type TableColumns = typeof monthlyMeterInstallations.$inferSelect;
+type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
 type AddMonthlyMeterInstallations = Omit<
-  TableColumns,
+  MonthlyMeterInstallations,
   "id" | "createdAt" | "updatedAt"
 >;
 
@@ -144,7 +144,7 @@ export async function getLastMonthId({
 }
 
 type UpdateMonthlyInstallationsAtId = Pick<
-  TableColumns,
+  MonthlyMeterInstallations,
   "id" | "totalInstalled" | "registeredCount"
 >;
 
