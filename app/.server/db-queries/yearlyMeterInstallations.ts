@@ -219,16 +219,27 @@ export async function getYearlyInstallationRecordsAfterDate({
   return result;
 }
 
-export async function getYearMetersOnID(id: number) {
-  const record = await db
-    .select({
-      totalInstalled: yearlyMeterInstallations.totalInstalled,
-      registeredCount: yearlyMeterInstallations.registeredCount,
-    })
-    .from(yearlyMeterInstallations)
-    .where(eq(yearlyMeterInstallations.id, id));
+/**
+ * Retrieves yearly installation summary by record ID
+ *
+ * @param id Record ID of the yearly installation summary
+ * @returns Object with total installed and registered counts
+ * @throws Will throw if record with given ID doesn't exist
+ */
+export async function getYearlyInstallationSummaryById(id: number) {
+  const result = await db.query.yearlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: eq(yearlyMeterInstallations.id, id),
+  });
 
-  return record[0];
+  if (!result) {
+    throw new Error(`Yearly installation summary with ID ${id} not found`);
+  }
+
+  return result;
 }
 
 interface YearlyInstallationSummaryQuery {

@@ -9,10 +9,10 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  getYearMetersOnID,
   updateYearOnId,
   insertYearlyMeterInstallation,
   updateYearlyMeterInstallation,
+  getYearlyInstallationSummaryById,
   getYearlyMeterInstallationsStats,
   getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
@@ -262,7 +262,7 @@ async function updateNextYearRecords(params: YearRecords) {
 
   if (ids.length > 0) {
     for (const { id } of ids) {
-      const meters = await getYearMetersOnID(id);
+      const meters = await getYearlyInstallationSummaryById(id);
 
       await updateYearOnId({
         id,
