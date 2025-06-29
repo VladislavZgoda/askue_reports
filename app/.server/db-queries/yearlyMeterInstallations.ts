@@ -22,6 +22,8 @@ interface YearlyMeterInstallationInput {
  * @param date Date of the record
  * @param substationId Transformer substation ID
  * @param year Year of the installation record
+ *
+ * @throws Will throw if registeredCount more than totalInstalled
  */
 export async function insertYearlyMeterInstallation({
   totalInstalled,
@@ -31,6 +33,10 @@ export async function insertYearlyMeterInstallation({
   substationId,
   year,
 }: YearlyMeterInstallationInput) {
+  if (registeredCount > totalInstalled) {
+    throw new Error("Registered count cannot exceed total installed");
+  }
+
   await db.insert(yearlyMeterInstallations).values({
     totalInstalled,
     registeredCount,
@@ -115,6 +121,8 @@ interface YearlyMeterInstallationUpdateParams {
  * @param date Date of the installation record
  * @param substationId ID of the transformer substation
  * @param year Year of the installation record
+ *
+ * @throws Will throw if registeredCount more than totalInstalled
  */
 export async function updateYearlyMeterInstallation({
   totalInstalled,
@@ -124,6 +132,10 @@ export async function updateYearlyMeterInstallation({
   substationId,
   year,
 }: YearlyMeterInstallationUpdateParams) {
+  if (registeredCount > totalInstalled) {
+    throw new Error("Registered count cannot exceed total installed");
+  }
+
   const updatedAt = new Date();
 
   await db
