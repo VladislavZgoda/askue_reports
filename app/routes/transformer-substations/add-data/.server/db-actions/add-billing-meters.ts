@@ -9,11 +9,11 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  updateYearOnId,
   insertYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyInstallationSummaryById,
   getYearlyMeterInstallationsStats,
+  updateYearlyInstallationRecordById,
   getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
@@ -264,7 +264,7 @@ async function updateNextYearRecords(params: YearRecords) {
     for (const { id } of ids) {
       const meters = await getYearlyInstallationSummaryById(id);
 
-      await updateYearOnId({
+      await updateYearlyInstallationRecordById({
         id,
         totalInstalled: meters.totalInstalled + params.totalCount,
         registeredCount: meters.registeredCount + params.registeredCount,

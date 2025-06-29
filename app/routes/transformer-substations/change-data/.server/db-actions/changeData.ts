@@ -10,8 +10,8 @@ import {
 } from "~/.server/db-queries/unregisteredMeters";
 import {
   getLastYearId,
-  updateYearOnId,
   insertYearlyMeterInstallation,
+  updateYearlyInstallationRecordById,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 import {
   getLastMonthId,
@@ -173,7 +173,7 @@ async function handleYearMeters(
       inSystemYear === prevValues.addedToSystem;
 
     if (!isEqual) {
-      await updateYearOnId({
+      await updateYearlyInstallationRecordById({
         id: lastYearId,
         totalInstalled: yearTotal,
         registeredCount: inSystemYear,

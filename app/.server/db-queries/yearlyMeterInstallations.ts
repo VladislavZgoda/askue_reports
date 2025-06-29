@@ -163,23 +163,42 @@ export async function getLastYearId({
   return recordId[0]?.id;
 }
 
-interface UpdateYearlyMetersOnId {
+interface YearlyInstallationUpdateInput {
   id: number;
   totalInstalled: number;
   registeredCount: number;
 }
 
-export async function updateYearOnId({
+/**
+ * Updates a yearly installation record by its ID
+ *
+ * @param id Record ID to update
+ * @param totalInstalled New total installed meters count
+ * @param registeredCount New registered meters count
+ *
+ * @throws Will throw if registeredCount more than totalInstalled
+ * @throws Will throw if no record with the given ID exists
+ */
+export async function updateYearlyInstallationRecordById({
   id,
   totalInstalled,
   registeredCount,
-}: UpdateYearlyMetersOnId) {
+}: YearlyInstallationUpdateInput) {
+  if (registeredCount > totalInstalled) {
+    throw new Error("Registered count cannot exceed total installed");
+  }
+
   const updatedAt = new Date();
 
-  await db
+  const updatedRecords = await db
     .update(yearlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
-    .where(eq(yearlyMeterInstallations.id, id));
+    .where(eq(yearlyMeterInstallations.id, id))
+    .returning();
+
+  if (updatedRecords.length === 0) {
+    throw new Error(`Yearly installation record with ID ${id} not found`);
+  }
 }
 
 interface YearlyInstallationRecordQuery {
