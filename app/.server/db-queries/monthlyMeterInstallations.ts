@@ -106,34 +106,61 @@ export async function selectLastMonthQuantity({
   return monthQuantity;
 }
 
-type UpdateMonthlyMeterInstallations = AddMonthlyMeterInstallations;
+interface MonthlyInstallationUpdateParams {
+  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
+  registeredCount: MonthlyMeterInstallations["registeredCount"];
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  date: MonthlyMeterInstallations["date"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
 
-export async function updateMonthMeters({
-  totalInstalled,
-  registeredCount,
-  balanceGroup,
-  date,
-  transformerSubstationId,
-  month,
-  year,
-}: UpdateMonthlyMeterInstallations) {
+/**
+ * Updates a monthly installation record by its composite key
+ *
+ * @param params Composite key and update values
+ * @returns The updated monthly installation record
+ * @throws Will throw if registeredCount more than totalInstalled
+ * @throws Will throw if no matching record is found
+ */
+export async function updateMonthlyInstallationRecord(
+  params: MonthlyInstallationUpdateParams,
+) {
+  validateUpdateParams(params);
+
   const updatedAt = new Date();
 
-  await db
+  const updatedRecords = await db
     .update(monthlyMeterInstallations)
-    .set({ totalInstalled, registeredCount, updatedAt })
+    .set({
+      totalInstalled: params.totalInstalled,
+      registeredCount: params.registeredCount,
+      updatedAt,
+    })
     .where(
       and(
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.date, date),
+        eq(monthlyMeterInstallations.balanceGroup, params.balanceGroup),
+        eq(monthlyMeterInstallations.date, params.date),
         eq(
           monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
+          params.substationId,
         ),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
+        eq(monthlyMeterInstallations.month, params.month),
+        eq(monthlyMeterInstallations.year, params.year),
       ),
-    );
+    )
+    .returning();
+
+  if (updatedRecords.length === 0) {
+    throw new Error("No monthly installation record found to update");
+  }
+}
+
+function validateUpdateParams(params: MonthlyInstallationUpdateParams) {
+  if (params.registeredCount > params.totalInstalled) {
+    throw new Error("Registered count cannot exceed total installed");
+  }
 }
 
 export async function getLastMonthId({
