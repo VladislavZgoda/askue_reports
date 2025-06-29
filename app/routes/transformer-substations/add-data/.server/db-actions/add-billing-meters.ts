@@ -21,10 +21,10 @@ import {
 import {
   insertMonthMeters,
   updateMonthMeters,
-  selectMonthQuantity,
   getMonthIds,
   getMonthMetersOnID,
   updateMonthOnId,
+  getMonthlyInstallationSummary,
   getMonthlyMeterInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
@@ -277,16 +277,16 @@ async function handleMonthMeters(formData: FormData) {
   const year = cutOutYear(formData.date);
   const month = cutOutMonth(formData.date);
 
-  const prevMonthQuantity = await selectMonthQuantity({
+  const prevMonthQuantity = await getMonthlyInstallationSummary({
     balanceGroup: formData.balanceGroup,
     date: formData.date,
-    transformerSubstationId: formData.substationId,
+    substationId: formData.substationId,
     month,
     year,
   });
 
-  if (prevMonthQuantity[0]?.totalInstalled !== undefined) {
-    await updateTotalMonthMeters(formData, prevMonthQuantity[0], month, year);
+  if (prevMonthQuantity) {
+    await updateTotalMonthMeters(formData, prevMonthQuantity, month, year);
   } else {
     await insertTotalMonthMeters(formData, month, year);
   }
@@ -329,9 +329,9 @@ async function insertTotalMonthMeters(
   });
 }
 
-type PreviousMonthlyMeterInstallations = Awaited<
-  ReturnType<typeof selectMonthQuantity>
->[number];
+type PreviousMonthlyMeterInstallations = NonNullable<
+  Awaited<ReturnType<typeof getMonthlyInstallationSummary>>
+>;
 
 async function updateTotalMonthMeters(
   formData: FormData,

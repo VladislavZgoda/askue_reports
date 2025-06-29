@@ -29,33 +29,52 @@ export async function insertMonthMeters({
   });
 }
 
-export async function selectMonthQuantity({
+interface MonthlyInstallationLookupParams {
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  date: MonthlyMeterInstallations["date"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
+
+interface InstallationSummary {
+  totalInstalled: number;
+  registeredCount: number;
+}
+
+/**
+ * Retrieves monthly installation summary by exact match criteria
+ *
+ * @param date Exact record date (YYYY-MM-DD format)
+ * @param month Month of the installation record
+ * @param year Year of the installation record
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @returns Summary object with total installed and registered counts,
+ *          or undefined if not found
+ */
+export async function getMonthlyInstallationSummary({
   balanceGroup,
   date,
-  transformerSubstationId,
+  substationId,
   month,
   year,
-}: MonthlyMeterSelectionCriteria) {
-  const monthQuantity = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.date, date),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-      ),
-    );
+}: MonthlyInstallationLookupParams): Promise<InstallationSummary | undefined> {
+  const result = await db.query.monthlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: and(
+      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(monthlyMeterInstallations.date, date),
+      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
+      eq(monthlyMeterInstallations.month, month),
+      eq(monthlyMeterInstallations.year, year),
+    ),
+  });
 
-  return monthQuantity;
+  return result;
 }
 
 export async function selectLastMonthQuantity({
