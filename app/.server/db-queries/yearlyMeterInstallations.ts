@@ -182,28 +182,41 @@ export async function updateYearOnId({
     .where(eq(yearlyMeterInstallations.id, id));
 }
 
-export async function getYearIds({
-  balanceGroup,
-  date,
-  transformerSubstationId,
-  year,
-}: YearlyMeterSelectionCriteria) {
-  const ids = await db
-    .select({ id: yearlyMeterInstallations.id })
-    .from(yearlyMeterInstallations)
-    .where(
-      and(
-        gt(yearlyMeterInstallations.date, date),
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.year, year),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-      ),
-    );
+interface YearlyInstallationRecordQuery {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  startDate: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
 
-  return ids;
+/**
+ * Retrieves yearly installation records after a specific date
+ *
+ * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @param year Year filter
+ * @returns Array of record objects containing IDs
+ */
+export async function getYearlyInstallationRecordsAfterDate({
+  balanceGroup,
+  startDate,
+  substationId,
+  year,
+}: YearlyInstallationRecordQuery) {
+  const result = await db.query.yearlyMeterInstallations.findMany({
+    columns: {
+      id: true,
+    },
+    where: and(
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      gt(yearlyMeterInstallations.date, startDate),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+      eq(yearlyMeterInstallations.year, year),
+    ),
+  });
+
+  return result;
 }
 
 export async function getYearMetersOnID(id: number) {

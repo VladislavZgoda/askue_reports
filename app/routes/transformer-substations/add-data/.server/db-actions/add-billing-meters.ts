@@ -9,12 +9,12 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  getYearIds,
   getYearMetersOnID,
   updateYearOnId,
   insertYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyMeterInstallationsStats,
+  getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
@@ -253,10 +253,10 @@ async function updateTotalYearMeters(
 type YearRecords = FormData & { readonly year: number };
 
 async function updateNextYearRecords(params: YearRecords) {
-  const ids = await getYearIds({
+  const ids = await getYearlyInstallationRecordsAfterDate({
     balanceGroup: params.balanceGroup,
-    date: params.date,
-    transformerSubstationId: params.substationId,
+    startDate: params.date,
+    substationId: params.substationId,
     year: params.year,
   });
 
