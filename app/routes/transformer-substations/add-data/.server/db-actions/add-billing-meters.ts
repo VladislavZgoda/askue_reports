@@ -23,9 +23,9 @@ import {
   getMonthIds,
   getMonthMetersOnID,
   updateMonthOnId,
+  getMonthlyInstallationReport,
   getMonthlyInstallationSummary,
   updateMonthlyInstallationRecord,
-  getMonthlyMeterInstallationSummary,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
@@ -303,11 +303,10 @@ async function insertTotalMonthMeters(
   month: string,
   year: number,
 ) {
-  const lastMonthQuantity = await getMonthlyMeterInstallationSummary({
+  const lastMonthQuantity = await getMonthlyInstallationReport({
     balanceGroup: formData.balanceGroup,
-    targetDate: formData.date,
-    dateComparison: "before",
-    transformerSubstationId: formData.substationId,
+    cutoffDate: formData.date,
+    substationId: formData.substationId,
     month,
     year,
   });

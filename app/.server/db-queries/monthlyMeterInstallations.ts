@@ -245,14 +245,33 @@ export async function getMonthMetersOnID(id: number) {
   return record[0];
 }
 
-export async function getMonthlyMeterInstallationSummary({
+interface MonthlyInstallationReportParams {
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  cutoffDate: MonthlyMeterInstallations["date"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
+
+/**
+ * Retrieves monthly meter installation statistics
+ * for a specific substation and balance group
+ *
+ * @param balanceGroup - Balance group filter
+ * @param cutoffDate - Exclusive upper bound date for installation records (records before this date)
+ * @param substationId Transformer substation ID
+ * @param month Month of the installation record
+ * @param year Year of the installation record
+ *
+ * @returns Summary object with total installed and registered counts
+ */
+export async function getMonthlyInstallationReport({
   balanceGroup,
-  targetDate,
-  dateComparison,
-  transformerSubstationId,
+  cutoffDate,
+  substationId,
   month,
   year,
-}: MonthlyMeterSummaryParams) {
+}: MonthlyInstallationReportParams): Promise<InstallationSummary> {
   const result = await db.query.monthlyMeterInstallations.findFirst({
     columns: {
       totalInstalled: true,
@@ -262,13 +281,8 @@ export async function getMonthlyMeterInstallationSummary({
       eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
       eq(monthlyMeterInstallations.year, year),
       eq(monthlyMeterInstallations.month, month),
-      eq(
-        monthlyMeterInstallations.transformerSubstationId,
-        transformerSubstationId,
-      ),
-      dateComparison === "before"
-        ? lt(monthlyMeterInstallations.date, targetDate)
-        : lte(monthlyMeterInstallations.date, targetDate),
+      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
+      lt(monthlyMeterInstallations.date, cutoffDate),
     ),
     orderBy: [desc(monthlyMeterInstallations.date)],
   });
