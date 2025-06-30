@@ -208,30 +208,49 @@ export async function updateMonthOnId({
     .where(eq(monthlyMeterInstallations.id, id));
 }
 
-export async function getMonthIds({
+interface MonthlyInstallationRecordQuery {
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  startDate: MonthlyMeterInstallations["date"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
+
+/**
+ * Retrieves monthly installation records after a specific date
+ *
+ * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @param month Month filter
+ * @param year Year filter
+ * @returns Array of record objects containing IDs
+ */
+export async function getMonthlyInstallationRecordsAfterDate({
   balanceGroup,
-  date,
-  transformerSubstationId,
+  startDate,
+  substationId,
   month,
   year,
-}: MonthlyMeterSelectionCriteria) {
-  const ids = await db
-    .select({ id: monthlyMeterInstallations.id })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        gt(monthlyMeterInstallations.date, date),
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-      ),
-    );
+}: MonthlyInstallationRecordQuery): Promise<
+  {
+    id: number;
+  }[]
+> {
+  const result = await db.query.monthlyMeterInstallations.findMany({
+    columns: {
+      id: true,
+    },
+    where: and(
+      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+      gt(monthlyMeterInstallations.date, startDate),
+      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
+      eq(monthlyMeterInstallations.month, month),
+      eq(monthlyMeterInstallations.year, year),
+    ),
+  });
 
-  return ids;
+  return result;
 }
 
 export async function getMonthMetersOnID(id: number) {

@@ -19,13 +19,13 @@ import {
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
 import {
-  getMonthIds,
   getMonthMetersOnID,
   updateMonthOnId,
   getMonthlyInstallationReport,
   getMonthlyInstallationSummary,
   insertMonthlyInstallationRecord,
   updateMonthlyInstallationRecord,
+  getMonthlyInstallationRecordsAfterDate,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
@@ -358,10 +358,10 @@ async function updateTotalMonthMeters(
 type MonthRecords = YearRecords & { readonly month: string };
 
 async function updateNextMonthRecords(params: MonthRecords) {
-  const ids = await getMonthIds({
+  const ids = await getMonthlyInstallationRecordsAfterDate({
     balanceGroup: params.balanceGroup,
-    date: params.date,
-    transformerSubstationId: params.substationId,
+    startDate: params.date,
+    substationId: params.substationId,
     month: params.month,
     year: params.year,
   });
