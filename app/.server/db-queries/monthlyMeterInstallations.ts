@@ -14,6 +14,12 @@ interface MonthlyInstallationInput {
   year: MonthlyMeterInstallations["year"];
 }
 
+/**
+ * Creates new monthly installation record after validation
+ *
+ * @param params Input parameters
+ * @throws If validation fails (registeredCount > totalInstalled)
+ */
 export async function insertMonthlyInstallationRecord(
   params: MonthlyInstallationInput,
 ) {
