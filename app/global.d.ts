@@ -10,38 +10,11 @@ declare interface TransSubs {
 
 declare type BalanceGroup = import("app/.server/schema").BalanceGroup;
 
-declare interface MetersValues {
-  quantity: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  transformerSubstationId: number;
-}
-
-declare interface InsertMetersValues extends MetersValues {
-  addedToSystem: number;
-}
-
-declare interface YearMetersValues extends InsertMetersValues {
-  year: number;
-}
-
-declare interface MonthMetersValues extends YearMetersValues {
-  month: string;
-}
-
 declare interface MeterCountQueryParams {
   balanceGroup: BalanceGroup;
   targetDate: string;
   dateComparison: "before" | "upTo";
   transformerSubstationId: number;
-}
-
-declare interface YearlyMeterSummaryParams extends MeterCountQueryParams {
-  year: number;
-}
-
-declare interface MonthlyMeterSummaryParams extends YearlyMeterSummaryParams {
-  month: string;
 }
 
 declare interface MeterSelectionCriteria {
@@ -72,19 +45,9 @@ declare interface LastMonthQuantity extends LastYearQuantity {
   month: string;
 }
 
-declare interface TotalMeters {
-  quantity: number;
-  addedToSystem: number;
-}
-
 declare interface SubmitButtonValues {
   buttonValue: string;
   isSubmitting: boolean;
-}
-
-declare interface UpdateOnIdType {
-  id: number;
-  quantity: number;
 }
 
 declare interface UpdateTotalMetersType {
@@ -95,10 +58,6 @@ declare interface UpdateTotalMetersType {
   date: string;
 }
 
-declare interface UpdateYearOnIdType extends UpdateOnIdType {
-  addedToSystem: number;
-}
-
 declare interface UpdateTotalYearMetersType {
   year: number;
   id: number;
@@ -107,8 +66,6 @@ declare interface UpdateTotalYearMetersType {
   inSystemYear: number;
   yearTotal: number;
 }
-
-declare type UpdateMonthOnIdType = UpdateYearOnIdType;
 
 declare interface UpdateTotalMonthMetersType {
   year: number;
@@ -126,15 +83,4 @@ declare interface InputType {
   label: string;
   error?: string | undefined;
   errors?: boolean;
-}
-
-declare interface DbData {
-  inSystem: number;
-  notInSystem: number;
-}
-
-declare interface QuantityForInsert {
-  transformerSubstationId: number;
-  balanceGroup: BalanceGroup;
-  date: string;
 }
