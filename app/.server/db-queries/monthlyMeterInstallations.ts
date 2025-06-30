@@ -259,16 +259,29 @@ export async function getMonthlyInstallationRecordsAfterDate({
   return result;
 }
 
-export async function getMonthMetersOnID(id: number) {
-  const record = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(eq(monthlyMeterInstallations.id, id));
+/**
+ * Retrieves monthly installation summary by record ID
+ *
+ * @param id Record ID of the monthly installation summary
+ * @returns Object with total installed and registered counts
+ * @throws Will throw if record with given ID doesn't exist
+ */
+export async function getMonthlyInstallationSummaryById(
+  id: number,
+): Promise<InstallationSummary> {
+  const result = await db.query.monthlyMeterInstallations.findFirst({
+    columns: {
+      totalInstalled: true,
+      registeredCount: true,
+    },
+    where: eq(monthlyMeterInstallations.id, id),
+  });
 
-  return record[0];
+  if (!result) {
+    throw new Error(`Monthly installation summary with ID ${id} not found`);
+  }
+
+  return result;
 }
 
 interface MonthlyInstallationReportParams {

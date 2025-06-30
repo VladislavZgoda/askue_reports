@@ -19,12 +19,12 @@ import {
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
 import {
-  getMonthMetersOnID,
   updateMonthOnId,
   getMonthlyInstallationReport,
   getMonthlyInstallationSummary,
   insertMonthlyInstallationRecord,
   updateMonthlyInstallationRecord,
+  getMonthlyInstallationSummaryById,
   getMonthlyInstallationRecordsAfterDate,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
@@ -368,7 +368,7 @@ async function updateNextMonthRecords(params: MonthRecords) {
 
   if (ids.length > 0) {
     for (const { id } of ids) {
-      const meters = await getMonthMetersOnID(id);
+      const meters = await getMonthlyInstallationSummaryById(id);
 
       await updateMonthOnId({
         id,
