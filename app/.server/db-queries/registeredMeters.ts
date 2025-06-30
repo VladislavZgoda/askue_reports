@@ -9,6 +9,8 @@ interface MetersQuery {
   transformerSubstationId: number;
 }
 
+type RegisteredMeters = typeof registeredMeters.$inferSelect;
+
 export async function insertNewMeters({
   registeredMeterCount,
   balanceGroup,
@@ -23,25 +25,37 @@ export async function insertNewMeters({
   });
 }
 
-export async function checkMetersRecord({
+interface RegisteredMeterLookupParams {
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  date: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Retrieves registered meter count for specific date, balance group and substation
+ *
+ * @param balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param date Record date (YYYY-MM-DD format)
+ * @param substationId Transformer substation ID
+ * @returns Number of registered meters, or undefined if no record exists
+ */
+export async function getRegisteredMeterCount({
   balanceGroup,
   date,
-  transformerSubstationId,
-}: MeterSelectionCriteria): Promise<number | undefined> {
-  const record = await db
-    .select({
-      registeredMeterCount: registeredMeters.registeredMeterCount,
-    })
-    .from(registeredMeters)
-    .where(
-      and(
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
-        eq(registeredMeters.date, date),
-        eq(registeredMeters.balanceGroup, balanceGroup),
-      ),
-    );
+  substationId,
+}: RegisteredMeterLookupParams): Promise<number | undefined> {
+  const result = await db.query.registeredMeters.findFirst({
+    columns: {
+      registeredMeterCount: true,
+    },
+    where: and(
+      eq(registeredMeters.balanceGroup, balanceGroup),
+      eq(registeredMeters.date, date),
+      eq(registeredMeters.transformerSubstationId, substationId),
+    ),
+  });
 
-  return record[0]?.registeredMeterCount;
+  return result?.registeredMeterCount;
 }
 
 export async function updateMetersRecord({

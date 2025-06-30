@@ -1,10 +1,10 @@
 import {
   insertNewMeters,
-  checkMetersRecord,
   updateMetersRecord,
   getNewMetersIds,
   getQuantityOnID,
   updateRecordOnId,
+  getRegisteredMeterCount,
   getRegisteredMeterCountAtDate,
 } from "~/.server/db-queries/registeredMeters";
 
@@ -132,13 +132,13 @@ async function handleInsertNewMeters(formData: FormData) {
   const { registeredCount } = formData;
 
   if (registeredCount > 0) {
-    const prevMetersQuantity = await checkMetersRecord({
+    const prevMetersQuantity = await getRegisteredMeterCount({
       balanceGroup: formData.balanceGroup,
       date: formData.date,
-      transformerSubstationId: formData.substationId,
+      substationId: formData.substationId,
     });
 
-    if (typeof prevMetersQuantity === "number") {
+    if (prevMetersQuantity) {
       await handleUpdate(formData, prevMetersQuantity);
     } else {
       await handleInsert(formData);
