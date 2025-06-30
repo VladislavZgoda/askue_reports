@@ -16,7 +16,7 @@ import {
 import {
   getLastMonthId,
   updateMonthOnId,
-  insertMonthMeters,
+  insertMonthlyInstallationRecord,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 import loadData from "./loadData";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
@@ -224,10 +224,10 @@ async function handleMonthMeters(
       });
     }
   } else {
-    await insertMonthMeters({
+    await insertMonthlyInstallationRecord({
       totalInstalled: monthTotal,
       registeredCount: inSystemMonth,
-      transformerSubstationId: id,
+      substationId: id,
       balanceGroup,
       date,
       year,

@@ -4,28 +4,29 @@ import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
 
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
-type AddMonthlyMeterInstallations = Omit<
-  MonthlyMeterInstallations,
-  "id" | "createdAt" | "updatedAt"
->;
+interface MonthlyInstallationInput {
+  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
+  registeredCount: MonthlyMeterInstallations["registeredCount"];
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  date: MonthlyMeterInstallations["date"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
 
-export async function insertMonthMeters({
-  totalInstalled,
-  registeredCount,
-  balanceGroup,
-  date,
-  transformerSubstationId,
-  month,
-  year,
-}: AddMonthlyMeterInstallations) {
+export async function insertMonthlyInstallationRecord(
+  params: MonthlyInstallationInput,
+) {
+  validateInstallationParams(params);
+
   await db.insert(monthlyMeterInstallations).values({
-    totalInstalled,
-    registeredCount,
-    balanceGroup,
-    date,
-    transformerSubstationId,
-    month,
-    year,
+    totalInstalled: params.totalInstalled,
+    registeredCount: params.registeredCount,
+    balanceGroup: params.balanceGroup,
+    date: params.date,
+    transformerSubstationId: params.substationId,
+    month: params.month,
+    year: params.year,
   });
 }
 
@@ -127,7 +128,7 @@ interface MonthlyInstallationUpdateParams {
 export async function updateMonthlyInstallationRecord(
   params: MonthlyInstallationUpdateParams,
 ) {
-  validateUpdateParams(params);
+  validateInstallationParams(params);
 
   const updatedAt = new Date();
 
@@ -157,7 +158,7 @@ export async function updateMonthlyInstallationRecord(
   }
 }
 
-function validateUpdateParams(params: MonthlyInstallationUpdateParams) {
+function validateInstallationParams(params: MonthlyInstallationUpdateParams) {
   if (params.registeredCount > params.totalInstalled) {
     throw new Error("Registered count cannot exceed total installed");
   }
