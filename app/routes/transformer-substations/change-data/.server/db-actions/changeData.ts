@@ -15,8 +15,8 @@ import {
 } from "~/.server/db-queries/yearlyMeterInstallations";
 import {
   getLastMonthId,
-  updateMonthOnId,
   insertMonthlyInstallationRecord,
+  updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 import loadData from "./loadData";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
@@ -217,7 +217,7 @@ async function handleMonthMeters(
       inSystemMonth === prevValues.addedToSystem;
 
     if (!isEqual) {
-      await updateMonthOnId({
+      await updateMonthlyInstallationRecordById({
         id: lastMonthId,
         totalInstalled: monthTotal,
         registeredCount: inSystemMonth,

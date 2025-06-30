@@ -164,7 +164,7 @@ export async function updateMonthlyInstallationRecord(
   }
 }
 
-function validateInstallationParams(params: MonthlyInstallationUpdateParams) {
+function validateInstallationParams(params: InstallationSummary) {
   if (params.registeredCount > params.totalInstalled) {
     throw new Error("Registered count cannot exceed total installed");
   }
@@ -196,22 +196,40 @@ export async function getLastMonthId({
   return recordId[0]?.id;
 }
 
-type UpdateMonthlyInstallationsAtId = Pick<
-  MonthlyMeterInstallations,
-  "id" | "totalInstalled" | "registeredCount"
->;
+interface MonthlyInstallationUpdateInput {
+  id: MonthlyMeterInstallations["id"];
+  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
+  registeredCount: MonthlyMeterInstallations["registeredCount"];
+}
 
-export async function updateMonthOnId({
+/**
+ * Updates a monthly installation record by its ID
+ *
+ * @param id Record ID to update
+ * @param totalInstalled New total installed meters count
+ * @param registeredCount New registered meters count
+ *
+ * @throws Will throw if registeredCount more than totalInstalled
+ * @throws Will throw if no record with the given ID exists
+ */
+export async function updateMonthlyInstallationRecordById({
   id,
   totalInstalled,
   registeredCount,
-}: UpdateMonthlyInstallationsAtId) {
+}: MonthlyInstallationUpdateInput) {
+  validateInstallationParams({ totalInstalled, registeredCount });
+
   const updatedAt = new Date();
 
-  await db
+  const updatedRecords = await db
     .update(monthlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
-    .where(eq(monthlyMeterInstallations.id, id));
+    .where(eq(monthlyMeterInstallations.id, id))
+    .returning();
+
+  if (updatedRecords.length === 0) {
+    throw new Error(`Monthly installation record with ID ${id} not found`);
+  }
 }
 
 interface MonthlyInstallationRecordQuery {
