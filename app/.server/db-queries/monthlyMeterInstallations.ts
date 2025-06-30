@@ -280,16 +280,19 @@ interface MonthlyInstallationReportParams {
 }
 
 /**
- * Retrieves monthly meter installation statistics
- * for a specific substation and balance group
+ * Retrieves the latest monthly meter installation statistics
+ * for a specific substation and balance group before a cutoff date
  *
- * @param balanceGroup - Balance group filter
- * @param cutoffDate - Exclusive upper bound date for installation records (records before this date)
- * @param substationId Transformer substation ID
- * @param month Month of the installation record
- * @param year Year of the installation record
+ * @param params - Query parameters for the report
+ * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param params.cutoffDate - Exclusive upper bound date (YYYY-MM-DD format).
+ *                            Only records with date < cutoffDate are considered.
+ * @param params.substationId - Transformer substation identifier
+ * @param params.month - Month of interest (MM format, 01-12)
+ * @param params.year - Year of interest
  *
- * @returns Summary object with total installed and registered counts
+ * @returns Summary object containing:
+ *          If no records found, returns {totalInstalled: 0, registeredCount: 0}
  */
 export async function getMonthlyInstallationReport({
   balanceGroup,
