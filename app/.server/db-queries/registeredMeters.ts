@@ -58,24 +58,45 @@ export async function getRegisteredMeterCount({
   return result?.registeredMeterCount;
 }
 
-export async function updateMetersRecord({
+interface RegisteredMeterCountUpdate {
+  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  date: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Updates the registered meter count for a specific substation, date and balance group
+ *
+ * @param registeredMeterCount New count of registered meters
+ * @param balanceGroup Balance group category
+ * @param date Record date (YYYY-MM-DD format)
+ * @param substationId Transformer substation ID
+ *
+ * @throws Will throw if no matching record exists
+ */
+export async function updateRegisteredMeterCount({
   registeredMeterCount,
   balanceGroup,
   date,
-  transformerSubstationId,
-}: MetersQuery) {
+  substationId,
+}: RegisteredMeterCountUpdate) {
   const updatedAt = new Date();
 
-  await db
+  const result = await db
     .update(registeredMeters)
     .set({ registeredMeterCount, updatedAt })
     .where(
       and(
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
+        eq(registeredMeters.transformerSubstationId, substationId),
         eq(registeredMeters.date, date),
         eq(registeredMeters.balanceGroup, balanceGroup),
       ),
-    );
+  ).returning();
+
+  if (result.length === 0) {
+    throw new Error("No matching registered meter record found to update");
+  }
 }
 
 export async function selectLastQuantity({
