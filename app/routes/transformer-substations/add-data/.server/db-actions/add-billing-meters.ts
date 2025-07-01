@@ -1,10 +1,10 @@
 import {
-  insertNewMeters,
   getNewMetersIds,
   getQuantityOnID,
   updateRecordOnId,
   getRegisteredMeterCount,
   updateRegisteredMeterCount,
+  insertRegisteredMeterRecord,
   getRegisteredMeterCountAtDate,
 } from "~/.server/db-queries/registeredMeters";
 
@@ -71,11 +71,11 @@ async function handleInsert(formData: FormData) {
     transformerSubstationId: formData.substationId,
   });
 
-  await insertNewMeters({
+  await insertRegisteredMeterRecord({
     registeredMeterCount: formData.totalCount + lastQuantity,
     balanceGroup: formData.balanceGroup,
     date: formData.date,
-    transformerSubstationId: formData.substationId,
+    substationId: formData.substationId,
   });
 }
 

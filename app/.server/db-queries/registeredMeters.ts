@@ -2,26 +2,34 @@ import { db } from "../db";
 import { registeredMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
-interface MetersQuery {
-  registeredMeterCount: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  transformerSubstationId: number;
-}
-
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
-export async function insertNewMeters({
+interface RegisteredMeterInput {
+  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  date: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Creates a new registered meter record
+ *
+ * @param registeredMeterCount Count of registered meters
+ * @param balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param date Record date (YYYY-MM-DD format)
+ * @param transformerSubstationId Transformer substation ID
+ */
+export async function insertRegisteredMeterRecord({
   registeredMeterCount,
   balanceGroup,
   date,
-  transformerSubstationId,
-}: MetersQuery) {
+  substationId,
+}: RegisteredMeterInput) {
   await db.insert(registeredMeters).values({
     registeredMeterCount,
     balanceGroup,
     date,
-    transformerSubstationId,
+    transformerSubstationId: substationId,
   });
 }
 

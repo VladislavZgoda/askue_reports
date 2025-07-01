@@ -1,7 +1,7 @@
 import {
   getLastRecordId,
   updateRecordOnId,
-  insertNewMeters,
+  insertRegisteredMeterRecord,
 } from "~/.server/db-queries/registeredMeters";
 import {
   getLastNotInSystemId,
@@ -112,9 +112,9 @@ async function handleMetersQuantity(
       });
     }
   } else {
-    await insertNewMeters({
+    await insertRegisteredMeterRecord({
       registeredMeterCount: inSystemTotal,
-      transformerSubstationId: id,
+      substationId: id,
       date,
       balanceGroup,
     });
