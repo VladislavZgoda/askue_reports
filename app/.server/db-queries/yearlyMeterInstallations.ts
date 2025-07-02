@@ -227,20 +227,34 @@ interface YearlyInstallationRecordQuery {
 }
 
 /**
- * Retrieves yearly installation records after a specific date
+ * Retrieves IDs of yearly installation records created after a specific date
+ * that match the given criteria (balance group, substation, and year)
  *
- * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
- * @param balanceGroup Balance group filter
- * @param substationId Transformer substation ID
- * @param year Year filter
- * @returns Array of record objects containing IDs
+ * @param params Query parameters
+ * @param params.balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param params.startDate Exclusive lower bound date (YYYY-MM-DD format).
+ *                         Only records with date > startDate are returned.
+ * @param params.substationId Transformer substation identifier
+ * @param year Year filter for the installation records
+ *
+ * @returns Array of record IDs (numbers) for matching yearly installation records.
+ *          Returns empty array if no matching records found.
+ *
+ * @example
+ * const recordIds = await getYearlyInstallationRecordsAfterDate({
+ *   balanceGroup: 'Быт',
+ *   startDate: '2023-01-01',
+ *   substationId: 42,
+ *   year: 2023
+ * });
+ * // Returns: [101, 102, 103]
  */
 export async function getYearlyInstallationRecordsAfterDate({
   balanceGroup,
   startDate,
   substationId,
   year,
-}: YearlyInstallationRecordQuery) {
+}: YearlyInstallationRecordQuery): Promise<number[]> {
   const result = await db.query.yearlyMeterInstallations.findMany({
     columns: {
       id: true,
@@ -253,7 +267,9 @@ export async function getYearlyInstallationRecordsAfterDate({
     ),
   });
 
-  return result;
+  const transformedResult = result.map((r) => r.id);
+
+  return transformedResult;
 }
 
 /**

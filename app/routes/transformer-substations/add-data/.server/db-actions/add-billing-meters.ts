@@ -261,7 +261,7 @@ async function updateNextYearRecords(params: YearRecords) {
   });
 
   if (ids.length > 0) {
-    for (const { id } of ids) {
+    for (const id of ids) {
       const meters = await getYearlyInstallationSummaryById(id);
 
       await updateYearlyInstallationRecordById({

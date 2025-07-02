@@ -195,12 +195,23 @@ interface RegisteredMeterIdsQueryParams {
 }
 
 /**
- * Retrieves IDs of registered meter records after a specific date
+ * Retrieves IDs of registered meter records created after a specific date
  *
- * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
- * @param balanceGroup Balance group filter
- * @param substationId Transformer substation ID
- * @returns Array of objects containing record IDs
+ * @param startDate Exclusive lower bound date (YYYY-MM-DD format).
+ *                  Only records with date > startDate are returned.
+ * @param balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param substationId Transformer substation identifier
+ *
+ * @returns Array of record IDs (numbers) for matching registered meter records.
+ *          Returns empty array if no records found.
+ *
+ * @example
+ * const ids = await getRegisteredMeterIdsAfterDate({
+ *   startDate: '2023-01-01',
+ *   balanceGroup: 'Быт',
+ *   substationId: 42
+ * });
+ * // Returns: [101, 102, 103] (array of numbers)
  */
 export async function getRegisteredMeterRecordIdsAfterDate({
   balanceGroup,
