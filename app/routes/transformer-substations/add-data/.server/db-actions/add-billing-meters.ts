@@ -1,11 +1,11 @@
 import {
-  getNewMetersIds,
   getQuantityOnID,
   updateRecordOnId,
   getRegisteredMeterCount,
   updateRegisteredMeterCount,
   insertRegisteredMeterRecord,
   getRegisteredMeterCountAtDate,
+  getRegisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/registeredMeters";
 
 import {
@@ -144,14 +144,14 @@ async function handleInsertNewMeters(formData: FormData) {
       await handleInsert(formData);
     }
 
-    const ids = await getNewMetersIds({
+    const ids = await getRegisteredMeterRecordIdsAfterDate({
       balanceGroup: formData.balanceGroup,
-      date: formData.date,
-      transformerSubstationId: formData.substationId,
+      startDate: formData.date,
+      substationId: formData.substationId,
     });
 
     if (ids.length > 0) {
-      for (const { id } of ids) {
+      for (const id of ids) {
         const quantity = await getQuantityOnID(id);
 
         await updateRecordOnId({

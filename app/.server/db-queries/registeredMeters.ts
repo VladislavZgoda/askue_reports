@@ -100,7 +100,8 @@ export async function updateRegisteredMeterCount({
         eq(registeredMeters.date, date),
         eq(registeredMeters.balanceGroup, balanceGroup),
       ),
-  ).returning();
+    )
+    .returning();
 
   if (result.length === 0) {
     throw new Error("No matching registered meter record found to update");
@@ -187,23 +188,39 @@ export async function getRegisteredMeterCountAtDate({
   return result ? result.registeredMeterCount : 0;
 }
 
-export async function getNewMetersIds({
+interface RegisteredMeterIdsQueryParams {
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  startDate: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Retrieves IDs of registered meter records after a specific date
+ *
+ * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
+ * @param balanceGroup Balance group filter
+ * @param substationId Transformer substation ID
+ * @returns Array of objects containing record IDs
+ */
+export async function getRegisteredMeterRecordIdsAfterDate({
   balanceGroup,
-  date,
-  transformerSubstationId,
-}: MeterSelectionCriteria) {
-  const ids = await db
+  startDate,
+  substationId,
+}: RegisteredMeterIdsQueryParams): Promise<number[]> {
+  const result = await db
     .select({ id: registeredMeters.id })
     .from(registeredMeters)
     .where(
       and(
-        gt(registeredMeters.date, date),
+        gt(registeredMeters.date, startDate),
         eq(registeredMeters.balanceGroup, balanceGroup),
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
+        eq(registeredMeters.transformerSubstationId, substationId),
       ),
     );
 
-  return ids;
+  const transformedResult = result.map((r) => r.id);
+
+  return transformedResult;
 }
 
 export async function getQuantityOnID(id: number) {
