@@ -1,10 +1,10 @@
 import {
-  getQuantityOnID,
   updateRecordOnId,
   getRegisteredMeterCount,
   updateRegisteredMeterCount,
   insertRegisteredMeterRecord,
   getRegisteredMeterCountAtDate,
+  getRegisteredMeterCountByRecordId,
   getRegisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/registeredMeters";
 
@@ -152,7 +152,7 @@ async function handleInsertNewMeters(formData: FormData) {
 
     if (ids.length > 0) {
       for (const id of ids) {
-        const quantity = await getQuantityOnID(id);
+        const quantity = await getRegisteredMeterCountByRecordId(id);
 
         await updateRecordOnId({
           id,

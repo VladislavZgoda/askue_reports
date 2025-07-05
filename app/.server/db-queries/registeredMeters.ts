@@ -234,11 +234,30 @@ export async function getRegisteredMeterRecordIdsAfterDate({
   return transformedResult;
 }
 
-export async function getQuantityOnID(id: number) {
-  const record = await db
-    .select({ registeredMeterCount: registeredMeters.registeredMeterCount })
-    .from(registeredMeters)
-    .where(eq(registeredMeters.id, id));
+/**
+ * Retrieves the registered meter count value by its database record ID
+ *
+ * @param id Record ID of the registered meter entry
+ * @returns Number of registered meters
+ * @throws Will throw if no record with the given ID exists
+ *
+ * @example
+ * const count = await getRegisteredMeterCountByRecordId(123);
+ * // Returns: 85
+ */
+export async function getRegisteredMeterCountByRecordId(
+  id: number,
+): Promise<number> {
+  const result = await db.query.registeredMeters.findFirst({
+    columns: {
+      registeredMeterCount: true,
+    },
+    where: eq(registeredMeters.id, id),
+  });
 
-  return record[0].registeredMeterCount;
+  if (!result) {
+    throw new Error(`Registered meter record with ID ${id} not found`);
+  }
+
+  return result.registeredMeterCount;
 }
