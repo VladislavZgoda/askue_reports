@@ -148,21 +148,41 @@ export async function getLastRecordId({
   return recordId[0]?.id;
 }
 
-interface UpdateOnId {
+interface RegisteredMeterUpdateInput {
   id: number;
   registeredMeterCount: number;
 }
 
-export async function updateRecordOnId({
+/**
+ * Updates a registered meter record by its ID
+ *
+ * @param id Record ID to update
+ * @param registeredMeterCount New count of registered meters
+ *
+ * @returns The updated registered meter record
+ * @throws Will throw if no record with the given ID exists
+ *
+ * @example
+ * const updated = await updateRegisteredMeterRecordById({
+ *   id: 123,
+ *   registeredMeterCount: 85
+ * });
+ */
+export async function updateRegisteredMeterRecordById({
   id,
   registeredMeterCount,
-}: UpdateOnId) {
+}: RegisteredMeterUpdateInput) {
   const updatedAt = new Date();
 
-  await db
+  const updatedRecord = await db
     .update(registeredMeters)
     .set({ registeredMeterCount, updatedAt })
-    .where(eq(registeredMeters.id, id));
+    .where(eq(registeredMeters.id, id))
+    .returning();
+
+  if (updatedRecord.length === 0) {
+    throw new Error(`Registered meter record with ID ${id} not found`);
+  }
 }
 
 export async function getRegisteredMeterCountAtDate({

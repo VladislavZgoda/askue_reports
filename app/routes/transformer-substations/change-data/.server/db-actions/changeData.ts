@@ -1,7 +1,7 @@
 import {
   getLastRecordId,
-  updateRecordOnId,
   insertRegisteredMeterRecord,
+  updateRegisteredMeterRecordById,
 } from "~/.server/db-queries/registeredMeters";
 import {
   getLastNotInSystemId,
@@ -106,7 +106,7 @@ async function handleMetersQuantity(
     const prevQuantity = prevData.totalMeters.addedToSystem;
 
     if (!(prevQuantity === inSystemTotal)) {
-      await updateRecordOnId({
+      await updateRegisteredMeterRecordById({
         id: lastMetersQuantityId,
         registeredMeterCount: inSystemTotal,
       });
