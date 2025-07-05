@@ -29,13 +29,13 @@ import {
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
-  getNotInSystemIds,
   getNotInSystemOnID,
   updateNotInSystemOnId,
   insertUnregisteredMeters,
   updateUnregisteredMeters,
   getUnregisteredMeterCount,
   getUnregisteredMeterCountAtDate,
+  getUnregisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/unregisteredMeters";
 
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
@@ -110,14 +110,14 @@ async function handleNotInSystem(formData: FormData) {
     });
   }
 
-  const ids = await getNotInSystemIds({
+  const ids = await getUnregisteredMeterRecordIdsAfterDate({
     balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    transformerSubstationId: formData.substationId,
+    startDate: formData.date,
+    substationId: formData.substationId,
   });
 
   if (ids.length > 0) {
-    for (const { id } of ids) {
+    for (const id of ids) {
       const quantity = await getNotInSystemOnID(id);
 
       await updateNotInSystemOnId({

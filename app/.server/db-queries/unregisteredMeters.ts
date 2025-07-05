@@ -160,23 +160,41 @@ export async function getUnregisteredMeterCountAtDate({
   return result ? result.unregisteredMeterCount : 0;
 }
 
-export async function getNotInSystemIds({
-  balanceGroup,
-  date,
-  transformerSubstationId,
-}: MeterSelectionCriteria) {
-  const ids = await db
-    .select({ id: unregisteredMeters.id })
-    .from(unregisteredMeters)
-    .where(
-      and(
-        gt(unregisteredMeters.date, date),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
-      ),
-    );
+interface UnregisteredMeterQueryParams {
+  balanceGroup: BalanceGroup;
+  startDate: string;
+  substationId: number;
+}
 
-  return ids;
+/**
+ * Retrieves IDs of unregistered meter records created after a specific date
+ *
+ * @param params Query parameters
+ * @param params.balanceGroup Balance group category
+ * @param params.startDate Exclusive lower bound date (YYYY-MM-DD format)
+ * @param params.substationId Transformer substation identifier
+ *
+ * @returns Array of record IDs (numbers) for matching unregistered meter records
+ */
+export async function getUnregisteredMeterRecordIdsAfterDate({
+  balanceGroup,
+  startDate,
+  substationId,
+}: UnregisteredMeterQueryParams): Promise<number[]> {
+  const result = await db.query.unregisteredMeters.findMany({
+    columns: {
+      id: true,
+    },
+    where: and(
+      gt(unregisteredMeters.date, startDate),
+      eq(unregisteredMeters.balanceGroup, balanceGroup),
+      eq(unregisteredMeters.transformerSubstationId, substationId),
+    ),
+  });
+
+  const transformedResult = result.map((r) => r.id);
+
+  return transformedResult;
 }
 
 export async function getNotInSystemOnID(id: number) {
