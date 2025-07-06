@@ -127,7 +127,7 @@ interface MonthlyInstallationUpdateParams {
  * Updates a monthly installation record by its composite key
  *
  * @param params Composite key and update values
- * @returns The updated monthly installation record
+ *
  * @throws Will throw if registeredCount more than totalInstalled
  * @throws Will throw if no matching record is found
  */

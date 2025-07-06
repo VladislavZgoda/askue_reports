@@ -159,11 +159,10 @@ interface RegisteredMeterUpdateInput {
  * @param id Record ID to update
  * @param registeredMeterCount New count of registered meters
  *
- * @returns The updated registered meter record
  * @throws Will throw if no record with the given ID exists
  *
  * @example
- * const updated = await updateRegisteredMeterRecordById({
+ * await updateRegisteredMeterRecordById({
  *   id: 123,
  *   registeredMeterCount: 85
  * });
