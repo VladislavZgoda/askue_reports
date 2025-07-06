@@ -25,7 +25,7 @@ interface YearlyMeterInstallationInput {
  *
  * @throws Will throw if registeredCount more than totalInstalled
  */
-export async function insertYearlyMeterInstallation({
+export async function createYearlyMeterInstallation({
   totalInstalled,
   registeredCount,
   balanceGroup,

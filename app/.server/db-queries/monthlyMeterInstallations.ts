@@ -20,7 +20,7 @@ interface MonthlyInstallationInput {
  * @param params Input parameters
  * @throws If validation fails (registeredCount > totalInstalled)
  */
-export async function insertMonthlyInstallationRecord(
+export async function createMonthlyInstallationRecord(
   params: MonthlyInstallationInput,
 ) {
   validateInstallationParams(params);

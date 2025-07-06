@@ -19,7 +19,7 @@ interface RegisteredMeterInput {
  * @param date Record date (YYYY-MM-DD format)
  * @param transformerSubstationId Transformer substation ID
  */
-export async function insertRegisteredMeterRecord({
+export async function createRegisteredMeterRecord({
   registeredMeterCount,
   balanceGroup,
   date,

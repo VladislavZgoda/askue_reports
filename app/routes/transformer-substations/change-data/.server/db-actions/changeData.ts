@@ -1,6 +1,6 @@
 import {
   getLastRecordId,
-  insertRegisteredMeterRecord,
+  createRegisteredMeterRecord,
   updateRegisteredMeterRecordById,
 } from "~/.server/db-queries/registeredMeters";
 import {
@@ -10,12 +10,12 @@ import {
 } from "~/.server/db-queries/unregisteredMeters";
 import {
   getLastYearId,
-  insertYearlyMeterInstallation,
+  createYearlyMeterInstallation,
   updateYearlyInstallationRecordById,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 import {
   getLastMonthId,
-  insertMonthlyInstallationRecord,
+  createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
 import loadData from "./loadData";
@@ -112,7 +112,7 @@ async function handleMetersQuantity(
       });
     }
   } else {
-    await insertRegisteredMeterRecord({
+    await createRegisteredMeterRecord({
       registeredMeterCount: inSystemTotal,
       substationId: id,
       date,
@@ -180,7 +180,7 @@ async function handleYearMeters(
       });
     }
   } else {
-    await insertYearlyMeterInstallation({
+    await createYearlyMeterInstallation({
       totalInstalled: yearTotal,
       registeredCount: inSystemYear,
       substationId: id,
@@ -224,7 +224,7 @@ async function handleMonthMeters(
       });
     }
   } else {
-    await insertMonthlyInstallationRecord({
+    await createMonthlyInstallationRecord({
       totalInstalled: monthTotal,
       registeredCount: inSystemMonth,
       substationId: id,

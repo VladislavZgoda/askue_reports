@@ -1,7 +1,7 @@
 import {
   getRegisteredMeterCount,
   updateRegisteredMeterCount,
-  insertRegisteredMeterRecord,
+  createRegisteredMeterRecord,
   getRegisteredMeterCountAtDate,
   updateRegisteredMeterRecordById,
   getRegisteredMeterCountByRecordId,
@@ -9,7 +9,7 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  insertYearlyMeterInstallation,
+  createYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyInstallationSummaryById,
   getYearlyMeterInstallationsStats,
@@ -21,7 +21,7 @@ import {
 import {
   getMonthlyInstallationReport,
   getMonthlyInstallationSummary,
-  insertMonthlyInstallationRecord,
+  createMonthlyInstallationRecord,
   updateMonthlyInstallationRecord,
   getMonthlyInstallationSummaryById,
   updateMonthlyInstallationRecordById,
@@ -71,7 +71,7 @@ async function handleInsert(formData: FormData) {
     transformerSubstationId: formData.substationId,
   });
 
-  await insertRegisteredMeterRecord({
+  await createRegisteredMeterRecord({
     registeredMeterCount: formData.totalCount + lastQuantity,
     balanceGroup: formData.balanceGroup,
     date: formData.date,
@@ -215,7 +215,7 @@ async function insertTotalYearMeters(formData: FormData, year: number) {
   const updatedRegisteredCount =
     formData.registeredCount + lastYearQuantity.registeredCount;
 
-  await insertYearlyMeterInstallation({
+  await createYearlyMeterInstallation({
     totalInstalled: updatedTotalInstalled,
     registeredCount: updatedRegisteredCount,
     balanceGroup: formData.balanceGroup,
@@ -317,7 +317,7 @@ async function insertTotalMonthMeters(
   const updatedLastMonthAddedToSystem =
     formData.registeredCount + lastMonthQuantity.registeredCount;
 
-  await insertMonthlyInstallationRecord({
+  await createMonthlyInstallationRecord({
     totalInstalled: updatedLastMonthQuantity,
     registeredCount: updatedLastMonthAddedToSystem,
     balanceGroup: formData.balanceGroup,
