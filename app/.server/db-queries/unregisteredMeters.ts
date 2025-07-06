@@ -31,7 +31,7 @@ export async function updateUnregisteredMeters({
 }: UnregisteredMeterParams) {
   const updatedAt = new Date();
 
-  await db
+  const [updatedRecord] = await db
     .update(unregisteredMeters)
     .set({ unregisteredMeterCount, updatedAt })
     .where(
@@ -40,7 +40,12 @@ export async function updateUnregisteredMeters({
         eq(unregisteredMeters.date, date),
         eq(unregisteredMeters.balanceGroup, balanceGroup),
       ),
-    );
+    )
+    .returning();
+
+  if (!updatedRecord) {
+    throw new Error("No matching unregistered meter record found to update");
+  }
 }
 
 interface UnregisteredMeterQuery {

@@ -138,7 +138,7 @@ export async function updateMonthlyInstallationRecord(
 
   const updatedAt = new Date();
 
-  const updatedRecords = await db
+  const [updatedRecord] = await db
     .update(monthlyMeterInstallations)
     .set({
       totalInstalled: params.totalInstalled,
@@ -159,7 +159,7 @@ export async function updateMonthlyInstallationRecord(
     )
     .returning();
 
-  if (updatedRecords.length === 0) {
+  if (!updatedRecord) {
     throw new Error("No monthly installation record found to update");
   }
 }
@@ -221,13 +221,13 @@ export async function updateMonthlyInstallationRecordById({
 
   const updatedAt = new Date();
 
-  const updatedRecords = await db
+  const [updatedRecord] = await db
     .update(monthlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
     .where(eq(monthlyMeterInstallations.id, id))
     .returning();
 
-  if (updatedRecords.length === 0) {
+  if (!updatedRecord) {
     throw new Error(`Monthly installation record with ID ${id} not found`);
   }
 }

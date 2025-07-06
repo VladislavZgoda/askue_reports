@@ -139,7 +139,7 @@ export async function updateYearlyMeterInstallation({
 
   const updatedAt = new Date();
 
-  const updatedRecords = await db
+  const [updatedRecord] = await db
     .update(yearlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
     .where(
@@ -152,8 +152,8 @@ export async function updateYearlyMeterInstallation({
     )
     .returning();
 
-  if (updatedRecords.length === 0) {
-    throw new Error(`Yearly installation record not found`);
+  if (!updatedRecord) {
+    throw new Error("Yearly installation record not found");
   }
 }
 
@@ -208,13 +208,13 @@ export async function updateYearlyInstallationRecordById({
 
   const updatedAt = new Date();
 
-  const updatedRecords = await db
+  const [updatedRecord] = await db
     .update(yearlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
     .where(eq(yearlyMeterInstallations.id, id))
     .returning();
 
-  if (updatedRecords.length === 0) {
+  if (!updatedRecord) {
     throw new Error(`Yearly installation record with ID ${id} not found`);
   }
 }

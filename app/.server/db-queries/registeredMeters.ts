@@ -91,7 +91,7 @@ export async function updateRegisteredMeterCount({
 }: RegisteredMeterCountUpdate) {
   const updatedAt = new Date();
 
-  const result = await db
+  const [updatedRecord] = await db
     .update(registeredMeters)
     .set({ registeredMeterCount, updatedAt })
     .where(
@@ -103,7 +103,7 @@ export async function updateRegisteredMeterCount({
     )
     .returning();
 
-  if (result.length === 0) {
+  if (!updatedRecord) {
     throw new Error("No matching registered meter record found to update");
   }
 }
@@ -174,13 +174,13 @@ export async function updateRegisteredMeterRecordById({
 }: RegisteredMeterUpdateInput) {
   const updatedAt = new Date();
 
-  const updatedRecord = await db
+  const [updatedRecord] = await db
     .update(registeredMeters)
     .set({ registeredMeterCount, updatedAt })
     .where(eq(registeredMeters.id, id))
     .returning();
 
-  if (updatedRecord.length === 0) {
+  if (!updatedRecord) {
     throw new Error(`Registered meter record with ID ${id} not found`);
   }
 }
