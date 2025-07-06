@@ -29,13 +29,13 @@ import {
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
-  insertUnregisteredMeters,
-  updateUnregisteredMeters,
   getUnregisteredMeterCount,
+  createUnregisteredMeterRecord,
   getUnregisteredMeterCountAtDate,
   updateUnregisteredMeterRecordById,
   getUnregisteredMeterCountByRecordId,
   getUnregisteredMeterRecordIdsAfterDate,
+  updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregisteredMeters";
 
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
@@ -97,7 +97,7 @@ async function handleNotInSystem(formData: FormData) {
   const updatedQuantity = totalCount - registeredCount;
 
   if (typeof prevNotInSystem === "number") {
-    await updateUnregisteredMeters({
+    await updateUnregisteredMeterRecordByCompositeKey({
       unregisteredMeterCount: updatedQuantity + prevNotInSystem,
       balanceGroup: formData.balanceGroup,
       date: formData.date,
@@ -173,7 +173,7 @@ async function handleInsertNotInSystem(formData: FormData) {
 
   const updatedQuantity = formData.totalCount + lastQuantity;
 
-  await insertUnregisteredMeters({
+  await createUnregisteredMeterRecord({
     unregisteredMeterCount: updatedQuantity,
     balanceGroup: formData.balanceGroup,
     date: formData.date,

@@ -4,19 +4,28 @@ import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
-interface UnregisteredMeterParams {
+interface UnregisteredMeterRecordInput {
   unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
   balanceGroup: UnregisteredMeters["balanceGroup"];
   date: UnregisteredMeters["date"];
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
-export async function insertUnregisteredMeters({
+/**
+ * Creates a new unregistered meter record
+ *
+ * @param params Input data for the new record
+ * @param params.unregisteredMeterCount Count of unregistered meters
+ * @param params.balanceGroup Balance group category
+ * @param params.date Record date (YYYY-MM-DD format)
+ * @param params.substationId Transformer substation ID
+ */
+export async function createUnregisteredMeterRecord({
   unregisteredMeterCount,
   balanceGroup,
   date,
   substationId,
-}: UnregisteredMeterParams) {
+}: UnregisteredMeterRecordInput) {
   await db.insert(unregisteredMeters).values({
     unregisteredMeterCount,
     balanceGroup,
@@ -25,12 +34,26 @@ export async function insertUnregisteredMeters({
   });
 }
 
-export async function updateUnregisteredMeters({
+/**
+ * Updates an unregistered meter record using composite key lookup
+ *
+ * @param params Update data and composite key identifiers
+ * @param params.unregisteredMeterCount New count value
+ * @param params.balanceGroup Balance group (part of composite key)
+ * @param params.date Record date (part of composite key, YYYY-MM-DD)
+ * @param params.substationId Substation ID (part of composite key)
+ *
+ * @throws Will throw if no matching record found
+ *
+ * @remarks
+ * Uses composite key of (substationId, date, balanceGroup) to locate record
+ */
+export async function updateUnregisteredMeterRecordByCompositeKey({
   unregisteredMeterCount,
   balanceGroup,
   date,
   substationId,
-}: UnregisteredMeterParams) {
+}: UnregisteredMeterRecordInput) {
   const updatedAt = new Date();
 
   const [updatedRecord] = await db
@@ -46,7 +69,7 @@ export async function updateUnregisteredMeters({
     .returning();
 
   if (!updatedRecord) {
-    throw new Error("No matching unregistered meter record found to update");
+    throw new Error("No matching unregistered meter record found");
   }
 }
 

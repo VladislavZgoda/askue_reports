@@ -5,7 +5,7 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 import {
   getLastNotInSystemId,
-  insertUnregisteredMeters,
+  createUnregisteredMeterRecord,
   updateUnregisteredMeterRecordById,
 } from "~/.server/db-queries/unregisteredMeters";
 import {
@@ -140,7 +140,7 @@ async function handleNotInSystem(
       });
     }
   } else {
-    await insertUnregisteredMeters({
+    await createUnregisteredMeterRecord({
       substationId: id,
       unregisteredMeterCount: totalMeters - inSystemTotal,
       date,
