@@ -2,11 +2,13 @@ import { db } from "../db";
 import { unregisteredMeters } from "../schema";
 import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
 
+type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
+
 interface UnregisteredMeterParams {
-  unregisteredMeterCount: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  substationId: number;
+  unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
+  balanceGroup: UnregisteredMeters["balanceGroup"];
+  date: UnregisteredMeters["date"];
+  substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
 export async function insertUnregisteredMeters({
@@ -49,9 +51,9 @@ export async function updateUnregisteredMeters({
 }
 
 interface UnregisteredMeterQuery {
-  date: string;
-  balanceGroup: BalanceGroup;
-  substationId: number;
+  date: UnregisteredMeters["date"];
+  balanceGroup: UnregisteredMeters["balanceGroup"];
+  substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
 /**
@@ -126,8 +128,8 @@ export async function getLastNotInSystemId({
 }
 
 export interface UpdateOnId {
-  id: number;
-  unregisteredMeterCount: number;
+  id: UnregisteredMeters["id"];
+  unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
 }
 
 export async function updateNotInSystemOnId({
@@ -166,9 +168,9 @@ export async function getUnregisteredMeterCountAtDate({
 }
 
 interface UnregisteredMeterQueryParams {
-  balanceGroup: BalanceGroup;
-  startDate: string;
-  substationId: number;
+  balanceGroup: UnregisteredMeters["balanceGroup"];
+  startDate: UnregisteredMeters["date"];
+  substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
 /**
