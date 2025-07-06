@@ -127,21 +127,40 @@ export async function getLastNotInSystemId({
   return recordId[0]?.id;
 }
 
-export interface UpdateOnId {
+interface UnregisteredMeterUpdateInput {
   id: UnregisteredMeters["id"];
   unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
 }
 
-export async function updateNotInSystemOnId({
+/**
+ * Updates an unregistered meter record by its database record ID
+ *
+ * @param id Record ID to update
+ * @param unregisteredMeterCount New count of unregistered meters
+ *
+ * @throws Will throw if no record with the given ID exists
+ *
+ * @example
+ * await updateUnregisteredMeterRecordById({
+ *   id: 456,
+ *   unregisteredMeterCount: 25
+ * });
+ */
+export async function updateUnregisteredMeterRecordById({
   id,
   unregisteredMeterCount,
-}: UpdateOnId) {
+}: UnregisteredMeterUpdateInput) {
   const updatedAt = new Date();
 
-  await db
+  const [updatedRecord] = await db
     .update(unregisteredMeters)
     .set({ unregisteredMeterCount, updatedAt })
-    .where(eq(unregisteredMeters.id, id));
+    .where(eq(unregisteredMeters.id, id))
+    .returning();
+
+  if (!updatedRecord) {
+    throw new Error(`Unregistered meter record with ID ${id} not found`);
+  }
 }
 
 export async function getUnregisteredMeterCountAtDate({

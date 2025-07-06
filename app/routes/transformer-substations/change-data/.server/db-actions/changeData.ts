@@ -5,8 +5,8 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 import {
   getLastNotInSystemId,
-  updateNotInSystemOnId,
   insertUnregisteredMeters,
+  updateUnregisteredMeterRecordById,
 } from "~/.server/db-queries/unregisteredMeters";
 import {
   getLastYearId,
@@ -134,7 +134,7 @@ async function handleNotInSystem(
     const actualQuantity = totalMeters - inSystemTotal;
 
     if (!(prevQuantity === actualQuantity)) {
-      await updateNotInSystemOnId({
+      await updateUnregisteredMeterRecordById({
         id: lastNotInSystemId,
         unregisteredMeterCount: actualQuantity,
       });

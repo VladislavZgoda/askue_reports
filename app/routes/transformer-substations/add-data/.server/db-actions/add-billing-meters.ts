@@ -29,11 +29,11 @@ import {
 } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import {
-  updateNotInSystemOnId,
   insertUnregisteredMeters,
   updateUnregisteredMeters,
   getUnregisteredMeterCount,
   getUnregisteredMeterCountAtDate,
+  updateUnregisteredMeterRecordById,
   getUnregisteredMeterCountByRecordId,
   getUnregisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/unregisteredMeters";
@@ -120,7 +120,7 @@ async function handleNotInSystem(formData: FormData) {
     for (const id of ids) {
       const quantity = await getUnregisteredMeterCountByRecordId(id);
 
-      await updateNotInSystemOnId({
+      await updateUnregisteredMeterRecordById({
         id,
         unregisteredMeterCount: quantity + updatedQuantity,
       });
