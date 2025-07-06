@@ -202,13 +202,30 @@ export async function getUnregisteredMeterRecordIdsAfterDate({
   return transformedResult;
 }
 
-export async function getNotInSystemOnID(id: number) {
-  const record = await db
-    .select({
-      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
-    })
-    .from(unregisteredMeters)
-    .where(eq(unregisteredMeters.id, id));
+/**
+ * Retrieves the unregistered meter count value by its database record ID
+ *
+ * @param id Record ID of the unregistered meter entry
+ * @returns Number of unregistered meters
+ * @throws Will throw if no record with the given ID exists
+ *
+ * @example
+ * const count = await getUnregisteredMeterCountByRecordId(456);
+ * // Returns: 15
+ */
+export async function getUnregisteredMeterCountByRecordId(
+  id: number,
+): Promise<number> {
+  const result = await db.query.unregisteredMeters.findFirst({
+    columns: {
+      unregisteredMeterCount: true,
+    },
+    where: eq(unregisteredMeters.id, id),
+  });
 
-  return record[0].unregisteredMeterCount;
+  if (!result) {
+    throw new Error(`Unregistered meter record with ID ${id} not found`);
+  }
+
+  return result.unregisteredMeterCount;
 }
