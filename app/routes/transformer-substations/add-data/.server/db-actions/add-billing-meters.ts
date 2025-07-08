@@ -48,7 +48,7 @@ export default async function addBillingMeters(formData: FormData) {
   const { totalCount, registeredCount } = formData;
 
   if (totalCount > registeredCount) {
-    await handleNotInSystem(formData);
+    await processUnregisteredMeters(formData);
   }
 
   await Promise.all([
@@ -90,42 +90,72 @@ async function handleUpdate(formData: FormData, prevMetersQuantity: number) {
   });
 }
 
-async function handleNotInSystem(formData: FormData) {
-  const prevNotInSystem = await getUnregisteredMeterCount(formData);
+async function processUnregisteredMeters(formData: FormData) {
+  const previousUnregistered = await getUnregisteredMeterCount(formData);
 
   const { totalCount, registeredCount } = formData;
-  const updatedQuantity = totalCount - registeredCount;
+  const newUnregisteredCount = totalCount - registeredCount;
 
-  if (typeof prevNotInSystem === "number") {
+  if (previousUnregistered) {
     await updateUnregisteredMeterRecordByCompositeKey({
-      unregisteredMeterCount: updatedQuantity + prevNotInSystem,
+      unregisteredMeterCount: newUnregisteredCount + previousUnregistered,
       balanceGroup: formData.balanceGroup,
       date: formData.date,
       substationId: formData.substationId,
     });
   } else {
-    await handleInsertNotInSystem({
-      ...formData,
-      totalCount: updatedQuantity,
+    await createAccumulatedUnregisteredRecord({
+      newUnregisteredCount,
+      balanceGroup: formData.balanceGroup,
+      date: formData.date,
+      substationId: formData.substationId,
     });
   }
 
-  const ids = await getUnregisteredMeterRecordIdsAfterDate({
+  const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate({
     balanceGroup: formData.balanceGroup,
     startDate: formData.date,
     substationId: formData.substationId,
   });
 
-  if (ids.length > 0) {
-    for (const id of ids) {
-      const quantity = await getUnregisteredMeterCountByRecordId(id);
+  for (const id of futureRecordIds) {
+    const currentCount = await getUnregisteredMeterCountByRecordId(id);
 
-      await updateUnregisteredMeterRecordById({
-        id,
-        unregisteredMeterCount: quantity + updatedQuantity,
-      });
-    }
+    await updateUnregisteredMeterRecordById({
+      id,
+      unregisteredMeterCount: currentCount + newUnregisteredCount,
+    });
   }
+}
+
+interface AccumulatedUnrecordedInput {
+  newUnregisteredCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  substationId: number;
+}
+
+async function createAccumulatedUnregisteredRecord({
+  newUnregisteredCount,
+  balanceGroup,
+  date,
+  substationId,
+}: AccumulatedUnrecordedInput) {
+  const previousUnregistered = await getUnregisteredMeterCountAtDate({
+    balanceGroup: balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
+    transformerSubstationId: substationId,
+  });
+
+  const accumulatedUnregistered = newUnregisteredCount + previousUnregistered;
+
+  await createUnregisteredMeterRecord({
+    unregisteredMeterCount: accumulatedUnregistered,
+    balanceGroup: balanceGroup,
+    date: date,
+    substationId: substationId,
+  });
 }
 
 async function handleInsertNewMeters(formData: FormData) {
@@ -161,24 +191,6 @@ async function handleInsertNewMeters(formData: FormData) {
       }
     }
   }
-}
-
-async function handleInsertNotInSystem(formData: FormData) {
-  const lastQuantity = await getUnregisteredMeterCountAtDate({
-    balanceGroup: formData.balanceGroup,
-    targetDate: formData.date,
-    dateComparison: "before",
-    transformerSubstationId: formData.substationId,
-  });
-
-  const updatedQuantity = formData.totalCount + lastQuantity;
-
-  await createUnregisteredMeterRecord({
-    unregisteredMeterCount: updatedQuantity,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
-  });
 }
 
 async function handleYearMeters(formData: FormData) {
