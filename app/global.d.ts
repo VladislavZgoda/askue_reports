@@ -14,7 +14,7 @@ declare interface MeterCountQueryParams {
   balanceGroup: BalanceGroup;
   targetDate: string;
   dateComparison: "before" | "upTo";
-  transformerSubstationId: number;
+  substationId: number;
 }
 
 declare interface MeterSelectionCriteria {

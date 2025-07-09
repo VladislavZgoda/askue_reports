@@ -51,13 +51,13 @@ async function getMeterCountsByGroup(
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",
-      transformerSubstationId: substationId,
+      substationId,
     }),
     getUnregisteredMeterCountAtDate({
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",
-      transformerSubstationId: substationId,
+      substationId,
     }),
   ]);
 

@@ -68,7 +68,7 @@ async function handleInsert(formData: FormData) {
     balanceGroup: formData.balanceGroup,
     targetDate: formData.date,
     dateComparison: "before",
-    transformerSubstationId: formData.substationId,
+    substationId: formData.substationId,
   });
 
   await createRegisteredMeterRecord({
@@ -145,7 +145,7 @@ async function createAccumulatedUnregisteredRecord({
     balanceGroup: balanceGroup,
     targetDate: date,
     dateComparison: "before",
-    transformerSubstationId: substationId,
+    substationId,
   });
 
   const accumulatedUnregistered = newUnregisteredCount + previousUnregistered;
