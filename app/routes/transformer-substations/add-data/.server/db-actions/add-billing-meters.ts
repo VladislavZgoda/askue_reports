@@ -63,22 +63,6 @@ export default async function addBillingMeters(formData: FormData) {
   await addMessageToLog(formData);
 }
 
-async function handleInsert(formData: FormData) {
-  const lastQuantity = await getRegisteredMeterCountAtDate({
-    balanceGroup: formData.balanceGroup,
-    targetDate: formData.date,
-    dateComparison: "before",
-    substationId: formData.substationId,
-  });
-
-  await createRegisteredMeterRecord({
-    registeredMeterCount: formData.totalCount + lastQuantity,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
-  });
-}
-
 async function processUnregisteredMeters(formData: FormData) {
   const previousUnregistered = await getUnregisteredMeterCount(formData);
 
@@ -165,7 +149,12 @@ async function handleInsertNewMeters(formData: FormData) {
         substationId: formData.substationId,
       });
     } else {
-      await handleInsert(formData);
+      await createAccumulatedRegisteredRecord({
+        newRegisteredCount: formData.totalCount,
+        balanceGroup: formData.balanceGroup,
+        date: formData.date,
+        substationId: formData.substationId,
+      });
     }
 
     const ids = await getRegisteredMeterRecordIdsAfterDate({
@@ -185,6 +174,36 @@ async function handleInsertNewMeters(formData: FormData) {
       }
     }
   }
+}
+
+interface AccumulatedRegisteredInput {
+  newRegisteredCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  substationId: number;
+}
+
+async function createAccumulatedRegisteredRecord({
+  newRegisteredCount,
+  balanceGroup,
+  date,
+  substationId,
+}: AccumulatedRegisteredInput) {
+  const currentRegisteredCount = await getRegisteredMeterCountAtDate({
+    balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
+    substationId,
+  });
+
+  const totalRegistered = newRegisteredCount + currentRegisteredCount;
+
+  await createRegisteredMeterRecord({
+    registeredMeterCount: totalRegistered,
+    balanceGroup,
+    date,
+    substationId,
+  });
 }
 
 async function handleYearMeters(formData: FormData) {
