@@ -79,17 +79,6 @@ async function handleInsert(formData: FormData) {
   });
 }
 
-async function handleUpdate(formData: FormData, prevMetersQuantity: number) {
-  const updatedQuantity = formData.totalCount + prevMetersQuantity;
-
-  await updateRegisteredMeterCount({
-    registeredMeterCount: updatedQuantity,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
-  });
-}
-
 async function processUnregisteredMeters(formData: FormData) {
   const previousUnregistered = await getUnregisteredMeterCount(formData);
 
@@ -169,7 +158,12 @@ async function handleInsertNewMeters(formData: FormData) {
     });
 
     if (prevMetersQuantity) {
-      await handleUpdate(formData, prevMetersQuantity);
+      await updateRegisteredMeterCount({
+        registeredMeterCount: formData.totalCount + prevMetersQuantity,
+        balanceGroup: formData.balanceGroup,
+        date: formData.date,
+        substationId: formData.substationId,
+      });
     } else {
       await handleInsert(formData);
     }
