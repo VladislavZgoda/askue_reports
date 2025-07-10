@@ -188,7 +188,7 @@ export async function getRegisteredMeterCountAtDate({
   balanceGroup,
   targetDate,
   dateComparison,
-  transformerSubstationId,
+  substationId,
 }: MeterCountQueryParams) {
   const result = await db.query.registeredMeters.findFirst({
     columns: {
@@ -196,7 +196,7 @@ export async function getRegisteredMeterCountAtDate({
     },
     where: and(
       eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.transformerSubstationId, transformerSubstationId),
+      eq(registeredMeters.transformerSubstationId, substationId),
       dateComparison === "before"
         ? lt(registeredMeters.date, targetDate)
         : lte(registeredMeters.date, targetDate),
