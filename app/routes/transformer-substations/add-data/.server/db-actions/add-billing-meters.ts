@@ -207,13 +207,15 @@ async function createAccumulatedRegisteredRecord({
 async function handleYearMeters(formData: FormData) {
   const year = cutOutYear(formData.date);
 
-  const prevYearQuantity = await getYearlyMeterInstallationsStats({
-    ...formData,
+  const currentYearStats = await getYearlyMeterInstallationsStats({
+    balanceGroup: formData.balanceGroup,
+    date: formData.date,
+    substationId: formData.substationId,
     year,
   });
 
-  if (prevYearQuantity) {
-    await updateTotalYearMeters(formData, prevYearQuantity, year);
+  if (currentYearStats) {
+    await updateYearlyMeterAccumulations(formData, currentYearStats, year);
   } else {
     await insertTotalYearMeters(formData, year);
   }
@@ -252,20 +254,20 @@ type YearlyMeterCount = Awaited<
   ReturnType<typeof getYearlyMeterInstallationsStats>
 >;
 
-async function updateTotalYearMeters(
+async function updateYearlyMeterAccumulations(
   formData: FormData,
-  prevYearQuantity: NonNullable<YearlyMeterCount>,
+  currentYearStats: NonNullable<YearlyMeterCount>,
   year: number,
 ) {
-  const updatedYearQuantity =
-    formData.totalCount + prevYearQuantity.totalInstalled;
+  const accumulatedTotalInstallations =
+    formData.totalCount + currentYearStats.totalInstalled;
 
-  const updatedAddedToSystem =
-    formData.registeredCount + prevYearQuantity.registeredCount;
+  const accumulatedRegisteredMeters =
+    formData.registeredCount + currentYearStats.registeredCount;
 
   await updateYearlyMeterInstallation({
-    totalInstalled: updatedYearQuantity,
-    registeredCount: updatedAddedToSystem,
+    totalInstalled: accumulatedTotalInstallations,
+    registeredCount: accumulatedRegisteredMeters,
     balanceGroup: formData.balanceGroup,
     substationId: formData.substationId,
     date: formData.date,
