@@ -54,7 +54,7 @@ export default async function addBillingMeters(formData: FormData) {
   await Promise.all([
     handleYearMeters(formData),
     handleMonthMeters(formData),
-    handleInsertNewMeters({
+    processRegisteredMeters({
       ...formData,
       totalCount: formData.registeredCount,
     }),
@@ -131,19 +131,19 @@ async function createAccumulatedUnregisteredRecord({
   });
 }
 
-async function handleInsertNewMeters(formData: FormData) {
+async function processRegisteredMeters(formData: FormData) {
   const { registeredCount } = formData;
 
   if (registeredCount > 0) {
-    const prevMetersQuantity = await getRegisteredMeterCount({
+    const currentRegisteredCount = await getRegisteredMeterCount({
       balanceGroup: formData.balanceGroup,
       date: formData.date,
       substationId: formData.substationId,
     });
 
-    if (prevMetersQuantity) {
+    if (currentRegisteredCount) {
       await updateRegisteredMeterCount({
-        registeredMeterCount: formData.totalCount + prevMetersQuantity,
+        registeredMeterCount: formData.totalCount + currentRegisteredCount,
         balanceGroup: formData.balanceGroup,
         date: formData.date,
         substationId: formData.substationId,
@@ -157,21 +157,19 @@ async function handleInsertNewMeters(formData: FormData) {
       });
     }
 
-    const ids = await getRegisteredMeterRecordIdsAfterDate({
+    const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate({
       balanceGroup: formData.balanceGroup,
       startDate: formData.date,
       substationId: formData.substationId,
     });
 
-    if (ids.length > 0) {
-      for (const id of ids) {
-        const quantity = await getRegisteredMeterCountByRecordId(id);
+    for (const id of futureRecordIds) {
+      const currentCount = await getRegisteredMeterCountByRecordId(id);
 
-        await updateRegisteredMeterRecordById({
-          id,
-          registeredMeterCount: quantity + formData.totalCount,
-        });
-      }
+      await updateRegisteredMeterRecordById({
+        id,
+        registeredMeterCount: currentCount + formData.totalCount,
+      });
     }
   }
 }
