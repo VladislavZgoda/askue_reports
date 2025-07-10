@@ -250,13 +250,13 @@ async function insertTotalYearMeters(formData: FormData, year: number) {
   });
 }
 
-type YearlyMeterCount = Awaited<
+type YearlyMeterStats = Awaited<
   ReturnType<typeof getYearlyMeterInstallationsStats>
 >;
 
 async function updateYearlyMeterAccumulations(
   formData: FormData,
-  currentYearStats: NonNullable<YearlyMeterCount>,
+  currentYearStats: NonNullable<YearlyMeterStats>,
   year: number,
 ) {
   const accumulatedTotalInstallations =
