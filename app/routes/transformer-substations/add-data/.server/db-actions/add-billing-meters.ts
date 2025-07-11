@@ -217,7 +217,7 @@ async function handleYearMeters(formData: FormData) {
   if (currentYearStats) {
     await updateYearlyMeterAccumulations(formData, currentYearStats, year);
   } else {
-    await insertTotalYearMeters(formData, year);
+    await createAccumulatedYearlyInstallation(formData, year);
   }
 
   await updateNextYearRecords({
@@ -226,27 +226,30 @@ async function handleYearMeters(formData: FormData) {
   });
 }
 
-async function insertTotalYearMeters(formData: FormData, year: number) {
-  const lastYearQuantity = await getYearlyInstallationSummaryBeforeCutoff({
+async function createAccumulatedYearlyInstallation(
+  formData: FormData,
+  targetYear: number,
+) {
+  const currentYearSummary = await getYearlyInstallationSummaryBeforeCutoff({
     balanceGroup: formData.balanceGroup,
     cutoffDate: formData.date,
     substationId: formData.substationId,
-    year,
+    year: targetYear,
   });
 
-  const updatedTotalInstalled =
-    formData.totalCount + lastYearQuantity.totalInstalled;
+  const accumulatedTotalInstallations =
+    formData.totalCount + currentYearSummary.totalInstalled;
 
-  const updatedRegisteredCount =
-    formData.registeredCount + lastYearQuantity.registeredCount;
+  const accumulatedRegisteredMeters =
+    formData.registeredCount + currentYearSummary.registeredCount;
 
   await createYearlyMeterInstallation({
-    totalInstalled: updatedTotalInstalled,
-    registeredCount: updatedRegisteredCount,
+    totalInstalled: accumulatedTotalInstallations,
+    registeredCount: accumulatedRegisteredMeters,
     balanceGroup: formData.balanceGroup,
     date: formData.date,
     substationId: formData.substationId,
-    year,
+    year: targetYear,
   });
 }
 
