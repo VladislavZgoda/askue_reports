@@ -220,10 +220,22 @@ async function handleYearMeters(formData: FormData) {
     await createAccumulatedYearlyInstallation(formData, year);
   }
 
-  await updateNextYearRecords({
-    ...formData,
+  const futureRecordIds = await getYearlyInstallationRecordsAfterDate({
+    balanceGroup: formData.balanceGroup,
+    startDate: formData.date,
+    substationId: formData.substationId,
     year,
   });
+
+  for (const id of futureRecordIds) {
+    const currentRecord = await getYearlyInstallationSummaryById(id);
+
+    await updateYearlyInstallationRecordById({
+      id,
+      totalInstalled: currentRecord.totalInstalled + formData.totalCount,
+      registeredCount: currentRecord.registeredCount + formData.registeredCount,
+    });
+  }
 }
 
 async function createAccumulatedYearlyInstallation(
@@ -276,29 +288,6 @@ async function updateYearlyMeterAccumulations(
     date: formData.date,
     year: targetYear,
   });
-}
-
-type YearRecords = FormData & { readonly year: number };
-
-async function updateNextYearRecords(params: YearRecords) {
-  const ids = await getYearlyInstallationRecordsAfterDate({
-    balanceGroup: params.balanceGroup,
-    startDate: params.date,
-    substationId: params.substationId,
-    year: params.year,
-  });
-
-  if (ids.length > 0) {
-    for (const id of ids) {
-      const meters = await getYearlyInstallationSummaryById(id);
-
-      await updateYearlyInstallationRecordById({
-        id,
-        totalInstalled: meters.totalInstalled + params.totalCount,
-        registeredCount: meters.registeredCount + params.registeredCount,
-      });
-    }
-  }
 }
 
 async function handleMonthMeters(formData: FormData) {
@@ -383,7 +372,10 @@ async function updateTotalMonthMeters(
   });
 }
 
-type MonthRecords = YearRecords & { readonly month: string };
+type MonthRecords = FormData & {
+  readonly year: number;
+  readonly month: string;
+};
 
 async function updateNextMonthRecords(params: MonthRecords) {
   const ids = await getMonthlyInstallationRecordsAfterDate({
