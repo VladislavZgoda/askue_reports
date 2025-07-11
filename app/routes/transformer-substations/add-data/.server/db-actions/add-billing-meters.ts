@@ -260,7 +260,7 @@ type YearlyMeterStats = Awaited<
 async function updateYearlyMeterAccumulations(
   formData: FormData,
   currentYearStats: NonNullable<YearlyMeterStats>,
-  year: number,
+  targetYear: number,
 ) {
   const accumulatedTotalInstallations =
     formData.totalCount + currentYearStats.totalInstalled;
@@ -274,7 +274,7 @@ async function updateYearlyMeterAccumulations(
     balanceGroup: formData.balanceGroup,
     substationId: formData.substationId,
     date: formData.date,
-    year,
+    year: targetYear,
   });
 }
 
