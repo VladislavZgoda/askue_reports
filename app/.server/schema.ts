@@ -10,7 +10,7 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 const timestamps = {
   createdAt: timestamp("created_at", {
@@ -141,10 +141,18 @@ export const yearlyMeterInstallations = pgTable(
   },
   (table) => {
     return [
-      index("year_foreign_key").on(table.transformerSubstationId),
-      index("year_type_index").on(table.balanceGroup),
-      index("year_date_index").on(table.date),
-      index("year_index").on(table.year),
+      index("idx_yearly_installations_main").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        table.year,
+        table.date,
+      ),
+      index("idx_yearly_installations_order").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        table.year,
+        sql`${table.date} DESC`,
+      ),
     ];
   },
 );
