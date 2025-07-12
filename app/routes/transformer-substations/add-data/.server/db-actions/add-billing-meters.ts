@@ -52,7 +52,7 @@ export default async function addBillingMeters(formData: FormData) {
   }
 
   await Promise.all([
-    handleYearMeters(formData),
+    processYearlyInstallations(formData),
     handleMonthMeters(formData),
     processRegisteredMeters({
       ...formData,
@@ -204,7 +204,20 @@ async function createAccumulatedRegisteredRecord({
   });
 }
 
-async function handleYearMeters(formData: FormData) {
+/**
+ * Processes yearly meter installation data by:
+ * 1. Updating or creating yearly accumulation records
+ * 2. Propagating installation counts to future records in the same year
+ *
+ * @async
+ * @param formData - Installation data with validation
+ *   @property totalCount - Total meters installed
+ *   @property registeredCount - Meters registered in system
+ *   @property balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
+ *   @property date - Installation date (YYYY-MM-DD format)
+ *   @property substationId - Associated substation ID
+ */
+async function processYearlyInstallations(formData: FormData) {
   const year = cutOutYear(formData.date);
 
   const currentYearStats = await getYearlyMeterInstallationsStats({
