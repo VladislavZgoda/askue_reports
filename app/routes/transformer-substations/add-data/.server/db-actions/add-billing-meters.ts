@@ -11,9 +11,8 @@ import {
 import {
   createYearlyMeterInstallation,
   updateYearlyMeterInstallation,
-  getYearlyInstallationSummaryById,
   getYearlyMeterInstallationsStats,
-  updateYearlyInstallationRecordById,
+  incrementYearlyInstallationRecords,
   getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
@@ -240,14 +239,20 @@ async function processYearlyInstallations(formData: FormData) {
     year,
   });
 
-  for (const id of futureRecordIds) {
-    const currentRecord = await getYearlyInstallationSummaryById(id);
+  if (futureRecordIds.length > 0) {
+    const updatedCount = await incrementYearlyInstallationRecords(
+      futureRecordIds,
+      formData.totalCount,
+      formData.registeredCount,
+    );
 
-    await updateYearlyInstallationRecordById({
-      id,
-      totalInstalled: currentRecord.totalInstalled + formData.totalCount,
-      registeredCount: currentRecord.registeredCount + formData.registeredCount,
-    });
+    if (updatedCount !== futureRecordIds.length) {
+      const failedCount = futureRecordIds.length - updatedCount;
+      throw new Error(
+        `Failed to update ${failedCount} records. ` +
+          "Update would violate registered_count <= total_installed constraint.",
+      );
+    }
   }
 }
 
