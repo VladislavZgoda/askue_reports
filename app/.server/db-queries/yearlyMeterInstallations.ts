@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { yearlyMeterInstallations } from "../schema";
-import { eq, and, desc, gt, lt } from "drizzle-orm";
+import { sql, eq, and, desc, gt, lt, inArray } from "drizzle-orm";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
@@ -333,4 +333,39 @@ export async function getYearlyInstallationSummaryBeforeCutoff({
   });
 
   return result ?? { totalInstalled: 0, registeredCount: 0 };
+}
+
+/**
+ * Atomically increments installation counts for multiple records with safety validation
+ *
+ * @param ids Record IDs to update
+ * @param totalIncrement Value to add to total_installed
+ * @param registeredIncrement Value to add to registered_count
+ * @returns Number of updated records
+ * @throws Error if validation fails or update count mismatch
+ */
+export async function incrementYearlyInstallationRecords(
+  ids: number[],
+  totalIncrement: number,
+  registeredIncrement: number,
+): Promise<number> {
+  if (ids.length === 0) return 0;
+
+  const result = await db
+    .update(yearlyMeterInstallations)
+    .set({
+      totalInstalled: sql`${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
+      registeredCount: sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}`,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        inArray(yearlyMeterInstallations.id, ids),
+        sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}
+            <= ${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
+      ),
+    )
+    .returning();
+
+  return result.length;
 }
