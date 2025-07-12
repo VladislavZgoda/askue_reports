@@ -215,6 +215,7 @@ async function createAccumulatedRegisteredRecord({
  *   @property balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
  *   @property date - Installation date (YYYY-MM-DD format)
  *   @property substationId - Associated substation ID
+ * @throws Error if validation fails or update count mismatch
  */
 async function processYearlyInstallations(formData: FormData) {
   const year = cutOutYear(formData.date);

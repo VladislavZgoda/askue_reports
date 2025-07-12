@@ -319,7 +319,6 @@ export async function getYearlyInstallationSummaryBeforeCutoff({
  * @param totalIncrement Value to add to total_installed
  * @param registeredIncrement Value to add to registered_count
  * @returns Number of updated records
- * @throws Error if validation fails or update count mismatch
  */
 export async function incrementYearlyInstallationRecords(
   ids: number[],
