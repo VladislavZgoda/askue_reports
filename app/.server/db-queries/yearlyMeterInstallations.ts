@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { yearlyMeterInstallations } from "../schema";
-import { sql, eq, and, desc, gt, lt, inArray } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
@@ -47,35 +47,6 @@ export async function createYearlyMeterInstallation({
   });
 }
 
-interface YearlyMeterInstallationsStatsParams {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  year: YearlyMeterInstallations["year"];
-  substationId: number;
-}
-
-export async function getYearlyMeterInstallationsStats({
-  balanceGroup,
-  date,
-  substationId,
-  year,
-}: YearlyMeterInstallationsStatsParams) {
-  const result = await db.query.yearlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(yearlyMeterInstallations.date, date),
-      eq(yearlyMeterInstallations.year, year),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-    ),
-  });
-
-  return result;
-}
-
 export async function selectLastYearQuantity({
   balanceGroup,
   transformerSubstationId,
@@ -101,60 +72,6 @@ export async function selectLastYearQuantity({
     .limit(1);
 
   return yearQuantity;
-}
-
-interface YearlyMeterInstallationUpdateParams {
-  totalInstalled: YearlyMeterInstallations["totalInstalled"];
-  registeredCount: YearlyMeterInstallations["registeredCount"];
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-/**
- * Updates an existing yearly meter installation record
- *
- * @param totalInstalled New total installed meters count
- * @param registeredCount New registered meters count
- * @param balanceGroup Balance group for the record
- * @param date Date of the installation record
- * @param substationId ID of the transformer substation
- * @param year Year of the installation record
- *
- * @throws Will throw if registeredCount more than totalInstalled
- * @throws Will throw if no record exists
- */
-export async function updateYearlyMeterInstallation({
-  totalInstalled,
-  registeredCount,
-  balanceGroup,
-  date,
-  substationId,
-  year,
-}: YearlyMeterInstallationUpdateParams) {
-  if (registeredCount > totalInstalled) {
-    throw new Error("Registered count cannot exceed total installed");
-  }
-
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await db
-    .update(yearlyMeterInstallations)
-    .set({ totalInstalled, registeredCount, updatedAt })
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.date, date),
-        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-        eq(yearlyMeterInstallations.year, year),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("Yearly installation record not found");
-  }
 }
 
 export async function getLastYearId({
@@ -217,131 +134,4 @@ export async function updateYearlyInstallationRecordById({
   if (!updatedRecord) {
     throw new Error(`Yearly installation record with ID ${id} not found`);
   }
-}
-
-interface YearlyInstallationRecordQuery {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  startDate: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-/**
- * Retrieves IDs of yearly installation records created after a specific date
- * that match the given criteria (balance group, substation, and year)
- *
- * @param params Query parameters
- * @param params.balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.startDate Exclusive lower bound date (YYYY-MM-DD format).
- *                         Only records with date > startDate are returned.
- * @param params.substationId Transformer substation identifier
- * @param year Year filter for the installation records
- *
- * @returns Array of record IDs (numbers) for matching yearly installation records.
- *          Returns empty array if no matching records found.
- *
- * @example
- * const recordIds = await getYearlyInstallationRecordsAfterDate({
- *   balanceGroup: 'Быт',
- *   startDate: '2023-01-01',
- *   substationId: 42,
- *   year: 2023
- * });
- * // Returns: [101, 102, 103]
- */
-export async function getYearlyInstallationRecordsAfterDate({
-  balanceGroup,
-  startDate,
-  substationId,
-  year,
-}: YearlyInstallationRecordQuery): Promise<number[]> {
-  const result = await db.query.yearlyMeterInstallations.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      gt(yearlyMeterInstallations.date, startDate),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-      eq(yearlyMeterInstallations.year, year),
-    ),
-  });
-
-  const transformedResult = result.map((r) => r.id);
-
-  return transformedResult;
-}
-
-interface YearlyInstallationSummaryQuery {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  cutoffDate: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-/**
- * Retrieves the latest yearly installation summary before a cutoff date
- *
- * @param cutoffDate Exclusive upper bound date (YYYY-MM-DD format)
- * @param balanceGroup Balance group filter
- * @param substationId Transformer substation ID
- * @param year Year filter
- * @returns Summary object with total installed and registered counts,
- *          or default zero values if not found
- */
-export async function getYearlyInstallationSummaryBeforeCutoff({
-  balanceGroup,
-  cutoffDate,
-  substationId,
-  year,
-}: YearlyInstallationSummaryQuery) {
-  const result = await db.query.yearlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(yearlyMeterInstallations.year, year),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-      lt(yearlyMeterInstallations.date, cutoffDate),
-    ),
-    orderBy: [desc(yearlyMeterInstallations.date)],
-  });
-
-  return result ?? { totalInstalled: 0, registeredCount: 0 };
-}
-
-/**
- * Atomically increments installation counts for multiple records with safety validation
- *
- * @param ids Record IDs to update
- * @param totalIncrement Value to add to total_installed
- * @param registeredIncrement Value to add to registered_count
- * @returns Number of updated records
- */
-export async function incrementYearlyInstallationRecords(
-  ids: number[],
-  totalIncrement: number,
-  registeredIncrement: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await db
-    .update(yearlyMeterInstallations)
-    .set({
-      totalInstalled: sql`${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      registeredCount: sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        inArray(yearlyMeterInstallations.id, ids),
-        sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}
-            <= ${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      ),
-    )
-    .returning();
-
-  return result.length;
 }

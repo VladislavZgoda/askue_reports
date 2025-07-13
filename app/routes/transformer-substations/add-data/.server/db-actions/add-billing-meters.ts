@@ -9,15 +9,6 @@ import {
 } from "~/.server/db-queries/registeredMeters";
 
 import {
-  createYearlyMeterInstallation,
-  updateYearlyMeterInstallation,
-  getYearlyMeterInstallationsStats,
-  incrementYearlyInstallationRecords,
-  getYearlyInstallationRecordsAfterDate,
-  getYearlyInstallationSummaryBeforeCutoff,
-} from "~/.server/db-queries/yearlyMeterInstallations";
-
-import {
   getMonthlyInstallationReport,
   getMonthlyInstallationSummary,
   createMonthlyInstallationRecord,
@@ -37,6 +28,7 @@ import {
   updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregisteredMeters";
 
+import processYearlyInstallations from "./yearly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import type { BillingValidationForm } from "../../validation/billing-form-schema";
@@ -200,112 +192,6 @@ async function createAccumulatedRegisteredRecord({
     balanceGroup,
     date,
     substationId,
-  });
-}
-
-/**
- * Processes yearly meter installation data by:
- * 1. Updating or creating yearly accumulation records
- * 2. Propagating installation counts to future records in the same year
- *
- * @async
- * @param formData - Installation data with validation
- *   @property totalCount - Total meters installed
- *   @property registeredCount - Meters registered in system
- *   @property balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
- *   @property date - Installation date (YYYY-MM-DD format)
- *   @property substationId - Associated substation ID
- * @throws Error if validation fails or update count mismatch
- */
-async function processYearlyInstallations(formData: FormData) {
-  const year = cutOutYear(formData.date);
-
-  const currentYearStats = await getYearlyMeterInstallationsStats({
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
-    year,
-  });
-
-  if (currentYearStats) {
-    await updateYearlyMeterAccumulations(formData, currentYearStats, year);
-  } else {
-    await createAccumulatedYearlyInstallation(formData, year);
-  }
-
-  const futureRecordIds = await getYearlyInstallationRecordsAfterDate({
-    balanceGroup: formData.balanceGroup,
-    startDate: formData.date,
-    substationId: formData.substationId,
-    year,
-  });
-
-  if (futureRecordIds.length > 0) {
-    const updatedCount = await incrementYearlyInstallationRecords(
-      futureRecordIds,
-      formData.totalCount,
-      formData.registeredCount,
-    );
-
-    if (updatedCount !== futureRecordIds.length) {
-      const failedCount = futureRecordIds.length - updatedCount;
-      throw new Error(
-        `Failed to update ${failedCount} records. ` +
-          "Update would violate registered_count <= total_installed constraint.",
-      );
-    }
-  }
-}
-
-async function createAccumulatedYearlyInstallation(
-  formData: FormData,
-  targetYear: number,
-) {
-  const currentYearSummary = await getYearlyInstallationSummaryBeforeCutoff({
-    balanceGroup: formData.balanceGroup,
-    cutoffDate: formData.date,
-    substationId: formData.substationId,
-    year: targetYear,
-  });
-
-  const accumulatedTotalInstallations =
-    formData.totalCount + currentYearSummary.totalInstalled;
-
-  const accumulatedRegisteredMeters =
-    formData.registeredCount + currentYearSummary.registeredCount;
-
-  await createYearlyMeterInstallation({
-    totalInstalled: accumulatedTotalInstallations,
-    registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
-    year: targetYear,
-  });
-}
-
-type YearlyMeterStats = Awaited<
-  ReturnType<typeof getYearlyMeterInstallationsStats>
->;
-
-async function updateYearlyMeterAccumulations(
-  formData: FormData,
-  currentYearStats: NonNullable<YearlyMeterStats>,
-  targetYear: number,
-) {
-  const accumulatedTotalInstallations =
-    formData.totalCount + currentYearStats.totalInstalled;
-
-  const accumulatedRegisteredMeters =
-    formData.registeredCount + currentYearStats.registeredCount;
-
-  await updateYearlyMeterInstallation({
-    totalInstalled: accumulatedTotalInstallations,
-    registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    substationId: formData.substationId,
-    date: formData.date,
-    year: targetYear,
   });
 }
 

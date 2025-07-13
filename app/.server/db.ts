@@ -8,3 +8,5 @@ export const db = drizzle(client, {
   logger: true,
   casing: "snake_case",
 });
+
+export type Database = typeof db;
