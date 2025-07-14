@@ -162,6 +162,17 @@ async function getYearlyInstallationRecordsAfterDate(
   return result.map((r) => r.id);
 }
 
+/**
+ * Updates yearly installation records in batch with safety validation
+ *
+ * @param executor Database executor
+ * @param ids Record IDs to update
+ * @param totalIncrement Value to add to total_installed
+ * @param registeredIncrement Value to add to registered_count
+ * @returns Number of successfully updated records
+ *
+ * @throws Error if validation fails (registered > total)
+ */
 async function incrementYearlyInstallationRecords(
   executor: Executor,
   ids: number[],
@@ -198,6 +209,14 @@ interface YearlyMeterInstallationInput {
   year: YearlyMeterInstallations["year"];
 }
 
+/**
+ * Creates a new yearly meter installation record
+ *
+ * @param executor Database executor
+ * @param params Installation data
+ *
+ * @throws Error if registeredCount > totalInstalled
+ */
 async function createYearlyMeterInstallation(
   executor: Executor,
   {
@@ -227,6 +246,14 @@ type YearlyMeterStats = Awaited<
   ReturnType<typeof getYearlyMeterInstallationsStats>
 >;
 
+/**
+ * Updates existing yearly accumulation record with new installation data
+ *
+ * @param executor Database executor
+ * @param formData New installation data
+ * @param currentYearStats Existing accumulation record
+ * @param targetYear Target year for accumulation
+ */
 async function updateYearlyMeterAccumulations(
   executor: Executor,
   formData: FormData,
@@ -248,6 +275,15 @@ async function updateYearlyMeterAccumulations(
   });
 }
 
+/**
+ * Creates a new yearly accumulation record when none exists
+ *
+ * Calculates accumulations based on previous records
+ *
+ * @param executor Database executor
+ * @param formData New installation data
+ * @param targetYear Target year for accumulation
+ */
 async function createAccumulatedYearlyInstallation(
   executor: Executor,
   formData: FormData,
@@ -278,9 +314,33 @@ async function createAccumulatedYearlyInstallation(
   });
 }
 
-// ===== Main Processing Function =====
 /**
- * Processes yearly meter installation data atomically
+ * Processes yearly meter installation data atomically:
+ * 1. Updates or creates yearly accumulation records
+ * 2. Propagates installation counts to future records
+ *
+ * Performs all operations within a database transaction to ensure data consistency
+ *
+ * @param formData Installation data with validation
+ *   @property totalCount - Total meters installed
+ *   @property registeredCount - Meters registered in system
+ *   @property balanceGroup - Balance group category
+ *   @property date - Installation date (YYYY-MM-DD)
+ *   @property substationId - Associated substation ID
+ *
+ * @throws Error if:
+ *   - Validation fails (registered > total)
+ *   - Batch update partially fails
+ *   - Database constraints are violated
+ *
+ * @example
+ * await processYearlyInstallations({
+ *   totalCount: 15,
+ *   registeredCount: 12,
+ *   balanceGroup: 'Быт',
+ *   date: '2023-06-15',
+ *   substationId: 42
+ * });
  */
 export default async function processYearlyInstallations(formData: FormData) {
   const year = cutOutYear(formData.date);
