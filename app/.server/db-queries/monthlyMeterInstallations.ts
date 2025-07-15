@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { monthlyMeterInstallations } from "../schema";
-import { eq, and, desc, gt, gte, lt, lte } from "drizzle-orm";
+import { eq, and, desc, gte, lte } from "drizzle-orm";
 
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
@@ -113,57 +113,6 @@ export async function selectLastMonthQuantity({
   return monthQuantity;
 }
 
-interface MonthlyInstallationUpdateParams {
-  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
-  registeredCount: MonthlyMeterInstallations["registeredCount"];
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  date: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-/**
- * Updates a monthly installation record by its composite key
- *
- * @param params Composite key and update values
- *
- * @throws Will throw if registeredCount more than totalInstalled
- * @throws Will throw if no matching record is found
- */
-export async function updateMonthlyInstallationRecord(
-  params: MonthlyInstallationUpdateParams,
-) {
-  validateInstallationParams(params);
-
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await db
-    .update(monthlyMeterInstallations)
-    .set({
-      totalInstalled: params.totalInstalled,
-      registeredCount: params.registeredCount,
-      updatedAt,
-    })
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, params.balanceGroup),
-        eq(monthlyMeterInstallations.date, params.date),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          params.substationId,
-        ),
-        eq(monthlyMeterInstallations.month, params.month),
-        eq(monthlyMeterInstallations.year, params.year),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("No monthly installation record found to update");
-  }
-}
-
 function validateInstallationParams(params: InstallationSummary) {
   if (params.registeredCount > params.totalInstalled) {
     throw new Error("Registered count cannot exceed total installed");
@@ -230,124 +179,6 @@ export async function updateMonthlyInstallationRecordById({
   if (!updatedRecord) {
     throw new Error(`Monthly installation record with ID ${id} not found`);
   }
-}
-
-interface MonthlyInstallationRecordQuery {
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  startDate: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-/**
- * Retrieves monthly installation records after a specific date
- *
- * @param startDate Starting date (exclusive) for records (YYYY-MM-DD format)
- * @param balanceGroup Balance group filter
- * @param substationId Transformer substation ID
- * @param month Month filter
- * @param year Year filter
- * @returns Array of record objects containing IDs
- */
-export async function getMonthlyInstallationRecordsAfterDate({
-  balanceGroup,
-  startDate,
-  substationId,
-  month,
-  year,
-}: MonthlyInstallationRecordQuery): Promise<
-  {
-    id: number;
-  }[]
-> {
-  const result = await db.query.monthlyMeterInstallations.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      gt(monthlyMeterInstallations.date, startDate),
-      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      eq(monthlyMeterInstallations.month, month),
-      eq(monthlyMeterInstallations.year, year),
-    ),
-  });
-
-  return result;
-}
-
-/**
- * Retrieves monthly installation summary by record ID
- *
- * @param id Record ID of the monthly installation summary
- * @returns Object with total installed and registered counts
- * @throws Will throw if record with given ID doesn't exist
- */
-export async function getMonthlyInstallationSummaryById(
-  id: number,
-): Promise<InstallationSummary> {
-  const result = await db.query.monthlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: eq(monthlyMeterInstallations.id, id),
-  });
-
-  if (!result) {
-    throw new Error(`Monthly installation summary with ID ${id} not found`);
-  }
-
-  return result;
-}
-
-interface MonthlyInstallationReportParams {
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  cutoffDate: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-/**
- * Retrieves the latest monthly meter installation statistics
- * for a specific substation and balance group before a cutoff date
- *
- * @param params - Query parameters for the report
- * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.cutoffDate - Exclusive upper bound date (YYYY-MM-DD format).
- *                            Only records with date < cutoffDate are considered.
- * @param params.substationId - Transformer substation identifier
- * @param params.month - Month of interest (MM format, 01-12)
- * @param params.year - Year of interest
- *
- * @returns Summary object containing:
- *          If no records found, returns {totalInstalled: 0, registeredCount: 0}
- */
-export async function getMonthlyInstallationReport({
-  balanceGroup,
-  cutoffDate,
-  substationId,
-  month,
-  year,
-}: MonthlyInstallationReportParams): Promise<InstallationSummary> {
-  const result = await db.query.monthlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: and(
-      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(monthlyMeterInstallations.year, year),
-      eq(monthlyMeterInstallations.month, month),
-      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      lt(monthlyMeterInstallations.date, cutoffDate),
-    ),
-    orderBy: [desc(monthlyMeterInstallations.date)],
-  });
-
-  return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
 
 interface PreviousMonthInstallationSummaryParams {
