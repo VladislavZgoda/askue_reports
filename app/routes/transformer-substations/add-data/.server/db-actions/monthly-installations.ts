@@ -2,6 +2,7 @@ import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
+import { validateInstallationParams } from "../utils/installation-params";
 import * as schema from "app/.server/schema";
 
 import type { ExtractTablesWithRelations } from "drizzle-orm";
@@ -9,6 +10,7 @@ import type { BillingValidationForm } from "../../validation/billing-form-schema
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { Database } from "~/.server/db";
+import type { InstallationStats } from "../utils/installation-params";
 
 type Executor =
   | Database
@@ -28,11 +30,6 @@ interface MonthlyMeterInstallationsStatsParams {
   substationId: MonthlyMeterInstallations["transformerSubstationId"];
   month: MonthlyMeterInstallations["month"];
   year: MonthlyMeterInstallations["year"];
-}
-
-interface InstallationStats {
-  totalInstalled: number;
-  registeredCount: number;
 }
 
 /**
@@ -65,17 +62,6 @@ async function getMonthlyMeterInstallationStats(
   });
 
   return result;
-}
-
-/**
- * Validates installation parameters
- *
- * @throws {Error} When registered count exceeds total installed
- */
-function validateInstallationParams(params: InstallationStats) {
-  if (params.registeredCount > params.totalInstalled) {
-    throw new Error("Registered count cannot exceed total installed");
-  }
 }
 
 interface MonthlyInstallationUpdateParams {

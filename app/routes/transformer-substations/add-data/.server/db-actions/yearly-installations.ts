@@ -2,6 +2,7 @@ import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
+import { validateInstallationParams } from "../utils/installation-params";
 import * as schema from "app/.server/schema";
 
 import type { ExtractTablesWithRelations } from "drizzle-orm";
@@ -9,6 +10,7 @@ import type { BillingValidationForm } from "../../validation/billing-form-schema
 import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { Database } from "~/.server/db";
+import type { InstallationStats } from "../utils/installation-params";
 
 type Executor =
   | Database
@@ -36,13 +38,7 @@ async function getYearlyMeterInstallationsStats(
     substationId,
     year,
   }: YearlyMeterInstallationsStatsParams,
-): Promise<
-  | {
-      totalInstalled: number;
-      registeredCount: number;
-    }
-  | undefined
-> {
+): Promise<InstallationStats | undefined> {
   const result = await executor.query.yearlyMeterInstallations.findFirst({
     columns: { totalInstalled: true, registeredCount: true },
     where: and(
@@ -100,30 +96,28 @@ interface YearlyMeterInstallationUpdateParams {
 
 async function updateYearlyMeterInstallation(
   executor: Executor,
-  {
-    totalInstalled,
-    registeredCount,
-    balanceGroup,
-    date,
-    substationId,
-    year,
-  }: YearlyMeterInstallationUpdateParams,
+  params: YearlyMeterInstallationUpdateParams,
 ) {
-  if (registeredCount > totalInstalled) {
-    throw new Error("Registered count cannot exceed total installed");
-  }
+  validateInstallationParams(params);
 
   const updatedAt = new Date();
 
   const [updatedRecord] = await executor
     .update(yearlyMeterInstallations)
-    .set({ totalInstalled, registeredCount, updatedAt })
+    .set({
+      totalInstalled: params.totalInstalled,
+      registeredCount: params.registeredCount,
+      updatedAt,
+    })
     .where(
       and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.date, date),
-        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-        eq(yearlyMeterInstallations.year, year),
+        eq(yearlyMeterInstallations.balanceGroup, params.balanceGroup),
+        eq(yearlyMeterInstallations.date, params.date),
+        eq(
+          yearlyMeterInstallations.transformerSubstationId,
+          params.substationId,
+        ),
+        eq(yearlyMeterInstallations.year, params.year),
       ),
     )
     .returning();
@@ -219,32 +213,19 @@ interface YearlyMeterInstallationInput {
  */
 async function createYearlyMeterInstallation(
   executor: Executor,
-  {
-    totalInstalled,
-    registeredCount,
-    balanceGroup,
-    date,
-    substationId,
-    year,
-  }: YearlyMeterInstallationInput,
+  params: YearlyMeterInstallationInput,
 ) {
-  if (registeredCount > totalInstalled) {
-    throw new Error("Registered count cannot exceed total installed");
-  }
+  validateInstallationParams(params);
 
   await executor.insert(yearlyMeterInstallations).values({
-    totalInstalled,
-    registeredCount,
-    balanceGroup,
-    date,
-    transformerSubstationId: substationId,
-    year,
+    totalInstalled: params.totalInstalled,
+    registeredCount: params.registeredCount,
+    balanceGroup: params.balanceGroup,
+    date: params.date,
+    transformerSubstationId: params.substationId,
+    year: params.year,
   });
 }
-
-type YearlyMeterStats = Awaited<
-  ReturnType<typeof getYearlyMeterInstallationsStats>
->;
 
 /**
  * Updates existing yearly accumulation record with new installation data
@@ -257,7 +238,7 @@ type YearlyMeterStats = Awaited<
 async function updateYearlyMeterAccumulations(
   executor: Executor,
   formData: FormData,
-  currentYearStats: NonNullable<YearlyMeterStats>,
+  currentYearStats: InstallationStats,
   targetYear: number,
 ) {
   const accumulatedTotalInstallations =
