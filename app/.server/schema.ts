@@ -182,11 +182,20 @@ export const monthlyMeterInstallations = pgTable(
   },
   (table) => {
     return [
-      index("month_foreign_key").on(table.transformerSubstationId),
-      index("month_type_index").on(table.balanceGroup),
-      index("month_date_index").on(table.date),
-      index("month_index").on(table.month),
-      index("month_year_index").on(table.year),
+      index("idx_monthly_installations_main").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        table.month,
+        table.year,
+        table.date,
+      ),
+      index("idx_monthly_installations_order").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        table.month,
+        table.year,
+        sql`${table.date} DESC`,
+      ),
     ];
   },
 );
