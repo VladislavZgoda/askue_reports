@@ -8,16 +8,7 @@ import {
   getRegisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/registeredMeters";
 
-import {
-  getUnregisteredMeterCount,
-  createUnregisteredMeterRecord,
-  getUnregisteredMeterCountAtDate,
-  updateUnregisteredMeterRecordById,
-  getUnregisteredMeterCountByRecordId,
-  getUnregisteredMeterRecordIdsAfterDate,
-  updateUnregisteredMeterRecordByCompositeKey,
-} from "~/.server/db-queries/unregisteredMeters";
-
+import processUnregisteredMeters from "./unregistered-meters";
 import processYearlyInstallations from "./yearly-installations";
 import processMonthlyInstallations from "./monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
@@ -42,74 +33,6 @@ export default async function addBillingMeters(formData: FormData) {
   ]);
 
   await addMessageToLog(formData);
-}
-
-async function processUnregisteredMeters(formData: FormData) {
-  const previousUnregistered = await getUnregisteredMeterCount(formData);
-
-  const { totalCount, registeredCount } = formData;
-  const newUnregisteredCount = totalCount - registeredCount;
-
-  if (previousUnregistered) {
-    await updateUnregisteredMeterRecordByCompositeKey({
-      unregisteredMeterCount: newUnregisteredCount + previousUnregistered,
-      balanceGroup: formData.balanceGroup,
-      date: formData.date,
-      substationId: formData.substationId,
-    });
-  } else {
-    await createAccumulatedUnregisteredRecord({
-      newUnregisteredCount,
-      balanceGroup: formData.balanceGroup,
-      date: formData.date,
-      substationId: formData.substationId,
-    });
-  }
-
-  const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate({
-    balanceGroup: formData.balanceGroup,
-    startDate: formData.date,
-    substationId: formData.substationId,
-  });
-
-  for (const id of futureRecordIds) {
-    const currentCount = await getUnregisteredMeterCountByRecordId(id);
-
-    await updateUnregisteredMeterRecordById({
-      id,
-      unregisteredMeterCount: currentCount + newUnregisteredCount,
-    });
-  }
-}
-
-interface AccumulatedUnrecordedInput {
-  newUnregisteredCount: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  substationId: number;
-}
-
-async function createAccumulatedUnregisteredRecord({
-  newUnregisteredCount,
-  balanceGroup,
-  date,
-  substationId,
-}: AccumulatedUnrecordedInput) {
-  const previousUnregistered = await getUnregisteredMeterCountAtDate({
-    balanceGroup: balanceGroup,
-    targetDate: date,
-    dateComparison: "before",
-    substationId,
-  });
-
-  const accumulatedUnregistered = newUnregisteredCount + previousUnregistered;
-
-  await createUnregisteredMeterRecord({
-    unregisteredMeterCount: accumulatedUnregistered,
-    balanceGroup: balanceGroup,
-    date: date,
-    substationId: substationId,
-  });
 }
 
 async function processRegisteredMeters(formData: FormData) {
