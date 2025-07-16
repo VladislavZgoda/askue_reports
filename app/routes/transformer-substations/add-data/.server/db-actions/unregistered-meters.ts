@@ -25,6 +25,16 @@ interface MeterCountQueryParams {
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
+/**
+ * Retrieves unregistered meter count before a cutoff date
+ *
+ * @param executor - Database executor
+ * @param params - Query parameters
+ *   @property balanceGroup - Balance group category
+ *   @property targetDate - Cutoff date (exclusive)
+ *   @property substationId - Associated substation ID
+ * @returns Unregistered meter count (0 if no records found)
+ */
 async function getUnregisteredMeterCountBeforeCutoff(
   executor: Executor,
   { balanceGroup, targetDate, substationId }: MeterCountQueryParams,
@@ -77,6 +87,17 @@ interface AccumulatedUnrecordedInput {
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
+/**
+ * Creates accumulated unregistered meter record
+ *
+ * Calculates new totals based on previous records before the cutoff date
+ *
+ * @param executor - Database executor
+ * @param newUnregisteredCount - New unregistered meters to add
+ * @param balanceGroup - Balance group category
+ * @param date - Record date (YYYY-MM-DD)
+ * @param substationId - Associated substation ID
+ */
 async function createAccumulatedUnregisteredRecord(
   executor: Executor,
   {
@@ -112,6 +133,18 @@ interface UnregisteredMeterRecordInput {
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
+/**
+ * Updates unregistered meter record by composite key
+ *
+ * @param executor - Database executor
+ * @param params - Update parameters
+ *   @property unregisteredMeterCount - New meter count value
+ *   @property balanceGroup - Balance group category
+ *   @property date - Record date (YYYY-MM-DD)
+ *   @property substationId - Associated substation ID
+ *
+ * @throws {Error} When no matching record found
+ */
 async function updateUnregisteredMeterRecordByCompositeKey(
   executor: Executor,
   {
@@ -170,6 +203,16 @@ interface UnregisteredMeterQueryParams {
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
+/**
+ * Gets IDs of unregistered meter records after a specific date
+ *
+ * @param executor - Database executor
+ * @param params - Query parameters
+ *   @property balanceGroup - Balance group category
+ *   @property startDate - Exclusive lower bound date
+ *   @property substationId - Associated substation ID
+ * @returns Array of record IDs
+ */
 async function getUnregisteredMeterRecordIdsAfterDate(
   executor: Executor,
   { balanceGroup, startDate, substationId }: UnregisteredMeterQueryParams,
@@ -190,6 +233,16 @@ async function getUnregisteredMeterRecordIdsAfterDate(
   return transformedResult;
 }
 
+/**
+ * Batched update of future unregistered meter records
+ *
+ * Atomically increments counts for multiple records
+ *
+ * @param executor - Database executor
+ * @param ids - Record IDs to update
+ * @param newUnregisteredCount - Value to add to unregistered_meter_count
+ * @returns Number of updated records
+ */
 async function incrementUnregisteredMetersRecords(
   executor: Executor,
   ids: number[],
@@ -209,6 +262,33 @@ async function incrementUnregisteredMetersRecords(
   return result.length;
 }
 
+/**
+ * Processes unregistered meter data atomically:
+ * 1. Updates or creates unregistered meter accumulation records
+ * 2. Propagates counts to future records
+ *
+ * Performs all operations within a database transaction
+ *
+ * @param formData - Validated installation data
+ *   @property totalCount - Total meters installed
+ *   @property registeredCount - Meters registered in system
+ *   @property balanceGroup - Balance group category
+ *   @property date - Installation date (YYYY-MM-DD)
+ *   @property substationId - Associated substation ID
+ *
+ * @throws {Error} When:
+ *   - Batch update partially fails
+ *   - Database constraints are violated
+ *
+ * @example
+ * await processUnregisteredMeters({
+ *   totalCount: 15,
+ *   registeredCount: 12,
+ *   balanceGroup: 'ЮР П2',
+ *   date: '2023-06-15',
+ *   substationId: 42
+ * });
+ */
 export default async function processUnregisteredMeters(formData: FormData) {
   const { totalCount, registeredCount } = formData;
   const newUnregisteredCount = totalCount - registeredCount;
