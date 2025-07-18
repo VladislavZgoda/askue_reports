@@ -1,6 +1,6 @@
 import { db } from "../db";
 import { unregisteredMeters } from "../schema";
-import { eq, and, desc, lte, gt, lt } from "drizzle-orm";
+import { eq, and, desc, lte, lt } from "drizzle-orm";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
@@ -32,45 +32,6 @@ export async function createUnregisteredMeterRecord({
     date,
     transformerSubstationId: substationId,
   });
-}
-
-/**
- * Updates an unregistered meter record using composite key lookup
- *
- * @param params Update data and composite key identifiers
- * @param params.unregisteredMeterCount New count value
- * @param params.balanceGroup Balance group (part of composite key)
- * @param params.date Record date (part of composite key, YYYY-MM-DD)
- * @param params.substationId Substation ID (part of composite key)
- *
- * @throws Will throw if no matching record found
- *
- * @remarks
- * Uses composite key of (substationId, date, balanceGroup) to locate record
- */
-export async function updateUnregisteredMeterRecordByCompositeKey({
-  unregisteredMeterCount,
-  balanceGroup,
-  date,
-  substationId,
-}: UnregisteredMeterRecordInput) {
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await db
-    .update(unregisteredMeters)
-    .set({ unregisteredMeterCount, updatedAt })
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, substationId),
-        eq(unregisteredMeters.date, date),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("No matching unregistered meter record found");
-  }
 }
 
 interface UnregisteredMeterQuery {
@@ -207,69 +168,4 @@ export async function getUnregisteredMeterCountAtDate({
   });
 
   return result ? result.unregisteredMeterCount : 0;
-}
-
-interface UnregisteredMeterQueryParams {
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  startDate: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-}
-
-/**
- * Retrieves IDs of unregistered meter records created after a specific date
- *
- * @param params Query parameters
- * @param params.balanceGroup Balance group category
- * @param params.startDate Exclusive lower bound date (YYYY-MM-DD format)
- * @param params.substationId Transformer substation identifier
- *
- * @returns Array of record IDs (numbers) for matching unregistered meter records
- */
-export async function getUnregisteredMeterRecordIdsAfterDate({
-  balanceGroup,
-  startDate,
-  substationId,
-}: UnregisteredMeterQueryParams): Promise<number[]> {
-  const result = await db.query.unregisteredMeters.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      gt(unregisteredMeters.date, startDate),
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-    ),
-  });
-
-  const transformedResult = result.map((r) => r.id);
-
-  return transformedResult;
-}
-
-/**
- * Retrieves the unregistered meter count value by its database record ID
- *
- * @param id Record ID of the unregistered meter entry
- * @returns Number of unregistered meters
- * @throws Will throw if no record with the given ID exists
- *
- * @example
- * const count = await getUnregisteredMeterCountByRecordId(456);
- * // Returns: 15
- */
-export async function getUnregisteredMeterCountByRecordId(
-  id: number,
-): Promise<number> {
-  const result = await db.query.unregisteredMeters.findFirst({
-    columns: {
-      unregisteredMeterCount: true,
-    },
-    where: eq(unregisteredMeters.id, id),
-  });
-
-  if (!result) {
-    throw new Error(`Unregistered meter record with ID ${id} not found`);
-  }
-
-  return result.unregisteredMeterCount;
 }
