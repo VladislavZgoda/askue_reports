@@ -82,8 +82,11 @@ export const registeredMeters = pgTable(
       index("transformer_substation_id_index").on(
         table.transformerSubstationId,
       ),
-      index("balance_group_index").on(table.balanceGroup),
-      index("date_index").on(table.date),
+      index("registered_meters_composite_idx").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        sql`${table.date} DESC`,
+      ),
     ];
   },
 );
