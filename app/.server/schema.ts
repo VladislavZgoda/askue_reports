@@ -79,7 +79,7 @@ export const registeredMeters = pgTable(
   },
   (table) => {
     return [
-      index("transformer_substation_id_index").on(
+      index("registered_meters_substation_id_idx").on(
         table.transformerSubstationId,
       ),
       index("registered_meters_composite_idx").on(
