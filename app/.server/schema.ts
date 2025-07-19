@@ -113,9 +113,14 @@ export const unregisteredMeters = pgTable(
   },
   (table) => {
     return [
-      index("not_in_system_foreign_key").on(table.transformerSubstationId),
-      index("not_in_system_type_index").on(table.balanceGroup),
-      index("not_in_system_date_index").on(table.date),
+      index("unregistered_meters_composite_idx").on(
+        table.balanceGroup,
+        table.transformerSubstationId,
+        sql`${table.date} DESC`,
+      ),
+      index("unregistered_meters_substation_id_idx").on(
+        table.transformerSubstationId,
+      ),
     ];
   },
 );
