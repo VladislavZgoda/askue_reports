@@ -1,26 +1,11 @@
-import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../utils/installation-params";
-import * as schema from "app/.server/schema";
 
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { BillingValidationForm } from "../../validation/billing-form-schema";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Database } from "~/.server/db";
 import type { InstallationStats } from "../utils/installation-params";
+import type { Executor } from "./add-billing-meters";
 
-type Executor =
-  | Database
-  | PgTransaction<
-      PostgresJsQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >;
-
-type FormData = BillingValidationForm & { readonly substationId: number };
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
 interface YearlyMeterInstallationsStatsParams {
@@ -231,27 +216,27 @@ async function createYearlyMeterInstallation(
  * Updates existing yearly accumulation record with new installation data
  *
  * @param executor Database executor
- * @param formData New installation data
+ * @param installationData New installation data
  * @param currentYearStats Existing accumulation record
  * @param targetYear Target year for accumulation
  */
 async function updateYearlyMeterAccumulations(
   executor: Executor,
-  formData: FormData,
+  installationData: YearlyInstallationData,
   currentYearStats: InstallationStats,
   targetYear: number,
 ) {
   const accumulatedTotalInstallations =
-    formData.totalCount + currentYearStats.totalInstalled;
+    installationData.totalCount + currentYearStats.totalInstalled;
   const accumulatedRegisteredMeters =
-    formData.registeredCount + currentYearStats.registeredCount;
+    installationData.registeredCount + currentYearStats.registeredCount;
 
   await updateYearlyMeterInstallation(executor, {
     totalInstalled: accumulatedTotalInstallations,
     registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    substationId: formData.substationId,
-    date: formData.date,
+    balanceGroup: installationData.balanceGroup,
+    substationId: installationData.substationId,
+    date: installationData.date,
     year: targetYear,
   });
 }
@@ -262,37 +247,45 @@ async function updateYearlyMeterAccumulations(
  * Calculates accumulations based on previous records
  *
  * @param executor Database executor
- * @param formData New installation data
+ * @param installationData New installation data
  * @param targetYear Target year for accumulation
  */
 async function createAccumulatedYearlyInstallation(
   executor: Executor,
-  formData: FormData,
+  installationData: YearlyInstallationData,
   targetYear: number,
 ) {
   const currentYearSummary = await getYearlyInstallationSummaryBeforeCutoff(
     executor,
     {
-      balanceGroup: formData.balanceGroup,
-      cutoffDate: formData.date,
-      substationId: formData.substationId,
+      balanceGroup: installationData.balanceGroup,
+      cutoffDate: installationData.date,
+      substationId: installationData.substationId,
       year: targetYear,
     },
   );
 
   const accumulatedTotalInstallations =
-    formData.totalCount + currentYearSummary.totalInstalled;
+    installationData.totalCount + currentYearSummary.totalInstalled;
   const accumulatedRegisteredMeters =
-    formData.registeredCount + currentYearSummary.registeredCount;
+    installationData.registeredCount + currentYearSummary.registeredCount;
 
   await createYearlyMeterInstallation(executor, {
     totalInstalled: accumulatedTotalInstallations,
     registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
+    balanceGroup: installationData.balanceGroup,
+    date: installationData.date,
+    substationId: installationData.substationId,
     year: targetYear,
   });
+}
+
+interface YearlyInstallationData {
+  readonly balanceGroup: BalanceGroup;
+  readonly totalCount: number;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
 }
 
 /**
@@ -302,7 +295,8 @@ async function createAccumulatedYearlyInstallation(
  *
  * Performs all operations within a database transaction to ensure data consistency
  *
- * @param formData Installation data with validation
+ * @param executor - Database executor
+ * @param yearlyInstallation Installation data with validation
  *   @property totalCount - Total meters installed
  *   @property registeredCount - Meters registered in system
  *   @property balanceGroup - Balance group category
@@ -323,54 +317,65 @@ async function createAccumulatedYearlyInstallation(
  *   substationId: 42
  * });
  */
-export default async function processYearlyInstallations(formData: FormData) {
-  const year = cutOutYear(formData.date);
+export default async function processYearlyInstallations(
+  executor: Executor,
+  yearlyInstallation: YearlyInstallationData,
+) {
+  const { totalCount, registeredCount, balanceGroup, date, substationId } =
+    yearlyInstallation;
 
-  await db.transaction(async (tx) => {
-    // 1. Get current stats (transactional)
-    const currentYearStats = await getYearlyMeterInstallationsStats(tx, {
-      balanceGroup: formData.balanceGroup,
-      date: formData.date,
-      substationId: formData.substationId,
-      year,
-    });
+  const year = cutOutYear(date);
 
-    // 2. Update or create accumulation (transactional)
-    if (currentYearStats) {
-      await updateYearlyMeterAccumulations(
-        tx,
-        formData,
-        currentYearStats,
-        year,
-      );
-    } else {
-      await createAccumulatedYearlyInstallation(tx, formData, year);
-    }
-
-    // 3. Get future records (transactional)
-    const futureRecordIds = await getYearlyInstallationRecordsAfterDate(tx, {
-      balanceGroup: formData.balanceGroup,
-      startDate: formData.date,
-      substationId: formData.substationId,
-      year,
-    });
-
-    // 4. Batch update future records (transactional)
-    if (futureRecordIds.length > 0) {
-      const updatedCount = await incrementYearlyInstallationRecords(
-        tx,
-        futureRecordIds,
-        formData.totalCount,
-        formData.registeredCount,
-      );
-
-      if (updatedCount !== futureRecordIds.length) {
-        const failedCount = futureRecordIds.length - updatedCount;
-        throw new Error(
-          `Failed to update ${failedCount} records. ` +
-            "Update would violate registered_count <= total_installed constraint.",
-        );
-      }
-    }
+  // 1. Get current stats (transactional)
+  const currentYearStats = await getYearlyMeterInstallationsStats(executor, {
+    balanceGroup,
+    date,
+    substationId,
+    year,
   });
+
+  // 2. Update or create accumulation (transactional)
+  if (currentYearStats) {
+    await updateYearlyMeterAccumulations(
+      executor,
+      yearlyInstallation,
+      currentYearStats,
+      year,
+    );
+  } else {
+    await createAccumulatedYearlyInstallation(
+      executor,
+      yearlyInstallation,
+      year,
+    );
+  }
+
+  // 3. Get future records (transactional)
+  const futureRecordIds = await getYearlyInstallationRecordsAfterDate(
+    executor,
+    {
+      balanceGroup,
+      startDate: date,
+      substationId,
+      year,
+    },
+  );
+
+  // 4. Batch update future records (transactional)
+  if (futureRecordIds.length > 0) {
+    const updatedCount = await incrementYearlyInstallationRecords(
+      executor,
+      futureRecordIds,
+      totalCount,
+      registeredCount,
+    );
+
+    if (updatedCount !== futureRecordIds.length) {
+      const failedCount = futureRecordIds.length - updatedCount;
+      throw new Error(
+        `Failed to update ${failedCount} records. ` +
+          "Update would violate registered_count <= total_installed constraint.",
+      );
+    }
+  }
 }

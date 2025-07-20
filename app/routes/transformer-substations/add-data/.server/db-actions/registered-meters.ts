@@ -1,28 +1,8 @@
-import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { registeredMeters } from "~/.server/schema";
-import * as schema from "app/.server/schema";
 
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { BillingValidationForm } from "../../validation/billing-form-schema";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Database } from "~/.server/db";
+import type { Executor } from "./add-billing-meters";
 
-/**
- * Database executor type for transactional operations
- *
- * Handles both regular connections and transactions
- */
-type Executor =
-  | Database
-  | PgTransaction<
-      PostgresJsQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >;
-
-type FormData = BillingValidationForm & { readonly substationId: number };
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
 interface MeterCountQueryParams {
@@ -266,6 +246,13 @@ async function incrementRegisteredMetersRecords(
   return result.length;
 }
 
+interface RegisteredData {
+  readonly balanceGroup: BalanceGroup;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
+}
+
 /**
  * Processes registered meter data atomically:
  * 1. Updates or creates registered meter accumulation records
@@ -273,7 +260,8 @@ async function incrementRegisteredMetersRecords(
  *
  * Only runs when registeredCount > 0
  *
- * @param formData - Validated installation data
+ * @param executor - Database executor
+ * @param registeredInput - Validated installation data
  *   @property registeredCount - Meters registered in system
  *   @property balanceGroup - Balance group category
  *   @property date - Installation date (YYYY-MM-DD)
@@ -291,58 +279,60 @@ async function incrementRegisteredMetersRecords(
  *   substationId: 42
  * });
  */
-export default async function processRegisteredMeters(formData: FormData) {
-  const { registeredCount } = formData;
-
+export default async function processRegisteredMetersInTx(
+  executor: Executor,
+  { registeredCount, balanceGroup, date, substationId }: RegisteredData,
+) {
   if (registeredCount > 0) {
-    await db.transaction(async (tx) => {
-      // 1. Get current count (transactional)
-      const currentRegisteredCount = await getRegisteredMeterCount(tx, {
-        balanceGroup: formData.balanceGroup,
-        date: formData.date,
-        substationId: formData.substationId,
-      });
-
-      // 2. Update or create accumulation (transactional)
-      if (currentRegisteredCount) {
-        const accumulatedRegisteredCount =
-          formData.registeredCount + currentRegisteredCount;
-
-        await updateRegisteredMeterCount(tx, {
-          registeredMeterCount: accumulatedRegisteredCount,
-          balanceGroup: formData.balanceGroup,
-          date: formData.date,
-          substationId: formData.substationId,
-        });
-      } else {
-        await createAccumulatedRegisteredRecord(tx, {
-          newRegisteredCount: formData.registeredCount,
-          balanceGroup: formData.balanceGroup,
-          date: formData.date,
-          substationId: formData.substationId,
-        });
-      }
-
-      // 3. Get future records (transactional)
-      const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(tx, {
-        balanceGroup: formData.balanceGroup,
-        startDate: formData.date,
-        substationId: formData.substationId,
-      });
-
-      // 4. Batch update future records (transactional)
-      if (futureRecordIds.length > 0) {
-        const updatedCount = await incrementRegisteredMetersRecords(
-          tx,
-          futureRecordIds,
-          formData.registeredCount,
-        );
-
-        if (updatedCount !== futureRecordIds.length) {
-          const failedCount = futureRecordIds.length - updatedCount;
-          throw new Error(`Failed to update ${failedCount} records.`);
-        }
-      }
+    // 1. Get current count (transactional)
+    const currentRegisteredCount = await getRegisteredMeterCount(executor, {
+      balanceGroup,
+      date,
+      substationId,
     });
+
+    // 2. Update or create accumulation (transactional)
+    if (currentRegisteredCount) {
+      const accumulatedRegisteredCount =
+        registeredCount + currentRegisteredCount;
+
+      await updateRegisteredMeterCount(executor, {
+        registeredMeterCount: accumulatedRegisteredCount,
+        balanceGroup,
+        date,
+        substationId,
+      });
+    } else {
+      await createAccumulatedRegisteredRecord(executor, {
+        newRegisteredCount: registeredCount,
+        balanceGroup,
+        date,
+        substationId,
+      });
+    }
+
+    // 3. Get future records (transactional)
+    const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(
+      executor,
+      {
+        balanceGroup,
+        startDate: date,
+        substationId,
+      },
+    );
+
+    // 4. Batch update future records (transactional)
+    if (futureRecordIds.length > 0) {
+      const updatedCount = await incrementRegisteredMetersRecords(
+        executor,
+        futureRecordIds,
+        registeredCount,
+      );
+
+      if (updatedCount !== futureRecordIds.length) {
+        const failedCount = futureRecordIds.length - updatedCount;
+        throw new Error(`Failed to update ${failedCount} records.`);
+      }
+    }
   }
 }

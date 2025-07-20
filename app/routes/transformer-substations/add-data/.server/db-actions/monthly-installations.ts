@@ -1,26 +1,10 @@
-import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../utils/installation-params";
-import * as schema from "app/.server/schema";
 
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { BillingValidationForm } from "../../validation/billing-form-schema";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Database } from "~/.server/db";
+import type { Executor } from "./add-billing-meters";
 import type { InstallationStats } from "../utils/installation-params";
-
-type Executor =
-  | Database
-  | PgTransaction<
-      PostgresJsQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >;
-
-type FormData = BillingValidationForm & { readonly substationId: number };
 
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
@@ -182,39 +166,39 @@ async function createMonthlyInstallationRecord(
  * Calculates new totals based on previous records before the cutoff date
  *
  * @param executor - Database executor
- * @param formData - New installation data
+ * @param installationData - New installation data
  * @param targetMonth - Target month (MM format)
  * @param targetYear - Target year (YYYY)
  */
 async function createAccumulatedMonthlyInstallation(
   executor: Executor,
-  formData: FormData,
+  installationData: MonthlyInstallationData,
   targetMonth: string,
   targetYear: number,
 ) {
   const currentMonthSummary = await getMonthlyInstallationSummaryBeforeCutoff(
     executor,
     {
-      balanceGroup: formData.balanceGroup,
-      cutoffDate: formData.date,
-      substationId: formData.substationId,
+      balanceGroup: installationData.balanceGroup,
+      cutoffDate: installationData.date,
+      substationId: installationData.substationId,
       month: targetMonth,
       year: targetYear,
     },
   );
 
   const accumulatedTotalInstallations =
-    formData.totalCount + currentMonthSummary.totalInstalled;
+    installationData.totalCount + currentMonthSummary.totalInstalled;
 
   const accumulatedRegisteredMeters =
-    formData.registeredCount + currentMonthSummary.registeredCount;
+    installationData.registeredCount + currentMonthSummary.registeredCount;
 
   await createMonthlyInstallationRecord(executor, {
     totalInstalled: accumulatedTotalInstallations,
     registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
+    balanceGroup: installationData.balanceGroup,
+    date: installationData.date,
+    substationId: installationData.substationId,
     month: targetMonth,
     year: targetYear,
   });
@@ -226,30 +210,30 @@ type CurrentMonthlyInstallationsStats = NonNullable<InstallationStats>;
  * Updates monthly accumulation records with new installations
  *
  * @param executor - Database executor
- * @param formData - New installation data
+ * @param installationData - New installation data
  * @param currentMonthStats - Existing accumulation record
  * @param targetMonth - Target month (MM format)
  * @param targetYear - Target year (YYYY)
  */
 async function updateMonthlyMeterAccumulations(
   executor: Executor,
-  formData: FormData,
+  installationData: MonthlyInstallationData,
   currentMonthStats: CurrentMonthlyInstallationsStats,
   targetMonth: string,
   targetYear: number,
 ) {
   const accumulatedTotalInstallations =
-    formData.totalCount + currentMonthStats.totalInstalled;
+    installationData.totalCount + currentMonthStats.totalInstalled;
 
   const acumulatedRegisteredMeters =
-    formData.registeredCount + currentMonthStats.registeredCount;
+    installationData.registeredCount + currentMonthStats.registeredCount;
 
   await updateMonthlyInstallationRecord(executor, {
     totalInstalled: accumulatedTotalInstallations,
     registeredCount: acumulatedRegisteredMeters,
-    balanceGroup: formData.balanceGroup,
-    date: formData.date,
-    substationId: formData.substationId,
+    balanceGroup: installationData.balanceGroup,
+    date: installationData.date,
+    substationId: installationData.substationId,
     month: targetMonth,
     year: targetYear,
   });
@@ -329,6 +313,14 @@ async function incrementMonthlyInstallationRecords(
   return result.length;
 }
 
+interface MonthlyInstallationData {
+  readonly balanceGroup: BalanceGroup;
+  readonly totalCount: number;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
+}
+
 /**
  * Processes monthly meter installation data atomically:
  * 1. Updates or creates monthly accumulation records
@@ -336,7 +328,8 @@ async function incrementMonthlyInstallationRecords(
  *
  * Performs all operations within a database transaction
  *
- * @param formData - Validated installation data
+ * @param executor - Database executor
+ * @param monthlyInstallation - Validated installation data
  *   @property totalCount - Total meters installed
  *   @property registeredCount - Meters registered in system
  *   @property balanceGroup - Balance group category
@@ -357,58 +350,70 @@ async function incrementMonthlyInstallationRecords(
  *   substationId: 42
  * });
  */
-export default async function processMonthlyInstallations(formData: FormData) {
-  const year = cutOutYear(formData.date);
-  const month = cutOutMonth(formData.date);
+export default async function processMonthlyInstallations(
+  executor: Executor,
+  monthlyInstallation: MonthlyInstallationData,
+) {
+  const { totalCount, registeredCount, balanceGroup, date, substationId } =
+    monthlyInstallation;
 
-  await db.transaction(async (tx) => {
-    // 1. Get current stats (transactional)
-    const currentMonthStats = await getMonthlyMeterInstallationStats(tx, {
-      balanceGroup: formData.balanceGroup,
-      date: formData.date,
-      substationId: formData.substationId,
-      month,
-      year,
-    });
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
 
-    // 2. Update or create accumulation (transactional)
-    if (currentMonthStats) {
-      await updateMonthlyMeterAccumulations(
-        tx,
-        formData,
-        currentMonthStats,
-        month,
-        year,
-      );
-    } else {
-      await createAccumulatedMonthlyInstallation(tx, formData, month, year);
-    }
-
-    // 3. Get future records (transactional)
-    const futureRecordIds = await getMonthlyInstallationRecordsAfterDate(tx, {
-      balanceGroup: formData.balanceGroup,
-      startDate: formData.date,
-      substationId: formData.substationId,
-      month,
-      year,
-    });
-
-    // 4. Batch update future records (transactional)
-    if (futureRecordIds.length > 0) {
-      const updatedCount = await incrementMonthlyInstallationRecords(
-        tx,
-        futureRecordIds,
-        formData.totalCount,
-        formData.registeredCount,
-      );
-
-      if (updatedCount !== futureRecordIds.length) {
-        const failedCount = futureRecordIds.length - updatedCount;
-        throw new Error(
-          `Failed to update ${failedCount} records. ` +
-            "Update would violate registered_count <= total_installed constraint.",
-        );
-      }
-    }
+  // 1. Get current stats (transactional)
+  const currentMonthStats = await getMonthlyMeterInstallationStats(executor, {
+    balanceGroup,
+    date,
+    substationId,
+    month,
+    year,
   });
+
+  // 2. Update or create accumulation (transactional)
+  if (currentMonthStats) {
+    await updateMonthlyMeterAccumulations(
+      executor,
+      monthlyInstallation,
+      currentMonthStats,
+      month,
+      year,
+    );
+  } else {
+    await createAccumulatedMonthlyInstallation(
+      executor,
+      monthlyInstallation,
+      month,
+      year,
+    );
+  }
+
+  // 3. Get future records (transactional)
+  const futureRecordIds = await getMonthlyInstallationRecordsAfterDate(
+    executor,
+    {
+      balanceGroup,
+      startDate: date,
+      substationId,
+      month,
+      year,
+    },
+  );
+
+  // 4. Batch update future records (transactional)
+  if (futureRecordIds.length > 0) {
+    const updatedCount = await incrementMonthlyInstallationRecords(
+      executor,
+      futureRecordIds,
+      totalCount,
+      registeredCount,
+    );
+
+    if (updatedCount !== futureRecordIds.length) {
+      const failedCount = futureRecordIds.length - updatedCount;
+      throw new Error(
+        `Failed to update ${failedCount} records. ` +
+          "Update would violate registered_count <= total_installed constraint.",
+      );
+    }
+  }
 }

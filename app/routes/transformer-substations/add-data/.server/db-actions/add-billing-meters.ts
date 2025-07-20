@@ -1,30 +1,57 @@
-import processRegisteredMeters from "./registered-meters";
-import processUnregisteredMeters from "./unregistered-meters";
+import { db } from "~/.server/db";
+import * as schema from "app/.server/schema";
+import processRegisteredMetersInTx from "./registered-meters";
+import processUnregisteredMetersInTx from "./unregistered-meters";
 import processYearlyInstallations from "./yearly-installations";
 import processMonthlyInstallations from "./monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
+
 import type { BillingValidationForm } from "../../validation/billing-form-schema";
+import type { ExtractTablesWithRelations } from "drizzle-orm";
+import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
+import type { PgTransaction } from "drizzle-orm/pg-core";
+import type { Database } from "~/.server/db";
 
-type FormData = BillingValidationForm & { readonly substationId: number };
+/**
+ * Database executor type for transactional operations
+ *
+ * Handles both regular connections and transactions
+ */
+export type Executor =
+  | Database
+  | PgTransaction<
+      PostgresJsQueryResultHKT,
+      typeof schema,
+      ExtractTablesWithRelations<typeof schema>
+    >;
 
-export default async function addBillingMeters(formData: FormData) {
-  const { totalCount, registeredCount } = formData;
+type BillingInstallationData = BillingValidationForm & {
+  readonly substationId: number;
+};
 
-  if (totalCount > registeredCount) {
-    await processUnregisteredMeters(formData);
-  }
+export default async function addBillingMeters(
+  installation: BillingInstallationData,
+) {
+  const { totalCount, registeredCount } = installation;
 
-  await Promise.all([
-    processYearlyInstallations(formData),
-    processMonthlyInstallations(formData),
-    processRegisteredMeters(formData),
-  ]);
+  await db.transaction(async (tx) => {
+    if (totalCount > registeredCount) {
+      await processUnregisteredMetersInTx(tx, installation);
+    }
 
-  await addMessageToLog(formData);
+    await Promise.all([
+      processRegisteredMetersInTx(tx, installation),
+      processYearlyInstallations(tx, installation),
+      processMonthlyInstallations(tx, installation),
+    ]);
+  });
+
+  await addMessageToLog(installation);
 }
 
-async function addMessageToLog(formData: FormData) {
-  const { totalCount, registeredCount, balanceGroup, substationId } = formData;
+async function addMessageToLog(installation: BillingInstallationData) {
+  const { totalCount, registeredCount, balanceGroup, substationId } =
+    installation;
 
   const time = new Date().toLocaleString("ru");
   const message = `Добавлено: ${totalCount} ${registeredCount} ${balanceGroup} ${time}`;

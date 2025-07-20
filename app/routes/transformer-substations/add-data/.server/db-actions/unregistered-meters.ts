@@ -1,23 +1,7 @@
-import { db } from "~/.server/db";
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { unregisteredMeters } from "~/.server/schema";
-import * as schema from "app/.server/schema";
 
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { BillingValidationForm } from "../../validation/billing-form-schema";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Database } from "~/.server/db";
-
-type Executor =
-  | Database
-  | PgTransaction<
-      PostgresJsQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >;
-
-type FormData = BillingValidationForm & { readonly substationId: number };
+import type { Executor } from "./add-billing-meters";
 
 interface MeterCountQueryParams {
   balanceGroup: UnregisteredMeters["balanceGroup"];
@@ -262,6 +246,14 @@ async function incrementUnregisteredMetersRecords(
   return result.length;
 }
 
+interface UnregisteredData {
+  readonly balanceGroup: BalanceGroup;
+  readonly totalCount: number;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
+}
+
 /**
  * Processes unregistered meter data atomically:
  * 1. Updates or creates unregistered meter accumulation records
@@ -269,7 +261,8 @@ async function incrementUnregisteredMetersRecords(
  *
  * Performs all operations within a database transaction
  *
- * @param formData - Validated installation data
+ * @param executor - Database executor
+ * @param unregisteredInput - Validated installation data
  *   @property totalCount - Total meters installed
  *   @property registeredCount - Meters registered in system
  *   @property balanceGroup - Balance group category
@@ -289,54 +282,63 @@ async function incrementUnregisteredMetersRecords(
  *   substationId: 42
  * });
  */
-export default async function processUnregisteredMeters(formData: FormData) {
-  const { totalCount, registeredCount } = formData;
+export default async function processUnregisteredMetersInTx(
+  executor: Executor,
+  {
+    totalCount,
+    registeredCount,
+    balanceGroup,
+    date,
+    substationId,
+  }: UnregisteredData,
+) {
   const newUnregisteredCount = totalCount - registeredCount;
 
-  await db.transaction(async (tx) => {
-    // 1. Get current count (transactional)
-    const currentUnregistered = await getUnregisteredMeterCount(tx, {
-      balanceGroup: formData.balanceGroup,
-      substationId: formData.substationId,
-      date: formData.date,
-    });
-
-    // 2. Update or create accumulation (transactional)
-    if (currentUnregistered) {
-      await updateUnregisteredMeterRecordByCompositeKey(tx, {
-        unregisteredMeterCount: newUnregisteredCount + currentUnregistered,
-        balanceGroup: formData.balanceGroup,
-        date: formData.date,
-        substationId: formData.substationId,
-      });
-    } else {
-      await createAccumulatedUnregisteredRecord(tx, {
-        newUnregisteredCount,
-        balanceGroup: formData.balanceGroup,
-        date: formData.date,
-        substationId: formData.substationId,
-      });
-    }
-
-    // 3. Get future records (transactional)
-    const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate(tx, {
-      balanceGroup: formData.balanceGroup,
-      startDate: formData.date,
-      substationId: formData.substationId,
-    });
-
-    // 4. Batch update future records (transactional)
-    if (futureRecordIds.length > 0) {
-      const updatedCount = await incrementUnregisteredMetersRecords(
-        tx,
-        futureRecordIds,
-        newUnregisteredCount,
-      );
-
-      if (updatedCount !== futureRecordIds.length) {
-        const failedCount = futureRecordIds.length - updatedCount;
-        throw new Error(`Failed to update ${failedCount} records.`);
-      }
-    }
+  // 1. Get current count (transactional)
+  const currentUnregistered = await getUnregisteredMeterCount(executor, {
+    balanceGroup,
+    substationId,
+    date,
   });
+
+  // 2. Update or create accumulation (transactional)
+  if (currentUnregistered) {
+    await updateUnregisteredMeterRecordByCompositeKey(executor, {
+      unregisteredMeterCount: newUnregisteredCount + currentUnregistered,
+      balanceGroup,
+      date,
+      substationId,
+    });
+  } else {
+    await createAccumulatedUnregisteredRecord(executor, {
+      newUnregisteredCount,
+      balanceGroup,
+      date,
+      substationId,
+    });
+  }
+
+  // 3. Get future records (transactional)
+  const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate(
+    executor,
+    {
+      balanceGroup,
+      startDate: date,
+      substationId,
+    },
+  );
+
+  // 4. Batch update future records (transactional)
+  if (futureRecordIds.length > 0) {
+    const updatedCount = await incrementUnregisteredMetersRecords(
+      executor,
+      futureRecordIds,
+      newUnregisteredCount,
+    );
+
+    if (updatedCount !== futureRecordIds.length) {
+      const failedCount = futureRecordIds.length - updatedCount;
+      throw new Error(`Failed to update ${failedCount} records.`);
+    }
+  }
 }
