@@ -1,3 +1,18 @@
+/**
+ * Database executor type for transactional operations
+ *
+ * Handles both regular connections and transactions
+ */
+declare type Executor =
+  | import("app/.server/db").Database
+  | import("drizzle-orm/pg-core").PgTransaction<
+      import("drizzle-orm/postgres-js").PostgresJsQueryResultHKT,
+      typeof import("app/.server/schema"),
+      import("drizzle-orm").ExtractTablesWithRelations<
+        typeof import("app/.server/schema")
+      >
+    >;
+
 declare interface TransSubs {
   transSubs:
     | {

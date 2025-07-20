@@ -1,5 +1,4 @@
 import { db } from "~/.server/db";
-import * as schema from "app/.server/schema";
 import processRegisteredMetersInTx from "./registered-meters";
 import processUnregisteredMetersInTx from "./unregistered-meters";
 import processYearlyInstallations from "./yearly-installations";
@@ -7,23 +6,6 @@ import processMonthlyInstallations from "./monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
 import type { BillingValidationForm } from "../../validation/billing-form-schema";
-import type { ExtractTablesWithRelations } from "drizzle-orm";
-import type { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Database } from "~/.server/db";
-
-/**
- * Database executor type for transactional operations
- *
- * Handles both regular connections and transactions
- */
-export type Executor =
-  | Database
-  | PgTransaction<
-      PostgresJsQueryResultHKT,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >;
 
 type BillingInstallationData = BillingValidationForm & {
   readonly substationId: number;

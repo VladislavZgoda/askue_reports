@@ -4,7 +4,6 @@ import { cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../utils/installation-params";
 
 import type { InstallationStats } from "../utils/installation-params";
-import type { Executor } from "./add-billing-meters";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 

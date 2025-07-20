@@ -1,8 +1,6 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { unregisteredMeters } from "~/.server/schema";
 
-import type { Executor } from "./add-billing-meters";
-
 interface MeterCountQueryParams {
   balanceGroup: UnregisteredMeters["balanceGroup"];
   targetDate: UnregisteredMeters["date"];

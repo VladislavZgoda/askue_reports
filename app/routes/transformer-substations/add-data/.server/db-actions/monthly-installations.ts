@@ -3,7 +3,6 @@ import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../utils/installation-params";
 
-import type { Executor } from "./add-billing-meters";
 import type { InstallationStats } from "../utils/installation-params";
 
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;

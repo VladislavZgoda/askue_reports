@@ -1,8 +1,6 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { registeredMeters } from "~/.server/schema";
 
-import type { Executor } from "./add-billing-meters";
-
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
 interface MeterCountQueryParams {
