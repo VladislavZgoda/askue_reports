@@ -2,15 +2,16 @@ import { db } from "../db";
 import { meterActionLogs } from "../schema";
 import { eq, desc } from "drizzle-orm";
 
-export const insertMeterActionLog = async (
+export async function insertMeterActionLog(
+  executor: Executor,
   action: string,
   substationId: number,
-) => {
-  await db.insert(meterActionLogs).values({
+) {
+  await executor.insert(meterActionLogs).values({
     message: action,
     transformerSubstationId: substationId,
   });
-};
+}
 
 /**
  * Retrieves recent action logs for a transformer substation

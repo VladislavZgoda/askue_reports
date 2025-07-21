@@ -34,14 +34,17 @@ export default async function addOrUpdateTechnicalMeters(
     } else {
       await insertTechnicalMeters(input, tx);
     }
-  });
 
-  await logTechnicalMeterAction(input);
+    await logTechnicalMeterAction(tx, input);
+  });
 }
 
-const logTechnicalMeterAction = async (input: TechnicalMeterInput) => {
+const logTechnicalMeterAction = async (
+  executor: Executor,
+  input: TechnicalMeterInput,
+) => {
   const timestamp = new Date().toLocaleString("ru");
   const message = `Техучеты: ${input.quantity} ${input.underVoltage} ${timestamp}`;
 
-  await insertMeterActionLog(message, input.substationId);
+  await insertMeterActionLog(executor, message, input.substationId);
 };
