@@ -8,29 +8,35 @@ interface TechnicalMetersParams {
   substationId: number;
 }
 
-export const insertTechnicalMeters = async ({
-  quantity,
-  underVoltage,
-  substationId,
-}: TechnicalMetersParams) => {
-  await db.insert(technicalMeters).values({
+export async function insertTechnicalMeters(
+  { quantity, underVoltage, substationId }: TechnicalMetersParams,
+  executor: Executor = db,
+): Promise<void> {
+  await executor.insert(technicalMeters).values({
     quantity,
     underVoltage,
     transformerSubstationId: substationId,
   });
-};
+}
+
+interface TechnicalMetersStats {
+  quantity: number;
+  underVoltage: number;
+}
 
 /**
  * Retrieves technical meter statistics for a transformer substation
  *
  * @param substationId ID of the transformer substation
+ * @param executor [executor=db] - Database executor
  * @returns Object containing {quantity, underVoltage} counts,
  *          or undefined if no record exists
  */
-export const getTechnicalMeterStatsForSubstation = async (
+export async function getTechnicalMeterStatsForSubstation(
   substationId: number,
-) => {
-  const result = await db.query.technicalMeters.findFirst({
+  executor: Executor = db,
+): Promise<TechnicalMetersStats | undefined> {
+  const result = await executor.query.technicalMeters.findFirst({
     columns: {
       quantity: true,
       underVoltage: true,
@@ -39,20 +45,19 @@ export const getTechnicalMeterStatsForSubstation = async (
   });
 
   return result;
-};
+}
 
-export const updateTechnicalMetersForSubstation = async ({
-  quantity,
-  underVoltage,
-  substationId,
-}: TechnicalMetersParams) => {
+export async function updateTechnicalMetersForSubstation(
+  { quantity, underVoltage, substationId }: TechnicalMetersParams,
+  executor: Executor = db,
+): Promise<void> {
   const updatedAt = new Date();
 
-  await db
+  await executor
     .update(technicalMeters)
     .set({ quantity, underVoltage, updatedAt })
     .where(eq(technicalMeters.transformerSubstationId, substationId));
-};
+}
 
 export const getTechnicalMetersTotals = async () => {
   const meters = await db
