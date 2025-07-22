@@ -19,7 +19,14 @@ export async function insertMeterActionLog(
  * @param substationId ID of the transformer substation
  * @returns Array of the 8 most recent log entries (id and message)
  */
-export async function getRecentActionLogsForSubstation(substationId: number) {
+export async function getRecentActionLogsForSubstation(
+  substationId: number,
+): Promise<
+  {
+    id: number;
+    message: string;
+  }[]
+> {
   const result = await db.query.meterActionLogs.findMany({
     columns: {
       id: true,
