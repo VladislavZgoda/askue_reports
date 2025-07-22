@@ -1,18 +1,15 @@
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
-import { selectUserId, userIdSchema } from "../db-queries/users";
+import { getUserId } from "../db-queries/users";
 import { redirect } from "react-router";
 import sessionStorage from "./session";
-import * as z from "zod/v4";
 import { getValidatedFormData } from "remix-hook-form";
 import type { FieldErrors } from "react-hook-form";
 import type { FormData } from "~/routes/auth/zodLoginSchema";
 import { resolver, cookieSchema } from "~/routes/auth/zodLoginSchema";
 
-type UserId = z.infer<typeof userIdSchema>;
-
 type AuthType =
-  | UserId["userId"]
+  | string
   | {
       errors: FieldErrors<FormData>;
       receivedValues: Partial<FormData>;
@@ -27,10 +24,9 @@ authenticator.use(
 
     if (errors) return { errors, receivedValues };
 
-    const userIdRow = await selectUserId(data.login, data.password);
-    const parsedUserId = userIdSchema.safeParse(userIdRow[0]);
+    const userId = await getUserId(data.login, data.password);
 
-    if (parsedUserId.success) return parsedUserId.data.userId;
+    if (userId) return userId;
 
     const customErrors = {
       login: {
