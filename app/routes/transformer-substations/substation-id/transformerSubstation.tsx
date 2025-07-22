@@ -8,7 +8,7 @@ import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/transformerSubstation";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
-import * as z from "zod/v4";
+import * as z from "zod";
 
 const dateSchema = z
   .string()

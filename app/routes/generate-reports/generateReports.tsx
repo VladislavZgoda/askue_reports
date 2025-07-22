@@ -4,7 +4,7 @@ import Select from "../../components/Select";
 import InputExcel from "./components/InputExcel";
 import type { Route } from "./+types/generateReports";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import * as z from "zod/v4";
+import * as z from "zod";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "../../components/Input";
