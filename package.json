@@ -33,7 +33,7 @@
     "remix-client-cache": "^3.0.0",
     "remix-hook-form": "^7.0.1",
     "zip-a-folder": "^3.1.7",
-    "zod": "^3.24.4"
+    "zod": "^4.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
