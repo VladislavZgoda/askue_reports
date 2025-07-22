@@ -7,7 +7,7 @@ interface LogProps {
 
 export default function Log({ actionLogs }: LogProps) {
   return (
-    <section className="w-96">
+    <section className="max-w-fit">
       {actionLogs.length > 0 && (
         <div className="bg-base-100 border-base-300 collapse border">
           <input type="checkbox" className="peer" />

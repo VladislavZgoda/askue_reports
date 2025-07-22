@@ -44,7 +44,7 @@ const logTechnicalMeterAction = async (
   input: TechnicalMeterInput,
 ) => {
   const timestamp = new Date().toLocaleString("ru");
-  const message = `Техучеты: ${input.quantity} ${input.underVoltage} ${timestamp}`;
+  const message = `Техучеты: ${input.quantity} ${input.underVoltage}. Добавлено: ${timestamp}`;
 
   await insertMeterActionLog(executor, message, input.substationId);
 };

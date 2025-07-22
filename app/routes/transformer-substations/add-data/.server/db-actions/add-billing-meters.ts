@@ -25,19 +25,22 @@ export default async function addBillingMeters(
       processRegisteredMetersInTx(tx, installation),
       processYearlyInstallations(tx, installation),
       processMonthlyInstallations(tx, installation),
-      addMessageToLog(tx, installation),
+      logBillingMeterAction(tx, installation),
     ]);
   });
 }
 
-async function addMessageToLog(
+async function logBillingMeterAction(
   executor: Executor,
-  installation: BillingInstallationData,
+  {
+    totalCount,
+    registeredCount,
+    balanceGroup,
+    substationId,
+    date,
+  }: BillingInstallationData,
 ) {
-  const { totalCount, registeredCount, balanceGroup, substationId } =
-    installation;
-
-  const time = new Date().toLocaleString("ru");
-  const message = `Добавлено: ${totalCount} ${registeredCount} ${balanceGroup} ${time}`;
+  const timestamp = new Date().toLocaleString("ru");
+  const message = `${balanceGroup}: ${totalCount} ${registeredCount} ${date}. Добавлено: ${timestamp}`;
   await insertMeterActionLog(executor, message, substationId);
 }
