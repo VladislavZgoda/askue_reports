@@ -41,10 +41,10 @@ export default async function addOrUpdateTechnicalMeters(
 
 const logTechnicalMeterAction = async (
   executor: Executor,
-  input: TechnicalMeterInput,
+  { quantity, underVoltage, substationId }: TechnicalMeterInput,
 ) => {
   const timestamp = new Date().toLocaleString("ru");
-  const message = `Техучеты: ${input.quantity} ${input.underVoltage}. Добавлено: ${timestamp}`;
+  const message = `Техучеты: ${quantity} ${underVoltage}. Добавлено: ${timestamp}`;
 
-  await insertMeterActionLog(executor, message, input.substationId);
+  await insertMeterActionLog(executor, message, substationId);
 };
