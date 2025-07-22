@@ -2,10 +2,12 @@ import { eq, sum } from "drizzle-orm";
 import { db } from "../db";
 import { technicalMeters } from "../schema";
 
+type TechnicalMeters = typeof technicalMeters.$inferSelect;
+
 interface TechnicalMetersParams {
-  quantity: number;
-  underVoltage: number;
-  substationId: number;
+  quantity: TechnicalMeters["quantity"];
+  underVoltage: TechnicalMeters["underVoltage"];
+  substationId: TechnicalMeters["transformerSubstationId"];
 }
 
 export async function insertTechnicalMeters(
@@ -20,8 +22,8 @@ export async function insertTechnicalMeters(
 }
 
 interface TechnicalMetersStats {
-  quantity: number;
-  underVoltage: number;
+  quantity: TechnicalMeters["quantity"];
+  underVoltage: TechnicalMeters["underVoltage"];
 }
 
 /**
@@ -59,13 +61,18 @@ export async function updateTechnicalMetersForSubstation(
     .where(eq(technicalMeters.transformerSubstationId, substationId));
 }
 
-export const getTechnicalMetersTotals = async () => {
-  const meters = await db
+interface NullableTechnicalMetersStats {
+  quantity: string | null;
+  underVoltage: string | null;
+}
+
+export async function getTechnicalMetersTotals(): Promise<NullableTechnicalMetersStats> {
+  const result = await db
     .select({
       quantity: sum(technicalMeters.quantity),
       underVoltage: sum(technicalMeters.underVoltage),
     })
     .from(technicalMeters);
 
-  return meters[0];
-};
+  return result[0];
+}
