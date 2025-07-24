@@ -19,7 +19,7 @@ export default [
     ),
     route(
       ":id/add-data",
-      "./routes/transformer-substations/add-data/addData.tsx",
+      "./routes/transformer-substations/add-data/add-data.tsx",
     ),
     route(
       ":id/add-billing-meters",
@@ -31,7 +31,7 @@ export default [
     ),
     route(
       ":id/change-data",
-      "./routes/transformer-substations/change-data/changeData.tsx",
+      "./routes/transformer-substations/change-data/change-data.tsx",
     ),
     route(":id/destroy", "./routes/transformer-substations/destroy.tsx"),
     route(":id/edit", "./routes/transformer-substations/edit.tsx"),
