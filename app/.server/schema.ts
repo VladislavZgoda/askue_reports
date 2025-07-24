@@ -46,6 +46,7 @@ export const transformerSubstationsRelations = relations(
     unregisteredMeters: many(unregisteredMeters),
     yearlyMeterInstallations: many(yearlyMeterInstallations),
     monthlyMeterInstallations: many(monthlyMeterInstallations),
+    technicalMeters: many(technicalMeters),
   }),
 );
 
@@ -247,6 +248,16 @@ export const technicalMeters = pgTable("technical_meters", {
   ...transformerSubstationForeignKey,
   ...timestamps,
 });
+
+export const technicalMetersRelations = relations(
+  technicalMeters,
+  ({ one }) => ({
+    transformerSubstation: one(transformerSubstations, {
+      fields: [technicalMeters.transformerSubstationId],
+      references: [transformerSubstations.id],
+    }),
+  }),
+);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
