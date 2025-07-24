@@ -15,7 +15,7 @@ import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
 import Log from "./components/Log";
 
-import type { Route } from "./+types/addData";
+import type { Route } from "./+types/add-data";
 
 import type {
   BillingFormData,

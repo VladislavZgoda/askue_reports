@@ -17,7 +17,7 @@ import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import type { Route } from "./+types/changeData";
+import type { Route } from "./+types/change-data";
 
 type ErrorsType = Record<string, string>;
 
