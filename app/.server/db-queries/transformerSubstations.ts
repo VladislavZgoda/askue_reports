@@ -366,3 +366,102 @@ export async function getSubstationMeterCountsAsOfDate(
 
   return transformedResult;
 }
+
+interface LatestSubstationMeterReportParams {
+  balanceGroup: BalanceGroup;
+  substationId: number;
+  month: string;
+  year: number;
+}
+
+export async function getLatestSubstationMeterReport({
+  balanceGroup,
+  substationId,
+  month,
+  year,
+}: LatestSubstationMeterReportParams) {
+  const result = await db.query.transformerSubstations.findFirst({
+    columns: {},
+    where: eq(transformerSubstations.id, substationId),
+    with: {
+      registeredMeters: {
+        columns: {
+          registeredMeterCount: true,
+        },
+        where: (registeredMeters, { eq }) =>
+          eq(registeredMeters.balanceGroup, balanceGroup),
+        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
+        limit: 1,
+      },
+      unregisteredMeters: {
+        columns: {
+          unregisteredMeterCount: true,
+        },
+        where: (unregisteredMeters, { eq }) =>
+          eq(unregisteredMeters.balanceGroup, balanceGroup),
+        orderBy: (unregisteredMeters, { desc }) => [
+          desc(unregisteredMeters.date),
+        ],
+        limit: 1,
+      },
+      yearlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (yearlyMeterInstallations, { and, eq }) =>
+          and(
+            eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+            eq(yearlyMeterInstallations.year, year),
+          ),
+        orderBy: (yearlyMeterInstallations, { desc }) => [
+          desc(yearlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+      monthlyMeterInstallations: {
+        columns: {
+          totalInstalled: true,
+          registeredCount: true,
+        },
+        where: (monthlyMeterInstallations, { and, eq }) =>
+          and(
+            eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+            eq(monthlyMeterInstallations.month, month),
+            eq(monthlyMeterInstallations.year, year),
+          ),
+        orderBy: (monthlyMeterInstallations, { desc }) => [
+          desc(monthlyMeterInstallations.date),
+        ],
+        limit: 1,
+      },
+      technicalMeters: {
+        columns: {
+          quantity: true,
+          underVoltage: true,
+        },
+      },
+    },
+  });
+
+  const transformedResult = {
+    registeredMeterCount:
+      result?.registeredMeters[0]?.registeredMeterCount ?? 0,
+    unregisteredMeterCount:
+      result?.unregisteredMeters[0]?.unregisteredMeterCount ?? 0,
+    yearlyMeterInstallations: result?.yearlyMeterInstallations[0] ?? {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
+    monthlyMeterInstallations: result?.monthlyMeterInstallations[0] ?? {
+      totalInstalled: 0,
+      registeredCount: 0,
+    },
+    technicalMeters: result?.technicalMeters[0] ?? {
+      quantity: 0,
+      underVoltage: 0,
+    },
+  };
+
+  return transformedResult;
+}
