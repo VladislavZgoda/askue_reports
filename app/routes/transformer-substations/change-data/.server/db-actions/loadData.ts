@@ -2,14 +2,29 @@ import { selectLastQuantity } from "~/.server/db-queries/registeredMeters";
 import { selectLastNotInSystem } from "~/.server/db-queries/unregisteredMeters";
 import { selectLastYearQuantity } from "~/.server/db-queries/yearlyMeterInstallations";
 import { selectLastMonthQuantity } from "~/.server/db-queries/monthlyMeterInstallations";
+import { getLatestSubstationMeterReport } from "~/.server/db-queries/transformerSubstations";
 
 export default async function loadData(id: number, balanceGroup: BalanceGroup) {
   const year = new Date().getFullYear();
+  let month = String(new Date().getMonth() + 1);
+
+  if (month.length === 1) {
+    month = "0" + month;
+  }
 
   const argsObj: LastQuantity = {
     transformerSubstationId: id,
     balanceGroup,
   };
+
+  const test = await getLatestSubstationMeterReport({
+    balanceGroup: "Быт",
+    substationId: id,
+    month,
+    year,
+  });
+
+  console.log(test);
 
   const [metersQuantity, metersNotInSystem, yearMeters, monthMeters] =
     await Promise.all([

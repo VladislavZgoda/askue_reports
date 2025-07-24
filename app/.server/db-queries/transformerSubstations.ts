@@ -435,12 +435,6 @@ export async function getLatestSubstationMeterReport({
         ],
         limit: 1,
       },
-      technicalMeters: {
-        columns: {
-          quantity: true,
-          underVoltage: true,
-        },
-      },
     },
   });
 
@@ -456,10 +450,6 @@ export async function getLatestSubstationMeterReport({
     monthlyMeterInstallations: result?.monthlyMeterInstallations[0] ?? {
       totalInstalled: 0,
       registeredCount: 0,
-    },
-    technicalMeters: result?.technicalMeters[0] ?? {
-      quantity: 0,
-      underVoltage: 0,
     },
   };
 
