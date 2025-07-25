@@ -57,24 +57,22 @@ function handleValues(values: Record<string, FormDataEntryValue>) {
   return handledValues;
 }
 
-interface PrevData {
-  totalMeters: {
-    quantity: number;
-    addedToSystem: number;
+interface PreviousData {
+  registeredMeterCount: number;
+  unregisteredMeterCount: number;
+  yearlyMeterInstallations: {
+    totalInstalled: number;
+    registeredCount: number;
   };
-  totalYearMeters: {
-    quantity: number;
-    addedToSystem: number;
-  };
-  totalMonthMeters: {
-    quantity: number;
-    addedToSystem: number;
+  monthlyMeterInstallations: {
+    totalInstalled: number;
+    registeredCount: number;
   };
 }
 
 async function handleTotalMeters(
   handledValues: UpdateTotalMetersType,
-  prevData: PrevData,
+  prevData: PreviousData,
 ) {
   const { id, balanceGroup } = handledValues;
 
@@ -98,12 +96,12 @@ async function handleTotalMeters(
 async function handleMetersQuantity(
   lastMetersQuantityId: number | undefined,
   handledValues: UpdateTotalMetersType,
-  prevData: PrevData,
+  prevData: PreviousData,
 ) {
   const { inSystemTotal, id, date, balanceGroup } = handledValues;
 
   if (lastMetersQuantityId) {
-    const prevQuantity = prevData.totalMeters.addedToSystem;
+    const prevQuantity = prevData.registeredMeterCount;
 
     if (!(prevQuantity === inSystemTotal)) {
       await updateRegisteredMeterRecordById({
@@ -124,16 +122,14 @@ async function handleMetersQuantity(
 async function handleNotInSystem(
   lastNotInSystemId: number | undefined,
   handledValues: UpdateTotalMetersType,
-  prevData: PrevData,
+  prevData: PreviousData,
 ) {
   const { totalMeters, inSystemTotal, id, date, balanceGroup } = handledValues;
 
   if (lastNotInSystemId) {
-    const prevQuantity =
-      prevData.totalMeters.quantity - prevData.totalMeters.addedToSystem;
     const actualQuantity = totalMeters - inSystemTotal;
 
-    if (!(prevQuantity === actualQuantity)) {
+    if (!(prevData.unregisteredMeterCount === actualQuantity)) {
       await updateUnregisteredMeterRecordById({
         id: lastNotInSystemId,
         unregisteredMeterCount: actualQuantity,
@@ -158,7 +154,7 @@ async function handleYearMeters(
     date,
     year,
   }: UpdateTotalYearMetersType,
-  prevData: PrevData,
+  prevData: PreviousData,
 ) {
   const lastYearId = await getLastYearId({
     transformerSubstationId: id,
@@ -167,10 +163,10 @@ async function handleYearMeters(
   });
 
   if (lastYearId) {
-    const prevValues = prevData.totalYearMeters;
+    const prevValues = prevData.yearlyMeterInstallations;
     const isEqual =
-      yearTotal === prevValues.quantity &&
-      inSystemYear === prevValues.addedToSystem;
+      yearTotal === prevValues.totalInstalled &&
+      inSystemYear === prevValues.registeredCount;
 
     if (!isEqual) {
       await updateYearlyInstallationRecordById({
@@ -201,7 +197,7 @@ async function handleMonthMeters(
     year,
     month,
   }: UpdateTotalMonthMetersType,
-  prevData: PrevData,
+  prevData: PreviousData,
 ) {
   const lastMonthId = await getLastMonthId({
     transformerSubstationId: id,
@@ -211,10 +207,11 @@ async function handleMonthMeters(
   });
 
   if (lastMonthId) {
-    const prevValues = prevData.totalMonthMeters;
+    const prevValues = prevData.monthlyMeterInstallations;
+
     const isEqual =
-      monthTotal === prevValues.quantity &&
-      inSystemMonth === prevValues.addedToSystem;
+      monthTotal === prevValues.totalInstalled &&
+      inSystemMonth === prevValues.registeredCount;
 
     if (!isEqual) {
       await updateMonthlyInstallationRecordById({
