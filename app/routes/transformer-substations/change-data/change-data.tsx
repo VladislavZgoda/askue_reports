@@ -26,9 +26,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await getTransformerSubstationById(Number(params.id));
+  const substation = await getTransformerSubstationById(Number(params.id));
 
-  if (!transSub) {
+  if (!substation) {
     throw new Error("Not Found");
   }
 
@@ -42,16 +42,16 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     odpyP2Data,
     techMetersData,
   ] = await Promise.all([
-    loadData(transSub.id, "Быт"),
-    loadData(transSub.id, "ЮР Sims"),
-    loadData(transSub.id, "ЮР П2"),
-    loadData(transSub.id, "ОДПУ Sims"),
-    loadData(transSub.id, "ОДПУ П2"),
-    loadTechMeters(transSub.id),
+    loadData(substation.id, "Быт"),
+    loadData(substation.id, "ЮР Sims"),
+    loadData(substation.id, "ЮР П2"),
+    loadData(substation.id, "ОДПУ Sims"),
+    loadData(substation.id, "ОДПУ П2"),
+    loadTechMeters(substation.id),
   ]);
 
   return {
-    transSub,
+    substation,
     privateData,
     legalSimsData,
     legalP2Data,
@@ -104,7 +104,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const {
-    transSub,
+    substation,
     privateData,
     legalSimsData,
     legalP2Data,
@@ -233,8 +233,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
   return (
     <main>
       <LinkToSubstation
-        substationId={transSub.id.toString()}
-        name={transSub.name}
+        substationId={substation.id.toString()}
+        name={substation.name}
       />
 
       <div
