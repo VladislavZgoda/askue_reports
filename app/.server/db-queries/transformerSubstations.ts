@@ -367,19 +367,56 @@ export async function getSubstationMeterCountsAsOfDate(
   return transformedResult;
 }
 
-interface LatestSubstationMeterReportParams {
+interface SubstationMeterQueryArgs {
   balanceGroup: BalanceGroup;
   substationId: number;
-  month: string;
-  year: number;
+  targetMonth: string;
+  targetYear: number;
 }
 
+interface MeterReport {
+  registeredMeters: number;
+  unregisteredMeters: number;
+  yearlyInstallation: {
+    totalInstalled: number;
+    registeredCount: number;
+  };
+  monthlyInstallation: {
+    totalInstalled: number;
+    registeredCount: number;
+  };
+}
+
+/**
+ * Retrieves the latest meter report for a specific substation and balance group
+ *
+ * @remarks
+ * - For registered/unregistered meters: Gets the most recent record regardless of date
+ * - For yearly installations: Gets the latest record within the specified year
+ * - For monthly installations: Gets the latest record within the specified month/year
+ *
+ * @param params - Query parameters
+ *   @param params.balanceGroup - Balance group category to filter by
+ *   @param params.substationId - ID of the substation to report on
+ *   @param params.targetMonth - Target month in MM format (e.g., "03" for March)
+ *   @param params.targetYear - Target year in YYYY format
+ *
+ * @returns Structured meter report with default zeros for missing data
+ *
+ * @example
+ * const report = await getLatestSubstationMeterReport({
+ *   balanceGroup: 'ЮР П2',
+ *   substationId: 42,
+ *   targetMonth: '05',
+ *   targetYear: 2025
+ * });
+ */
 export async function getLatestSubstationMeterReport({
   balanceGroup,
   substationId,
-  month,
-  year,
-}: LatestSubstationMeterReportParams) {
+  targetMonth,
+  targetYear,
+}: SubstationMeterQueryArgs): Promise<MeterReport> {
   const result = await db.query.transformerSubstations.findFirst({
     columns: {},
     where: eq(transformerSubstations.id, substationId),
@@ -412,7 +449,7 @@ export async function getLatestSubstationMeterReport({
         where: (yearlyMeterInstallations, { and, eq }) =>
           and(
             eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-            eq(yearlyMeterInstallations.year, year),
+            eq(yearlyMeterInstallations.year, targetYear),
           ),
         orderBy: (yearlyMeterInstallations, { desc }) => [
           desc(yearlyMeterInstallations.date),
@@ -427,8 +464,8 @@ export async function getLatestSubstationMeterReport({
         where: (monthlyMeterInstallations, { and, eq }) =>
           and(
             eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-            eq(monthlyMeterInstallations.month, month),
-            eq(monthlyMeterInstallations.year, year),
+            eq(monthlyMeterInstallations.month, targetMonth),
+            eq(monthlyMeterInstallations.year, targetYear),
           ),
         orderBy: (monthlyMeterInstallations, { desc }) => [
           desc(monthlyMeterInstallations.date),
@@ -438,20 +475,17 @@ export async function getLatestSubstationMeterReport({
     },
   });
 
-  const transformedResult = {
-    registeredMeterCount:
-      result?.registeredMeters[0]?.registeredMeterCount ?? 0,
-    unregisteredMeterCount:
+  return {
+    registeredMeters: result?.registeredMeters[0]?.registeredMeterCount ?? 0,
+    unregisteredMeters:
       result?.unregisteredMeters[0]?.unregisteredMeterCount ?? 0,
-    yearlyMeterInstallations: result?.yearlyMeterInstallations[0] ?? {
+    yearlyInstallation: result?.yearlyMeterInstallations[0] ?? {
       totalInstalled: 0,
       registeredCount: 0,
     },
-    monthlyMeterInstallations: result?.monthlyMeterInstallations[0] ?? {
+    monthlyInstallation: result?.monthlyMeterInstallations[0] ?? {
       totalInstalled: 0,
       registeredCount: 0,
     },
   };
-
-  return transformedResult;
 }
