@@ -1,7 +1,7 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
-import fetchCurrentSubstationMeterReport from "./.server/db-actions/loadData";
+import fetchCurrentSubstationMeterReport from "./.server/db-actions/load-data";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
 import Panel from "./Panel";
