@@ -58,13 +58,13 @@ function handleValues(values: Record<string, FormDataEntryValue>) {
 }
 
 interface PreviousData {
-  registeredMeterCount: number;
-  unregisteredMeterCount: number;
-  yearlyMeterInstallations: {
+  registeredMeters: number;
+  unregisteredMeters: number;
+  yearlyInstallation: {
     totalInstalled: number;
     registeredCount: number;
   };
-  monthlyMeterInstallations: {
+  monthlyInstallation: {
     totalInstalled: number;
     registeredCount: number;
   };
@@ -101,9 +101,7 @@ async function handleMetersQuantity(
   const { inSystemTotal, id, date, balanceGroup } = handledValues;
 
   if (lastMetersQuantityId) {
-    const prevQuantity = prevData.registeredMeterCount;
-
-    if (!(prevQuantity === inSystemTotal)) {
+    if (!(prevData.registeredMeters === inSystemTotal)) {
       await updateRegisteredMeterRecordById({
         id: lastMetersQuantityId,
         registeredMeterCount: inSystemTotal,
@@ -129,7 +127,7 @@ async function handleNotInSystem(
   if (lastNotInSystemId) {
     const actualQuantity = totalMeters - inSystemTotal;
 
-    if (!(prevData.unregisteredMeterCount === actualQuantity)) {
+    if (!(prevData.unregisteredMeters === actualQuantity)) {
       await updateUnregisteredMeterRecordById({
         id: lastNotInSystemId,
         unregisteredMeterCount: actualQuantity,
@@ -163,10 +161,9 @@ async function handleYearMeters(
   });
 
   if (lastYearId) {
-    const prevValues = prevData.yearlyMeterInstallations;
     const isEqual =
-      yearTotal === prevValues.totalInstalled &&
-      inSystemYear === prevValues.registeredCount;
+      yearTotal === prevData.yearlyInstallation.totalInstalled &&
+      inSystemYear === prevData.yearlyInstallation.registeredCount;
 
     if (!isEqual) {
       await updateYearlyInstallationRecordById({
@@ -207,11 +204,9 @@ async function handleMonthMeters(
   });
 
   if (lastMonthId) {
-    const prevValues = prevData.monthlyMeterInstallations;
-
     const isEqual =
-      monthTotal === prevValues.totalInstalled &&
-      inSystemMonth === prevValues.registeredCount;
+      monthTotal === prevData.monthlyInstallation.totalInstalled &&
+      inSystemMonth === prevData.monthlyInstallation.registeredCount;
 
     if (!isEqual) {
       await updateMonthlyInstallationRecordById({

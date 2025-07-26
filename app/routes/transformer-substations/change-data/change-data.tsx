@@ -64,7 +64,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const { _action, ...values } = Object.fromEntries(formData);
-  values.id = params.id;
+
+  values.id = params.id as FormDataEntryValue;
+
   const errors = validateInput(values);
 
   if (Object.keys(errors).length > 0) {

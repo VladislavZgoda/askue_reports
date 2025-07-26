@@ -15,13 +15,13 @@ interface PanelProps {
   } | null>;
   isSubmitting: boolean;
   data: {
-    registeredMeterCount: number;
-    unregisteredMeterCount: number;
-    yearlyMeterInstallations: {
+    registeredMeters: number;
+    unregisteredMeters: number;
+    yearlyInstallation: {
       totalInstalled: number;
       registeredCount: number;
     };
-    monthlyMeterInstallations: {
+    monthlyInstallation: {
       totalInstalled: number;
       registeredCount: number;
     };
@@ -47,7 +47,7 @@ export default function Panel({
             label="Количество ПУ"
             name="totalMeters"
             error={errors?.totalDiff}
-            defValue={data.registeredMeterCount + data.unregisteredMeterCount}
+            defValue={data.registeredMeters + data.unregisteredMeters}
             errors={isErrors(errors)}
           />
 
@@ -55,7 +55,7 @@ export default function Panel({
             label="Из них в системе"
             name="inSystemTotal"
             error={errors?.totalDiff}
-            defValue={data.registeredMeterCount}
+            defValue={data.registeredMeters}
             errors={isErrors(errors)}
           />
         </Container>
@@ -65,7 +65,7 @@ export default function Panel({
             label="Количество ПУ"
             name="yearTotal"
             error={errors?.yearDiff}
-            defValue={data.yearlyMeterInstallations.totalInstalled}
+            defValue={data.yearlyInstallation.totalInstalled}
             errors={isErrors(errors)}
           />
 
@@ -73,7 +73,7 @@ export default function Panel({
             label="Из них в системе"
             name="inSystemYear"
             error={errors?.yearDiff}
-            defValue={data.yearlyMeterInstallations.registeredCount}
+            defValue={data.yearlyInstallation.registeredCount}
             errors={isErrors(errors)}
           />
         </Container>
@@ -83,7 +83,7 @@ export default function Panel({
             label="Количество ПУ"
             name="monthTotal"
             error={errors?.monthDiff}
-            defValue={data.monthlyMeterInstallations.totalInstalled}
+            defValue={data.monthlyInstallation.totalInstalled}
             errors={isErrors(errors)}
           />
 
@@ -91,7 +91,7 @@ export default function Panel({
             label="Из них в системе"
             name="inSystemMonth"
             error={errors?.monthDiff}
-            defValue={data.monthlyMeterInstallations.registeredCount}
+            defValue={data.monthlyInstallation.registeredCount}
             errors={isErrors(errors)}
           />
         </Container>
