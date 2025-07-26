@@ -1,7 +1,7 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
-import loadData from "./.server/db-actions/loadData";
+import fetchCurrentSubstationMeterReport from "./.server/db-actions/loadData";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
 import Panel from "./Panel";
@@ -42,11 +42,11 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     odpyP2Data,
     techMetersData,
   ] = await Promise.all([
-    loadData(substation.id, "Быт"),
-    loadData(substation.id, "ЮР Sims"),
-    loadData(substation.id, "ЮР П2"),
-    loadData(substation.id, "ОДПУ Sims"),
-    loadData(substation.id, "ОДПУ П2"),
+    fetchCurrentSubstationMeterReport(substation.id, "Быт"),
+    fetchCurrentSubstationMeterReport(substation.id, "ЮР Sims"),
+    fetchCurrentSubstationMeterReport(substation.id, "ЮР П2"),
+    fetchCurrentSubstationMeterReport(substation.id, "ОДПУ Sims"),
+    fetchCurrentSubstationMeterReport(substation.id, "ОДПУ П2"),
     loadTechMeters(substation.id),
   ]);
 

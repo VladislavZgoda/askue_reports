@@ -1,22 +1,29 @@
 import { getLatestSubstationMeterReport } from "~/.server/db-queries/transformerSubstations";
 
-export default async function loadData(
+type MeterReport = ReturnType<typeof getLatestSubstationMeterReport>;
+
+/**
+ * Fetches the latest meter report for a substation in the current period
+ *
+ * @param substationId - ID of the substation to retrieve data for
+ * @param balanceGroup - Balance group category to filter by
+ * @returns Promise resolving to the latest meter report
+ *
+ * @example
+ * const report = await fetchCurrentSubstationMeterReport(42, 'ЮР П2');
+ */
+export default function fetchCurrentSubstationMeterReport(
   substationId: number,
   balanceGroup: BalanceGroup,
-) {
-  const targetYear = new Date().getFullYear();
-  let targetMonth = String(new Date().getMonth() + 1);
+): MeterReport {
+  const currentDate = new Date();
+  const targetYear = currentDate.getFullYear();
+  const targetMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
 
-  if (targetMonth.length === 1) {
-    targetMonth = "0" + targetMonth;
-  }
-
-  const metersReport = getLatestSubstationMeterReport({
+  return getLatestSubstationMeterReport({
     balanceGroup,
     substationId,
     targetMonth,
     targetYear,
   });
-
-  return metersReport;
 }
