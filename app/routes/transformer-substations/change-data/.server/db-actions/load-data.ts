@@ -1,3 +1,4 @@
+import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
 
 type MeterReport = Awaited<
@@ -11,9 +12,7 @@ type MeterReport = Awaited<
  * @param balanceGroups - Array of balance groups to include
  * @returns Promise resolving to an object keyed by balance group with meter reports
  */
-export default function loadAllSubstationMeterReports<
-  Groups extends BalanceGroup,
->(
+export function loadAllSubstationMeterReports<Groups extends BalanceGroup>(
   substationId: number,
   balanceGroups: readonly Groups[],
 ): Promise<Record<Groups, MeterReport>> {
@@ -27,4 +26,31 @@ export default function loadAllSubstationMeterReports<
     targetYear,
     balanceGroups,
   });
+}
+
+interface TechnicalMeterReport {
+  totalCount: number;
+  underVoltageCount: number;
+}
+
+/**
+ * Loads technical meter statistics for a substation
+ *
+ * @param substationId - ID of the substation to retrieve technical meters for
+ * @returns Object containing:
+ *   totalCount: Total quantity of technical meters
+ *   underVoltageCount: Number of meters operating under voltage
+ *
+ * @example
+ * const { totalCount, underVoltageCount } = await loadTechnicalMeters(42);
+ */
+export async function loadTechnicalMeters(
+  substationId: number,
+): Promise<TechnicalMeterReport> {
+  const techMeters = await getTechnicalMeterStatsForSubstation(substationId);
+
+  return {
+    totalCount: techMeters?.quantity ?? 0,
+    underVoltageCount: techMeters?.underVoltage ?? 0,
+  };
 }

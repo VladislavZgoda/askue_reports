@@ -1,7 +1,10 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
-import loadAllSubstationMeterReports from "./.server/db-actions/load-data";
+import {
+  loadAllSubstationMeterReports,
+  loadTechnicalMeters,
+} from "./.server/db-actions/load-data";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
 import Panel from "./Panel";
@@ -13,7 +16,6 @@ import BtnContainer from "./BtnContainer";
 import Toast from "~/components/Toast";
 import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
-import loadTechMeters from "./.server/db-actions/loadTechMeters";
 import changeTechMeters from "./.server/db-actions/changeTechMeters";
 import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
@@ -44,7 +46,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   const [meterReports, techMetersData] = await Promise.all([
     loadAllSubstationMeterReports(substation.id, balanceGroups),
-    loadTechMeters(substation.id),
+    loadTechnicalMeters(substation.id),
   ]);
 
   return {
@@ -281,7 +283,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
                 label="Количество ПУ"
                 name="quantity"
                 error={techMetersErrors?.techDiff}
-                defValue={techMetersData.quantity}
+                defValue={techMetersData.totalCount}
                 errors={isErrors(techMetersErrors)}
               />
 
@@ -289,7 +291,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
                 label="Из них под напряжением"
                 name="underVoltage"
                 error={techMetersErrors?.techDiff}
-                defValue={techMetersData.addedToSystem}
+                defValue={techMetersData.underVoltageCount}
                 errors={isErrors(techMetersErrors)}
               />
             </Container>

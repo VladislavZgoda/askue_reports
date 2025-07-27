@@ -18,7 +18,7 @@ import {
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
-import loadAllSubstationMeterReports from "./load-data";
+import { loadAllSubstationMeterReports } from "./load-data";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 export default async function changeData(
