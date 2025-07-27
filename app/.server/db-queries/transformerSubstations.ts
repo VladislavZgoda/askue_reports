@@ -367,13 +367,6 @@ export async function getSubstationMeterCountsAsOfDate(
   return transformedResult;
 }
 
-interface SubstationMeterQueryArgs {
-  balanceGroup: BalanceGroup;
-  substationId: number;
-  targetMonth: string;
-  targetYear: number;
-}
-
 interface MeterReport {
   registeredMeters: number;
   unregisteredMeters: number;
@@ -387,105 +380,105 @@ interface MeterReport {
   };
 }
 
+interface BatchedReportParams<Group extends BalanceGroup> {
+  substationId: number;
+  targetMonth: string;
+  targetYear: number;
+  balanceGroups: readonly Group[];
+}
+
+type BatchedReport<Groups extends BalanceGroup> = Record<Groups, MeterReport>;
+
 /**
- * Retrieves the latest meter report for a specific substation and balance group
+ * Retrieves batched meter reports for multiple balance groups
  *
- * @remarks
- * - For registered/unregistered meters: Gets the most recent record regardless of date
- * - For yearly installations: Gets the latest record within the specified year
- * - For monthly installations: Gets the latest record within the specified month/year
- *
+ * @template Group - Specific balance group type
  * @param params - Query parameters
- *   @param params.balanceGroup - Balance group category to filter by
- *   @param params.substationId - ID of the substation to report on
- *   @param params.targetMonth - Target month in MM format (e.g., "03" for March)
- *   @param params.targetYear - Target year in YYYY format
- *
- * @returns Structured meter report with default zeros for missing data
- *
- * @example
- * const report = await getLatestSubstationMeterReport({
- *   balanceGroup: 'ЮР П2',
- *   substationId: 42,
- *   targetMonth: '05',
- *   targetYear: 2025
- * });
+ * @returns Report object keyed by balance groups
  */
-export async function getLatestSubstationMeterReport({
-  balanceGroup,
+export async function getBatchedSubstationMeterReports<
+  Group extends BalanceGroup,
+>({
   substationId,
   targetMonth,
   targetYear,
-}: SubstationMeterQueryArgs): Promise<MeterReport> {
+  balanceGroups,
+}: BatchedReportParams<Group>): Promise<BatchedReport<Group>> {
   const result = await db.query.transformerSubstations.findFirst({
-    columns: {},
     where: eq(transformerSubstations.id, substationId),
     with: {
       registeredMeters: {
-        columns: {
-          registeredMeterCount: true,
-        },
-        where: (registeredMeters, { eq }) =>
-          eq(registeredMeters.balanceGroup, balanceGroup),
+        columns: { registeredMeterCount: true, balanceGroup: true },
+        where: (registeredMeters, { inArray }) =>
+          inArray(registeredMeters.balanceGroup, balanceGroups),
         orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
-        limit: 1,
       },
       unregisteredMeters: {
-        columns: {
-          unregisteredMeterCount: true,
-        },
-        where: (unregisteredMeters, { eq }) =>
-          eq(unregisteredMeters.balanceGroup, balanceGroup),
+        columns: { unregisteredMeterCount: true, balanceGroup: true },
+        where: (unregisteredMeters, { inArray }) =>
+          inArray(unregisteredMeters.balanceGroup, balanceGroups),
         orderBy: (unregisteredMeters, { desc }) => [
           desc(unregisteredMeters.date),
         ],
-        limit: 1,
       },
       yearlyMeterInstallations: {
         columns: {
           totalInstalled: true,
           registeredCount: true,
+          balanceGroup: true,
         },
-        where: (yearlyMeterInstallations, { and, eq }) =>
+        where: (yearlyMeterInstallations, { and, eq, inArray }) =>
           and(
-            eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+            inArray(yearlyMeterInstallations.balanceGroup, balanceGroups),
             eq(yearlyMeterInstallations.year, targetYear),
           ),
         orderBy: (yearlyMeterInstallations, { desc }) => [
           desc(yearlyMeterInstallations.date),
         ],
-        limit: 1,
       },
       monthlyMeterInstallations: {
         columns: {
           totalInstalled: true,
           registeredCount: true,
+          balanceGroup: true,
         },
-        where: (monthlyMeterInstallations, { and, eq }) =>
+        where: (monthlyMeterInstallations, { and, eq, inArray }) =>
           and(
-            eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+            inArray(monthlyMeterInstallations.balanceGroup, balanceGroups),
             eq(monthlyMeterInstallations.month, targetMonth),
             eq(monthlyMeterInstallations.year, targetYear),
           ),
         orderBy: (monthlyMeterInstallations, { desc }) => [
           desc(monthlyMeterInstallations.date),
         ],
-        limit: 1,
       },
     },
   });
 
-  return {
-    registeredMeters: result?.registeredMeters[0]?.registeredMeterCount ?? 0,
-    unregisteredMeters:
-      result?.unregisteredMeters[0]?.unregisteredMeterCount ?? 0,
-    yearlyInstallation: result?.yearlyMeterInstallations[0] ?? {
-      totalInstalled: 0,
-      registeredCount: 0,
-    },
-    monthlyInstallation: result?.monthlyMeterInstallations[0] ?? {
-      totalInstalled: 0,
-      registeredCount: 0,
-    },
-  };
+  const report = {} as Record<Group, MeterReport>;
+
+  for (const group of balanceGroups) {
+    report[group] = {
+      registeredMeters:
+        result?.registeredMeters.find((r) => r.balanceGroup === group)
+          ?.registeredMeterCount ?? 0,
+      unregisteredMeters:
+        result?.unregisteredMeters.find((u) => u.balanceGroup === group)
+          ?.unregisteredMeterCount ?? 0,
+      yearlyInstallation: result?.yearlyMeterInstallations.find(
+        (y) => y.balanceGroup === group,
+      ) ?? {
+        totalInstalled: 0,
+        registeredCount: 0,
+      },
+      monthlyInstallation: result?.monthlyMeterInstallations.find(
+        (m) => m.balanceGroup === group,
+      ) ?? {
+        totalInstalled: 0,
+        registeredCount: 0,
+      },
+    };
+  }
+
+  return report;
 }

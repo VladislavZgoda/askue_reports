@@ -18,7 +18,7 @@ import {
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
-import fetchCurrentSubstationMeterReport from "./load-data";
+import loadAllSubstationMeterReports from "./load-data";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 export default async function changeData(
@@ -26,15 +26,14 @@ export default async function changeData(
 ) {
   const handledValues = handleValues(values);
 
-  const prevData = await fetchCurrentSubstationMeterReport(
-    handledValues.id,
+  const prevData = await loadAllSubstationMeterReports(handledValues.id, [
     handledValues.balanceGroup,
-  );
+  ]);
 
   await Promise.all([
-    handleTotalMeters(handledValues, prevData),
-    handleYearMeters(handledValues, prevData),
-    handleMonthMeters(handledValues, prevData),
+    handleTotalMeters(handledValues, prevData[handledValues.balanceGroup]),
+    handleYearMeters(handledValues, prevData[handledValues.balanceGroup]),
+    handleMonthMeters(handledValues, prevData[handledValues.balanceGroup]),
   ]);
 }
 

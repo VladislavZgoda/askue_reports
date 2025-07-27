@@ -1,29 +1,30 @@
-import { getLatestSubstationMeterReport } from "~/.server/db-queries/transformerSubstations";
+import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
 
-type MeterReport = ReturnType<typeof getLatestSubstationMeterReport>;
+type MeterReport = Awaited<
+  ReturnType<typeof getBatchedSubstationMeterReports>
+>["Быт"];
 
 /**
- * Fetches the latest meter report for a substation in the current period
+ * Retrieves batched meter reports for specified balance groups of a substation
  *
  * @param substationId - ID of the substation to retrieve data for
- * @param balanceGroup - Balance group category to filter by
- * @returns Promise resolving to the latest meter report
- *
- * @example
- * const report = await fetchCurrentSubstationMeterReport(42, 'ЮР П2');
+ * @param balanceGroups - Array of balance groups to include
+ * @returns Promise resolving to an object keyed by balance group with meter reports
  */
-export default function fetchCurrentSubstationMeterReport(
+export default function loadAllSubstationMeterReports<
+  Groups extends BalanceGroup,
+>(
   substationId: number,
-  balanceGroup: BalanceGroup,
-): MeterReport {
+  balanceGroups: readonly Groups[],
+): Promise<Record<Groups, MeterReport>> {
   const currentDate = new Date();
   const targetYear = currentDate.getFullYear();
   const targetMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
 
-  return getLatestSubstationMeterReport({
-    balanceGroup,
+  return getBatchedSubstationMeterReports({
     substationId,
     targetMonth,
     targetYear,
+    balanceGroups,
   });
 }

@@ -1,7 +1,7 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
-import fetchCurrentSubstationMeterReport from "./.server/db-actions/load-data";
+import loadAllSubstationMeterReports from "./.server/db-actions/load-data";
 import changeData from "./.server/db-actions/changeData";
 import TabPanel from "./TabPanel";
 import Panel from "./Panel";
@@ -34,29 +34,22 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   await isNotAuthenticated(request);
 
-  const [
-    privateData,
-    legalSimsData,
-    legalP2Data,
-    odpySimsData,
-    odpyP2Data,
-    techMetersData,
-  ] = await Promise.all([
-    fetchCurrentSubstationMeterReport(substation.id, "Быт"),
-    fetchCurrentSubstationMeterReport(substation.id, "ЮР Sims"),
-    fetchCurrentSubstationMeterReport(substation.id, "ЮР П2"),
-    fetchCurrentSubstationMeterReport(substation.id, "ОДПУ Sims"),
-    fetchCurrentSubstationMeterReport(substation.id, "ОДПУ П2"),
+  const balanceGroups = [
+    "Быт",
+    "ЮР Sims",
+    "ЮР П2",
+    "ОДПУ Sims",
+    "ОДПУ П2",
+  ] as const;
+
+  const [meterReports, techMetersData] = await Promise.all([
+    loadAllSubstationMeterReports(substation.id, balanceGroups),
     loadTechMeters(substation.id),
   ]);
 
   return {
     substation,
-    privateData,
-    legalSimsData,
-    legalP2Data,
-    odpySimsData,
-    odpyP2Data,
+    meterReports,
     techMetersData,
   };
 };
@@ -105,15 +98,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 };
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
-  const {
-    substation,
-    privateData,
-    legalSimsData,
-    legalP2Data,
-    odpySimsData,
-    odpyP2Data,
-    techMetersData,
-  } = loaderData;
+  const { substation, meterReports, techMetersData } = loaderData;
 
   const fetcher = useFetcher<typeof action>();
   const actionErrors = fetcher.data;
@@ -246,7 +231,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
         <Panel
           label="БЫТ"
           checked={true}
-          data={privateData}
+          data={meterReports.Быт}
           isSubmitting={isSubmittingPrivate}
           errors={privateErrors}
           fetcher={fetcher}
@@ -255,7 +240,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
         <Panel
           label="ЮР Sims"
-          data={legalSimsData}
+          data={meterReports["ЮР Sims"]}
           isSubmitting={isSubmittingLegalSims}
           errors={legalSimsErrors}
           fetcher={fetcher}
@@ -264,7 +249,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
         <Panel
           label="ЮР П2"
-          data={legalP2Data}
+          data={meterReports["ЮР П2"]}
           isSubmitting={isSubmittingLegalP2}
           errors={legalP2Errors}
           fetcher={fetcher}
@@ -273,7 +258,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
         <Panel
           label="ОДПУ Sims"
-          data={odpySimsData}
+          data={meterReports["ОДПУ Sims"]}
           isSubmitting={isSubmittingOdpySims}
           errors={odpySimsErrors}
           fetcher={fetcher}
@@ -282,7 +267,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
         <Panel
           label="ОДПУ П2"
-          data={odpyP2Data}
+          data={meterReports["ОДПУ П2"]}
           isSubmitting={isSubmittingOdpyP2}
           errors={odpyP2Errors}
           fetcher={fetcher}
