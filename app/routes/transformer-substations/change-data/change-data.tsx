@@ -44,7 +44,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     "ОДПУ П2",
   ] as const;
 
-  const [meterReports, techMetersData] = await Promise.all([
+  const [meterReports, technicalMeters] = await Promise.all([
     loadAllSubstationMeterReports(substation.id, balanceGroups),
     loadTechnicalMeters(substation.id),
   ]);
@@ -52,7 +52,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   return {
     substation,
     meterReports,
-    techMetersData,
+    technicalMeters,
   };
 };
 
@@ -100,7 +100,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 };
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
-  const { substation, meterReports, techMetersData } = loaderData;
+  const { substation, meterReports, technicalMeters } = loaderData;
 
   const fetcher = useFetcher<typeof action>();
   const actionErrors = fetcher.data;
@@ -283,7 +283,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
                 label="Количество ПУ"
                 name="quantity"
                 error={techMetersErrors?.techDiff}
-                defValue={techMetersData.totalCount}
+                defValue={technicalMeters.totalCount}
                 errors={isErrors(techMetersErrors)}
               />
 
@@ -291,7 +291,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
                 label="Из них под напряжением"
                 name="underVoltage"
                 error={techMetersErrors?.techDiff}
-                defValue={techMetersData.underVoltageCount}
+                defValue={technicalMeters.underVoltageCount}
                 errors={isErrors(techMetersErrors)}
               />
             </Container>
