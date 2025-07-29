@@ -405,6 +405,7 @@ export async function getBatchedSubstationMeterReports<
   balanceGroups,
 }: BatchedReportParams<Group>): Promise<BatchedReport<Group>> {
   const result = await db.query.transformerSubstations.findFirst({
+    columns: {},
     where: eq(transformerSubstations.id, substationId),
     with: {
       registeredMeters: {
