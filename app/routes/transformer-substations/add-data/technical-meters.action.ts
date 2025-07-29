@@ -1,8 +1,8 @@
 import type { Route } from "./+types/technical-meters.action";
-import type { TechnicalForm } from "./validation/technical-form-schema";
+import type { TechnicalForm } from "./validation/technical-form.schema";
 
 import { getValidatedFormData } from "remix-hook-form";
-import { technicalFormResolver } from "./validation/technical-form-schema";
+import { technicalFormResolver } from "./validation/technical-form.schema";
 import addOrUpdateTechnicalMeters from "./.server/db-actions/add-technical-meters";
 
 export async function action({ request, params }: Route.ActionArgs) {

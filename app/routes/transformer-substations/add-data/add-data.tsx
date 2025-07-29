@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
-import { billingFormResolver } from "./validation/billing-form-schema";
-import { technicalFormResolver } from "./validation/technical-form-schema";
+import { billingFormResolver } from "./validation/billing-form.schema";
+import { technicalFormResolver } from "./validation/technical-form.schema";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meterActionLogs";
@@ -20,12 +20,12 @@ import type { Route } from "./+types/add-data";
 import type {
   BillingFormData,
   BillingFormErrors,
-} from "./validation/billing-form-schema";
+} from "./validation/billing-form.schema";
 
 import type {
   TechnicalForm,
   TechnicalFormErrors,
-} from "./validation/technical-form-schema";
+} from "./validation/technical-form.schema";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {

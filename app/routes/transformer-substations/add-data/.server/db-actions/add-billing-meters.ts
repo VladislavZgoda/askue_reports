@@ -5,7 +5,7 @@ import processYearlyInstallations from "./yearly-installations";
 import processMonthlyInstallations from "./monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
-import type { BillingValidationForm } from "../../validation/billing-form-schema";
+import type { BillingValidationForm } from "../../validation/billing-form.schema";
 
 type BillingInstallationData = BillingValidationForm & {
   readonly substationId: number;
