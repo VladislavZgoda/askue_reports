@@ -65,33 +65,6 @@ declare interface SubmitButtonValues {
   isSubmitting: boolean;
 }
 
-declare interface UpdateTotalMetersType {
-  totalMeters: number;
-  inSystemTotal: number;
-  id: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-}
-
-declare interface UpdateTotalYearMetersType {
-  year: number;
-  id: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  inSystemYear: number;
-  yearTotal: number;
-}
-
-declare interface UpdateTotalMonthMetersType {
-  year: number;
-  id: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  month: string;
-  monthTotal: number;
-  inSystemMonth: number;
-}
-
 declare interface InputType {
   defValue: number;
   name: string;
