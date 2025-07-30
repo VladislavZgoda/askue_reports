@@ -41,8 +41,8 @@ export default async function changeData(input: InputData) {
   const year = cutOutYear(currentDate);
   const month = cutOutMonth(currentDate);
 
-  const previousData = await loadAllSubstationMeterReports(input.substationId, [
-    input.balanceGroup,
+  const previousData = await loadAllSubstationMeterReports(substationId, [
+    balanceGroup,
   ]);
 
   await Promise.all([
@@ -54,7 +54,7 @@ export default async function changeData(input: InputData) {
         substationId,
         date: currentDate,
       },
-      previousData[input.balanceGroup],
+      previousData[balanceGroup],
     ),
     handleYearMeters(
       {
@@ -65,7 +65,7 @@ export default async function changeData(input: InputData) {
         date: currentDate,
         year,
       },
-      previousData[input.balanceGroup],
+      previousData[balanceGroup],
     ),
     handleMonthMeters(
       {
@@ -77,7 +77,7 @@ export default async function changeData(input: InputData) {
         month,
         year,
       },
-      previousData[input.balanceGroup],
+      previousData[balanceGroup],
     ),
   ]);
 }
