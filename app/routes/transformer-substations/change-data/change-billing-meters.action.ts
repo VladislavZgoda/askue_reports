@@ -7,12 +7,13 @@ import { billingFormResolver } from "./validation/billing-form.schema";
 import changeData from "./.server/db-actions/changeData";
 
 export async function action({ request, params }: Route.ActionArgs) {
-  const { errors, data } = await getValidatedFormData<BillingFormData>(
-    request,
-    billingFormResolver,
-  );
+  const {
+    errors,
+    data,
+    receivedValues: defaultValues,
+  } = await getValidatedFormData<BillingFormData>(request, billingFormResolver);
 
-  if (errors) return errors;
+  if (errors) return { errors, defaultValues };
 
   const substationId = Number(params.id);
 

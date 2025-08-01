@@ -1,6 +1,8 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import type { FieldErrors } from "react-hook-form";
+
 const differenceError = `Поле 'Количество ПУ' не должно быть меньше,
       чем поле 'Из них добавлено в систему'.`;
 
@@ -81,3 +83,8 @@ export const billingFormSchema = z
 export const billingFormResolver = zodResolver(billingFormSchema);
 
 export type BillingFormData = z.infer<typeof billingFormSchema>;
+
+export interface BillingFormErrors {
+  errors: FieldErrors<BillingFormData>;
+  defaultValues: Partial<BillingFormData>;
+}

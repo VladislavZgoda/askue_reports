@@ -10,7 +10,7 @@ export default function BtnContainer({
   errors,
 }: ButtonContainerProps) {
   return (
-    <div className={`h-full mt-auto ${errors ? "mb-13" : "mb-2.5"}`}>
+    <div className={`h-full mt-auto ${errors ? "mb-13" : "mb-1"}`}>
       {children}
     </div>
   );

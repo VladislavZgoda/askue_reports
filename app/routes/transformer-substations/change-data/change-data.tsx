@@ -1,27 +1,29 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
-import { useFetcher } from "react-router";
+import { href, useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
 import {
   loadAllSubstationMeterReports,
   loadTechnicalMeters,
 } from "./.server/db-actions/load-data";
-import changeData from "./.server/db-actions/changeData";
-import TabPanel from "./TabPanel";
-import Panel from "./Panel";
-import Form from "./Form";
-import Input from "./Input";
-import Container from "./Container";
-import Button from "./Button";
-import BtnContainer from "./BtnContainer";
+//import changeData from "./.server/db-actions/changeData";
+
+//import Panel from "./Panel";
+//import Form from "./Form";
+//import Input from "./Input";
+
+import BalanceGroupTabPanel from "./components/BalanceGroupTabPanel";
+//import Button from "./Button";
+//import BtnContainer from "./BtnContainer";
 import Toast from "~/components/Toast";
-import validateInput from "./.server/validation/fieldsDifference";
+//import validateInput from "./.server/validation/fieldsDifference";
 import { useState, useEffect } from "react";
-import changeTechMeters from "./.server/db-actions/changeTechMeters";
-import { isErrors } from "~/utils/checkErrors";
+//import changeTechMeters from "./.server/db-actions/changeTechMeters";
+//import { isErrors } from "~/utils/checkErrors";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/change-data";
+import type { BillingFormErrors } from "./validation/billing-form.schema";
 
-type ErrorsType = Record<string, string>;
+//type ErrorsType = Record<string, string>;
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
@@ -56,168 +58,203 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   };
 };
 
-export const action = async ({ request, params }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const { _action, ...values } = Object.fromEntries(formData);
+// export const action = async ({ request, params }: Route.ActionArgs) => {
+//   const formData = await request.formData();
+//   const { _action, ...values } = Object.fromEntries(formData);
 
-  values.id = params.id as FormDataEntryValue;
+//   values.id = params.id as FormDataEntryValue;
 
-  const errors = validateInput(values);
+//   const errors = validateInput(values);
 
-  if (Object.keys(errors).length > 0) {
-    return { errors };
-  }
+//   if (Object.keys(errors).length > 0) {
+//     return { errors };
+//   }
 
-  const mutateData = async (balanceGroup: BalanceGroup) => {
-    await changeData({
-      ...values,
-      balanceGroup,
-    });
-  };
+//   const mutateData = async (balanceGroup: BalanceGroup) => {
+//     await changeData({
+//       ...values,
+//       balanceGroup,
+//     });
+//   };
 
-  switch (_action) {
-    case "changePrivate":
-      await mutateData("Быт");
-      break;
-    case "changeLegalSims":
-      await mutateData("ЮР Sims");
-      break;
-    case "changeLegalP2":
-      await mutateData("ЮР П2");
-      break;
-    case "changeOdpySims":
-      await mutateData("ОДПУ Sims");
-      break;
-    case "changeOdpyP2":
-      await mutateData("ОДПУ П2");
-      break;
-    case "changeTechMeters":
-      await changeTechMeters(values);
-      break;
-  }
+//   switch (_action) {
+//     case "changePrivate":
+//       await mutateData("Быт");
+//       break;
+//     case "changeLegalSims":
+//       await mutateData("ЮР Sims");
+//       break;
+//     case "changeLegalP2":
+//       await mutateData("ЮР П2");
+//       break;
+//     case "changeOdpySims":
+//       await mutateData("ОДПУ Sims");
+//       break;
+//     case "changeOdpyP2":
+//       await mutateData("ОДПУ П2");
+//       break;
+//     case "changeTechMeters":
+//       await changeTechMeters(values);
+//       break;
+//   }
 
-  return null;
-};
+//   return null;
+// };
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const { substation, meterReports, technicalMeters } = loaderData;
 
-  const fetcher = useFetcher<typeof action>();
-  const actionErrors = fetcher.data;
-  const formAction = fetcher.formData?.get("_action");
-  const isSubmitting = fetcher.state === "submitting";
+  const fetcherBillingMeters = useFetcher<BillingFormErrors>();
 
-  const checkWhatForm = (formBtnName: string) => {
-    return formAction === formBtnName;
-  };
+  const balanceGroup = fetcherBillingMeters.data?.defaultValues.balanceGroup;
+  const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
 
-  const checkFormSubmit = (dataType: boolean) => {
-    return dataType && isSubmitting;
-  };
+  const [privateErrors, setPrivateErrors] = useState(
+    fetcherBillingMeters.data?.errors,
+  );
 
-  const isPrivateData = checkWhatForm("changePrivate");
-  const isSubmittingPrivate = checkFormSubmit(isPrivateData);
+  const [legalSimsErrors, setLegalSimsErrors] = useState(
+    fetcherBillingMeters.data?.errors,
+  );
 
-  const isLegalSimsData = checkWhatForm("changeLegalSims");
-  const isSubmittingLegalSims = checkFormSubmit(isLegalSimsData);
+  const billingAction = href(
+    "/transformer-substations/:id/change-billing-meters",
+    {
+      id: substation.id.toString(),
+    },
+  );
 
-  const isLegalP2Data = checkWhatForm("changeLegalP2");
-  const isSubmittingLegalP2 = checkFormSubmit(isLegalP2Data);
+  const isBillingAction = fetcherBillingMeters.formAction === billingAction;
 
-  const isOdpySimsData = checkWhatForm("changeOdpySims");
-  const isSubmittingOdpySims = checkFormSubmit(isOdpySimsData);
+  useEffect(() => {
+    if (!isSubmittingBilling && isBillingAction) {
+      if (privateErrors) setPrivateErrors(undefined);
+      if (!fetcherBillingMeters.data?.errors) showToast();
+    }
 
-  const isOdpyP2Data = checkWhatForm("changeOdpyP2");
-  const isSubmittingOdpyP2 = checkFormSubmit(isOdpyP2Data);
+    if (fetcherBillingMeters.data?.errors && balanceGroup === "Быт")
+      setPrivateErrors(fetcherBillingMeters.data.errors);
 
-  const isTechMetersData = checkWhatForm("changeTechMeters");
-  const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
+    if (fetcherBillingMeters.data?.errors && balanceGroup === "ЮР Sims")
+      setLegalSimsErrors(fetcherBillingMeters.data.errors);
+  });
 
-  const [privateErrors, setPrivateErrors] = useState<ErrorsType>({});
-  const [legalSimsErrors, setLegalSimsErrors] = useState<ErrorsType>({});
-  const [legalP2Errors, setLegalP2Errors] = useState<ErrorsType>({});
-  const [odpySimsErrors, setOdpySimsErrors] = useState<ErrorsType>({});
-  const [odpyP2Errors, setOdpyP2Errors] = useState<ErrorsType>({});
-  const [techMetersErrors, setTechMetersErrors] = useState<ErrorsType>({});
+  // const fetcher = useFetcher<typeof action>();
+  // const actionErrors = fetcher.data;
+  // const formAction = fetcher.formData?.get("_action");
+  // const isSubmitting = fetcher.state === "submitting";
+
+  // const checkWhatForm = (formBtnName: string) => {
+  //   return formAction === formBtnName;
+  // };
+
+  // const checkFormSubmit = (dataType: boolean) => {
+  //   return dataType && isSubmitting;
+  // };
+
+  // const isPrivateData = checkWhatForm("changePrivate");
+  // const isSubmittingPrivate = checkFormSubmit(isPrivateData);
+
+  // const isLegalSimsData = checkWhatForm("changeLegalSims");
+  // const isSubmittingLegalSims = checkFormSubmit(isLegalSimsData);
+
+  // const isLegalP2Data = checkWhatForm("changeLegalP2");
+  // const isSubmittingLegalP2 = checkFormSubmit(isLegalP2Data);
+
+  // const isOdpySimsData = checkWhatForm("changeOdpySims");
+  // const isSubmittingOdpySims = checkFormSubmit(isOdpySimsData);
+
+  // const isOdpyP2Data = checkWhatForm("changeOdpyP2");
+  // const isSubmittingOdpyP2 = checkFormSubmit(isOdpyP2Data);
+
+  // const isTechMetersData = checkWhatForm("changeTechMeters");
+  // const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
+
+  // const [privateErrors, setPrivateErrors] = useState<ErrorsType>({});
+  // const [legalSimsErrors, setLegalSimsErrors] = useState<ErrorsType>({});
+  // const [legalP2Errors, setLegalP2Errors] = useState<ErrorsType>({});
+  // const [odpySimsErrors, setOdpySimsErrors] = useState<ErrorsType>({});
+  // const [odpyP2Errors, setOdpyP2Errors] = useState<ErrorsType>({});
+  // const [techMetersErrors, setTechMetersErrors] = useState<ErrorsType>({});
 
   const [isVisible, setIsVisible] = useState(false);
 
-  const handleIsVisible = () => {
+  const showToast = () => {
     setIsVisible(true);
     setTimeout(() => {
       setIsVisible(false);
-    }, 5000);
+    }, 4000);
   };
 
-  useEffect(() => {
-    if (actionErrors?.errors && isPrivateData) {
-      setPrivateErrors(actionErrors.errors);
-    }
+  // useEffect(() => {
+  //   if (actionErrors?.errors && isPrivateData) {
+  //     setPrivateErrors(actionErrors.errors);
+  //   }
 
-    if (actionErrors?.errors && isLegalSimsData) {
-      setLegalSimsErrors(actionErrors.errors);
-    }
+  //   if (actionErrors?.errors && isLegalSimsData) {
+  //     setLegalSimsErrors(actionErrors.errors);
+  //   }
 
-    if (actionErrors?.errors && isLegalP2Data) {
-      setLegalP2Errors(actionErrors.errors);
-    }
+  //   if (actionErrors?.errors && isLegalP2Data) {
+  //     setLegalP2Errors(actionErrors.errors);
+  //   }
 
-    if (actionErrors?.errors && isOdpySimsData) {
-      setOdpySimsErrors(actionErrors.errors);
-    }
+  //   if (actionErrors?.errors && isOdpySimsData) {
+  //     setOdpySimsErrors(actionErrors.errors);
+  //   }
 
-    if (actionErrors?.errors && isOdpyP2Data) {
-      setOdpyP2Errors(actionErrors.errors);
-    }
+  //   if (actionErrors?.errors && isOdpyP2Data) {
+  //     setOdpyP2Errors(actionErrors.errors);
+  //   }
 
-    if (actionErrors?.errors && isTechMetersData) {
-      setTechMetersErrors(actionErrors.errors);
-    }
+  //   if (actionErrors?.errors && isTechMetersData) {
+  //     setTechMetersErrors(actionErrors.errors);
+  //   }
 
-    if (!isSubmittingPrivate && !actionErrors?.errors && isPrivateData) {
-      setPrivateErrors({});
-      handleIsVisible();
-    }
+  //   if (!isSubmittingPrivate && !actionErrors?.errors && isPrivateData) {
+  //     setPrivateErrors({});
+  //     handleIsVisible();
+  //   }
 
-    if (!isSubmittingLegalSims && !actionErrors?.errors && isLegalSimsData) {
-      setLegalSimsErrors({});
-      handleIsVisible();
-    }
+  //   if (!isSubmittingLegalSims && !actionErrors?.errors && isLegalSimsData) {
+  //     setLegalSimsErrors({});
+  //     handleIsVisible();
+  //   }
 
-    if (!isSubmittingLegalP2 && !actionErrors?.errors && isLegalP2Data) {
-      setLegalP2Errors({});
-      handleIsVisible();
-    }
+  //   if (!isSubmittingLegalP2 && !actionErrors?.errors && isLegalP2Data) {
+  //     setLegalP2Errors({});
+  //     handleIsVisible();
+  //   }
 
-    if (!isSubmittingOdpySims && !actionErrors?.errors && isOdpySimsData) {
-      setOdpySimsErrors({});
-      handleIsVisible();
-    }
+  //   if (!isSubmittingOdpySims && !actionErrors?.errors && isOdpySimsData) {
+  //     setOdpySimsErrors({});
+  //     handleIsVisible();
+  //   }
 
-    if (!isSubmittingOdpyP2 && !actionErrors?.errors && isOdpyP2Data) {
-      setOdpyP2Errors({});
-      handleIsVisible();
-    }
+  //   if (!isSubmittingOdpyP2 && !actionErrors?.errors && isOdpyP2Data) {
+  //     setOdpyP2Errors({});
+  //     handleIsVisible();
+  //   }
 
-    if (!isSubmittingTechMeters && !actionErrors?.errors && isTechMetersData) {
-      setTechMetersErrors({});
-      handleIsVisible();
-    }
-  }, [
-    actionErrors?.errors,
-    isPrivateData,
-    isLegalSimsData,
-    isSubmittingPrivate,
-    isSubmittingLegalSims,
-    isLegalP2Data,
-    isSubmittingLegalP2,
-    isOdpySimsData,
-    isSubmittingOdpySims,
-    isOdpyP2Data,
-    isSubmittingOdpyP2,
-    isTechMetersData,
-    isSubmittingTechMeters,
-  ]);
+  //   if (!isSubmittingTechMeters && !actionErrors?.errors && isTechMetersData) {
+  //     setTechMetersErrors({});
+  //     handleIsVisible();
+  //   }
+  // }, [
+  //   actionErrors?.errors,
+  //   isPrivateData,
+  //   isLegalSimsData,
+  //   isSubmittingPrivate,
+  //   isSubmittingLegalSims,
+  //   isLegalP2Data,
+  //   isSubmittingLegalP2,
+  //   isOdpySimsData,
+  //   isSubmittingOdpySims,
+  //   isOdpyP2Data,
+  //   isSubmittingOdpyP2,
+  //   isTechMetersData,
+  //   isSubmittingTechMeters,
+  // ]);
 
   return (
     <main>
@@ -230,7 +267,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
         role="tablist"
         className="tabs tabs-lift ml-14 mr-14 shadow-md bg-base-200"
       >
-        <Panel
+        {/* <Panel
           label="БЫТ"
           checked={true}
           data={meterReports.Быт}
@@ -238,9 +275,27 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           errors={privateErrors}
           fetcher={fetcher}
           btnValue="changePrivate"
+        /> */}
+
+        <BalanceGroupTabPanel
+          errors={privateErrors}
+          action={billingAction}
+          fetcher={fetcherBillingMeters}
+          meterReport={meterReports.Быт}
+          isSubmitting={isSubmittingBilling}
+          balanceGroup="Быт"
         />
 
-        <Panel
+         <BalanceGroupTabPanel
+          errors={legalSimsErrors}
+          action={billingAction}
+          fetcher={fetcherBillingMeters}
+          meterReport={meterReports["ЮР Sims"]}
+          isSubmitting={isSubmittingBilling}
+          balanceGroup="ЮР Sims"
+        />
+
+        {/* <Panel
           label="ЮР Sims"
           data={meterReports["ЮР Sims"]}
           isSubmitting={isSubmittingLegalSims}
@@ -274,9 +329,9 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           errors={odpyP2Errors}
           fetcher={fetcher}
           btnValue="changeOdpyP2"
-        />
+        /> */}
 
-        <TabPanel label="Техучеты">
+        {/* <TabPanel label="Техучеты">
           <Form fetcher={fetcher}>
             <Container heading="Всего счетчиков">
               <Input
@@ -303,7 +358,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
               />
             </BtnContainer>
           </Form>
-        </TabPanel>
+        </TabPanel> */}
       </div>
 
       <Toast isVisible={isVisible} message="Данные успешно обновлены." />
