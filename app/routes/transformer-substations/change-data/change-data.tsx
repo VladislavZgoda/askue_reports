@@ -83,9 +83,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           setIsVisible(true);
           setTimeout(() => setIsVisible(false), 4000);
 
-          setTimeout(() => {
-            fetcherBillingMeters.data = undefined;
-          }, 100);
+          fetcherBillingMeters.data = undefined;
         }
       }
 
