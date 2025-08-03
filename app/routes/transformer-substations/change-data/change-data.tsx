@@ -1,29 +1,18 @@
 import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { href, useFetcher } from "react-router";
 import LinkToSubstation from "~/components/LinkToSubstation";
+
 import {
   loadAllSubstationMeterReports,
   loadTechnicalMeters,
 } from "./.server/db-actions/load-data";
-//import changeData from "./.server/db-actions/changeData";
-
-//import Panel from "./Panel";
-//import Form from "./Form";
-//import Input from "./Input";
 
 import BalanceGroupTabPanel from "./components/BalanceGroupTabPanel";
-//import Button from "./Button";
-//import BtnContainer from "./BtnContainer";
 import Toast from "~/components/Toast";
-//import validateInput from "./.server/validation/fieldsDifference";
-import { useState, useEffect } from "react";
-//import changeTechMeters from "./.server/db-actions/changeTechMeters";
-//import { isErrors } from "~/utils/checkErrors";
+import { useState, useEffect, useRef } from "react";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/change-data";
 import type { BillingFormErrors } from "./validation/billing-form.schema";
-
-//type ErrorsType = Record<string, string>;
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
@@ -58,64 +47,20 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   };
 };
 
-// export const action = async ({ request, params }: Route.ActionArgs) => {
-//   const formData = await request.formData();
-//   const { _action, ...values } = Object.fromEntries(formData);
-
-//   values.id = params.id as FormDataEntryValue;
-
-//   const errors = validateInput(values);
-
-//   if (Object.keys(errors).length > 0) {
-//     return { errors };
-//   }
-
-//   const mutateData = async (balanceGroup: BalanceGroup) => {
-//     await changeData({
-//       ...values,
-//       balanceGroup,
-//     });
-//   };
-
-//   switch (_action) {
-//     case "changePrivate":
-//       await mutateData("Быт");
-//       break;
-//     case "changeLegalSims":
-//       await mutateData("ЮР Sims");
-//       break;
-//     case "changeLegalP2":
-//       await mutateData("ЮР П2");
-//       break;
-//     case "changeOdpySims":
-//       await mutateData("ОДПУ Sims");
-//       break;
-//     case "changeOdpyP2":
-//       await mutateData("ОДПУ П2");
-//       break;
-//     case "changeTechMeters":
-//       await changeTechMeters(values);
-//       break;
-//   }
-
-//   return null;
-// };
-
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const { substation, meterReports, technicalMeters } = loaderData;
 
+  const [isVisible, setIsVisible] = useState(false);
+
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
 
-  const balanceGroup = fetcherBillingMeters.data?.defaultValues.balanceGroup;
+  const submissionStateRef = useRef({
+    isSubmitting: false,
+    lastAction: "",
+  });
+
+  const fetcherData = fetcherBillingMeters.data;
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
-
-  const [privateErrors, setPrivateErrors] = useState(
-    fetcherBillingMeters.data?.errors,
-  );
-
-  const [legalSimsErrors, setLegalSimsErrors] = useState(
-    fetcherBillingMeters.data?.errors,
-  );
 
   const billingAction = href(
     "/transformer-substations/:id/change-billing-meters",
@@ -127,134 +72,52 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const isBillingAction = fetcherBillingMeters.formAction === billingAction;
 
   useEffect(() => {
-    if (!isSubmittingBilling && isBillingAction) {
-      if (privateErrors) setPrivateErrors(undefined);
-      if (!fetcherBillingMeters.data?.errors) showToast();
+    if (isSubmittingBilling) {
+      submissionStateRef.current = {
+        isSubmitting: true,
+        lastAction: fetcherBillingMeters.formAction || "",
+      };
+    } else if (submissionStateRef.current.isSubmitting) {
+      if (submissionStateRef.current.lastAction === billingAction) {
+        if (fetcherData === null) {
+          setIsVisible(true);
+          setTimeout(() => setIsVisible(false), 4000);
+
+          setTimeout(() => {
+            fetcherBillingMeters.data = undefined;
+          }, 100);
+        }
+      }
+
+      submissionStateRef.current.isSubmitting = false;
     }
+  }, [isSubmittingBilling, fetcherData, billingAction, fetcherBillingMeters]);
 
-    if (fetcherBillingMeters.data?.errors && balanceGroup === "Быт")
-      setPrivateErrors(fetcherBillingMeters.data.errors);
+  const errorsForPrivate =
+    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "Быт"
+      ? fetcherData.errors
+      : undefined;
 
-    if (fetcherBillingMeters.data?.errors && balanceGroup === "ЮР Sims")
-      setLegalSimsErrors(fetcherBillingMeters.data.errors);
-  });
+  const errorsForLegalSims =
+    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ЮР Sims"
+      ? fetcherData.errors
+      : undefined;
 
-  // const fetcher = useFetcher<typeof action>();
-  // const actionErrors = fetcher.data;
-  // const formAction = fetcher.formData?.get("_action");
-  // const isSubmitting = fetcher.state === "submitting";
+  const errorsForLegalP2 =
+    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ЮР П2"
+      ? fetcherData.errors
+      : undefined;
 
-  // const checkWhatForm = (formBtnName: string) => {
-  //   return formAction === formBtnName;
-  // };
+  const errorsForOdpuSims =
+    fetcherData?.errors &&
+    fetcherData.defaultValues?.balanceGroup === "ОДПУ Sims"
+      ? fetcherData.errors
+      : undefined;
 
-  // const checkFormSubmit = (dataType: boolean) => {
-  //   return dataType && isSubmitting;
-  // };
-
-  // const isPrivateData = checkWhatForm("changePrivate");
-  // const isSubmittingPrivate = checkFormSubmit(isPrivateData);
-
-  // const isLegalSimsData = checkWhatForm("changeLegalSims");
-  // const isSubmittingLegalSims = checkFormSubmit(isLegalSimsData);
-
-  // const isLegalP2Data = checkWhatForm("changeLegalP2");
-  // const isSubmittingLegalP2 = checkFormSubmit(isLegalP2Data);
-
-  // const isOdpySimsData = checkWhatForm("changeOdpySims");
-  // const isSubmittingOdpySims = checkFormSubmit(isOdpySimsData);
-
-  // const isOdpyP2Data = checkWhatForm("changeOdpyP2");
-  // const isSubmittingOdpyP2 = checkFormSubmit(isOdpyP2Data);
-
-  // const isTechMetersData = checkWhatForm("changeTechMeters");
-  // const isSubmittingTechMeters = checkFormSubmit(isTechMetersData);
-
-  // const [privateErrors, setPrivateErrors] = useState<ErrorsType>({});
-  // const [legalSimsErrors, setLegalSimsErrors] = useState<ErrorsType>({});
-  // const [legalP2Errors, setLegalP2Errors] = useState<ErrorsType>({});
-  // const [odpySimsErrors, setOdpySimsErrors] = useState<ErrorsType>({});
-  // const [odpyP2Errors, setOdpyP2Errors] = useState<ErrorsType>({});
-  // const [techMetersErrors, setTechMetersErrors] = useState<ErrorsType>({});
-
-  const [isVisible, setIsVisible] = useState(false);
-
-  const showToast = () => {
-    setIsVisible(true);
-    setTimeout(() => {
-      setIsVisible(false);
-    }, 4000);
-  };
-
-  // useEffect(() => {
-  //   if (actionErrors?.errors && isPrivateData) {
-  //     setPrivateErrors(actionErrors.errors);
-  //   }
-
-  //   if (actionErrors?.errors && isLegalSimsData) {
-  //     setLegalSimsErrors(actionErrors.errors);
-  //   }
-
-  //   if (actionErrors?.errors && isLegalP2Data) {
-  //     setLegalP2Errors(actionErrors.errors);
-  //   }
-
-  //   if (actionErrors?.errors && isOdpySimsData) {
-  //     setOdpySimsErrors(actionErrors.errors);
-  //   }
-
-  //   if (actionErrors?.errors && isOdpyP2Data) {
-  //     setOdpyP2Errors(actionErrors.errors);
-  //   }
-
-  //   if (actionErrors?.errors && isTechMetersData) {
-  //     setTechMetersErrors(actionErrors.errors);
-  //   }
-
-  //   if (!isSubmittingPrivate && !actionErrors?.errors && isPrivateData) {
-  //     setPrivateErrors({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (!isSubmittingLegalSims && !actionErrors?.errors && isLegalSimsData) {
-  //     setLegalSimsErrors({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (!isSubmittingLegalP2 && !actionErrors?.errors && isLegalP2Data) {
-  //     setLegalP2Errors({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (!isSubmittingOdpySims && !actionErrors?.errors && isOdpySimsData) {
-  //     setOdpySimsErrors({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (!isSubmittingOdpyP2 && !actionErrors?.errors && isOdpyP2Data) {
-  //     setOdpyP2Errors({});
-  //     handleIsVisible();
-  //   }
-
-  //   if (!isSubmittingTechMeters && !actionErrors?.errors && isTechMetersData) {
-  //     setTechMetersErrors({});
-  //     handleIsVisible();
-  //   }
-  // }, [
-  //   actionErrors?.errors,
-  //   isPrivateData,
-  //   isLegalSimsData,
-  //   isSubmittingPrivate,
-  //   isSubmittingLegalSims,
-  //   isLegalP2Data,
-  //   isSubmittingLegalP2,
-  //   isOdpySimsData,
-  //   isSubmittingOdpySims,
-  //   isOdpyP2Data,
-  //   isSubmittingOdpyP2,
-  //   isTechMetersData,
-  //   isSubmittingTechMeters,
-  // ]);
+  const errorsForOdpuP2 =
+    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ОДПУ П2"
+      ? fetcherData.errors
+      : undefined;
 
   return (
     <main>
@@ -267,18 +130,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
         role="tablist"
         className="tabs tabs-lift ml-14 mr-14 shadow-md bg-base-200"
       >
-        {/* <Panel
-          label="БЫТ"
-          checked={true}
-          data={meterReports.Быт}
-          isSubmitting={isSubmittingPrivate}
-          errors={privateErrors}
-          fetcher={fetcher}
-          btnValue="changePrivate"
-        /> */}
-
         <BalanceGroupTabPanel
-          errors={privateErrors}
+          errors={errorsForPrivate}
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports.Быт}
@@ -286,8 +139,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           balanceGroup="Быт"
         />
 
-         <BalanceGroupTabPanel
-          errors={legalSimsErrors}
+        <BalanceGroupTabPanel
+          errors={errorsForLegalSims}
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports["ЮР Sims"]}
@@ -295,70 +148,32 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           balanceGroup="ЮР Sims"
         />
 
-        {/* <Panel
-          label="ЮР Sims"
-          data={meterReports["ЮР Sims"]}
-          isSubmitting={isSubmittingLegalSims}
-          errors={legalSimsErrors}
-          fetcher={fetcher}
-          btnValue="changeLegalSims"
+        <BalanceGroupTabPanel
+          errors={errorsForLegalP2}
+          action={billingAction}
+          fetcher={fetcherBillingMeters}
+          meterReport={meterReports["ЮР П2"]}
+          isSubmitting={isSubmittingBilling}
+          balanceGroup="ЮР П2"
         />
 
-        <Panel
-          label="ЮР П2"
-          data={meterReports["ЮР П2"]}
-          isSubmitting={isSubmittingLegalP2}
-          errors={legalP2Errors}
-          fetcher={fetcher}
-          btnValue="changeLegalP2"
+        <BalanceGroupTabPanel
+          errors={errorsForOdpuSims}
+          action={billingAction}
+          fetcher={fetcherBillingMeters}
+          meterReport={meterReports["ОДПУ Sims"]}
+          isSubmitting={isSubmittingBilling}
+          balanceGroup="ОДПУ Sims"
         />
 
-        <Panel
-          label="ОДПУ Sims"
-          data={meterReports["ОДПУ Sims"]}
-          isSubmitting={isSubmittingOdpySims}
-          errors={odpySimsErrors}
-          fetcher={fetcher}
-          btnValue="changeOdpySims"
+        <BalanceGroupTabPanel
+          errors={errorsForOdpuP2}
+          action={billingAction}
+          fetcher={fetcherBillingMeters}
+          meterReport={meterReports["ОДПУ П2"]}
+          isSubmitting={isSubmittingBilling}
+          balanceGroup="ОДПУ П2"
         />
-
-        <Panel
-          label="ОДПУ П2"
-          data={meterReports["ОДПУ П2"]}
-          isSubmitting={isSubmittingOdpyP2}
-          errors={odpyP2Errors}
-          fetcher={fetcher}
-          btnValue="changeOdpyP2"
-        /> */}
-
-        {/* <TabPanel label="Техучеты">
-          <Form fetcher={fetcher}>
-            <Container heading="Всего счетчиков">
-              <Input
-                label="Количество ПУ"
-                name="quantity"
-                error={techMetersErrors?.techDiff}
-                defValue={technicalMeters.totalCount}
-                errors={isErrors(techMetersErrors)}
-              />
-
-              <Input
-                label="Из них под напряжением"
-                name="underVoltage"
-                error={techMetersErrors?.techDiff}
-                defValue={technicalMeters.underVoltageCount}
-                errors={isErrors(techMetersErrors)}
-              />
-            </Container>
-
-            <BtnContainer errors={isErrors(techMetersErrors)}>
-              <Button
-                isSubmitting={isSubmittingTechMeters}
-                buttonValue="changeTechMeters"
-              />
-            </BtnContainer>
-          </Form>
-        </TabPanel> */}
       </div>
 
       <Toast isVisible={isVisible} message="Данные успешно обновлены." />
