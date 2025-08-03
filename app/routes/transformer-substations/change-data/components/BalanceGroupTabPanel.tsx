@@ -73,7 +73,10 @@ export default function BalanceGroupTabPanel({
       <fetcher.Form method="POST" action={action} onSubmit={void handleSubmit}>
         <div className="flex gap-8">
           <Container heading="Всего счетчиков">
-            <Fieldset legend="Количество ПУ">
+            <Fieldset
+              legend="Количество ПУ"
+              className={errors && !errors?.totalCount ? "mb-15" : ""}
+            >
               <Input
                 type="number"
                 min={0}
@@ -83,7 +86,10 @@ export default function BalanceGroupTabPanel({
                 {...register("totalCount")}
               />
             </Fieldset>
-            <Fieldset legend="Из них в системе">
+            <Fieldset
+              legend="Из них в системе"
+              className={errors && !errors?.registeredCount ? "mb-15" : ""}
+            >
               <Input
                 type="number"
                 min={0}
@@ -95,7 +101,10 @@ export default function BalanceGroupTabPanel({
             </Fieldset>
           </Container>
           <Container heading="Установлено за год">
-            <Fieldset legend="Количество ПУ">
+            <Fieldset
+              legend="Количество ПУ"
+              className={errors && !errors?.yearlyTotalInstalled ? "mb-15" : ""}
+            >
               <Input
                 type="number"
                 min={0}
@@ -105,7 +114,12 @@ export default function BalanceGroupTabPanel({
                 {...register("yearlyTotalInstalled")}
               />
             </Fieldset>
-            <Fieldset legend="Из них в системе">
+            <Fieldset
+              legend="Из них в системе"
+              className={
+                errors && !errors?.yearlyRegisteredCount ? "mb-15" : ""
+              }
+            >
               <Input
                 type="number"
                 min={0}
@@ -117,7 +131,12 @@ export default function BalanceGroupTabPanel({
             </Fieldset>
           </Container>
           <Container heading="Установлено в этом месяце">
-            <Fieldset legend="Количество ПУ">
+            <Fieldset
+              legend="Количество ПУ"
+              className={
+                errors && !errors?.monthlyTotalInstalled ? "mb-15" : ""
+              }
+            >
               <Input
                 type="number"
                 min={0}
@@ -127,7 +146,12 @@ export default function BalanceGroupTabPanel({
                 {...register("monthlyTotalInstalled")}
               />
             </Fieldset>
-            <Fieldset legend="Из них в системе">
+            <Fieldset
+              legend="Из них в системе"
+              className={
+                errors && !errors?.monthlyTotalInstalled ? "mb-15" : ""
+              }
+            >
               <Input
                 type="number"
                 min={0}
