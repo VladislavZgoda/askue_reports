@@ -3,6 +3,7 @@ import pluginJs from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import eslintConfigPrettier from "eslint-config-prettier";
+import * as reactHooks from "eslint-plugin-react-hooks";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -12,6 +13,7 @@ export default [
   ...tseslint.configs.recommendedTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   pluginReact.configs.flat.recommended,
+  reactHooks.configs["recommended-latest"],
   eslintConfigPrettier,
   {
     ignores: [
