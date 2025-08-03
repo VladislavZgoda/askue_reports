@@ -66,6 +66,8 @@ export default function BalanceGroupTabPanel({
     },
   });
 
+  const errorStyles = "w-52 text-pretty";
+
   return (
     <TabPanel checked={balanceGroup === "Быт"} label={balanceGroup}>
       <fetcher.Form method="POST" action={action} onSubmit={void handleSubmit}>
@@ -77,6 +79,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.totalCount?.message}
+                errorClassName={errorStyles}
                 {...register("totalCount")}
               />
             </Fieldset>
@@ -86,6 +89,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.registeredCount?.message}
+                errorClassName={errorStyles}
                 {...register("registeredCount")}
               />
             </Fieldset>
@@ -97,6 +101,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.yearlyTotalInstalled?.message}
+                errorClassName={errorStyles}
                 {...register("yearlyTotalInstalled")}
               />
             </Fieldset>
@@ -106,6 +111,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.yearlyRegisteredCount?.message}
+                errorClassName={errorStyles}
                 {...register("yearlyRegisteredCount")}
               />
             </Fieldset>
@@ -117,6 +123,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.monthlyTotalInstalled?.message}
+                errorClassName={errorStyles}
                 {...register("monthlyTotalInstalled")}
               />
             </Fieldset>
@@ -126,6 +133,7 @@ export default function BalanceGroupTabPanel({
                 min={0}
                 placeholder="0"
                 error={errors?.monthlyRegisteredCount?.message}
+                errorClassName={errorStyles}
                 {...register("monthlyRegisteredCount")}
               />
             </Fieldset>
