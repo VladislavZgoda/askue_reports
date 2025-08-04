@@ -11,7 +11,7 @@ export default function Fieldset({
   ...props
 }: Props) {
   return (
-    <fieldset {...props} className={`fieldset ${className}`}>
+    <fieldset {...props} className={`fieldset ${className ?? ""}`}>
       <legend className="fieldset-legend">{legend}</legend>
       {children}
     </fieldset>
