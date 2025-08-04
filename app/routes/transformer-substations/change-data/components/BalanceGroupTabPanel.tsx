@@ -1,4 +1,5 @@
 import { useRemixForm } from "remix-hook-form";
+import { useState, useEffect } from "react";
 import { billingFormResolver as resolver } from "../validation/billing-form.schema";
 
 import Input from "~/components/Input";
@@ -51,7 +52,13 @@ export default function BalanceGroupTabPanel({
     monthlyInstallation,
   } = meterReport;
 
-  const { handleSubmit, register } = useRemixForm<BillingFormData>({
+  const [inputErrors, setInputErrors] = useState(errors);
+
+  useEffect(() => {
+    setInputErrors(errors);
+  }, [errors])
+
+  const { handleSubmit, register, reset } = useRemixForm<BillingFormData>({
     mode: "onSubmit",
     resolver,
     fetcher,
@@ -75,26 +82,26 @@ export default function BalanceGroupTabPanel({
           <Container heading="Всего счетчиков">
             <Fieldset
               legend="Количество ПУ"
-              className={errors && !errors?.totalCount ? "mb-15" : ""}
+              className={inputErrors && !inputErrors?.totalCount ? "mb-15" : ""}
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.totalCount?.message}
+                error={inputErrors?.totalCount?.message}
                 errorClassName={errorStyles}
                 {...register("totalCount")}
               />
             </Fieldset>
             <Fieldset
               legend="Из них в системе"
-              className={errors && !errors?.registeredCount ? "mb-15" : ""}
+              className={inputErrors && !inputErrors?.registeredCount ? "mb-15" : ""}
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.registeredCount?.message}
+                error={inputErrors?.registeredCount?.message}
                 errorClassName={errorStyles}
                 {...register("registeredCount")}
               />
@@ -103,13 +110,13 @@ export default function BalanceGroupTabPanel({
           <Container heading="Установлено за год">
             <Fieldset
               legend="Количество ПУ"
-              className={errors && !errors?.yearlyTotalInstalled ? "mb-15" : ""}
+              className={inputErrors && !inputErrors?.yearlyTotalInstalled ? "mb-15" : ""}
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.yearlyTotalInstalled?.message}
+                error={inputErrors?.yearlyTotalInstalled?.message}
                 errorClassName={errorStyles}
                 {...register("yearlyTotalInstalled")}
               />
@@ -117,14 +124,14 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Из них в системе"
               className={
-                errors && !errors?.yearlyRegisteredCount ? "mb-15" : ""
+                inputErrors && !inputErrors?.yearlyRegisteredCount ? "mb-15" : ""
               }
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.yearlyRegisteredCount?.message}
+                error={inputErrors?.yearlyRegisteredCount?.message}
                 errorClassName={errorStyles}
                 {...register("yearlyRegisteredCount")}
               />
@@ -134,14 +141,14 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Количество ПУ"
               className={
-                errors && !errors?.monthlyTotalInstalled ? "mb-15" : ""
+                inputErrors && !inputErrors?.monthlyTotalInstalled ? "mb-15" : ""
               }
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.monthlyTotalInstalled?.message}
+                error={inputErrors?.monthlyTotalInstalled?.message}
                 errorClassName={errorStyles}
                 {...register("monthlyTotalInstalled")}
               />
@@ -149,14 +156,14 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Из них в системе"
               className={
-                errors && !errors?.monthlyTotalInstalled ? "mb-15" : ""
+                inputErrors && !inputErrors?.monthlyTotalInstalled ? "mb-15" : ""
               }
             >
               <Input
                 type="number"
                 min={0}
                 placeholder="0"
-                error={errors?.monthlyRegisteredCount?.message}
+                error={inputErrors?.monthlyRegisteredCount?.message}
                 errorClassName={errorStyles}
                 {...register("monthlyRegisteredCount")}
               />
@@ -167,10 +174,20 @@ export default function BalanceGroupTabPanel({
         </div>
         <Button
           type={isSubmitting ? "button" : "submit"}
-          className={`mt-5 w-58.5 btn-outline btn-accent ${isSubmitting && "btn-active"}`}
+          className={`mt-5 w-50 btn-outline btn-accent ${isSubmitting && "btn-active"}`}
         >
           {isSubmitting && <span className="loading loading-spinner"></span>}
           {isSubmitting ? "Изменение..." : "Изменить данные"}
+        </Button>
+        <Button
+          type="button"
+          className="mt-5 ml-5 w-50 btn-neutral btn-outline"
+          onClick={() => {
+            reset();
+            setInputErrors(undefined);
+          }}
+        >
+          Очистить форму
         </Button>
       </fetcher.Form>
     </TabPanel>
