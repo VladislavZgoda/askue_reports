@@ -37,6 +37,10 @@ export default [
       ":id/change-billing-meters",
       "./routes/transformer-substations/change-data/change-billing-meters.action.ts",
     ),
+    route(
+      ":id/change-technical-meters",
+      "./routes/transformer-substations/change-data/change-technical-meters.action.ts",
+    ),
     route(":id/destroy", "./routes/transformer-substations/destroy.tsx"),
     route(":id/edit", "./routes/transformer-substations/edit.tsx"),
     route("new", "./routes/transformer-substations/new.tsx"),
