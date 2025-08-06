@@ -1,6 +1,6 @@
 import Form from "./Form";
 import Input from "./Input";
-import Container from "./Container";
+import Container from "./components/Container";
 import TabPanel from "./components/TabPanel";
 import Button from "./Button";
 import BtnContainer from "./BtnContainer";
