@@ -4,41 +4,35 @@ import {
   getTechnicalMeterStatsForSubstation,
 } from "~/.server/db-queries/technicalMeters";
 
-export default async function changeTechMeters(
-  values: Record<string, FormDataEntryValue>,
-) {
-  const { quantity, underVoltage, transformerSubstationId } =
-    handleValues(values);
+import type { TechnicalFormData } from "../../validation/technical-form.schema";
 
-  const prevValues = await getTechnicalMeterStatsForSubstation(
-    transformerSubstationId,
-  );
+type InputData = TechnicalFormData & { substationId: number };
 
-  if (prevValues) {
+export default async function changeTechMeters({
+  quantity,
+  underVoltage,
+  substationId,
+}: InputData) {
+  const previousValues =
+    await getTechnicalMeterStatsForSubstation(substationId);
+
+  if (previousValues) {
     const isEqual =
-      prevValues.quantity === quantity &&
-      prevValues.underVoltage === underVoltage;
+      previousValues.quantity === quantity &&
+      previousValues.underVoltage === underVoltage;
 
     if (!isEqual) {
       await updateTechnicalMetersForSubstation({
         quantity,
         underVoltage,
-        substationId: transformerSubstationId,
+        substationId,
       });
     }
   } else {
     await insertTechnicalMeters({
       quantity,
       underVoltage,
-      substationId: transformerSubstationId,
+      substationId,
     });
   }
-}
-
-function handleValues(values: Record<string, FormDataEntryValue>) {
-  return {
-    quantity: Number(values.quantity),
-    underVoltage: Number(values.underVoltage),
-    transformerSubstationId: Number(values.id),
-  };
 }

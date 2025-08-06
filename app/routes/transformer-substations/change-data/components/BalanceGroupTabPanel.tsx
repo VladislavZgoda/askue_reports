@@ -56,7 +56,7 @@ export default function BalanceGroupTabPanel({
 
   useEffect(() => {
     setInputErrors(errors);
-  }, [errors])
+  }, [errors]);
 
   const { handleSubmit, register, reset } = useRemixForm<BillingFormData>({
     mode: "onSubmit",
@@ -95,7 +95,9 @@ export default function BalanceGroupTabPanel({
             </Fieldset>
             <Fieldset
               legend="Из них в системе"
-              className={inputErrors && !inputErrors?.registeredCount ? "mb-15" : ""}
+              className={
+                inputErrors && !inputErrors?.registeredCount ? "mb-15" : ""
+              }
             >
               <Input
                 type="number"
@@ -110,7 +112,9 @@ export default function BalanceGroupTabPanel({
           <Container heading="Установлено за год">
             <Fieldset
               legend="Количество ПУ"
-              className={inputErrors && !inputErrors?.yearlyTotalInstalled ? "mb-15" : ""}
+              className={
+                inputErrors && !inputErrors?.yearlyTotalInstalled ? "mb-15" : ""
+              }
             >
               <Input
                 type="number"
@@ -124,7 +128,9 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Из них в системе"
               className={
-                inputErrors && !inputErrors?.yearlyRegisteredCount ? "mb-15" : ""
+                inputErrors && !inputErrors?.yearlyRegisteredCount
+                  ? "mb-15"
+                  : ""
               }
             >
               <Input
@@ -141,7 +147,9 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Количество ПУ"
               className={
-                inputErrors && !inputErrors?.monthlyTotalInstalled ? "mb-15" : ""
+                inputErrors && !inputErrors?.monthlyTotalInstalled
+                  ? "mb-15"
+                  : ""
               }
             >
               <Input
@@ -156,7 +164,9 @@ export default function BalanceGroupTabPanel({
             <Fieldset
               legend="Из них в системе"
               className={
-                inputErrors && !inputErrors?.monthlyTotalInstalled ? "mb-15" : ""
+                inputErrors && !inputErrors?.monthlyTotalInstalled
+                  ? "mb-15"
+                  : ""
               }
             >
               <Input
