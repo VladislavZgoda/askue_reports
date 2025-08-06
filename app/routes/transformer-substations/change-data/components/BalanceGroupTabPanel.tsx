@@ -5,7 +5,7 @@ import { billingFormResolver as resolver } from "../validation/billing-form.sche
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
 import Container from "../Container";
-import TabPanel from "../TabPanel";
+import TabPanel from "./TabPanel";
 import Button from "~/components/Button";
 
 import type { FetcherWithComponents } from "react-router";

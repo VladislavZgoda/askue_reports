@@ -1,7 +1,7 @@
 import Form from "./Form";
 import Input from "./Input";
 import Container from "./Container";
-import TabPanel from "./TabPanel";
+import TabPanel from "./components/TabPanel";
 import Button from "./Button";
 import BtnContainer from "./BtnContainer";
 import { isErrors } from "~/utils/checkErrors";
