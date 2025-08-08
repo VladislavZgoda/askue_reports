@@ -8,11 +8,14 @@ import {
 } from "./.server/db-actions/load-data";
 
 import BalanceGroupTabPanel from "./components/BalanceGroupTabPanel";
+import TechnicalMetersTabPanel from "./components/TechnicalMetersTabPanel";
 import Toast from "~/components/Toast";
 import { useState, useEffect, useRef } from "react";
 import { isNotAuthenticated } from "~/.server/services/auth";
+
 import type { Route } from "./+types/change-data";
 import type { BillingFormErrors } from "./validation/billing-form.schema";
+import type { TechnicalFormErrors } from "./validation/technical-form.schema";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
@@ -53,13 +56,14 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
+  const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
 
   const submissionStateRef = useRef({
     isSubmitting: false,
     lastAction: "",
   });
 
-  const fetcherData = fetcherBillingMeters.data;
+  const fetcherBillingData = fetcherBillingMeters.data;
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
 
   const billingAction = href(
@@ -71,6 +75,19 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
   const isBillingAction = fetcherBillingMeters.formAction === billingAction;
 
+  const fetcherTechnicalData = fetcherTechnicalMeters.data;
+  const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
+
+  const technicalAction = href(
+    "/transformer-substations/:id/change-technical-meters",
+    {
+      id: substation.id.toString(),
+    },
+  );
+
+  const isTechnicalAction =
+    fetcherTechnicalMeters.formAction === technicalAction;
+
   useEffect(() => {
     if (isSubmittingBilling) {
       submissionStateRef.current = {
@@ -79,7 +96,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
       };
     } else if (submissionStateRef.current.isSubmitting) {
       if (submissionStateRef.current.lastAction === billingAction) {
-        if (fetcherData === null) {
+        if (fetcherBillingData === null) {
           setIsVisible(true);
           setTimeout(() => setIsVisible(false), 4000);
 
@@ -89,32 +106,41 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
       submissionStateRef.current.isSubmitting = false;
     }
-  }, [isSubmittingBilling, fetcherData, billingAction, fetcherBillingMeters]);
+  }, [
+    isSubmittingBilling,
+    fetcherBillingData,
+    billingAction,
+    fetcherBillingMeters,
+  ]);
 
   const errorsForPrivate =
-    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "Быт"
-      ? fetcherData.errors
+    fetcherBillingData?.errors &&
+    fetcherBillingData.defaultValues?.balanceGroup === "Быт"
+      ? fetcherBillingData.errors
       : undefined;
 
   const errorsForLegalSims =
-    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ЮР Sims"
-      ? fetcherData.errors
+    fetcherBillingData?.errors &&
+    fetcherBillingData.defaultValues?.balanceGroup === "ЮР Sims"
+      ? fetcherBillingData.errors
       : undefined;
 
   const errorsForLegalP2 =
-    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ЮР П2"
-      ? fetcherData.errors
+    fetcherBillingData?.errors &&
+    fetcherBillingData.defaultValues?.balanceGroup === "ЮР П2"
+      ? fetcherBillingData.errors
       : undefined;
 
   const errorsForOdpuSims =
-    fetcherData?.errors &&
-    fetcherData.defaultValues?.balanceGroup === "ОДПУ Sims"
-      ? fetcherData.errors
+    fetcherBillingData?.errors &&
+    fetcherBillingData.defaultValues?.balanceGroup === "ОДПУ Sims"
+      ? fetcherBillingData.errors
       : undefined;
 
   const errorsForOdpuP2 =
-    fetcherData?.errors && fetcherData.defaultValues?.balanceGroup === "ОДПУ П2"
-      ? fetcherData.errors
+    fetcherBillingData?.errors &&
+    fetcherBillingData.defaultValues?.balanceGroup === "ОДПУ П2"
+      ? fetcherBillingData.errors
       : undefined;
 
   return (
