@@ -16,8 +16,8 @@ import type {
 } from "../validation/technical-form.schema";
 
 interface TechnicalMetersStats {
-  quantity: number;
-  underVoltage: number;
+  totalCount: number;
+  underVoltageCount: number;
 }
 
 interface PanelProps {
@@ -35,7 +35,7 @@ export default function TechnicalMetersTabPanel({
   technicalMeters,
   isSubmitting,
 }: PanelProps) {
-  const { quantity, underVoltage } = technicalMeters;
+  const { totalCount, underVoltageCount } = technicalMeters;
 
   const [inputErrors, setInputErrors] = useState(errors);
 
@@ -48,10 +48,12 @@ export default function TechnicalMetersTabPanel({
     resolver,
     fetcher,
     defaultValues: {
-      quantity,
-      underVoltage,
+      quantity: totalCount,
+      underVoltage: underVoltageCount,
     },
   });
+
+  const errorStyles = "w-52 text-pretty";
 
   return (
     <TabPanel checked={false} label="Техучёт">
@@ -64,6 +66,7 @@ export default function TechnicalMetersTabPanel({
                 min={0}
                 placeholder="0"
                 error={inputErrors?.quantity?.message}
+                errorClassName={errorStyles}
                 {...register("quantity")}
               />
             </Fieldset>
@@ -73,6 +76,7 @@ export default function TechnicalMetersTabPanel({
                 min={0}
                 placeholder="0"
                 error={inputErrors?.underVoltage?.message}
+                errorClassName={errorStyles}
                 {...register("underVoltage")}
               />
             </Fieldset>
