@@ -1,6 +1,8 @@
-import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
 import { href, useFetcher } from "react-router";
-import LinkToSubstation from "~/components/LinkToSubstation";
+import { useState, useEffect, useRef } from "react";
+
+import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
+import { isNotAuthenticated } from "~/.server/services/auth";
 
 import {
   loadAllSubstationMeterReports,
@@ -9,9 +11,8 @@ import {
 
 import BalanceGroupTabPanel from "./components/BalanceGroupTabPanel";
 import TechnicalMetersTabPanel from "./components/TechnicalMetersTabPanel";
+import LinkToSubstation from "~/components/LinkToSubstation";
 import Toast from "~/components/Toast";
-import { useState, useEffect, useRef } from "react";
-import { isNotAuthenticated } from "~/.server/services/auth";
 
 import type { Route } from "./+types/change-data";
 import type { BillingFormErrors } from "./validation/billing-form.schema";
@@ -73,8 +74,6 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     },
   );
 
-  const isBillingAction = fetcherBillingMeters.formAction === billingAction;
-
   const fetcherTechnicalData = fetcherTechnicalMeters.data;
   const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
 
@@ -85,8 +84,26 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     },
   );
 
-  const isTechnicalAction =
-    fetcherTechnicalMeters.formAction === technicalAction;
+  useEffect(() => {
+    if (isSubmittingTechnical) {
+      submissionStateRef.current = {
+        isSubmitting: true,
+        lastAction: fetcherTechnicalMeters.formAction || "",
+      };
+    } else if (submissionStateRef.current.isSubmitting) {
+      if (fetcherTechnicalData === null) {
+        setIsVisible(true);
+        setTimeout(() => setIsVisible(false), 4000);
+
+        fetcherTechnicalMeters.data = undefined;
+      }
+    }
+  }, [
+    isSubmittingTechnical,
+    fetcherTechnicalMeters.formAction,
+    fetcherTechnicalData,
+    fetcherTechnicalMeters,
+  ]);
 
   useEffect(() => {
     if (isSubmittingBilling) {
@@ -197,6 +214,14 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           meterReport={meterReports["ОДПУ П2"]}
           isSubmitting={isSubmittingBilling}
           balanceGroup="ОДПУ П2"
+        />
+
+        <TechnicalMetersTabPanel
+          errors={fetcherTechnicalData}
+          action={technicalAction}
+          fetcher={fetcherTechnicalMeters}
+          technicalMeters={technicalMeters}
+          isSubmitting={isSubmittingTechnical}
         />
       </div>
 
