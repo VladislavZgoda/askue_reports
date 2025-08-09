@@ -11,9 +11,20 @@ export const technicalFormSchema = z
     quantity: z.number({ error: "Введите число." }).int().gte(0),
     underVoltage: z.number({ error: "Введите число." }).int().gte(0),
   })
-  .refine((data) => data.underVoltage > data.quantity, {
-    error: differenceError,
-    path: ["quantity", "underVoltage"],
+  .superRefine((val, ctx) => {
+    if (val.underVoltage > val.quantity) {
+      ctx.addIssue({
+        code: "custom",
+        message: differenceError,
+        path: ["quantity"],
+      });
+
+      ctx.addIssue({
+        code: "custom",
+        message: differenceError,
+        path: ["underVoltage"],
+      });
+    }
   });
 
 export const technicalFormResolver = zodResolver(technicalFormSchema);
