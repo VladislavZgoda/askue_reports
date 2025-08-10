@@ -129,6 +129,8 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     fetcherTechnicalMeters.data,
     isSubmittingTechnical,
     isTechnicalAction,
+    billingForm,
+    technicalForm,
   ]);
 
   return (
