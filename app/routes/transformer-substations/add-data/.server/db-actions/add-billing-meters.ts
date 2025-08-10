@@ -7,7 +7,6 @@ import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
 import type { BillingValidationForm } from "../../validation/billing-form.schema";
 
-
 /**
  * Validated billing meter installation data
  *
@@ -83,5 +82,6 @@ async function logBillingMeterAction(
 ) {
   const timestamp = new Date().toLocaleString("ru");
   const message = `${balanceGroup}: ${totalCount} ${registeredCount} ${date}. Добавлено: ${timestamp}`;
+
   await insertMeterActionLog(executor, message, substationId);
 }
