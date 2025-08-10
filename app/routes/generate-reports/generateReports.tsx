@@ -179,7 +179,7 @@ export default function GenerateReports() {
     }
 
     if (fetcher.data) setErrors({ ...fetcher.data });
-  }, [fetcher.data, fetcher.state]);
+  }, [fetcher.data, fetcher.state, reset]);
 
   return (
     <main className="mt-5 ml-10">
