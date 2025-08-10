@@ -3,7 +3,7 @@ import type { TechnicalFormData } from "./validation/technical-form.schema";
 
 import { getValidatedFormData } from "remix-hook-form";
 import { technicalFormResolver } from "./validation/technical-form.schema";
-import changeTechMeters from "./.server/db-actions/changeTechMeters";
+import changeTechMeters from "./.server/db-actions/update-technical-meters";
 
 export async function action({ request, params }: Route.ActionArgs) {
   const { errors, data } = await getValidatedFormData<TechnicalFormData>(
