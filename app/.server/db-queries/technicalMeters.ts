@@ -10,9 +10,22 @@ interface TechnicalMetersParams {
   substationId: TechnicalMeters["transformerSubstationId"];
 }
 
-export async function insertTechnicalMeters(
+/**
+ * Creates a new technical meter record in the database
+ *
+ * @param executor - Database executor (transaction or connection)
+ * @param params - Creation parameters
+ *
+ * @example
+ * await createTechnicalMeterRecord(tx, {
+ *   substationId: 42,
+ *   quantity: 10,
+ *   underVoltage: 3
+ * });
+ */
+export async function createTechnicalMeterRecord(
+  executor: Executor,
   { quantity, underVoltage, substationId }: TechnicalMetersParams,
-  executor: Executor = db,
 ): Promise<void> {
   await executor.insert(technicalMeters).values({
     quantity,

@@ -1,5 +1,5 @@
 import {
-  insertTechnicalMeters,
+  createTechnicalMeterRecord,
   getTechnicalMeterStatsForSubstation,
   updateTechnicalMetersForSubstation,
 } from "~/.server/db-queries/technicalMeters";
@@ -54,7 +54,7 @@ export default async function addOrUpdateTechnicalMeters(
         substationId: input.substationId,
       });
     } else {
-      await insertTechnicalMeters(input, tx);
+      await createTechnicalMeterRecord(tx, input);
     }
 
     await logTechnicalMeterAction(tx, input);
