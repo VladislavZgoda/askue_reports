@@ -49,9 +49,27 @@ export async function getTechnicalMeterStatsForSubstation(
   return result;
 }
 
+/**
+ * Updates technical meter statistics for a substation
+ *
+ * @param executor - Database executor (transaction or connection).
+ * @param params - Update parameters
+ *   @param params.quantity - New total quantity of technical meters
+ *   @param params.underVoltage - New count of meters operating under voltage
+ *   @param params.substationId - ID of the substation to update
+ *
+ * @remarks
+ * - Automatically sets `updatedAt` to current timestamp
+ *
+ * @example
+ * await updateTechnicalMetersForSubstation(
+ *   tx,
+ *   { quantity: 15, underVoltage: 3, substationId: 42 },
+ * );
+ */
 export async function updateTechnicalMetersForSubstation(
+  executor: Executor,
   { quantity, underVoltage, substationId }: TechnicalMetersParams,
-  executor: Executor = db,
 ): Promise<void> {
   const updatedAt = new Date();
 
