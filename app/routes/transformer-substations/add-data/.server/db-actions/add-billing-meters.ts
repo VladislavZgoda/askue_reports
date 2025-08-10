@@ -7,10 +7,42 @@ import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
 import type { BillingValidationForm } from "../../validation/billing-form.schema";
 
+
+/**
+ * Validated billing meter installation data
+ *
+ * @property substationId - ID of the associated transformer substation
+ * @property balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
+ * @property totalCount - Total meters installed
+ * @property registeredCount - Meters registered in the billing system
+ * @property date - Installation date in YYYY-MM-DD format
+ */
 type BillingInstallationData = BillingValidationForm & {
   readonly substationId: number;
 };
 
+/**
+ * Processes billing meter installation atomically within a database transaction
+ *
+ * @remarks
+ * Performs in this order:
+ * 1. Processes unregistered meters (if any)
+ * 2. Processes registered meters, yearly installations, monthly installations, and audit log in parallel
+ *
+ * All operations succeed or fail together due to transaction wrapper.
+ *
+ * @param installation - Billing meter installation data
+ * @throws {Error} If any sub-operation fails, triggering transaction rollback
+ *
+ * @example
+ * await addBillingMeters({
+ *   substationId: 42,
+ *   balanceGroup: 'ЮР П2',
+ *   totalCount: 15,
+ *   registeredCount: 12,
+ *   date: '2023-06-15'
+ * });
+ */
 export default async function addBillingMeters(
   installation: BillingInstallationData,
 ) {
@@ -30,6 +62,15 @@ export default async function addBillingMeters(
   });
 }
 
+/**
+ * Creates audit log entry for billing meter installation
+ *
+ * @param executor - Database executor (transaction or connection)
+ * @param installation - Billing installation data
+ *
+ * @example
+ * Log format: "ЮР П2: 15 12 2023-06-15. Добавлено: 19.07.2023, 14:25:03"
+ */
 async function logBillingMeterAction(
   executor: Executor,
   {
