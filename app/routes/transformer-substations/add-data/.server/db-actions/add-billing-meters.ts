@@ -68,7 +68,7 @@ export default async function addBillingMeters(
  * @param installation - Billing installation data
  *
  * @example
- * Log format: "ЮР П2: 15 12 2023-06-15. Добавлено: 19.07.2023, 14:25:03"
+ * Log format: "ЮР П2: 15 12 15.06.2023. Добавлено: 19.07.2023, 14:25:03"
  */
 async function logBillingMeterAction(
   executor: Executor,
@@ -81,7 +81,8 @@ async function logBillingMeterAction(
   }: BillingInstallationData,
 ) {
   const timestamp = new Date().toLocaleString("ru");
-  const message = `${balanceGroup}: ${totalCount} ${registeredCount} ${date}. Добавлено: ${timestamp}`;
+  const localDate = new Date(date).toLocaleString("ru").slice(0, 10);
+  const message = `${balanceGroup}: ${totalCount} ${registeredCount} ${localDate}. Добавлено: ${timestamp}`;
 
   await insertMeterActionLog(executor, message, substationId);
 }
