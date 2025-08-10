@@ -48,14 +48,11 @@ export default async function addOrUpdateTechnicalMeters(
     );
 
     if (existingStats) {
-      await updateTechnicalMetersForSubstation(
-        {
-          quantity: input.quantity + existingStats.quantity,
-          underVoltage: input.underVoltage + existingStats.underVoltage,
-          substationId: input.substationId,
-        },
-        tx,
-      );
+      await updateTechnicalMetersForSubstation(tx, {
+        quantity: input.quantity + existingStats.quantity,
+        underVoltage: input.underVoltage + existingStats.underVoltage,
+        substationId: input.substationId,
+      });
     } else {
       await insertTechnicalMeters(input, tx);
     }
