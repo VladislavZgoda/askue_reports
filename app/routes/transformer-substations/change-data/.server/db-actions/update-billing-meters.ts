@@ -23,9 +23,9 @@ import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 import type { BillingFormData } from "../../validation/billing-form.schema";
 
-type InputData = BillingFormData & { substationId: number };
+type BillingMetersParams = BillingFormData & { substationId: number };
 
-export default async function changeData(input: InputData) {
+export default async function changeData(params: BillingMetersParams) {
   const {
     totalCount,
     registeredCount,
@@ -35,13 +35,13 @@ export default async function changeData(input: InputData) {
     monthlyRegisteredCount,
     balanceGroup,
     substationId,
-  } = input;
+  } = params;
 
   const currentDate = new Date().toLocaleDateString("en-CA");
   const year = cutOutYear(currentDate);
   const month = cutOutMonth(currentDate);
 
-  const previousData = await loadAllSubstationMeterReports(substationId, [
+  const existingStats = await loadAllSubstationMeterReports(substationId, [
     balanceGroup,
   ]);
 
@@ -54,7 +54,7 @@ export default async function changeData(input: InputData) {
         substationId,
         date: currentDate,
       },
-      previousData[balanceGroup],
+      existingStats[balanceGroup],
     ),
     handleYearMeters(
       {
@@ -65,7 +65,7 @@ export default async function changeData(input: InputData) {
         date: currentDate,
         year,
       },
-      previousData[balanceGroup],
+      existingStats[balanceGroup],
     ),
     handleMonthMeters(
       {
@@ -77,12 +77,12 @@ export default async function changeData(input: InputData) {
         month,
         year,
       },
-      previousData[balanceGroup],
+      existingStats[balanceGroup],
     ),
   ]);
 }
 
-interface PreviousData {
+interface MeterReport {
   registeredMeters: number;
   unregisteredMeters: number;
   yearlyInstallation: {
@@ -105,7 +105,7 @@ interface UpdateTotalMetersType {
 
 async function handleTotalMeters(
   input: UpdateTotalMetersType,
-  previousData: PreviousData,
+  existingStats: MeterReport,
 ) {
   const [lastMetersQuantityId, lastNotInSystemId] = await Promise.all([
     getLastRecordId({
@@ -119,18 +119,18 @@ async function handleTotalMeters(
   ]);
 
   await Promise.all([
-    handleMetersQuantity(lastMetersQuantityId, previousData, input),
-    handleNotInSystem(lastNotInSystemId, previousData, input),
+    handleMetersQuantity(lastMetersQuantityId, existingStats, input),
+    handleNotInSystem(lastNotInSystemId, existingStats, input),
   ]);
 }
 
 async function handleMetersQuantity(
   lastMetersQuantityId: number | undefined,
-  previousData: PreviousData,
+  existingStats: MeterReport,
   { registeredCount, balanceGroup, substationId, date }: UpdateTotalMetersType,
 ) {
   if (lastMetersQuantityId) {
-    if (!(previousData.registeredMeters === registeredCount)) {
+    if (!(existingStats.registeredMeters === registeredCount)) {
       await updateRegisteredMeterRecordById({
         id: lastMetersQuantityId,
         registeredMeterCount: registeredCount,
@@ -148,7 +148,7 @@ async function handleMetersQuantity(
 
 async function handleNotInSystem(
   lastNotInSystemId: number | undefined,
-  prevData: PreviousData,
+  existingStats: MeterReport,
   {
     totalCount,
     registeredCount,
@@ -160,7 +160,7 @@ async function handleNotInSystem(
   const actualQuantity = totalCount - registeredCount;
 
   if (lastNotInSystemId) {
-    if (!(prevData.unregisteredMeters === actualQuantity)) {
+    if (!(existingStats.unregisteredMeters === actualQuantity)) {
       await updateUnregisteredMeterRecordById({
         id: lastNotInSystemId,
         unregisteredMeterCount: actualQuantity,
@@ -187,7 +187,7 @@ interface UpdateTotalYearMetersType {
 
 async function handleYearMeters(
   input: UpdateTotalYearMetersType,
-  previousData: PreviousData,
+  existingStats: MeterReport,
 ) {
   const {
     yearlyTotalInstalled,
@@ -206,8 +206,10 @@ async function handleYearMeters(
 
   if (lastYearId) {
     const isEqual =
-      yearlyTotalInstalled === previousData.yearlyInstallation.totalInstalled &&
-      yearlyRegisteredCount === previousData.yearlyInstallation.registeredCount;
+      yearlyTotalInstalled ===
+        existingStats.yearlyInstallation.totalInstalled &&
+      yearlyRegisteredCount ===
+        existingStats.yearlyInstallation.registeredCount;
 
     if (!isEqual) {
       await updateYearlyInstallationRecordById({
@@ -240,7 +242,7 @@ interface UpdateTotalMonthMetersType {
 
 async function handleMonthMeters(
   input: UpdateTotalMonthMetersType,
-  previousData: PreviousData,
+  existingStats: MeterReport,
 ) {
   const {
     monthlyTotalInstalled,
@@ -262,9 +264,9 @@ async function handleMonthMeters(
   if (lastMonthId) {
     const isEqual =
       monthlyTotalInstalled ===
-        previousData.monthlyInstallation.totalInstalled &&
+        existingStats.monthlyInstallation.totalInstalled &&
       monthlyRegisteredCount ===
-        previousData.monthlyInstallation.registeredCount;
+        existingStats.monthlyInstallation.registeredCount;
 
     if (!isEqual) {
       await updateMonthlyInstallationRecordById({
