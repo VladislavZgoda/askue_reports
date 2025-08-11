@@ -45,17 +45,18 @@ export default async function changeData(params: BillingMetersParams) {
     balanceGroup,
   ]);
 
+  const meterReport = existingStats[balanceGroup];
+
   await Promise.all([
-    handleTotalMeters(
-      {
-        totalCount,
-        registeredCount,
-        balanceGroup,
-        substationId,
-        date: currentDate,
-      },
-      existingStats[balanceGroup],
-    ),
+    handleTotalMeters({
+      totalCount,
+      registeredCount,
+      balanceGroup,
+      substationId,
+      date: currentDate,
+      registeredMeterCount: meterReport.registeredMeters,
+      unregisteredMeterCount: meterReport.unregisteredMeters,
+    }),
     handleYearMeters(
       {
         yearlyTotalInstalled,
@@ -65,7 +66,7 @@ export default async function changeData(params: BillingMetersParams) {
         date: currentDate,
         year,
       },
-      existingStats[balanceGroup],
+      meterReport,
     ),
     handleMonthMeters(
       {
@@ -77,7 +78,7 @@ export default async function changeData(params: BillingMetersParams) {
         month,
         year,
       },
-      existingStats[balanceGroup],
+      meterReport,
     ),
   ]);
 }
@@ -95,77 +96,117 @@ interface MeterReport {
   };
 }
 
-interface UpdateTotalMetersType {
+interface TotalMetersParams {
   totalCount: number;
   registeredCount: number;
   substationId: number;
   balanceGroup: BalanceGroup;
   date: string;
+  registeredMeterCount: number;
+  unregisteredMeterCount: number;
 }
 
-async function handleTotalMeters(
-  input: UpdateTotalMetersType,
-  existingStats: MeterReport,
-) {
-  const [lastMetersQuantityId, lastNotInSystemId] = await Promise.all([
-    getLatestRegisteredMeterId(input.balanceGroup, input.substationId),
-    getLatestUnregisteredMeterId(input.balanceGroup, input.substationId),
-  ]);
+async function handleTotalMeters(params: TotalMetersParams) {
+  const {
+    totalCount,
+    registeredCount,
+    substationId,
+    balanceGroup,
+    date,
+    registeredMeterCount,
+    unregisteredMeterCount,
+  } = params;
+
+  const [latestRegisteredMeterId, latestUnregisteredMeterId] =
+    await Promise.all([
+      getLatestRegisteredMeterId(balanceGroup, substationId),
+      getLatestUnregisteredMeterId(balanceGroup, substationId),
+    ]);
 
   await Promise.all([
-    handleMetersQuantity(lastMetersQuantityId, existingStats, input),
-    handleNotInSystem(lastNotInSystemId, existingStats, input),
+    handleRegisteredMeters({
+      latestRegisteredMeterId,
+      registeredCount,
+      registeredMeterCount,
+      balanceGroup,
+      date,
+      substationId,
+    }),
+    handleUnregisteredMeters({
+      latestUnregisteredMeterId,
+      totalCount,
+      registeredCount,
+      unregisteredMeterCount,
+      balanceGroup,
+      date,
+      substationId,
+    }),
   ]);
 }
 
-async function handleMetersQuantity(
-  lastMetersQuantityId: number | undefined,
-  existingStats: MeterReport,
-  { registeredCount, balanceGroup, substationId, date }: UpdateTotalMetersType,
-) {
-  if (lastMetersQuantityId) {
-    if (!(existingStats.registeredMeters === registeredCount)) {
+type RegisteredMetersParams = Omit<
+  TotalMetersParams,
+  "totalCount" | "unregisteredMeterCount"
+> & { latestRegisteredMeterId: number | undefined };
+
+async function handleRegisteredMeters(params: RegisteredMetersParams) {
+  const {
+    latestRegisteredMeterId,
+    registeredCount,
+    registeredMeterCount,
+    balanceGroup,
+    date,
+    substationId,
+  } = params;
+
+  if (latestRegisteredMeterId) {
+    if (registeredMeterCount !== registeredCount) {
       await updateRegisteredMeterRecordById({
-        id: lastMetersQuantityId,
+        id: latestRegisteredMeterId,
         registeredMeterCount: registeredCount,
       });
     }
   } else {
     await createRegisteredMeterRecord({
       registeredMeterCount: registeredCount,
-      substationId,
-      date,
       balanceGroup,
+      date,
+      substationId,
     });
   }
 }
 
-async function handleNotInSystem(
-  lastNotInSystemId: number | undefined,
-  existingStats: MeterReport,
-  {
+type UnregisteredMetersParams = Omit<
+  TotalMetersParams,
+  "registeredMeterCount"
+> & { latestUnregisteredMeterId: number | undefined };
+
+async function handleUnregisteredMeters(params: UnregisteredMetersParams) {
+  const {
+    latestUnregisteredMeterId,
     totalCount,
     registeredCount,
+    unregisteredMeterCount,
     balanceGroup,
-    substationId,
     date,
-  }: UpdateTotalMetersType,
-) {
-  const actualQuantity = totalCount - registeredCount;
+    substationId,
+  } = params;
 
-  if (lastNotInSystemId) {
-    if (!(existingStats.unregisteredMeters === actualQuantity)) {
+  const newCount = totalCount - registeredCount;
+
+  if (latestUnregisteredMeterId) {
+    if (unregisteredMeterCount !== newCount) {
       await updateUnregisteredMeterRecordById({
-        id: lastNotInSystemId,
-        unregisteredMeterCount: actualQuantity,
+        id: latestUnregisteredMeterId,
+        unregisteredMeterCount: newCount,
       });
     }
   } else {
     await createUnregisteredMeterRecord({
-      substationId,
-      unregisteredMeterCount: actualQuantity,
+      unregisteredMeterCount: newCount,
       date,
       balanceGroup,
+      substationId,
     });
   }
 }
