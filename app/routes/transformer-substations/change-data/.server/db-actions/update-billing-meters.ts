@@ -4,7 +4,7 @@ import {
   updateRegisteredMeterRecordById,
 } from "~/.server/db-queries/registeredMeters";
 import {
-  getLastNotInSystemId,
+  getLatestUnregisteredMeterId,
   createUnregisteredMeterRecord,
   updateUnregisteredMeterRecordById,
 } from "~/.server/db-queries/unregisteredMeters";
@@ -109,10 +109,7 @@ async function handleTotalMeters(
 ) {
   const [lastMetersQuantityId, lastNotInSystemId] = await Promise.all([
     getLatestRegisteredMeterId(input.balanceGroup, input.substationId),
-    getLastNotInSystemId({
-      transformerSubstationId: input.substationId,
-      balanceGroup: input.balanceGroup,
-    }),
+    getLatestUnregisteredMeterId(input.balanceGroup, input.substationId),
   ]);
 
   await Promise.all([
