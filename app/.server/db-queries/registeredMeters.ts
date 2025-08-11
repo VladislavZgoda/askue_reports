@@ -54,23 +54,26 @@ export async function selectLastQuantity({
   return metersQuantity[0]?.registeredMeterCount;
 }
 
-export async function getLastRecordId({
-  transformerSubstationId,
-  balanceGroup,
-}: LastQuantity): Promise<number | undefined> {
-  const recordId = await db
-    .select({ id: registeredMeters.id })
-    .from(registeredMeters)
-    .where(
-      and(
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
-        eq(registeredMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .orderBy(desc(registeredMeters.date))
-    .limit(1);
+/**
+ * Fetches the latest registered meter ID by date for a given balance group and substation.
+ * @returns ID of the most recent record, or 'undefined' if none exists.
+ */
+export async function getLatestRegisteredMeterId(
+  balanceGroup: BalanceGroup,
+  substationId: RegisteredMeters["transformerSubstationId"],
+): Promise<number | undefined> {
+  const result = await db.query.registeredMeters.findFirst({
+    columns: {
+      id: true,
+    },
+    where: and(
+      eq(registeredMeters.balanceGroup, balanceGroup),
+      eq(registeredMeters.transformerSubstationId, substationId),
+    ),
+    orderBy: [desc(registeredMeters.date)],
+  });
 
-  return recordId[0]?.id;
+  return result?.id;
 }
 
 interface RegisteredMeterUpdateInput {
