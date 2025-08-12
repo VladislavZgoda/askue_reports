@@ -35,13 +35,17 @@ export async function createRegisteredMeterRecord({
 
 /**
  * Fetches the latest registered meter ID by date for a given balance group and substation.
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ *
  * @returns ID of the most recent record, or 'undefined' if none exists.
  */
 export async function getLatestRegisteredMeterId(
+  executor: Executor,
   balanceGroup: BalanceGroup,
   substationId: RegisteredMeters["transformerSubstationId"],
 ): Promise<number | undefined> {
-  const result = await db.query.registeredMeters.findFirst({
+  const result = await executor.query.registeredMeters.findFirst({
     columns: {
       id: true,
     },

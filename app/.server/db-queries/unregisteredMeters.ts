@@ -71,13 +71,17 @@ export async function getUnregisteredMeterCount({
 
 /**
  * Fetches the latest unregistered meter ID by date for a given balance group and substation.
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ *
  * @returns ID of the most recent record, or 'undefined' if none exists.
  */
 export async function getLatestUnregisteredMeterId(
+  executor: Executor,
   balanceGroup: BalanceGroup,
   substationId: UnregisteredMeters["transformerSubstationId"],
 ): Promise<number | undefined> {
-  const result = await db.query.unregisteredMeters.findFirst({
+  const result = await executor.query.unregisteredMeters.findFirst({
     columns: { id: true },
     where: and(
       eq(unregisteredMeters.balanceGroup, balanceGroup),
