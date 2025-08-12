@@ -69,27 +69,6 @@ export async function getUnregisteredMeterCount({
   return result?.unregisteredMeterCount;
 }
 
-export async function selectLastNotInSystem({
-  transformerSubstationId,
-  balanceGroup,
-}: LastQuantity): Promise<number | undefined> {
-  const record = await db
-    .select({
-      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
-    })
-    .from(unregisteredMeters)
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, transformerSubstationId),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .orderBy(desc(unregisteredMeters.date))
-    .limit(1);
-
-  return record[0]?.unregisteredMeterCount;
-}
-
 /**
  * Fetches the latest unregistered meter ID by date for a given balance group and substation.
  * @returns ID of the most recent record, or 'undefined' if none exists.

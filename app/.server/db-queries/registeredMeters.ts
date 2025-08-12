@@ -33,27 +33,6 @@ export async function createRegisteredMeterRecord({
   });
 }
 
-export async function selectLastQuantity({
-  transformerSubstationId,
-  balanceGroup,
-}: LastQuantity): Promise<number | undefined> {
-  const metersQuantity = await db
-    .select({
-      registeredMeterCount: registeredMeters.registeredMeterCount,
-    })
-    .from(registeredMeters)
-    .where(
-      and(
-        eq(registeredMeters.transformerSubstationId, transformerSubstationId),
-        eq(registeredMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .orderBy(desc(registeredMeters.date))
-    .limit(1);
-
-  return metersQuantity[0]?.registeredMeterCount;
-}
-
 /**
  * Fetches the latest registered meter ID by date for a given balance group and substation.
  * @returns ID of the most recent record, or 'undefined' if none exists.

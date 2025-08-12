@@ -47,33 +47,6 @@ export async function createYearlyMeterInstallation({
   });
 }
 
-export async function selectLastYearQuantity({
-  balanceGroup,
-  transformerSubstationId,
-  year,
-}: LastYearQuantity) {
-  const yearQuantity = await db
-    .select({
-      totalInstalled: yearlyMeterInstallations.totalInstalled,
-      registeredCount: yearlyMeterInstallations.registeredCount,
-    })
-    .from(yearlyMeterInstallations)
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(yearlyMeterInstallations.year, year),
-      ),
-    )
-    .orderBy(desc(yearlyMeterInstallations.date))
-    .limit(1);
-
-  return yearQuantity;
-}
-
 interface YearlyInstallationIdParams {
   balanceGroup: YearlyMeterInstallations["balanceGroup"];
   substationId: YearlyMeterInstallations["transformerSubstationId"];

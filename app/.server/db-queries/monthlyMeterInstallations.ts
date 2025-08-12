@@ -84,35 +84,6 @@ export async function getMonthlyInstallationSummary({
   return result;
 }
 
-export async function selectLastMonthQuantity({
-  balanceGroup,
-  transformerSubstationId,
-  month,
-  year,
-}: LastMonthQuantity) {
-  const monthQuantity = await db
-    .select({
-      totalInstalled: monthlyMeterInstallations.totalInstalled,
-      registeredCount: monthlyMeterInstallations.registeredCount,
-    })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-      ),
-    )
-    .orderBy(desc(monthlyMeterInstallations.date))
-    .limit(1);
-
-  return monthQuantity;
-}
-
 function validateInstallationParams(params: InstallationSummary) {
   if (params.registeredCount > params.totalInstalled) {
     throw new Error("Registered count cannot exceed total installed");
