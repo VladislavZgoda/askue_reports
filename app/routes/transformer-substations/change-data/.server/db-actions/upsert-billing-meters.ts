@@ -14,7 +14,7 @@ import {
   updateYearlyInstallationRecordById,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 import {
-  getLastMonthId,
+  getLatestMonthlyInstallationId,
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
@@ -68,32 +68,17 @@ export default async function changeData(
       year,
       yearlyInstallationStats: meterReport.yearlyInstallation,
     }),
-    handleMonthMeters(
-      {
-        monthlyTotalInstalled,
-        monthlyRegisteredCount,
-        balanceGroup,
-        substationId,
-        date: currentDate,
-        month,
-        year,
-      },
-      meterReport,
-    ),
+    handleMonthlyInstallation({
+      monthlyTotalInstalled,
+      monthlyRegisteredCount,
+      balanceGroup,
+      substationId,
+      date: currentDate,
+      month,
+      year,
+      monthlyInstallationStats: meterReport.monthlyInstallation,
+    }),
   ]);
-}
-
-interface MeterReport {
-  registeredMeters: number;
-  unregisteredMeters: number;
-  yearlyInstallation: {
-    totalInstalled: number;
-    registeredCount: number;
-  };
-  monthlyInstallation: {
-    totalInstalled: number;
-    registeredCount: number;
-  };
 }
 
 interface TotalMetersParams {
@@ -271,7 +256,7 @@ async function handleYearlyInstallation(
   }
 }
 
-interface UpdateTotalMonthMetersType {
+interface MonthlyInstallationParams {
   monthlyTotalInstalled: number;
   monthlyRegisteredCount: number;
   balanceGroup: BalanceGroup;
@@ -279,39 +264,41 @@ interface UpdateTotalMonthMetersType {
   date: string;
   month: string;
   year: number;
+  monthlyInstallationStats: {
+    totalInstalled: number;
+    registeredCount: number;
+  };
 }
 
-async function handleMonthMeters(
-  input: UpdateTotalMonthMetersType,
-  existingStats: MeterReport,
-) {
+async function handleMonthlyInstallation(
+  params: MonthlyInstallationParams,
+): Promise<void> {
   const {
     monthlyTotalInstalled,
     monthlyRegisteredCount,
+    monthlyInstallationStats,
     balanceGroup,
     substationId,
     date,
     month,
     year,
-  } = input;
+  } = params;
 
-  const lastMonthId = await getLastMonthId({
-    transformerSubstationId: substationId,
+  const latestMonthlyInstallationId = await getLatestMonthlyInstallationId({
     balanceGroup,
+    substationId,
     month,
     year,
   });
 
-  if (lastMonthId) {
-    const isEqual =
-      monthlyTotalInstalled ===
-        existingStats.monthlyInstallation.totalInstalled &&
-      monthlyRegisteredCount ===
-        existingStats.monthlyInstallation.registeredCount;
+  if (latestMonthlyInstallationId) {
+    const valuesChanged =
+      monthlyTotalInstalled !== monthlyInstallationStats.totalInstalled ||
+      monthlyRegisteredCount !== monthlyInstallationStats.registeredCount;
 
-    if (!isEqual) {
+    if (valuesChanged) {
       await updateMonthlyInstallationRecordById({
-        id: lastMonthId,
+        id: latestMonthlyInstallationId,
         totalInstalled: monthlyTotalInstalled,
         registeredCount: monthlyRegisteredCount,
       });

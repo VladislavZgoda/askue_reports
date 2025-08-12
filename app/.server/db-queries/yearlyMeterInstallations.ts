@@ -89,7 +89,6 @@ interface YearlyInstallationIdParams {
  *
  * @returns The latest installation record ID, or 'undefined' if no match found
  */
-
 export async function getLatestYearlyInstallationId({
   balanceGroup,
   substationId,

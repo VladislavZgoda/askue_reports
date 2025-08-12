@@ -119,30 +119,43 @@ function validateInstallationParams(params: InstallationSummary) {
   }
 }
 
-export async function getLastMonthId({
+interface MonthlyInstallationIdParams {
+  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
+  substationId: MonthlyMeterInstallations["transformerSubstationId"];
+  month: MonthlyMeterInstallations["month"];
+  year: MonthlyMeterInstallations["year"];
+}
+
+/**
+ * Retrieves the most recent monthly meter installation ID for a given combination of parameters
+ *
+ * @param balanceGroup Balance group category (e.g. 'Быт')
+ * @param substationId Transformer substation ID (e.g. 777)
+ * @param month Month of the installation record (e.g '01')
+ * @param year Year of the installation record (e.g. 2025)
+ *
+ * @returns The latest installation record ID, or 'undefined' if no match found
+ */
+export async function getLatestMonthlyInstallationId({
   balanceGroup,
-  transformerSubstationId,
+  substationId,
   month,
   year,
-}: LastMonthQuantity): Promise<number | undefined> {
-  const recordId = await db
-    .select({ id: monthlyMeterInstallations.id })
-    .from(monthlyMeterInstallations)
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-      ),
-    )
-    .orderBy(desc(monthlyMeterInstallations.date))
-    .limit(1);
+}: MonthlyInstallationIdParams): Promise<number | undefined> {
+  const result = await db.query.monthlyMeterInstallations.findFirst({
+    columns: {
+      id: true,
+    },
+    where: and(
+      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
+      eq(monthlyMeterInstallations.month, month),
+      eq(monthlyMeterInstallations.year, year),
+    ),
+    orderBy: [desc(monthlyMeterInstallations.date)],
+  });
 
-  return recordId[0]?.id;
+  return result?.id;
 }
 
 interface MonthlyInstallationUpdateInput {
