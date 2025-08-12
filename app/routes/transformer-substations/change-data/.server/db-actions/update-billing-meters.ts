@@ -9,7 +9,7 @@ import {
   updateUnregisteredMeterRecordById,
 } from "~/.server/db-queries/unregisteredMeters";
 import {
-  getLastYearId,
+  getLatestYearlyInstallationId,
   createYearlyMeterInstallation,
   updateYearlyInstallationRecordById,
 } from "~/.server/db-queries/yearlyMeterInstallations";
@@ -25,7 +25,9 @@ import type { BillingFormData } from "../../validation/billing-form.schema";
 
 type BillingMetersParams = BillingFormData & { substationId: number };
 
-export default async function changeData(params: BillingMetersParams) {
+export default async function changeData(
+  params: BillingMetersParams,
+): Promise<void> {
   const {
     totalCount,
     registeredCount,
@@ -57,17 +59,15 @@ export default async function changeData(params: BillingMetersParams) {
       registeredMeterCount: meterReport.registeredMeters,
       unregisteredMeterCount: meterReport.unregisteredMeters,
     }),
-    handleYearMeters(
-      {
-        yearlyTotalInstalled,
-        yearlyRegisteredCount,
-        balanceGroup,
-        substationId,
-        date: currentDate,
-        year,
-      },
-      meterReport,
-    ),
+    handleYearlyInstallations({
+      yearlyTotalInstalled,
+      yearlyRegisteredCount,
+      balanceGroup,
+      substationId,
+      date: currentDate,
+      year,
+      yearlyInstallationStats: meterReport.yearlyInstallation,
+    }),
     handleMonthMeters(
       {
         monthlyTotalInstalled,
@@ -106,7 +106,7 @@ interface TotalMetersParams {
   unregisteredMeterCount: number;
 }
 
-async function handleTotalMeters(params: TotalMetersParams) {
+async function handleTotalMeters(params: TotalMetersParams): Promise<void> {
   const {
     totalCount,
     registeredCount,
@@ -149,7 +149,9 @@ type RegisteredMetersParams = Omit<
   "totalCount" | "unregisteredMeterCount"
 > & { latestRegisteredMeterId: number | undefined };
 
-async function handleRegisteredMeters(params: RegisteredMetersParams) {
+async function handleRegisteredMeters(
+  params: RegisteredMetersParams,
+): Promise<void> {
   const {
     latestRegisteredMeterId,
     registeredCount,
@@ -181,7 +183,9 @@ type UnregisteredMetersParams = Omit<
   "registeredMeterCount"
 > & { latestUnregisteredMeterId: number | undefined };
 
-async function handleUnregisteredMeters(params: UnregisteredMetersParams) {
+async function handleUnregisteredMeters(
+  params: UnregisteredMetersParams,
+): Promise<void> {
   const {
     latestUnregisteredMeterId,
     totalCount,
@@ -211,44 +215,46 @@ async function handleUnregisteredMeters(params: UnregisteredMetersParams) {
   }
 }
 
-interface UpdateTotalYearMetersType {
+interface YearlyInstallationParams {
   yearlyTotalInstalled: number;
   yearlyRegisteredCount: number;
   balanceGroup: BalanceGroup;
   substationId: number;
   date: string;
   year: number;
+  yearlyInstallationStats: {
+    totalInstalled: number;
+    registeredCount: number;
+  };
 }
 
-async function handleYearMeters(
-  input: UpdateTotalYearMetersType,
-  existingStats: MeterReport,
-) {
+async function handleYearlyInstallations(
+  params: YearlyInstallationParams,
+): Promise<void> {
   const {
     yearlyTotalInstalled,
     yearlyRegisteredCount,
+    yearlyInstallationStats,
     balanceGroup,
     substationId,
     date,
     year,
-  } = input;
+  } = params;
 
-  const lastYearId = await getLastYearId({
-    transformerSubstationId: substationId,
+  const latestYearlyInstallationId = await getLatestYearlyInstallationId({
     balanceGroup,
+    substationId,
     year,
   });
 
-  if (lastYearId) {
-    const isEqual =
-      yearlyTotalInstalled ===
-        existingStats.yearlyInstallation.totalInstalled &&
-      yearlyRegisteredCount ===
-        existingStats.yearlyInstallation.registeredCount;
+  if (latestYearlyInstallationId) {
+    const valuesChanged =
+      yearlyTotalInstalled !== yearlyInstallationStats.totalInstalled ||
+      yearlyRegisteredCount !== yearlyInstallationStats.registeredCount;
 
-    if (!isEqual) {
+    if (valuesChanged) {
       await updateYearlyInstallationRecordById({
-        id: lastYearId,
+        id: latestYearlyInstallationId,
         totalInstalled: yearlyTotalInstalled,
         registeredCount: yearlyRegisteredCount,
       });

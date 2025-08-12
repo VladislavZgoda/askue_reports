@@ -17,7 +17,7 @@ interface YearlyMeterInstallationInput {
  * Creates a new yearly meter installation record
  *
  * @param totalInstalled Total meters installed for the year
- * @param registeredCount Meters registered in ASCAPC system
+ * @param registeredCount Meters registered in ASKUE system
  * @param balanceGroup Balance group category
  * @param date Date of the record
  * @param substationId Transformer substation ID
@@ -74,28 +74,40 @@ export async function selectLastYearQuantity({
   return yearQuantity;
 }
 
-export async function getLastYearId({
-  balanceGroup,
-  transformerSubstationId,
-  year,
-}: LastYearQuantity): Promise<number | undefined> {
-  const recordId = await db
-    .select({ id: yearlyMeterInstallations.id })
-    .from(yearlyMeterInstallations)
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          transformerSubstationId,
-        ),
-        eq(yearlyMeterInstallations.year, year),
-      ),
-    )
-    .orderBy(desc(yearlyMeterInstallations.date))
-    .limit(1);
+interface YearlyInstallationIdParams {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
 
-  return recordId[0]?.id;
+/**
+ * Retrieves the most recent yearly meter installation ID for a given combination of parameters
+ *
+ * @param balanceGroup Balance group category (e.g. 'Быт')
+ * @param substationId Transformer substation ID (e.g. 777)
+ * @param year Year of the installation record (e.g. 2025)
+ *
+ * @returns The latest installation record ID, or 'undefined' if no match found
+ */
+
+export async function getLatestYearlyInstallationId({
+  balanceGroup,
+  substationId,
+  year,
+}: YearlyInstallationIdParams): Promise<number | undefined> {
+  const result = await db.query.yearlyMeterInstallations.findFirst({
+    columns: {
+      id: true,
+    },
+    where: and(
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+      eq(yearlyMeterInstallations.year, year),
+    ),
+    orderBy: [desc(yearlyMeterInstallations.date)],
+  });
+
+  return result?.id;
 }
 
 interface YearlyInstallationUpdateInput {
