@@ -59,7 +59,7 @@ export default async function changeData(
       registeredMeterCount: meterReport.registeredMeters,
       unregisteredMeterCount: meterReport.unregisteredMeters,
     }),
-    handleYearlyInstallations({
+    handleYearlyInstallation({
       yearlyTotalInstalled,
       yearlyRegisteredCount,
       balanceGroup,
@@ -228,7 +228,7 @@ interface YearlyInstallationParams {
   };
 }
 
-async function handleYearlyInstallations(
+async function handleYearlyInstallation(
   params: YearlyInstallationParams,
 ): Promise<void> {
   const {
