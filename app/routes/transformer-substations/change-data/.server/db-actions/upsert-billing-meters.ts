@@ -25,7 +25,7 @@ import type { BillingFormData } from "../../validation/billing-form.schema";
 
 type BillingMetersParams = BillingFormData & { substationId: number };
 
-export default async function changeData(
+export default async function upsertBillingMeters(
   params: BillingMetersParams,
 ): Promise<void> {
   const {
