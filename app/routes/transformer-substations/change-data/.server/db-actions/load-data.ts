@@ -1,6 +1,8 @@
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
 
+import { db } from "~/.server/db";
+
 type MeterReport = Awaited<
   ReturnType<typeof getBatchedSubstationMeterReports>
 >["Быт"];
@@ -20,7 +22,7 @@ export function loadAllSubstationMeterReports<Groups extends BalanceGroup>(
   const targetYear = currentDate.getFullYear();
   const targetMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
 
-  return getBatchedSubstationMeterReports({
+  return getBatchedSubstationMeterReports(db, {
     substationId,
     targetMonth,
     targetYear,

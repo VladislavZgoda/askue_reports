@@ -393,18 +393,24 @@ type BatchedReport<Groups extends BalanceGroup> = Record<Groups, MeterReport>;
  * Retrieves batched meter reports for multiple balance groups
  *
  * @template Group - Specific balance group type
+ *
+ * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
+ *
  * @returns Report object keyed by balance groups
  */
 export async function getBatchedSubstationMeterReports<
   Group extends BalanceGroup,
->({
-  substationId,
-  targetMonth,
-  targetYear,
-  balanceGroups,
-}: BatchedReportParams<Group>): Promise<BatchedReport<Group>> {
-  const result = await db.query.transformerSubstations.findFirst({
+>(
+  executor: Executor,
+  {
+    substationId,
+    targetMonth,
+    targetYear,
+    balanceGroups,
+  }: BatchedReportParams<Group>,
+): Promise<BatchedReport<Group>> {
+  const result = await executor.query.transformerSubstations.findFirst({
     columns: {},
     where: eq(transformerSubstations.id, substationId),
     with: {
