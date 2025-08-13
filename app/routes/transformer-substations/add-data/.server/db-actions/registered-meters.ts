@@ -1,6 +1,8 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { registeredMeters } from "~/.server/schema";
 
+import { createRegisteredMeterRecord } from "~/.server/db-queries/registeredMeters";
+
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
 interface MeterCountQueryParams {
@@ -36,30 +38,6 @@ async function getRegisteredMeterCountBeforeCutoff(
   });
 
   return result ? result.registeredMeterCount : 0;
-}
-
-interface RegisteredMeterInput {
-  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  date: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
-}
-
-async function createRegisteredMeterRecord(
-  executor: Executor,
-  {
-    registeredMeterCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: RegisteredMeterInput,
-) {
-  await executor.insert(registeredMeters).values({
-    registeredMeterCount,
-    balanceGroup,
-    date,
-    transformerSubstationId: substationId,
-  });
 }
 
 interface AccumulatedRegisteredInput {
