@@ -60,31 +60,32 @@ export async function getLatestRegisteredMeterId(
 }
 
 interface RegisteredMeterUpdateInput {
-  id: number;
-  registeredMeterCount: number;
+  id: RegisteredMeters["id"];
+  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
 }
 
 /**
  * Updates a registered meter record by its ID
  *
+ * @param executor - Database client for query execution (supports transactions)
  * @param id Record ID to update
  * @param registeredMeterCount New count of registered meters
  *
  * @throws Will throw if no record with the given ID exists
  *
  * @example
- * await updateRegisteredMeterRecordById({
+ * await updateRegisteredMeterRecordById(tx, {
  *   id: 123,
  *   registeredMeterCount: 85
  * });
  */
-export async function updateRegisteredMeterRecordById({
-  id,
-  registeredMeterCount,
-}: RegisteredMeterUpdateInput) {
+export async function updateRegisteredMeterRecordById(
+  executor: Executor,
+  { id, registeredMeterCount }: RegisteredMeterUpdateInput,
+) {
   const updatedAt = new Date();
 
-  const [updatedRecord] = await db
+  const [updatedRecord] = await executor
     .update(registeredMeters)
     .set({ registeredMeterCount, updatedAt })
     .where(eq(registeredMeters.id, id))
