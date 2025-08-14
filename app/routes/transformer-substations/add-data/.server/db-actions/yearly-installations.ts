@@ -1,9 +1,10 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
-import { validateInstallationParams } from "../utils/installation-params";
+import { validateInstallationParams } from "../../../../../utils/installation-params";
+import { createYearlyMeterInstallation } from "~/.server/db-queries/yearlyMeterInstallations";
 
-import type { InstallationStats } from "../utils/installation-params";
+import type { InstallationStats } from "../../../../../utils/installation-params";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
@@ -176,39 +177,6 @@ async function incrementYearlyInstallationRecords(
     .returning();
 
   return result.length;
-}
-
-interface YearlyMeterInstallationInput {
-  totalInstalled: YearlyMeterInstallations["totalInstalled"];
-  registeredCount: YearlyMeterInstallations["registeredCount"];
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-/**
- * Creates a new yearly meter installation record
- *
- * @param executor Database executor
- * @param params Installation data
- *
- * @throws Error if registeredCount > totalInstalled
- */
-async function createYearlyMeterInstallation(
-  executor: Executor,
-  params: YearlyMeterInstallationInput,
-) {
-  validateInstallationParams(params);
-
-  await executor.insert(yearlyMeterInstallations).values({
-    totalInstalled: params.totalInstalled,
-    registeredCount: params.registeredCount,
-    balanceGroup: params.balanceGroup,
-    date: params.date,
-    transformerSubstationId: params.substationId,
-    year: params.year,
-  });
 }
 
 /**

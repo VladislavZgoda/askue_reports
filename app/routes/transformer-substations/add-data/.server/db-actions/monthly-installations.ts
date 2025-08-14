@@ -1,9 +1,9 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
-import { validateInstallationParams } from "../utils/installation-params";
+import { validateInstallationParams } from "../../../../../utils/installation-params";
 
-import type { InstallationStats } from "../utils/installation-params";
+import type { InstallationStats } from "../../../../../utils/installation-params";
 
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
