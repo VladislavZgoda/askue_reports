@@ -3,22 +3,27 @@ import {
   createRegisteredMeterRecord,
   updateRegisteredMeterRecordById,
 } from "~/.server/db-queries/registeredMeters";
+
 import {
   getLatestUnregisteredMeterId,
   createUnregisteredMeterRecord,
   updateUnregisteredMeterRecordById,
 } from "~/.server/db-queries/unregisteredMeters";
+
 import {
   getLatestYearlyInstallationId,
   createYearlyMeterInstallation,
   updateYearlyInstallationRecordById,
 } from "~/.server/db-queries/yearlyMeterInstallations";
+
 import {
   getLatestMonthlyInstallationId,
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
 } from "~/.server/db-queries/monthlyMeterInstallations";
-import { loadAllSubstationMeterReports } from "./load-data";
+
+import { db } from "~/.server/db";
+import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 import type { BillingFormData } from "../../validation/billing-form.schema";
@@ -43,42 +48,47 @@ export default async function upsertBillingMeters(
   const year = cutOutYear(currentDate);
   const month = cutOutMonth(currentDate);
 
-  const existingStats = await loadAllSubstationMeterReports(substationId, [
-    balanceGroup,
-  ]);
+  await db.transaction(async (tx) => {
+    const existingStats = await getBatchedSubstationMeterReports(tx, {
+      substationId,
+      targetYear: year,
+      targetMonth: month,
+      balanceGroups: [balanceGroup],
+    });
 
-  const meterReport = existingStats[balanceGroup];
+    const meterReport = existingStats[balanceGroup];
 
-  await Promise.all([
-    handleTotalMeters({
-      totalCount,
-      registeredCount,
-      balanceGroup,
-      substationId,
-      date: currentDate,
-      registeredMeterCount: meterReport.registeredMeters,
-      unregisteredMeterCount: meterReport.unregisteredMeters,
-    }),
-    handleYearlyInstallation({
-      yearlyTotalInstalled,
-      yearlyRegisteredCount,
-      balanceGroup,
-      substationId,
-      date: currentDate,
-      year,
-      yearlyInstallationStats: meterReport.yearlyInstallation,
-    }),
-    handleMonthlyInstallation({
-      monthlyTotalInstalled,
-      monthlyRegisteredCount,
-      balanceGroup,
-      substationId,
-      date: currentDate,
-      month,
-      year,
-      monthlyInstallationStats: meterReport.monthlyInstallation,
-    }),
-  ]);
+    await Promise.all([
+      handleTotalMeters(tx, {
+        totalCount,
+        registeredCount,
+        balanceGroup,
+        substationId,
+        date: currentDate,
+        registeredMeterCount: meterReport.registeredMeters,
+        unregisteredMeterCount: meterReport.unregisteredMeters,
+      }),
+      handleYearlyInstallation(tx, {
+        yearlyTotalInstalled,
+        yearlyRegisteredCount,
+        balanceGroup,
+        substationId,
+        date: currentDate,
+        year,
+        yearlyInstallationStats: meterReport.yearlyInstallation,
+      }),
+      handleMonthlyInstallation(tx, {
+        monthlyTotalInstalled,
+        monthlyRegisteredCount,
+        balanceGroup,
+        substationId,
+        date: currentDate,
+        month,
+        year,
+        monthlyInstallationStats: meterReport.monthlyInstallation,
+      }),
+    ]);
+  });
 }
 
 interface TotalMetersParams {
@@ -91,7 +101,10 @@ interface TotalMetersParams {
   unregisteredMeterCount: number;
 }
 
-async function handleTotalMeters(params: TotalMetersParams): Promise<void> {
+async function handleTotalMeters(
+  executor: Executor,
+  params: TotalMetersParams,
+): Promise<void> {
   const {
     totalCount,
     registeredCount,
@@ -104,12 +117,12 @@ async function handleTotalMeters(params: TotalMetersParams): Promise<void> {
 
   const [latestRegisteredMeterId, latestUnregisteredMeterId] =
     await Promise.all([
-      getLatestRegisteredMeterId(balanceGroup, substationId),
-      getLatestUnregisteredMeterId(balanceGroup, substationId),
+      getLatestRegisteredMeterId(executor, balanceGroup, substationId),
+      getLatestUnregisteredMeterId(executor, balanceGroup, substationId),
     ]);
 
   await Promise.all([
-    handleRegisteredMeters({
+    handleRegisteredMeters(executor, {
       latestRegisteredMeterId,
       registeredCount,
       registeredMeterCount,
@@ -117,7 +130,7 @@ async function handleTotalMeters(params: TotalMetersParams): Promise<void> {
       date,
       substationId,
     }),
-    handleUnregisteredMeters({
+    handleUnregisteredMeters(executor, {
       latestUnregisteredMeterId,
       totalCount,
       registeredCount,
@@ -135,6 +148,7 @@ type RegisteredMetersParams = Omit<
 > & { latestRegisteredMeterId: number | undefined };
 
 async function handleRegisteredMeters(
+  executor: Executor,
   params: RegisteredMetersParams,
 ): Promise<void> {
   const {
@@ -148,13 +162,13 @@ async function handleRegisteredMeters(
 
   if (latestRegisteredMeterId) {
     if (registeredMeterCount !== registeredCount) {
-      await updateRegisteredMeterRecordById({
+      await updateRegisteredMeterRecordById(executor, {
         id: latestRegisteredMeterId,
         registeredMeterCount: registeredCount,
       });
     }
   } else {
-    await createRegisteredMeterRecord({
+    await createRegisteredMeterRecord(executor, {
       registeredMeterCount: registeredCount,
       balanceGroup,
       date,
@@ -169,6 +183,7 @@ type UnregisteredMetersParams = Omit<
 > & { latestUnregisteredMeterId: number | undefined };
 
 async function handleUnregisteredMeters(
+  executor: Executor,
   params: UnregisteredMetersParams,
 ): Promise<void> {
   const {
@@ -185,13 +200,13 @@ async function handleUnregisteredMeters(
 
   if (latestUnregisteredMeterId) {
     if (unregisteredMeterCount !== newCount) {
-      await updateUnregisteredMeterRecordById({
+      await updateUnregisteredMeterRecordById(executor, {
         id: latestUnregisteredMeterId,
         unregisteredMeterCount: newCount,
       });
     }
   } else {
-    await createUnregisteredMeterRecord({
+    await createUnregisteredMeterRecord(executor, {
       unregisteredMeterCount: newCount,
       date,
       balanceGroup,
@@ -214,6 +229,7 @@ interface YearlyInstallationParams {
 }
 
 async function handleYearlyInstallation(
+  executor: Executor,
   params: YearlyInstallationParams,
 ): Promise<void> {
   const {
@@ -226,11 +242,14 @@ async function handleYearlyInstallation(
     year,
   } = params;
 
-  const latestYearlyInstallationId = await getLatestYearlyInstallationId({
-    balanceGroup,
-    substationId,
-    year,
-  });
+  const latestYearlyInstallationId = await getLatestYearlyInstallationId(
+    executor,
+    {
+      balanceGroup,
+      substationId,
+      year,
+    },
+  );
 
   if (latestYearlyInstallationId) {
     const valuesChanged =
@@ -238,14 +257,14 @@ async function handleYearlyInstallation(
       yearlyRegisteredCount !== yearlyInstallationStats.registeredCount;
 
     if (valuesChanged) {
-      await updateYearlyInstallationRecordById({
+      await updateYearlyInstallationRecordById(executor, {
         id: latestYearlyInstallationId,
         totalInstalled: yearlyTotalInstalled,
         registeredCount: yearlyRegisteredCount,
       });
     }
   } else {
-    await createYearlyMeterInstallation({
+    await createYearlyMeterInstallation(executor, {
       totalInstalled: yearlyTotalInstalled,
       registeredCount: yearlyRegisteredCount,
       substationId,
@@ -271,6 +290,7 @@ interface MonthlyInstallationParams {
 }
 
 async function handleMonthlyInstallation(
+  executor: Executor,
   params: MonthlyInstallationParams,
 ): Promise<void> {
   const {
@@ -284,12 +304,15 @@ async function handleMonthlyInstallation(
     year,
   } = params;
 
-  const latestMonthlyInstallationId = await getLatestMonthlyInstallationId({
-    balanceGroup,
-    substationId,
-    month,
-    year,
-  });
+  const latestMonthlyInstallationId = await getLatestMonthlyInstallationId(
+    executor,
+    {
+      balanceGroup,
+      substationId,
+      month,
+      year,
+    },
+  );
 
   if (latestMonthlyInstallationId) {
     const valuesChanged =
@@ -297,14 +320,14 @@ async function handleMonthlyInstallation(
       monthlyRegisteredCount !== monthlyInstallationStats.registeredCount;
 
     if (valuesChanged) {
-      await updateMonthlyInstallationRecordById({
+      await updateMonthlyInstallationRecordById(executor, {
         id: latestMonthlyInstallationId,
         totalInstalled: monthlyTotalInstalled,
         registeredCount: monthlyRegisteredCount,
       });
     }
   } else {
-    await createMonthlyInstallationRecord({
+    await createMonthlyInstallationRecord(executor, {
       totalInstalled: monthlyTotalInstalled,
       registeredCount: monthlyRegisteredCount,
       balanceGroup,
