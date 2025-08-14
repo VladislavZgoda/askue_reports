@@ -2,6 +2,8 @@ import { db } from "../db";
 import { monthlyMeterInstallations } from "../schema";
 import { eq, and, desc, gte, lte } from "drizzle-orm";
 
+import { validateInstallationParams } from "~/utils/installation-params";
+
 type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
 
 interface MonthlyInstallationInput {
@@ -17,22 +19,56 @@ interface MonthlyInstallationInput {
 /**
  * Creates new monthly installation record after validation
  *
- * @param params Input parameters
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Input data for the new record
+ * @param params.totalInstalled - Total meters installed for the month
+ * @param params.registeredCount - Meters registered in ASKUE system
+ * @param params.balanceGroup - Balance group category
+ * @param params.date - Date of the record
+ * @param params.substationId - Transformer substation ID
+ * @param params.month - Month of the installation record
+ * @param params.year - Year of the installation record
+ *
  * @throws If validation fails (registeredCount > totalInstalled)
+ *
+ * @example
+ * await createMonthlyInstallationRecord(tx, {
+ *   totalInstalled: 6,
+ *   registeredCount: 5,
+ *   balanceGroup: "Быт",
+ *   date: "2025-08-14",
+ *   substationId: 15,
+ *   month: "08",
+ *   year: 2025
+ * })
  */
 export async function createMonthlyInstallationRecord(
+  executor: Executor,
   params: MonthlyInstallationInput,
-) {
-  validateInstallationParams(params);
+): Promise<void> {
+  const {
+    totalInstalled,
+    registeredCount,
+    balanceGroup,
+    date,
+    substationId,
+    month,
+    year,
+  } = params;
 
-  await db.insert(monthlyMeterInstallations).values({
-    totalInstalled: params.totalInstalled,
-    registeredCount: params.registeredCount,
-    balanceGroup: params.balanceGroup,
-    date: params.date,
-    transformerSubstationId: params.substationId,
-    month: params.month,
-    year: params.year,
+  validateInstallationParams({
+    totalInstalled,
+    registeredCount,
+  });
+
+  await executor.insert(monthlyMeterInstallations).values({
+    totalInstalled,
+    registeredCount,
+    balanceGroup,
+    date,
+    transformerSubstationId: substationId,
+    month,
+    year,
   });
 }
 
@@ -84,12 +120,6 @@ export async function getMonthlyInstallationSummary({
   return result;
 }
 
-function validateInstallationParams(params: InstallationSummary) {
-  if (params.registeredCount > params.totalInstalled) {
-    throw new Error("Registered count cannot exceed total installed");
-  }
-}
-
 interface MonthlyInstallationIdParams {
   balanceGroup: MonthlyMeterInstallations["balanceGroup"];
   substationId: MonthlyMeterInstallations["transformerSubstationId"];
@@ -100,20 +130,28 @@ interface MonthlyInstallationIdParams {
 /**
  * Retrieves the most recent monthly meter installation ID for a given combination of parameters
  *
- * @param balanceGroup Balance group category (e.g. 'Быт')
- * @param substationId Transformer substation ID (e.g. 777)
- * @param month Month of the installation record (e.g '01')
- * @param year Year of the installation record (e.g. 2025)
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Filter parameters
+ * @param params.balanceGroup Balance group category (e.g. "Быт")
+ * @param params.substationId Transformer substation ID (e.g. 7)
+ * @param params.month Month of the installation record (e.g "01")
+ * @param params.year Year of the installation record (e.g. 2025)
  *
  * @returns The latest installation record ID, or 'undefined' if no match found
+ *
+ * @example
+ * const id = await getLatestMonthlyInstallationId(tx, {
+ *   balanceGroup: "Быт",
+ *   substationId: 15,
+ *   month: "08",
+ *   year: 2025
+ * })
  */
-export async function getLatestMonthlyInstallationId({
-  balanceGroup,
-  substationId,
-  month,
-  year,
-}: MonthlyInstallationIdParams): Promise<number | undefined> {
-  const result = await db.query.monthlyMeterInstallations.findFirst({
+export async function getLatestMonthlyInstallationId(
+  executor: Executor,
+  { balanceGroup, substationId, month, year }: MonthlyInstallationIdParams,
+): Promise<number | undefined> {
+  const result = await executor.query.monthlyMeterInstallations.findFirst({
     columns: {
       id: true,
     },
@@ -138,23 +176,31 @@ interface MonthlyInstallationUpdateInput {
 /**
  * Updates a monthly installation record by its ID
  *
- * @param id Record ID to update
- * @param totalInstalled New total installed meters count
- * @param registeredCount New registered meters count
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Update parameters
+ * @param params.id Record ID to update
+ * @param params.totalInstalled New total installed meters count
+ * @param params.registeredCount New registered meters count
  *
  * @throws Will throw if registeredCount more than totalInstalled
  * @throws Will throw if no record with the given ID exists
+ *
+ * @example
+ * await updateMonthlyInstallationRecordById(tx, {
+ *   id: 12,
+ *   totalInstalled: 5,
+ *   registeredCount: 4
+ * })
  */
-export async function updateMonthlyInstallationRecordById({
-  id,
-  totalInstalled,
-  registeredCount,
-}: MonthlyInstallationUpdateInput) {
+export async function updateMonthlyInstallationRecordById(
+  executor: Executor,
+  { id, totalInstalled, registeredCount }: MonthlyInstallationUpdateInput,
+): Promise<void> {
   validateInstallationParams({ totalInstalled, registeredCount });
 
   const updatedAt = new Date();
 
-  const [updatedRecord] = await db
+  const [updatedRecord] = await executor
     .update(monthlyMeterInstallations)
     .set({ totalInstalled, registeredCount, updatedAt })
     .where(eq(monthlyMeterInstallations.id, id))

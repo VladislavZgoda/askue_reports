@@ -2,6 +2,7 @@ import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../../../../../utils/installation-params";
+import { createMonthlyInstallationRecord } from "~/.server/db-queries/monthlyMeterInstallations";
 
 import type { InstallationStats } from "../../../../../utils/installation-params";
 
@@ -130,33 +131,6 @@ async function getMonthlyInstallationSummaryBeforeCutoff(
   });
 
   return result ?? { totalInstalled: 0, registeredCount: 0 };
-}
-
-interface MonthlyInstallationInput {
-  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
-  registeredCount: MonthlyMeterInstallations["registeredCount"];
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  date: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-async function createMonthlyInstallationRecord(
-  executor: Executor,
-  params: MonthlyInstallationInput,
-) {
-  validateInstallationParams(params);
-
-  await executor.insert(monthlyMeterInstallations).values({
-    totalInstalled: params.totalInstalled,
-    registeredCount: params.registeredCount,
-    balanceGroup: params.balanceGroup,
-    date: params.date,
-    transformerSubstationId: params.substationId,
-    month: params.month,
-    year: params.year,
-  });
 }
 
 /**

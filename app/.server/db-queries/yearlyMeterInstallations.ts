@@ -27,6 +27,16 @@ interface YearlyMeterInstallationInput {
  * @param params.year - Year of the installation record
  *
  * @throws Will throw if registeredCount more than totalInstalled
+ * 
+ * @example
+ * await createYearlyMeterInstallation(tx, {
+ *   totalInstalled: 6,
+ *   registeredCount: 5,
+ *   balanceGroup: "Быт",
+ *   date: "2025-08-14",
+ *   substationId: 15,
+ *   year: 2025
+ * })
  */
 export async function createYearlyMeterInstallation(
   executor: Executor,
