@@ -14,19 +14,32 @@ interface UnregisteredMeterRecordInput {
 /**
  * Creates a new unregistered meter record
  *
+ * @param executor - Database client for query execution (supports transactions)
  * @param params Input data for the new record
  * @param params.unregisteredMeterCount Count of unregistered meters
- * @param params.balanceGroup Balance group category
+ * @param params.balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
  * @param params.date Record date (YYYY-MM-DD format)
  * @param params.substationId Transformer substation ID
+ *
+ * @example
+ * // Inside a transaction
+ * await createUnregisteredMeterRecord(tx, {
+ *   unregisteredMeterCount: 7,
+ *   balanceGroup: "ЮР Sims",
+ *   date: "2025-08-14",
+ *   substationId: 12
+ * })
  */
-export async function createUnregisteredMeterRecord({
-  unregisteredMeterCount,
-  balanceGroup,
-  date,
-  substationId,
-}: UnregisteredMeterRecordInput) {
-  await db.insert(unregisteredMeters).values({
+export async function createUnregisteredMeterRecord(
+  executor: Executor,
+  {
+    unregisteredMeterCount,
+    balanceGroup,
+    date,
+    substationId,
+  }: UnregisteredMeterRecordInput,
+) {
+  await executor.insert(unregisteredMeters).values({
     unregisteredMeterCount,
     balanceGroup,
     date,
@@ -101,24 +114,26 @@ interface UnregisteredMeterUpdateInput {
 /**
  * Updates an unregistered meter record by its database record ID
  *
- * @param id Record ID to update
- * @param unregisteredMeterCount New count of unregistered meters
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Update parameters
+ * @param params.id Record ID to update
+ * @param params.unregisteredMeterCount New count of unregistered meters
  *
  * @throws Will throw if no record with the given ID exists
  *
  * @example
- * await updateUnregisteredMeterRecordById({
+ * await updateUnregisteredMeterRecordById(tx, {
  *   id: 456,
  *   unregisteredMeterCount: 25
  * });
  */
-export async function updateUnregisteredMeterRecordById({
-  id,
-  unregisteredMeterCount,
-}: UnregisteredMeterUpdateInput) {
+export async function updateUnregisteredMeterRecordById(
+  executor: Executor,
+  { id, unregisteredMeterCount }: UnregisteredMeterUpdateInput,
+): Promise<void> {
   const updatedAt = new Date();
 
-  const [updatedRecord] = await db
+  const [updatedRecord] = await executor
     .update(unregisteredMeters)
     .set({ unregisteredMeterCount, updatedAt })
     .where(eq(unregisteredMeters.id, id))

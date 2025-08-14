@@ -1,5 +1,6 @@
 import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
 import { unregisteredMeters } from "~/.server/schema";
+import { createUnregisteredMeterRecord } from "~/.server/db-queries/unregisteredMeters";
 
 interface MeterCountQueryParams {
   balanceGroup: UnregisteredMeters["balanceGroup"];
@@ -37,30 +38,6 @@ async function getUnregisteredMeterCountBeforeCutoff(
 }
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
-
-interface UnregisteredMeterRecordInput {
-  unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  date: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-}
-
-async function createUnregisteredMeterRecord(
-  executor: Executor,
-  {
-    unregisteredMeterCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: UnregisteredMeterRecordInput,
-) {
-  await executor.insert(unregisteredMeters).values({
-    unregisteredMeterCount,
-    balanceGroup,
-    date,
-    transformerSubstationId: substationId,
-  });
-}
 
 interface AccumulatedUnrecordedInput {
   newUnregisteredCount: UnregisteredMeters["unregisteredMeterCount"];
