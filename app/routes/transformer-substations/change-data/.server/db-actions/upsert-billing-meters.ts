@@ -30,6 +30,36 @@ import type { BillingFormData } from "../../validation/billing-form.schema";
 
 type BillingMetersParams = BillingFormData & { substationId: number };
 
+/**
+ * Upserts billing meter records across multiple domains
+ *
+ * @remarks
+ * Performs atomic updates for:
+ * - Registered/unregistered meter aggregates
+ * - Yearly installations
+ * - Monthly installations
+ *
+ * Runs in a single database transaction for consistency
+ *
+ * @param params - Billing meter data
+ *   @param params.totalCount - Total meters installed
+ *   @param params.registeredCount - Meters registered in system
+ *   @param params.yearlyTotalInstalled - Yearly installed meters
+ *   @param params.yearlyRegisteredCount - Yearly registered meters
+ *   @param params.monthlyTotalInstalled - Monthly installed meters
+ *   @param params.monthlyRegisteredCount - Monthly registered meters
+ *   @param params.balanceGroup - Balance group category
+ *   @param params.substationId - Associated substation ID
+ *
+ * @example
+ * await upsertBillingMeterRecords({
+ *   substationId: 42,
+ *   balanceGroup: 'ЮР П2',
+ *   totalCount: 15,
+ *   registeredCount: 12,
+ *   // ... other params
+ * });
+ */
 export default async function upsertBillingMeterRecords(
   params: BillingMetersParams,
 ): Promise<void> {
@@ -101,6 +131,12 @@ interface MeterAggregateParams {
   unregisteredMeterCount: number;
 }
 
+/**
+ * Coordinates upsert of registered and unregistered meter aggregates
+ *
+ * @param executor - Database executor
+ * @param params - Aggregate parameters
+ */
 async function handleMeterAggregates(
   executor: Executor,
   params: MeterAggregateParams,
@@ -147,6 +183,14 @@ type RegisteredMetersParams = Omit<
   "totalCount" | "unregisteredMeterCount"
 > & { latestRegisteredMeterId: number | undefined };
 
+/**
+ * Upserts registered meter record
+ *
+ * @param executor - Database executor
+ * @param params - Upsert parameters
+ *
+ * @note Only updates if newCount differs from registeredMeterCount
+ */
 async function upsertRegisteredMeterRecord(
   executor: Executor,
   params: RegisteredMetersParams,
@@ -182,6 +226,14 @@ type UnregisteredMetersParams = Omit<
   "registeredMeterCount"
 > & { latestUnregisteredMeterId: number | undefined };
 
+/**
+ * Upserts unregistered meter record
+ *
+ * @param executor - Database executor
+ * @param params - Upsert parameters
+ *
+ * @note Only updates if newCount differs from unregisteredMeterCount
+ */
 async function upsertUnregisteredMeterRecord(
   executor: Executor,
   params: UnregisteredMetersParams,
@@ -228,6 +280,14 @@ interface YearlyInstallationUpsertParams {
   };
 }
 
+/**
+ * Upserts yearly installation record
+ *
+ * @param executor - Database executor
+ * @param params - Upsert parameters
+ *
+ * @note Only updates if yearlyTotalInstalled or yearlyRegisteredCount differs from yearlyInstallationStats
+ */
 async function upsertYearlyInstallationRecord(
   executor: Executor,
   params: YearlyInstallationUpsertParams,
@@ -289,6 +349,14 @@ interface MonthlyInstallationUpsertParams {
   };
 }
 
+/**
+ * Upserts monthly installation record
+ *
+ * @param executor - Database executor
+ * @param params - Upsert parameters
+ *
+ * @note Only updates if monthlyTotalInstalled or monthlyRegisteredCount differs from monthlyInstallationStats
+ */
 async function upsertMonthlyInstallationRecord(
   executor: Executor,
   params: MonthlyInstallationUpsertParams,
