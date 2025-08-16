@@ -2,6 +2,7 @@ import { sql, and, eq, gt, inArray } from "drizzle-orm";
 import { registeredMeters } from "~/.server/schema";
 
 import {
+  getRegisteredMeterCount,
   createRegisteredMeterRecord,
   getRegisteredMeterCountAtDate,
 } from "~/.server/db-queries/registeredMeters";
@@ -50,30 +51,6 @@ async function createAccumulatedRegisteredRecord(
     date,
     substationId,
   });
-}
-
-interface RegisteredMeterLookupParams {
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  date: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
-}
-
-async function getRegisteredMeterCount(
-  executor: Executor,
-  { balanceGroup, date, substationId }: RegisteredMeterLookupParams,
-): Promise<number | undefined> {
-  const result = await executor.query.registeredMeters.findFirst({
-    columns: {
-      registeredMeterCount: true,
-    },
-    where: and(
-      eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.date, date),
-      eq(registeredMeters.transformerSubstationId, substationId),
-    ),
-  });
-
-  return result?.registeredMeterCount;
 }
 
 interface RegisteredMeterCountUpdate {

@@ -158,3 +158,46 @@ export async function getRegisteredMeterCountAtDate(
 
   return result ? result.registeredMeterCount : 0;
 }
+
+interface RegisteredMeterLookupParams {
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  date: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Retrieves the registered meter count for a specific balance group, date, and substation
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Lookup parameters with exact match criteria
+ * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.date - Exact date to match (ISO date string)
+ * @param params.substationId - Substation ID to filter by
+ *
+ * @returns The registered meter count if found, otherwise undefined
+ *
+ * @example
+ * // Get count for specific date and substation
+ * const count = await getRegisteredMeterCount(executor, {
+ *   balanceGroup: 'Быт',
+ *   date: '2025-08-16',
+ *   substationId: 42
+ * });
+ */
+export async function getRegisteredMeterCount(
+  executor: Executor,
+  { balanceGroup, date, substationId }: RegisteredMeterLookupParams,
+): Promise<number | undefined> {
+  const result = await executor.query.registeredMeters.findFirst({
+    columns: {
+      registeredMeterCount: true,
+    },
+    where: and(
+      eq(registeredMeters.balanceGroup, balanceGroup),
+      eq(registeredMeters.date, date),
+      eq(registeredMeters.transformerSubstationId, substationId),
+    ),
+  });
+
+  return result?.registeredMeterCount;
+}
