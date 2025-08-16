@@ -1,4 +1,3 @@
-import { db } from "../db";
 import { registeredMeters } from "../schema";
 import { eq, and, desc, lte, lt } from "drizzle-orm";
 
@@ -111,13 +110,39 @@ export async function updateRegisteredMeterRecordById(
   }
 }
 
-export async function getRegisteredMeterCountAtDate({
-  balanceGroup,
-  targetDate,
-  dateComparison,
-  substationId,
-}: MeterCountQueryParams) {
-  const result = await db.query.registeredMeters.findFirst({
+/**
+ * Retrieves the registered meter count from the latest record matching the specified criteria.
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Query parameters object
+ * @param params.balanceGroup - Balance group to filter by
+ * @param params.targetDate - Target date for comparison (ISO string format)
+ * @param params.dateComparison - Date comparison mode:
+ *   - "before": selects records with date < targetDate
+ *   - "upTo": selects records with date <= targetDate
+ * @param params.substationId - Substation ID to filter by
+ *
+ * @returns Registered meter count from the latest matching record, or 0 if no match found
+ *
+ * @example
+ * // Get count up to 2025-08-16
+ * const count = await getRegisteredMeterCountAtDate(executor, {
+ *   balanceGroup: 'Быт',
+ *   targetDate: '2025-08-16',
+ *   dateComparison: 'upTo',
+ *   substationId: 123
+ * });
+ */
+export async function getRegisteredMeterCountAtDate(
+  executor: Executor,
+  {
+    balanceGroup,
+    targetDate,
+    dateComparison,
+    substationId,
+  }: MeterCountQueryParams,
+): Promise<number> {
+  const result = await executor.query.registeredMeters.findFirst({
     columns: {
       registeredMeterCount: true,
     },
