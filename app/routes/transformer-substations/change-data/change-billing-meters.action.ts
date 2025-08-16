@@ -4,7 +4,7 @@ import type { BillingFormData } from "./validation/billing-form.schema";
 import { getValidatedFormData } from "remix-hook-form";
 import { billingFormResolver } from "./validation/billing-form.schema";
 
-import upsertBillingMeters from "./.server/db-actions/upsert-billing-meters";
+import upsertBillingMeterRecords from "./.server/db-actions/upsert-billing-meters";
 
 export async function action({ request, params }: Route.ActionArgs) {
   const {
@@ -17,7 +17,7 @@ export async function action({ request, params }: Route.ActionArgs) {
 
   const substationId = Number(params.id);
 
-  await upsertBillingMeters({
+  await upsertBillingMeterRecords({
     ...data,
     substationId,
   });

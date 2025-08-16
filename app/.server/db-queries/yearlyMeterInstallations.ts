@@ -27,7 +27,7 @@ interface YearlyMeterInstallationInput {
  * @param params.year - Year of the installation record
  *
  * @throws Will throw if registeredCount more than totalInstalled
- * 
+ *
  * @example
  * await createYearlyMeterInstallation(tx, {
  *   totalInstalled: 6,

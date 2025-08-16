@@ -30,7 +30,7 @@ import type { BillingFormData } from "../../validation/billing-form.schema";
 
 type BillingMetersParams = BillingFormData & { substationId: number };
 
-export default async function upsertBillingMeters(
+export default async function upsertBillingMeterRecords(
   params: BillingMetersParams,
 ): Promise<void> {
   const {
@@ -59,7 +59,7 @@ export default async function upsertBillingMeters(
     const meterReport = existingStats[balanceGroup];
 
     await Promise.all([
-      handleTotalMeters(tx, {
+      handleMeterAggregates(tx, {
         totalCount,
         registeredCount,
         balanceGroup,
@@ -91,7 +91,7 @@ export default async function upsertBillingMeters(
   });
 }
 
-interface TotalMetersParams {
+interface MeterAggregateParams {
   totalCount: number;
   registeredCount: number;
   substationId: number;
@@ -101,9 +101,9 @@ interface TotalMetersParams {
   unregisteredMeterCount: number;
 }
 
-async function handleTotalMeters(
+async function handleMeterAggregates(
   executor: Executor,
-  params: TotalMetersParams,
+  params: MeterAggregateParams,
 ): Promise<void> {
   const {
     totalCount,
@@ -122,7 +122,7 @@ async function handleTotalMeters(
     ]);
 
   await Promise.all([
-    handleRegisteredMeters(executor, {
+    upsertRegisteredMeterRecord(executor, {
       latestRegisteredMeterId,
       registeredCount,
       registeredMeterCount,
@@ -130,7 +130,7 @@ async function handleTotalMeters(
       date,
       substationId,
     }),
-    handleUnregisteredMeters(executor, {
+    upsertUnregisteredMeterRecord(executor, {
       latestUnregisteredMeterId,
       totalCount,
       registeredCount,
@@ -143,11 +143,11 @@ async function handleTotalMeters(
 }
 
 type RegisteredMetersParams = Omit<
-  TotalMetersParams,
+  MeterAggregateParams,
   "totalCount" | "unregisteredMeterCount"
 > & { latestRegisteredMeterId: number | undefined };
 
-async function handleRegisteredMeters(
+async function upsertRegisteredMeterRecord(
   executor: Executor,
   params: RegisteredMetersParams,
 ): Promise<void> {
@@ -178,11 +178,11 @@ async function handleRegisteredMeters(
 }
 
 type UnregisteredMetersParams = Omit<
-  TotalMetersParams,
+  MeterAggregateParams,
   "registeredMeterCount"
 > & { latestUnregisteredMeterId: number | undefined };
 
-async function handleUnregisteredMeters(
+async function upsertUnregisteredMeterRecord(
   executor: Executor,
   params: UnregisteredMetersParams,
 ): Promise<void> {
