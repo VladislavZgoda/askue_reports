@@ -31,15 +31,15 @@ import type { BillingFormData } from "../../validation/billing-form.schema";
 type BillingMetersParams = BillingFormData & { substationId: number };
 
 /**
- * Upserts billing meter records across multiple domains
+ * Coordinates atomic upsert of all billing meter records
  *
  * @remarks
- * Performs atomic updates for:
- * - Registered/unregistered meter aggregates
- * - Yearly installations
- * - Monthly installations
+ * Performs in a single transaction:
+ * 1. Upserts registered/unregistered meter aggregates
+ * 2. Upserts yearly installation records
+ * 3. Upserts monthly installation records
  *
- * Runs in a single database transaction for consistency
+ * Only updates records when values actually change
  *
  * @param params - Billing meter data
  *   @param params.totalCount - Total meters installed
@@ -89,33 +89,33 @@ export default async function upsertBillingMeterRecords(
     const meterReport = existingStats[balanceGroup];
 
     await Promise.all([
-      handleMeterAggregates(tx, {
+      upsertMeterAggregates(tx, {
         totalCount,
         registeredCount,
         balanceGroup,
         substationId,
         date: currentDate,
-        registeredMeterCount: meterReport.registeredMeters,
-        unregisteredMeterCount: meterReport.unregisteredMeters,
+        existingRegistered: meterReport.registeredMeters,
+        existingUnregistered: meterReport.unregisteredMeters,
       }),
       upsertYearlyInstallationRecord(tx, {
-        yearlyTotalInstalled,
-        yearlyRegisteredCount,
+        newTotal: yearlyTotalInstalled,
+        newRegistered: yearlyRegisteredCount,
         balanceGroup,
         substationId,
         date: currentDate,
         year,
-        yearlyInstallationStats: meterReport.yearlyInstallation,
+        existingStats: meterReport.yearlyInstallation,
       }),
       upsertMonthlyInstallationRecord(tx, {
-        monthlyTotalInstalled,
-        monthlyRegisteredCount,
+        newTotal: monthlyTotalInstalled,
+        newRegistered: monthlyRegisteredCount,
         balanceGroup,
         substationId,
         date: currentDate,
         month,
         year,
-        monthlyInstallationStats: meterReport.monthlyInstallation,
+        existingStats: meterReport.monthlyInstallation,
       }),
     ]);
   });
@@ -127,8 +127,8 @@ interface MeterAggregateParams {
   substationId: number;
   balanceGroup: BalanceGroup;
   date: string;
-  registeredMeterCount: number;
-  unregisteredMeterCount: number;
+  existingRegistered: number;
+  existingUnregistered: number;
 }
 
 /**
@@ -137,7 +137,7 @@ interface MeterAggregateParams {
  * @param executor - Database executor
  * @param params - Aggregate parameters
  */
-async function handleMeterAggregates(
+async function upsertMeterAggregates(
   executor: Executor,
   params: MeterAggregateParams,
 ): Promise<void> {
@@ -147,8 +147,8 @@ async function handleMeterAggregates(
     substationId,
     balanceGroup,
     date,
-    registeredMeterCount,
-    unregisteredMeterCount,
+    existingRegistered,
+    existingUnregistered,
   } = params;
 
   const [latestRegisteredMeterId, latestUnregisteredMeterId] =
@@ -159,18 +159,18 @@ async function handleMeterAggregates(
 
   await Promise.all([
     upsertRegisteredMeterRecord(executor, {
-      latestRegisteredMeterId,
-      registeredCount,
-      registeredMeterCount,
+      latestRecordId: latestRegisteredMeterId,
+      newCount: registeredCount,
+      existingCount: existingRegistered,
       balanceGroup,
       date,
       substationId,
     }),
     upsertUnregisteredMeterRecord(executor, {
-      latestUnregisteredMeterId,
+      latestRecordId: latestUnregisteredMeterId,
       totalCount,
       registeredCount,
-      unregisteredMeterCount,
+      existingUnregistered,
       balanceGroup,
       date,
       substationId,
@@ -178,10 +178,14 @@ async function handleMeterAggregates(
   ]);
 }
 
-type RegisteredMetersParams = Omit<
-  MeterAggregateParams,
-  "totalCount" | "unregisteredMeterCount"
-> & { latestRegisteredMeterId: number | undefined };
+interface RegisteredMeterUpsertParams {
+  latestRecordId: number | undefined;
+  newCount: number;
+  existingCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  substationId: number;
+}
 
 /**
  * Upserts registered meter record
@@ -189,31 +193,31 @@ type RegisteredMetersParams = Omit<
  * @param executor - Database executor
  * @param params - Upsert parameters
  *
- * @note Only updates if newCount differs from registeredMeterCount
+ * @note Only updates if newCount differs from existingCount
  */
 async function upsertRegisteredMeterRecord(
   executor: Executor,
-  params: RegisteredMetersParams,
+  params: RegisteredMeterUpsertParams,
 ): Promise<void> {
   const {
-    latestRegisteredMeterId,
-    registeredCount,
-    registeredMeterCount,
+    latestRecordId,
+    newCount,
+    existingCount,
     balanceGroup,
     date,
     substationId,
   } = params;
 
-  if (latestRegisteredMeterId) {
-    if (registeredMeterCount !== registeredCount) {
+  if (latestRecordId) {
+    if (existingCount !== newCount) {
       await updateRegisteredMeterRecordById(executor, {
-        id: latestRegisteredMeterId,
-        registeredMeterCount: registeredCount,
+        id: latestRecordId,
+        registeredMeterCount: newCount,
       });
     }
   } else {
     await createRegisteredMeterRecord(executor, {
-      registeredMeterCount: registeredCount,
+      registeredMeterCount: newCount,
       balanceGroup,
       date,
       substationId,
@@ -221,10 +225,15 @@ async function upsertRegisteredMeterRecord(
   }
 }
 
-type UnregisteredMetersParams = Omit<
-  MeterAggregateParams,
-  "registeredMeterCount"
-> & { latestUnregisteredMeterId: number | undefined };
+interface UnregisteredMeterUpsertParams {
+  latestRecordId: number | undefined;
+  totalCount: number;
+  registeredCount: number;
+  existingUnregistered: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  substationId: number;
+}
 
 /**
  * Upserts unregistered meter record
@@ -232,34 +241,34 @@ type UnregisteredMetersParams = Omit<
  * @param executor - Database executor
  * @param params - Upsert parameters
  *
- * @note Only updates if newCount differs from unregisteredMeterCount
+ * @note Calculates new unregistered count as (totalCount - registeredCount)
  */
 async function upsertUnregisteredMeterRecord(
   executor: Executor,
-  params: UnregisteredMetersParams,
+  params: UnregisteredMeterUpsertParams,
 ): Promise<void> {
   const {
-    latestUnregisteredMeterId,
+    latestRecordId,
     totalCount,
     registeredCount,
-    unregisteredMeterCount,
+    existingUnregistered,
     balanceGroup,
     date,
     substationId,
   } = params;
 
-  const newCount = totalCount - registeredCount;
+  const newUnregistered = totalCount - registeredCount;
 
-  if (latestUnregisteredMeterId) {
-    if (unregisteredMeterCount !== newCount) {
+  if (latestRecordId) {
+    if (existingUnregistered !== newUnregistered) {
       await updateUnregisteredMeterRecordById(executor, {
-        id: latestUnregisteredMeterId,
-        unregisteredMeterCount: newCount,
+        id: latestRecordId,
+        unregisteredMeterCount: newUnregistered,
       });
     }
   } else {
     await createUnregisteredMeterRecord(executor, {
-      unregisteredMeterCount: newCount,
+      unregisteredMeterCount: newUnregistered,
       date,
       balanceGroup,
       substationId,
@@ -268,13 +277,13 @@ async function upsertUnregisteredMeterRecord(
 }
 
 interface YearlyInstallationUpsertParams {
-  yearlyTotalInstalled: number;
-  yearlyRegisteredCount: number;
+  newTotal: number;
+  newRegistered: number;
   balanceGroup: BalanceGroup;
   substationId: number;
   date: string;
   year: number;
-  yearlyInstallationStats: {
+  existingStats: {
     totalInstalled: number;
     registeredCount: number;
   };
@@ -286,47 +295,44 @@ interface YearlyInstallationUpsertParams {
  * @param executor - Database executor
  * @param params - Upsert parameters
  *
- * @note Only updates if yearlyTotalInstalled or yearlyRegisteredCount differs from yearlyInstallationStats
+ * @note Only updates if values changed
  */
 async function upsertYearlyInstallationRecord(
   executor: Executor,
   params: YearlyInstallationUpsertParams,
 ): Promise<void> {
   const {
-    yearlyTotalInstalled,
-    yearlyRegisteredCount,
-    yearlyInstallationStats,
+    newTotal,
+    newRegistered,
+    existingStats,
     balanceGroup,
     substationId,
     date,
     year,
   } = params;
 
-  const latestYearlyInstallationId = await getLatestYearlyInstallationId(
-    executor,
-    {
-      balanceGroup,
-      substationId,
-      year,
-    },
-  );
+  const latestRecordId = await getLatestYearlyInstallationId(executor, {
+    balanceGroup,
+    substationId,
+    year,
+  });
 
-  if (latestYearlyInstallationId) {
+  if (latestRecordId) {
     const valuesChanged =
-      yearlyTotalInstalled !== yearlyInstallationStats.totalInstalled ||
-      yearlyRegisteredCount !== yearlyInstallationStats.registeredCount;
+      newTotal !== existingStats.totalInstalled ||
+      newRegistered !== existingStats.registeredCount;
 
     if (valuesChanged) {
       await updateYearlyInstallationRecordById(executor, {
-        id: latestYearlyInstallationId,
-        totalInstalled: yearlyTotalInstalled,
-        registeredCount: yearlyRegisteredCount,
+        id: latestRecordId,
+        totalInstalled: newTotal,
+        registeredCount: newRegistered,
       });
     }
   } else {
     await createYearlyMeterInstallation(executor, {
-      totalInstalled: yearlyTotalInstalled,
-      registeredCount: yearlyRegisteredCount,
+      totalInstalled: newTotal,
+      registeredCount: newRegistered,
       substationId,
       date,
       balanceGroup,
@@ -336,14 +342,14 @@ async function upsertYearlyInstallationRecord(
 }
 
 interface MonthlyInstallationUpsertParams {
-  monthlyTotalInstalled: number;
-  monthlyRegisteredCount: number;
+  newTotal: number;
+  newRegistered: number;
   balanceGroup: BalanceGroup;
   substationId: number;
   date: string;
   month: string;
   year: number;
-  monthlyInstallationStats: {
+  existingStats: {
     totalInstalled: number;
     registeredCount: number;
   };
@@ -355,16 +361,16 @@ interface MonthlyInstallationUpsertParams {
  * @param executor - Database executor
  * @param params - Upsert parameters
  *
- * @note Only updates if monthlyTotalInstalled or monthlyRegisteredCount differs from monthlyInstallationStats
+ * @note Only updates if values changed
  */
 async function upsertMonthlyInstallationRecord(
   executor: Executor,
   params: MonthlyInstallationUpsertParams,
 ): Promise<void> {
   const {
-    monthlyTotalInstalled,
-    monthlyRegisteredCount,
-    monthlyInstallationStats,
+    newTotal,
+    newRegistered,
+    existingStats,
     balanceGroup,
     substationId,
     date,
@@ -372,32 +378,29 @@ async function upsertMonthlyInstallationRecord(
     year,
   } = params;
 
-  const latestMonthlyInstallationId = await getLatestMonthlyInstallationId(
-    executor,
-    {
-      balanceGroup,
-      substationId,
-      month,
-      year,
-    },
-  );
+  const latestRecordId = await getLatestMonthlyInstallationId(executor, {
+    balanceGroup,
+    substationId,
+    month,
+    year,
+  });
 
-  if (latestMonthlyInstallationId) {
+  if (latestRecordId) {
     const valuesChanged =
-      monthlyTotalInstalled !== monthlyInstallationStats.totalInstalled ||
-      monthlyRegisteredCount !== monthlyInstallationStats.registeredCount;
+      newTotal !== existingStats.totalInstalled ||
+      newRegistered !== existingStats.registeredCount;
 
     if (valuesChanged) {
       await updateMonthlyInstallationRecordById(executor, {
-        id: latestMonthlyInstallationId,
-        totalInstalled: monthlyTotalInstalled,
-        registeredCount: monthlyRegisteredCount,
+        id: latestRecordId,
+        totalInstalled: newTotal,
+        registeredCount: newRegistered,
       });
     }
   } else {
     await createMonthlyInstallationRecord(executor, {
-      totalInstalled: monthlyTotalInstalled,
-      registeredCount: monthlyRegisteredCount,
+      totalInstalled: newTotal,
+      registeredCount: newRegistered,
       balanceGroup,
       substationId,
       date,
