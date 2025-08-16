@@ -2,6 +2,8 @@ import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMe
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 
+import { db } from "~/.server/db";
+
 interface SubstationMeterDataParams {
   substationId: number;
   privateDate: string;
@@ -47,7 +49,7 @@ async function getMeterCountsByGroup(
   balanceGroup: BalanceGroup,
 ) {
   const [registeredCount, unregisteredCount] = await Promise.all([
-    getRegisteredMeterCountAtDate({
+    getRegisteredMeterCountAtDate(db, {
       balanceGroup,
       targetDate: date,
       dateComparison: "upTo",

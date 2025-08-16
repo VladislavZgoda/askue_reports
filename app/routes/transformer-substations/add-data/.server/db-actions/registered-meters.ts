@@ -1,44 +1,12 @@
-import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
+import { sql, and, eq, gt, inArray } from "drizzle-orm";
 import { registeredMeters } from "~/.server/schema";
 
-import { createRegisteredMeterRecord } from "~/.server/db-queries/registeredMeters";
+import {
+  createRegisteredMeterRecord,
+  getRegisteredMeterCountAtDate,
+} from "~/.server/db-queries/registeredMeters";
 
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
-
-interface MeterCountQueryParams {
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  targetDate: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
-}
-
-/**
- * Retrieves registered meter count before a cutoff date
- *
- * @param executor - Database executor
- * @param params - Query parameters
- *   @property balanceGroup - Balance group category
- *   @property targetDate - Cutoff date (exclusive)
- *   @property substationId - Associated substation ID
- * @returns Registered meter count (0 if no records found)
- */
-async function getRegisteredMeterCountBeforeCutoff(
-  executor: Executor,
-  { balanceGroup, targetDate, substationId }: MeterCountQueryParams,
-): Promise<number> {
-  const result = await executor.query.registeredMeters.findFirst({
-    columns: {
-      registeredMeterCount: true,
-    },
-    where: and(
-      eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.transformerSubstationId, substationId),
-      lt(registeredMeters.date, targetDate),
-    ),
-    orderBy: [desc(registeredMeters.date)],
-  });
-
-  return result ? result.registeredMeterCount : 0;
-}
 
 interface AccumulatedRegisteredInput {
   newRegisteredCount: RegisteredMeters["registeredMeterCount"];
@@ -67,14 +35,12 @@ async function createAccumulatedRegisteredRecord(
     substationId,
   }: AccumulatedRegisteredInput,
 ) {
-  const currentRegisteredCount = await getRegisteredMeterCountBeforeCutoff(
-    executor,
-    {
-      balanceGroup,
-      targetDate: date,
-      substationId,
-    },
-  );
+  const currentRegisteredCount = await getRegisteredMeterCountAtDate(executor, {
+    balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
+    substationId,
+  });
 
   const totalRegistered = newRegisteredCount + currentRegisteredCount;
 
