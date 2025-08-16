@@ -68,7 +68,7 @@ export default async function upsertBillingMeterRecords(
         registeredMeterCount: meterReport.registeredMeters,
         unregisteredMeterCount: meterReport.unregisteredMeters,
       }),
-      handleYearlyInstallation(tx, {
+      upsertYearlyInstallationRecord(tx, {
         yearlyTotalInstalled,
         yearlyRegisteredCount,
         balanceGroup,
@@ -77,7 +77,7 @@ export default async function upsertBillingMeterRecords(
         year,
         yearlyInstallationStats: meterReport.yearlyInstallation,
       }),
-      handleMonthlyInstallation(tx, {
+      upsertMonthlyInstallationRecord(tx, {
         monthlyTotalInstalled,
         monthlyRegisteredCount,
         balanceGroup,
@@ -215,7 +215,7 @@ async function upsertUnregisteredMeterRecord(
   }
 }
 
-interface YearlyInstallationParams {
+interface YearlyInstallationUpsertParams {
   yearlyTotalInstalled: number;
   yearlyRegisteredCount: number;
   balanceGroup: BalanceGroup;
@@ -228,9 +228,9 @@ interface YearlyInstallationParams {
   };
 }
 
-async function handleYearlyInstallation(
+async function upsertYearlyInstallationRecord(
   executor: Executor,
-  params: YearlyInstallationParams,
+  params: YearlyInstallationUpsertParams,
 ): Promise<void> {
   const {
     yearlyTotalInstalled,
@@ -275,7 +275,7 @@ async function handleYearlyInstallation(
   }
 }
 
-interface MonthlyInstallationParams {
+interface MonthlyInstallationUpsertParams {
   monthlyTotalInstalled: number;
   monthlyRegisteredCount: number;
   balanceGroup: BalanceGroup;
@@ -289,9 +289,9 @@ interface MonthlyInstallationParams {
   };
 }
 
-async function handleMonthlyInstallation(
+async function upsertMonthlyInstallationRecord(
   executor: Executor,
-  params: MonthlyInstallationParams,
+  params: MonthlyInstallationUpsertParams,
 ): Promise<void> {
   const {
     monthlyTotalInstalled,
