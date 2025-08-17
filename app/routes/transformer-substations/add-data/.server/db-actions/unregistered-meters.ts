@@ -1,41 +1,9 @@
-import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
+import { sql, and, eq, gt, inArray } from "drizzle-orm";
 import { unregisteredMeters } from "~/.server/schema";
-import { createUnregisteredMeterRecord } from "~/.server/db-queries/unregisteredMeters";
-
-interface MeterCountQueryParams {
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  targetDate: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-}
-
-/**
- * Retrieves unregistered meter count before a cutoff date
- *
- * @param executor - Database executor
- * @param params - Query parameters
- *   @property balanceGroup - Balance group category
- *   @property targetDate - Cutoff date (exclusive)
- *   @property substationId - Associated substation ID
- * @returns Unregistered meter count (0 if no records found)
- */
-async function getUnregisteredMeterCountBeforeCutoff(
-  executor: Executor,
-  { balanceGroup, targetDate, substationId }: MeterCountQueryParams,
-): Promise<number> {
-  const result = await executor.query.unregisteredMeters.findFirst({
-    columns: {
-      unregisteredMeterCount: true,
-    },
-    where: and(
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-      lt(unregisteredMeters.date, targetDate),
-    ),
-    orderBy: [desc(unregisteredMeters.date)],
-  });
-
-  return result ? result.unregisteredMeterCount : 0;
-}
+import {
+  createUnregisteredMeterRecord,
+  getUnregisteredMeterCountAtDate,
+} from "~/.server/db-queries/unregisteredMeters";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
@@ -66,14 +34,12 @@ async function createAccumulatedUnregisteredRecord(
     substationId,
   }: AccumulatedUnrecordedInput,
 ) {
-  const currentUnregistered = await getUnregisteredMeterCountBeforeCutoff(
-    executor,
-    {
-      balanceGroup: balanceGroup,
-      targetDate: date,
-      substationId,
-    },
-  );
+  const currentUnregistered = await getUnregisteredMeterCountAtDate(executor, {
+    balanceGroup: balanceGroup,
+    targetDate: date,
+    dateComparison: "before",
+    substationId,
+  });
 
   const accumulatedUnregistered = newUnregisteredCount + currentUnregistered;
 

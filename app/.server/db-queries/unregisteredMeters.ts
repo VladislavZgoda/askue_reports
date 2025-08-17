@@ -144,13 +144,39 @@ export async function updateUnregisteredMeterRecordById(
   }
 }
 
-export async function getUnregisteredMeterCountAtDate({
-  balanceGroup,
-  targetDate,
-  dateComparison,
-  substationId,
-}: MeterCountQueryParams) {
-  const result = await db.query.unregisteredMeters.findFirst({
+/**
+ * Retrieves the unregistered meter count from the latest record matching specified criteria.
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Query parameters object
+ * @param params.balanceGroup - Balance group to filter by
+ * @param params.targetDate - Target date for comparison (ISO string format)
+ * @param params.dateComparison - Date comparison mode:
+ *   - "before": selects records with date < targetDate (exclusive)
+ *   - "upTo": selects records with date <= targetDate (inclusive)
+ * @param params.substationId - Substation ID to filter by
+ *
+ * @returns Unregistered meter count from the latest matching record, or 0 if no match found
+ *
+ * @example
+ * // Get count up to 2025-08-17
+ * const count = await getUnregisteredMeterCountAtDate(executor, {
+ *   balanceGroup: 'ЮР П2',
+ *   targetDate: '2025-08-17',
+ *   dateComparison: 'upTo',
+ *   substationId: 45
+ * });
+ */
+export async function getUnregisteredMeterCountAtDate(
+  executor: Executor,
+  {
+    balanceGroup,
+    targetDate,
+    dateComparison,
+    substationId,
+  }: MeterCountQueryParams,
+) {
+  const result = await executor.query.unregisteredMeters.findFirst({
     columns: {
       unregisteredMeterCount: true,
     },
