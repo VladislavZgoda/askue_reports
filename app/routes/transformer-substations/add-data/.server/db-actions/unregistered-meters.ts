@@ -1,17 +1,17 @@
-import { sql, and, eq, gt, inArray } from "drizzle-orm";
-import { unregisteredMeters } from "~/.server/schema";
 import {
+  getUnregisteredMeterCount,
   createUnregisteredMeterRecord,
   getUnregisteredMeterCountAtDate,
+  incrementUnregisteredMetersRecords,
+  getUnregisteredMeterRecordIdsAfterDate,
+  updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregisteredMeters";
 
-type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
-
 interface AccumulatedUnrecordedInput {
-  newUnregisteredCount: UnregisteredMeters["unregisteredMeterCount"];
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  date: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
+  newUnregisteredCount: number;
+  balanceGroup: BalanceGroup;
+  date: string;
+  substationId: number;
 }
 
 /**
@@ -49,142 +49,6 @@ async function createAccumulatedUnregisteredRecord(
     date: date,
     substationId: substationId,
   });
-}
-
-interface UnregisteredMeterRecordInput {
-  unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  date: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-}
-
-/**
- * Updates unregistered meter record by composite key
- *
- * @param executor - Database executor
- * @param params - Update parameters
- *   @property unregisteredMeterCount - New meter count value
- *   @property balanceGroup - Balance group category
- *   @property date - Record date (YYYY-MM-DD)
- *   @property substationId - Associated substation ID
- *
- * @throws {Error} When no matching record found
- */
-async function updateUnregisteredMeterRecordByCompositeKey(
-  executor: Executor,
-  {
-    unregisteredMeterCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: UnregisteredMeterRecordInput,
-) {
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await executor
-    .update(unregisteredMeters)
-    .set({ unregisteredMeterCount, updatedAt })
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, substationId),
-        eq(unregisteredMeters.date, date),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("No matching unregistered meter record found");
-  }
-}
-
-interface UnregisteredMeterQuery {
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-  date: UnregisteredMeters["date"];
-}
-
-async function getUnregisteredMeterCount(
-  executor: Executor,
-  { balanceGroup, substationId, date }: UnregisteredMeterQuery,
-): Promise<number | undefined> {
-  const result = await executor.query.unregisteredMeters.findFirst({
-    columns: {
-      unregisteredMeterCount: true,
-    },
-    where: and(
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-      eq(unregisteredMeters.date, date),
-    ),
-  });
-
-  return result?.unregisteredMeterCount;
-}
-
-interface UnregisteredMeterQueryParams {
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  startDate: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
-}
-
-/**
- * Gets IDs of unregistered meter records after a specific date
- *
- * @param executor - Database executor
- * @param params - Query parameters
- *   @property balanceGroup - Balance group category
- *   @property startDate - Exclusive lower bound date
- *   @property substationId - Associated substation ID
- * @returns Array of record IDs
- */
-async function getUnregisteredMeterRecordIdsAfterDate(
-  executor: Executor,
-  { balanceGroup, startDate, substationId }: UnregisteredMeterQueryParams,
-): Promise<number[]> {
-  const result = await executor.query.unregisteredMeters.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      gt(unregisteredMeters.date, startDate),
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-    ),
-  });
-
-  const transformedResult = result.map((r) => r.id);
-
-  return transformedResult;
-}
-
-/**
- * Batched update of future unregistered meter records
- *
- * Atomically increments counts for multiple records
- *
- * @param executor - Database executor
- * @param ids - Record IDs to update
- * @param newUnregisteredCount - Value to add to unregistered_meter_count
- * @returns Number of updated records
- */
-async function incrementUnregisteredMetersRecords(
-  executor: Executor,
-  ids: number[],
-  newUnregisteredCount: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
-    .update(unregisteredMeters)
-    .set({
-      unregisteredMeterCount: sql`${unregisteredMeters.unregisteredMeterCount} + ${newUnregisteredCount}`,
-      updatedAt: new Date(),
-    })
-    .where(and(inArray(unregisteredMeters.id, ids)))
-    .returning();
-
-  return result.length;
 }
 
 interface UnregisteredData {
