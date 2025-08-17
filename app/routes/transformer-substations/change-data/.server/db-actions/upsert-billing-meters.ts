@@ -8,7 +8,7 @@ import {
   getLatestUnregisteredMeterId,
   createUnregisteredMeterRecord,
   updateUnregisteredMeterRecordById,
-} from "~/.server/db-queries/unregisteredMeters";
+} from "~/.server/db-queries/unregistered-meters";
 
 import {
   getLatestYearlyInstallationId,

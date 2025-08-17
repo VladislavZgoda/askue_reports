@@ -5,7 +5,7 @@ import {
   incrementUnregisteredMetersRecords,
   getUnregisteredMeterRecordIdsAfterDate,
   updateUnregisteredMeterRecordByCompositeKey,
-} from "~/.server/db-queries/unregisteredMeters";
+} from "~/.server/db-queries/unregistered-meters";
 
 interface AccumulatedUnrecordedInput {
   newUnregisteredCount: number;
