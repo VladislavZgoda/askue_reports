@@ -1,5 +1,5 @@
 import { registeredMeters } from "../schema";
-import { eq, and, desc, lte, lt } from "drizzle-orm";
+import { eq, and, desc, lte, lt, gt, sql, inArray } from "drizzle-orm";
 
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
@@ -44,6 +44,61 @@ export async function createRegisteredMeterRecord(
     date,
     transformerSubstationId: substationId,
   });
+}
+
+interface RegisteredMeterCountUpdate {
+  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  date: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Updates registered meter count by composite key
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Update parameters
+ * @param params.registeredMeterCount - New meter count value
+ * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
+ * @param params.date - Record date (YYYY-MM-DD)
+ * @param params.substationId - Associated substation ID
+ *
+ * @throws {Error} When no matching record found
+ *
+ * @example
+ * await updateRegisteredMeterCount(executor, {
+ *   registeredMeterCount: 5,
+ *   balanceGroup: "ЮР Sims",
+ *   date: "2025-08-17"
+ *   substationId: 10
+ * })
+ */
+export async function updateRegisteredMeterCount(
+  executor: Executor,
+  {
+    registeredMeterCount,
+    balanceGroup,
+    date,
+    substationId,
+  }: RegisteredMeterCountUpdate,
+) {
+  const updatedAt = new Date();
+
+  const [updatedRecord] = await executor
+    .update(registeredMeters)
+    .set({ registeredMeterCount, updatedAt })
+    .where(
+      and(
+        eq(registeredMeters.transformerSubstationId, substationId),
+        eq(registeredMeters.date, date),
+        eq(registeredMeters.balanceGroup, balanceGroup),
+      ),
+    )
+    .returning();
+
+  if (!updatedRecord) {
+    throw new Error("No matching registered meter record found to update");
+  }
 }
 
 /**
@@ -200,4 +255,81 @@ export async function getRegisteredMeterCount(
   });
 
   return result?.registeredMeterCount;
+}
+
+/**
+ * Batched update of future registered meter records
+ *
+ * Atomically increments counts for multiple records
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param ids - Record IDs to update
+ * @param newRegisteredCount - Value to add to registered_meter_count
+ *
+ * @returns Number of updated records
+ *
+ * @example
+ * const updatedCount = await incrementRegisteredMetersRecords(executor, [10, 21, 33], 2)
+ */
+export async function incrementRegisteredMetersRecords(
+  executor: Executor,
+  ids: number[],
+  newRegisteredCount: number,
+): Promise<number> {
+  if (ids.length === 0) return 0;
+
+  const result = await executor
+    .update(registeredMeters)
+    .set({
+      registeredMeterCount: sql`${registeredMeters.registeredMeterCount} + ${newRegisteredCount}`,
+      updatedAt: new Date(),
+    })
+    .where(and(inArray(registeredMeters.id, ids)))
+    .returning();
+
+  return result.length;
+}
+
+interface RegisteredMeterIdsQueryParams {
+  balanceGroup: RegisteredMeters["balanceGroup"];
+  startDate: RegisteredMeters["date"];
+  substationId: RegisteredMeters["transformerSubstationId"];
+}
+
+/**
+ * Gets IDs of registered meter records after a specific date
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Query parameters
+ * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.startDate - Exclusive lower bound date
+ * @param params.substationId - Associated substation ID
+ *
+ * @returns Array of record IDs
+ *
+ * @example
+ * const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(executor, {
+ *   balanceGroup: 'Быт',
+ *   startDate: '2025-08-17',
+ *   substationId: 12
+ * })
+ */
+export async function getRegisteredMeterRecordIdsAfterDate(
+  executor: Executor,
+  { balanceGroup, startDate, substationId }: RegisteredMeterIdsQueryParams,
+): Promise<number[]> {
+  const result = await executor
+    .select({ id: registeredMeters.id })
+    .from(registeredMeters)
+    .where(
+      and(
+        gt(registeredMeters.date, startDate),
+        eq(registeredMeters.balanceGroup, balanceGroup),
+        eq(registeredMeters.transformerSubstationId, substationId),
+      ),
+    );
+
+  const transformedResult = result.map((r) => r.id);
+
+  return transformedResult;
 }
