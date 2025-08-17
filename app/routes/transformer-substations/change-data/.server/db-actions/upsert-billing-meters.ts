@@ -2,7 +2,7 @@ import {
   getLatestRegisteredMeterId,
   createRegisteredMeterRecord,
   updateRegisteredMeterRecordById,
-} from "~/.server/db-queries/registeredMeters";
+} from "~/.server/db-queries/registered-meters";
 
 import {
   getLatestUnregisteredMeterId,

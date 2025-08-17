@@ -1,4 +1,4 @@
-import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registeredMeters";
+import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registered-meters";
 import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregisteredMeters";
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
 

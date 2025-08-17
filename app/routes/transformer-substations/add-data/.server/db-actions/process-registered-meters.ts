@@ -5,7 +5,7 @@ import {
   getRegisteredMeterCountAtDate,
   incrementRegisteredMetersRecords,
   getRegisteredMeterRecordIdsAfterDate,
-} from "~/.server/db-queries/registeredMeters";
+} from "~/.server/db-queries/registered-meters";
 
 interface AccumulatedRegisteredInput {
   newRegisteredCount: number;
