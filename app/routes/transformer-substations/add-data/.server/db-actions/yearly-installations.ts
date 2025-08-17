@@ -1,74 +1,17 @@
-import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
+import { sql, and, eq, gt, inArray } from "drizzle-orm";
 import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
 import { validateInstallationParams } from "../../../../../utils/installation-params";
-import { createYearlyMeterInstallation } from "~/.server/db-queries/yearlyMeterInstallations";
+
+import {
+  createYearlyMeterInstallation,
+  getYearlyMeterInstallationsStats,
+  getYearlyInstallationSummaryBeforeCutoff,
+} from "~/.server/db-queries/yearlyMeterInstallations";
 
 import type { InstallationStats } from "../../../../../utils/installation-params";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
-
-interface YearlyMeterInstallationsStatsParams {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  year: YearlyMeterInstallations["year"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-}
-
-async function getYearlyMeterInstallationsStats(
-  executor: Executor,
-  {
-    balanceGroup,
-    date,
-    substationId,
-    year,
-  }: YearlyMeterInstallationsStatsParams,
-): Promise<InstallationStats | undefined> {
-  const result = await executor.query.yearlyMeterInstallations.findFirst({
-    columns: { totalInstalled: true, registeredCount: true },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(yearlyMeterInstallations.date, date),
-      eq(yearlyMeterInstallations.year, year),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-    ),
-  });
-
-  return result;
-}
-
-interface YearlyInstallationSummaryQuery {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  cutoffDate: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-async function getYearlyInstallationSummaryBeforeCutoff(
-  executor: Executor,
-  {
-    balanceGroup,
-    cutoffDate,
-    substationId,
-    year,
-  }: YearlyInstallationSummaryQuery,
-): Promise<{
-  totalInstalled: number;
-  registeredCount: number;
-}> {
-  const result = await executor.query.yearlyMeterInstallations.findFirst({
-    columns: { totalInstalled: true, registeredCount: true },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(yearlyMeterInstallations.year, year),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-      lt(yearlyMeterInstallations.date, cutoffDate),
-    ),
-    orderBy: [desc(yearlyMeterInstallations.date)],
-  });
-
-  return result ?? { totalInstalled: 0, registeredCount: 0 };
-}
 
 interface YearlyMeterInstallationUpdateParams {
   totalInstalled: YearlyMeterInstallations["totalInstalled"];

@@ -1,7 +1,9 @@
 import { yearlyMeterInstallations } from "../schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, lt } from "drizzle-orm";
 
 import { validateInstallationParams } from "~/utils/installation-params";
+
+import type { InstallationStats } from "~/utils/installation-params";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
 
@@ -154,4 +156,115 @@ export async function updateYearlyInstallationRecordById(
   if (!updatedRecord) {
     throw new Error(`Yearly installation record with ID ${id} not found`);
   }
+}
+
+interface YearlyMeterInstallationsStatsParams {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  date: YearlyMeterInstallations["date"];
+  year: YearlyMeterInstallations["year"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+}
+
+/**
+ * Retrieves yearly meter installation statistics by exact match criteria
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Lookup parameters
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.date - Exact record date (ISO date string)
+ * @param params.year - Year of installation statistics
+ * @param params.substationId - Transformer substation identifier
+ *
+ * @returns Object containing:
+ *   - `totalInstalled`: Total meters installed
+ *   - `registeredCount`: Currently registered meters
+ *   Returns `undefined` if no matching record found
+ *
+ * @example
+ * const stats = await getYearlyMeterInstallationsStats(executor, {
+ *   balanceGroup: 'ЮР П2',
+ *   date: '2025-08-17',
+ *   year: 2025,
+ *   substationId: 789
+ * });
+ *
+ * // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
+ */
+export async function getYearlyMeterInstallationsStats(
+  executor: Executor,
+  {
+    balanceGroup,
+    date,
+    substationId,
+    year,
+  }: YearlyMeterInstallationsStatsParams,
+): Promise<InstallationStats | undefined> {
+  const result = await executor.query.yearlyMeterInstallations.findFirst({
+    columns: { totalInstalled: true, registeredCount: true },
+    where: and(
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(yearlyMeterInstallations.date, date),
+      eq(yearlyMeterInstallations.year, year),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+    ),
+  });
+
+  return result;
+}
+
+interface YearlyInstallationSummaryQuery {
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  cutoffDate: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
+
+/**
+ * Retrieves yearly installation statistics from the latest record BEFORE a cutoff date
+ *
+ * @param executor - Database executor for transactional operations
+ * @param params - Query parameters
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record BEFORE this date
+ * @param params.year - Year of installation statistics
+ * @param params.substationId - Transformer substation identifier
+ *
+ * @returns Object containing:
+ *   - `totalInstalled`: Total meters installed
+ *   - `registeredCount`: Currently registered meters
+ *   Returns `{ totalInstalled: 0, registeredCount: 0 }` if no matching record found
+ *
+ * @example
+ * // Get latest 2025 stats before June 1st
+ * const stats = await getYearlyInstallationSummaryBeforeCutoff(executor, {
+ *   balanceGroup: 'ОДПУ П2',
+ *   cutoffDate: '2025-06-01',
+ *   substationId: 101,
+ *   year: 2025
+ * });
+ *
+ * // Returns: { totalInstalled: 85, registeredCount: 80 }
+ * // Or zero stats: { totalInstalled: 0, registeredCount: 0 }
+ */
+export async function getYearlyInstallationSummaryBeforeCutoff(
+  executor: Executor,
+  {
+    balanceGroup,
+    cutoffDate,
+    substationId,
+    year,
+  }: YearlyInstallationSummaryQuery,
+): Promise<InstallationStats> {
+  const result = await executor.query.yearlyMeterInstallations.findFirst({
+    columns: { totalInstalled: true, registeredCount: true },
+    where: and(
+      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+      eq(yearlyMeterInstallations.year, year),
+      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+      lt(yearlyMeterInstallations.date, cutoffDate),
+    ),
+    orderBy: [desc(yearlyMeterInstallations.date)],
+  });
+
+  return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
