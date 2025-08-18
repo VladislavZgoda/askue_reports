@@ -1,10 +1,10 @@
 import { sql, and, eq, gt, inArray } from "drizzle-orm";
 import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
-import { validateInstallationParams } from "../../../../../utils/installation-params";
 
 import {
   createYearlyMeterInstallation,
+  updateYearlyMeterInstallation,
   getYearlyMeterInstallationsStats,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
@@ -12,48 +12,6 @@ import {
 import type { InstallationStats } from "../../../../../utils/installation-params";
 
 type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
-
-interface YearlyMeterInstallationUpdateParams {
-  totalInstalled: YearlyMeterInstallations["totalInstalled"];
-  registeredCount: YearlyMeterInstallations["registeredCount"];
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-async function updateYearlyMeterInstallation(
-  executor: Executor,
-  params: YearlyMeterInstallationUpdateParams,
-) {
-  validateInstallationParams(params);
-
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await executor
-    .update(yearlyMeterInstallations)
-    .set({
-      totalInstalled: params.totalInstalled,
-      registeredCount: params.registeredCount,
-      updatedAt,
-    })
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, params.balanceGroup),
-        eq(yearlyMeterInstallations.date, params.date),
-        eq(
-          yearlyMeterInstallations.transformerSubstationId,
-          params.substationId,
-        ),
-        eq(yearlyMeterInstallations.year, params.year),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("Yearly installation record not found");
-  }
-}
 
 interface YearlyInstallationRecordQuery {
   balanceGroup: YearlyMeterInstallations["balanceGroup"];
