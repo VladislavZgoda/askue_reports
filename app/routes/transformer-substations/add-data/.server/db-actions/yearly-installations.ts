@@ -1,84 +1,15 @@
-import { sql, and, eq, gt, inArray } from "drizzle-orm";
-import { yearlyMeterInstallations } from "~/.server/schema";
 import { cutOutYear } from "~/utils/dateFunctions";
 
 import {
   createYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyMeterInstallationsStats,
+  incrementYearlyInstallationRecords,
+  getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearlyMeterInstallations";
 
 import type { InstallationStats } from "../../../../../utils/installation-params";
-
-type YearlyMeterInstallations = typeof yearlyMeterInstallations.$inferSelect;
-
-interface YearlyInstallationRecordQuery {
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  startDate: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
-}
-
-async function getYearlyInstallationRecordsAfterDate(
-  executor: Executor,
-  {
-    balanceGroup,
-    startDate,
-    substationId,
-    year,
-  }: YearlyInstallationRecordQuery,
-): Promise<number[]> {
-  const result = await executor.query.yearlyMeterInstallations.findMany({
-    columns: { id: true },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      gt(yearlyMeterInstallations.date, startDate),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-      eq(yearlyMeterInstallations.year, year),
-    ),
-  });
-
-  return result.map((r) => r.id);
-}
-
-/**
- * Updates yearly installation records in batch with safety validation
- *
- * @param executor Database executor
- * @param ids Record IDs to update
- * @param totalIncrement Value to add to total_installed
- * @param registeredIncrement Value to add to registered_count
- * @returns Number of successfully updated records
- *
- * @throws Error if validation fails (registered > total)
- */
-async function incrementYearlyInstallationRecords(
-  executor: Executor,
-  ids: number[],
-  totalIncrement: number,
-  registeredIncrement: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
-    .update(yearlyMeterInstallations)
-    .set({
-      totalInstalled: sql`${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      registeredCount: sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        inArray(yearlyMeterInstallations.id, ids),
-        sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}
-            <= ${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      ),
-    )
-    .returning();
-
-  return result.length;
-}
 
 /**
  * Updates existing yearly accumulation record with new installation data
