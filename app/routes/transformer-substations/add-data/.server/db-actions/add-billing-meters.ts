@@ -1,7 +1,7 @@
 import { db } from "~/.server/db";
 import processRegisteredMetersInTx from "./process-registered-meters";
 import processUnregisteredMetersInTx from "./process-unregistered-meters";
-import processYearlyInstallations from "./yearly-installations";
+import processYearlyInstallations from "./process-yearly-installations";
 import processMonthlyInstallations from "./monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
