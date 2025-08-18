@@ -222,7 +222,7 @@ interface YearlyInstallationSummaryQuery {
 /**
  * Retrieves yearly installation statistics from the latest record BEFORE a cutoff date
  *
- * @param executor - Database executor for transactional operations
+ * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
  * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
  * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record BEFORE this date
@@ -267,4 +267,76 @@ export async function getYearlyInstallationSummaryBeforeCutoff(
   });
 
   return result ?? { totalInstalled: 0, registeredCount: 0 };
+}
+
+interface YearlyMeterInstallationUpdateParams {
+  totalInstalled: YearlyMeterInstallations["totalInstalled"];
+  registeredCount: YearlyMeterInstallations["registeredCount"];
+  balanceGroup: YearlyMeterInstallations["balanceGroup"];
+  date: YearlyMeterInstallations["date"];
+  substationId: YearlyMeterInstallations["transformerSubstationId"];
+  year: YearlyMeterInstallations["year"];
+}
+
+/**
+ * Updates an existing yearly meter installation record
+ *
+ * @param executor - Database client for query execution (supports transactions)
+ * @param params - Update parameters
+ * @param params.totalInstalled - New total installed meters count
+ * @param params.registeredCount - New registered meters count
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.date - Exact date of the record (YYYY-MM-DD format)
+ * @param params.year - Year of installation record
+ * @param param.substationId - Transformer substation identifier
+ *
+ * @throws {Error} if no matching record is found
+ *
+ * @example
+ * await updateYearlyMeterInstallation(executor, {
+ *   totalInstalled: 10,
+ *   registeredCount: 8,
+ *   balanceGroup: "Быт",
+ *   date: "2025-08-18",
+ *   year: 2025,
+ *   substationId: 4,
+ * })
+ */
+export async function updateYearlyMeterInstallation(
+  executor: Executor,
+  params: YearlyMeterInstallationUpdateParams,
+): Promise<void> {
+  const {
+    totalInstalled,
+    registeredCount,
+    balanceGroup,
+    date,
+    year,
+    substationId,
+  } = params;
+
+  validateInstallationParams({ totalInstalled, registeredCount });
+
+  const updatedAt = new Date();
+
+  const [updatedRecord] = await executor
+    .update(yearlyMeterInstallations)
+    .set({
+      totalInstalled,
+      registeredCount,
+      updatedAt,
+    })
+    .where(
+      and(
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        eq(yearlyMeterInstallations.date, date),
+        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+        eq(yearlyMeterInstallations.year, year),
+      ),
+    )
+    .returning();
+
+  if (!updatedRecord) {
+    throw new Error("Yearly installation record not found");
+  }
 }
