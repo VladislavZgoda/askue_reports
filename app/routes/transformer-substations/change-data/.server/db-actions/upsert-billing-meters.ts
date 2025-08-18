@@ -14,7 +14,7 @@ import {
   getLatestYearlyInstallationId,
   createYearlyMeterInstallation,
   updateYearlyInstallationRecordById,
-} from "~/.server/db-queries/yearlyMeterInstallations";
+} from "~/.server/db-queries/yearly-meter-installations";
 
 import {
   getLatestMonthlyInstallationId,

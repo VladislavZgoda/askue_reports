@@ -7,7 +7,7 @@ import {
   incrementYearlyInstallationRecords,
   getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
-} from "~/.server/db-queries/yearlyMeterInstallations";
+} from "~/.server/db-queries/yearly-meter-installations";
 
 import type { InstallationStats } from "../../../../../utils/installation-params";
 
