@@ -1,137 +1,15 @@
-import { sql, and, eq, gt, lt, desc, inArray } from "drizzle-orm";
-import { monthlyMeterInstallations } from "~/.server/schema";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
-import { validateInstallationParams } from "../../../../../utils/installation-params";
-import { createMonthlyInstallationRecord } from "~/.server/db-queries/monthlyMeterInstallations";
+
+import {
+  createMonthlyInstallationRecord,
+  updateMonthlyInstallationRecord,
+  getMonthlyMeterInstallationStats,
+  incrementMonthlyInstallationRecords,
+  getMonthlyInstallationRecordsAfterDate,
+  getMonthlyInstallationSummaryBeforeCutoff,
+} from "~/.server/db-queries/monthlyMeterInstallations";
 
 import type { InstallationStats } from "../../../../../utils/installation-params";
-
-type MonthlyMeterInstallations = typeof monthlyMeterInstallations.$inferSelect;
-
-interface MonthlyMeterInstallationsStatsParams {
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  date: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-/**
- * Retrieves monthly installation stats for a specific date
- *
- * @returns Installation stats or undefined if not found
- */
-async function getMonthlyMeterInstallationStats(
-  executor: Executor,
-  {
-    balanceGroup,
-    date,
-    substationId,
-    month,
-    year,
-  }: MonthlyMeterInstallationsStatsParams,
-): Promise<InstallationStats | undefined> {
-  const result = await executor.query.monthlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: and(
-      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(monthlyMeterInstallations.date, date),
-      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      eq(monthlyMeterInstallations.month, month),
-      eq(monthlyMeterInstallations.year, year),
-    ),
-  });
-
-  return result;
-}
-
-interface MonthlyInstallationUpdateParams {
-  totalInstalled: MonthlyMeterInstallations["totalInstalled"];
-  registeredCount: MonthlyMeterInstallations["registeredCount"];
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  date: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-async function updateMonthlyInstallationRecord(
-  executor: Executor,
-  params: MonthlyInstallationUpdateParams,
-) {
-  validateInstallationParams(params);
-
-  const updatedAt = new Date();
-
-  const [updatedRecord] = await executor
-    .update(monthlyMeterInstallations)
-    .set({
-      totalInstalled: params.totalInstalled,
-      registeredCount: params.registeredCount,
-      updatedAt,
-    })
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, params.balanceGroup),
-        eq(monthlyMeterInstallations.date, params.date),
-        eq(
-          monthlyMeterInstallations.transformerSubstationId,
-          params.substationId,
-        ),
-        eq(monthlyMeterInstallations.month, params.month),
-        eq(monthlyMeterInstallations.year, params.year),
-      ),
-    )
-    .returning();
-
-  if (!updatedRecord) {
-    throw new Error("No monthly installation record found to update");
-  }
-}
-
-interface MonthlyInstallationSummaryQuery {
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  cutoffDate: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-/**
- * Gets the latest installation summary before a cutoff date
- *
- * @returns Installation stats with zero values if not found
- */
-async function getMonthlyInstallationSummaryBeforeCutoff(
-  executor: Executor,
-  {
-    balanceGroup,
-    cutoffDate,
-    substationId,
-    month,
-    year,
-  }: MonthlyInstallationSummaryQuery,
-): Promise<InstallationStats> {
-  const result = await executor.query.monthlyMeterInstallations.findFirst({
-    columns: {
-      totalInstalled: true,
-      registeredCount: true,
-    },
-    where: and(
-      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      eq(monthlyMeterInstallations.year, year),
-      eq(monthlyMeterInstallations.month, month),
-      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      lt(monthlyMeterInstallations.date, cutoffDate),
-    ),
-    orderBy: [desc(monthlyMeterInstallations.date)],
-  });
-
-  return result ?? { totalInstalled: 0, registeredCount: 0 };
-}
 
 /**
  * Creates accumulated monthly installation record
@@ -210,80 +88,6 @@ async function updateMonthlyMeterAccumulations(
     month: targetMonth,
     year: targetYear,
   });
-}
-
-interface MonthlyInstallationRecordQuery {
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  startDate: MonthlyMeterInstallations["date"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-}
-
-async function getMonthlyInstallationRecordsAfterDate(
-  executor: Executor,
-  {
-    balanceGroup,
-    startDate,
-    substationId,
-    month,
-    year,
-  }: MonthlyInstallationRecordQuery,
-): Promise<number[]> {
-  const result = await executor.query.monthlyMeterInstallations.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-      gt(monthlyMeterInstallations.date, startDate),
-      eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      eq(monthlyMeterInstallations.month, month),
-      eq(monthlyMeterInstallations.year, year),
-    ),
-  });
-
-  return result.map((r) => r.id);
-}
-
-/**
- * Batched update of future installation records
- *
- * Atomically increments counts with safety validation
- *
- * @param executor - Database executor
- * @param ids - Record IDs to update
- * @param totalIncrement - Value to add to total_installed
- * @param registeredIncrement - Value to add to registered_count
- * @returns Number of updated records
- *
- * @throws May propagate database errors
- */
-async function incrementMonthlyInstallationRecords(
-  executor: Executor,
-  ids: number[],
-  totalIncrement: number,
-  registeredIncrement: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
-    .update(monthlyMeterInstallations)
-    .set({
-      totalInstalled: sql`${monthlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      registeredCount: sql`${monthlyMeterInstallations.registeredCount} + ${registeredIncrement}`,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        inArray(monthlyMeterInstallations.id, ids),
-        sql`${monthlyMeterInstallations.registeredCount} + ${registeredIncrement}
-            <= ${monthlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      ),
-    )
-    .returning();
-
-  return result.length;
 }
 
 interface MonthlyInstallationData {

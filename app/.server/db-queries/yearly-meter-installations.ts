@@ -363,7 +363,7 @@ interface YearlyInstallationRecordQuery {
  * @example
  * const futureRecordIds = await getYearlyInstallationRecordsAfterDate(executor, {
  *   balanceGroup: "Быт",
- *   startDate: "2025-08-01"
+ *   startDate: "2025-08-01",
  *   year: 2025,
  *   substationId: 12,
  * })
