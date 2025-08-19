@@ -181,7 +181,7 @@ interface YearlyMeterInstallationsStatsParams {
  *   Returns `undefined` if no matching record found
  *
  * @example
- * const stats = await getYearlyMeterInstallationsStats(executor, {
+ * const stats = await getYearlyMeterInstallationStats(executor, {
  *   balanceGroup: 'ЮР П2',
  *   date: '2025-08-17',
  *   year: 2025,
