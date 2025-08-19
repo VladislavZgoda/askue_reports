@@ -190,7 +190,7 @@ interface YearlyMeterInstallationsStatsParams {
  *
  * // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
  */
-export async function getYearlyMeterInstallationsStats(
+export async function getYearlyMeterInstallationStats(
   executor: Executor,
   {
     balanceGroup,

@@ -3,7 +3,7 @@ import { cutOutYear } from "~/utils/dateFunctions";
 import {
   createYearlyMeterInstallation,
   updateYearlyMeterInstallation,
-  getYearlyMeterInstallationsStats,
+  getYearlyMeterInstallationStats,
   incrementYearlyInstallationRecords,
   getYearlyInstallationRecordsAfterDate,
   getYearlyInstallationSummaryBeforeCutoff,
@@ -126,7 +126,7 @@ export default async function processYearlyInstallations(
   const year = cutOutYear(date);
 
   // 1. Get current stats (transactional)
-  const currentYearStats = await getYearlyMeterInstallationsStats(executor, {
+  const currentYearStats = await getYearlyMeterInstallationStats(executor, {
     balanceGroup,
     date,
     substationId,
