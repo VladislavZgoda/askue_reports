@@ -2,7 +2,7 @@ import { db } from "~/.server/db";
 import processRegisteredMetersInTx from "./process-registered-meters";
 import processUnregisteredMetersInTx from "./process-unregistered-meters";
 import processYearlyInstallations from "./process-yearly-installations";
-import processMonthlyInstallations from "./monthly-installations";
+import processMonthlyInstallations from "./process-monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
 
 import type { BillingValidationForm } from "../../validation/billing-form.schema";
