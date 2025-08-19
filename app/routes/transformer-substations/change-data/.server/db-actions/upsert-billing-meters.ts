@@ -20,7 +20,7 @@ import {
   getLatestMonthlyInstallationId,
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecordById,
-} from "~/.server/db-queries/monthlyMeterInstallations";
+} from "~/.server/db-queries/monthly-meter-installations";
 
 import { db } from "~/.server/db";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
