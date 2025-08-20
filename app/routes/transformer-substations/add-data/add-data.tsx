@@ -4,7 +4,7 @@ import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver } from "./validation/billing-form.schema";
 import { technicalFormResolver } from "./validation/technical-form.schema";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meter-action-logs";
 import { todayDate } from "~/utils/dateFunctions";
 import Input from "~/components/Input";

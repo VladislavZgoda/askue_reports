@@ -2,7 +2,7 @@ import { useActionData, useNavigation, redirect } from "react-router";
 import {
   updateTransSub,
   getTransformerSubstationById,
-} from "~/.server/db-queries/transformerSubstations";
+} from "~/.server/db-queries/transformer-substations";
 import TransSubName from "~/components/TransSubName";
 import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";

@@ -1,5 +1,5 @@
 import { redirect } from "react-router";
-import { deleteTransSub } from "~/.server/db-queries/transformerSubstations";
+import { deleteTransSub } from "~/.server/db-queries/transformer-substations";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/destroy";
 

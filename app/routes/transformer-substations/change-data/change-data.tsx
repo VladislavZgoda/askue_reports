@@ -1,7 +1,7 @@
 import { href, useFetcher } from "react-router";
 import { useState, useEffect, useRef } from "react";
 
-import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import { isNotAuthenticated } from "~/.server/services/auth";
 
 import {

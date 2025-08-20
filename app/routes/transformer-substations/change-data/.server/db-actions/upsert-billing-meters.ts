@@ -23,7 +23,7 @@ import {
 } from "~/.server/db-queries/monthly-meter-installations";
 
 import { db } from "~/.server/db";
-import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
+import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformer-substations";
 import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
 
 import type { BillingFormData } from "../../validation/billing-form.schema";

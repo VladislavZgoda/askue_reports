@@ -1,5 +1,5 @@
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
-import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformerSubstations";
+import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformer-substations";
 
 import { db } from "~/.server/db";
 

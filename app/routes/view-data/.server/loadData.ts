@@ -1,4 +1,4 @@
-import { getSubstationMeterCountsAsOfDate } from "~/.server/db-queries/transformerSubstations";
+import { getSubstationMeterCountsAsOfDate } from "~/.server/db-queries/transformer-substations";
 
 interface CategoryDates {
   privateDate: string;

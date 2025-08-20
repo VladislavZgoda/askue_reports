@@ -4,7 +4,7 @@ import {
   getSubstationMeterReportsAtDate,
   getLatestMeterInstallationsBySubstation,
   getLatestMonthlyInstallationsBySubstation,
-} from "~/.server/db-queries/transformerSubstations";
+} from "~/.server/db-queries/transformer-substations";
 
 /**
  * Generates a private meter report with optional adjustments for installation changes

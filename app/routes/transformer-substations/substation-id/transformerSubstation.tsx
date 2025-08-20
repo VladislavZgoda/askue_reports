@@ -1,5 +1,5 @@
 import { Form, useSubmit } from "react-router";
-import { getTransformerSubstationById } from "~/.server/db-queries/transformerSubstations";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import SummaryTable from "./components/SummaryTable";
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
