@@ -5,7 +5,7 @@ import {
 } from "~/.server/db-queries/technicalMeters";
 
 import { db } from "~/.server/db";
-import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
+import { insertMeterActionLog } from "~/.server/db-queries/meter-action-logs";
 
 /**
  * Technical meter installation/update parameters

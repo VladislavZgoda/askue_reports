@@ -3,7 +3,7 @@ import processRegisteredMetersInTx from "./process-registered-meters";
 import processUnregisteredMetersInTx from "./process-unregistered-meters";
 import processYearlyInstallations from "./process-yearly-installations";
 import processMonthlyInstallations from "./process-monthly-installations";
-import { insertMeterActionLog } from "~/.server/db-queries/meterActionLogs";
+import { insertMeterActionLog } from "~/.server/db-queries/meter-action-logs";
 
 import type { BillingValidationForm } from "../../validation/billing-form.schema";
 
