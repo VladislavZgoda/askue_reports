@@ -1,5 +1,5 @@
 import exceljs from "exceljs";
-import { getTechnicalMetersTotals } from "~/.server/db-queries/technicalMeters";
+import { getTechnicalMetersTotals } from "~/.server/db-queries/technical-meters";
 
 import {
   getPrivateMeterReportWithAdjustments,

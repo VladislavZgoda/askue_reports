@@ -2,7 +2,7 @@ import {
   createTechnicalMeterRecord,
   getTechnicalMeterStatsForSubstation,
   updateTechnicalMetersForSubstation,
-} from "~/.server/db-queries/technicalMeters";
+} from "~/.server/db-queries/technical-meters";
 
 import { db } from "~/.server/db";
 import { insertMeterActionLog } from "~/.server/db-queries/meter-action-logs";

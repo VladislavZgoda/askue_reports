@@ -1,4 +1,4 @@
-import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technicalMeters";
+import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technical-meters";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformer-substations";
 
 import { db } from "~/.server/db";
