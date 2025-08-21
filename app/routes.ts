@@ -15,7 +15,7 @@ export default [
   ...prefix("transformer-substations", [
     route(
       ":id",
-      "./routes/transformer-substations/substation-id/transformerSubstation.tsx",
+      "./routes/transformer-substations/substation-id/transformer-substation.tsx",
     ),
     route(
       ":id/add-data",
