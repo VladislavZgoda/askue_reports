@@ -554,8 +554,9 @@ export async function getLatestMeterCountsForSubstation({
   });
 
   return {
-    registeredMeterCount: result?.registeredMeters[0].registeredMeterCount ?? 0,
+    registeredMeterCount:
+      result?.registeredMeters[0]?.registeredMeterCount ?? 0,
     unregisteredMeterCount:
-      result?.unregisteredMeters[0].unregisteredMeterCount ?? 0,
+      result?.unregisteredMeters[0]?.unregisteredMeterCount ?? 0,
   };
 }
