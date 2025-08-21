@@ -3,7 +3,7 @@ import { getTransformerSubstationById } from "~/.server/db-queries/transformer-s
 import SummaryTable from "./components/SummaryTable";
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
-import getSubstationMeterSummary from "./.server/loadData";
+import getSubstationMeterSummary from "./.server/load-data";
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import type { Route } from "./+types/transformerSubstation";
