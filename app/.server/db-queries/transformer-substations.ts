@@ -489,3 +489,73 @@ export async function getBatchedSubstationMeterReports<
 
   return report;
 }
+
+interface SubstationMeterCountParams {
+  balanceGroup: BalanceGroup;
+  asOfDate: string;
+  substationId: number;
+}
+
+interface MeterCounts {
+  registeredMeterCount: number;
+  unregisteredMeterCount: number;
+}
+
+/**
+ * Retrieves the latest registered and unregistered meter counts a specific substation
+ *
+ * @param params - Query parameters
+ * @param params.balanceGroup - Balance group category to filter by (e.g. "Быт", "ЮР Sims")
+ * @param params.substationId - Transformer substation ID to query
+ * @param params.asOfDate - Target date in YYYY-MM-DD format. Returns the latest record
+ *                          on or before this date.
+ *
+ * @returns Object containing registered and unregistered meter counts.
+ *          Returns zero values if no records are found.
+ *
+ * @example
+ * const counts = await getLatestMeterCountsForSubstation({
+ *   balanceGroup: "ЮР Sims",
+ *   asOfDate: "2025-08-21",
+ *   substationId: 9,
+ * });
+ * // Returns { registeredMeterCount: 20, unregisteredMeterCount: 5 }
+ */
+export async function getLatestMeterCountsForSubstation({
+  balanceGroup,
+  asOfDate,
+  substationId,
+}: SubstationMeterCountParams): Promise<MeterCounts> {
+  const result = await db.query.transformerSubstations.findFirst({
+    columns: {},
+    where: eq(transformerSubstations.id, substationId),
+    with: {
+      registeredMeters: {
+        columns: { registeredMeterCount: true },
+        where: (registeredMeters, { eq, lte, and }) =>
+          and(
+            eq(registeredMeters.balanceGroup, balanceGroup),
+            lte(registeredMeters.date, asOfDate),
+          ),
+        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
+      },
+      unregisteredMeters: {
+        columns: { unregisteredMeterCount: true },
+        where: (unregisteredMeters, { eq, lte, and }) =>
+          and(
+            eq(unregisteredMeters.balanceGroup, balanceGroup),
+            lte(unregisteredMeters.date, asOfDate),
+          ),
+        orderBy: (unregisteredMeters, { desc }) => [
+          desc(unregisteredMeters.date),
+        ],
+      },
+    },
+  });
+
+  return {
+    registeredMeterCount: result?.registeredMeters[0].registeredMeterCount ?? 0,
+    unregisteredMeterCount:
+      result?.unregisteredMeters[0].unregisteredMeterCount ?? 0,
+  };
+}
