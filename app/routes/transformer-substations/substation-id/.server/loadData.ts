@@ -1,8 +1,5 @@
-import { getRegisteredMeterCountAtDate } from "~/.server/db-queries/registered-meters";
-import { getUnregisteredMeterCountAtDate } from "~/.server/db-queries/unregistered-meters";
+import { getLatestMeterCountsForSubstation } from "~/.server/db-queries/transformer-substations";
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technical-meters";
-
-import { db } from "~/.server/db";
 
 interface SubstationMeterDataParams {
   substationId: number;
@@ -25,11 +22,31 @@ export default async function getSubstationMeterSummary({
     odpuP2Meters,
     technicalMeters,
   ] = await Promise.all([
-    getMeterCountsByGroup(substationId, privateDate, "Быт"),
-    getMeterCountsByGroup(substationId, legalDate, "ЮР Sims"),
-    getMeterCountsByGroup(substationId, legalDate, "ЮР П2"),
-    getMeterCountsByGroup(substationId, odpuDate, "ОДПУ Sims"),
-    getMeterCountsByGroup(substationId, odpuDate, "ОДПУ П2"),
+    getLatestMeterCountsForSubstation({
+      balanceGroup: "Быт",
+      asOfDate: privateDate,
+      substationId,
+    }),
+    getLatestMeterCountsForSubstation({
+      balanceGroup: "ЮР Sims",
+      asOfDate: legalDate,
+      substationId,
+    }),
+    getLatestMeterCountsForSubstation({
+      balanceGroup: "ЮР П2",
+      asOfDate: legalDate,
+      substationId,
+    }),
+    getLatestMeterCountsForSubstation({
+      balanceGroup: "ОДПУ Sims",
+      asOfDate: odpuDate,
+      substationId,
+    }),
+    getLatestMeterCountsForSubstation({
+      balanceGroup: "ОДПУ П2",
+      asOfDate: odpuDate,
+      substationId,
+    }),
     getTechnicalMeterStats(substationId),
   ]);
 
@@ -41,34 +58,6 @@ export default async function getSubstationMeterSummary({
     odpuP2Meters,
     technicalMeters,
   };
-}
-
-async function getMeterCountsByGroup(
-  substationId: number,
-  date: string,
-  balanceGroup: BalanceGroup,
-) {
-  const [registeredCount, unregisteredCount] = await Promise.all([
-    getRegisteredMeterCountAtDate(db, {
-      balanceGroup,
-      targetDate: date,
-      dateComparison: "upTo",
-      substationId,
-    }),
-    getUnregisteredMeterCountAtDate(db, {
-      balanceGroup,
-      targetDate: date,
-      dateComparison: "upTo",
-      substationId,
-    }),
-  ]);
-
-  const meterStats = {
-    registeredMeterCount: registeredCount,
-    unregisteredMeterCount: unregisteredCount,
-  };
-
-  return meterStats;
 }
 
 async function getTechnicalMeterStats(substationId: number) {
