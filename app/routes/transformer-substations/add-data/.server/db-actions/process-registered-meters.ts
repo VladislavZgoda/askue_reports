@@ -2,8 +2,8 @@ import {
   getRegisteredMeterCount,
   updateRegisteredMeterCount,
   createRegisteredMeterRecord,
-  getRegisteredMeterCountAtDate,
   incrementRegisteredMetersRecords,
+  getRegisteredMeterCountBeforeCutoff,
   getRegisteredMeterRecordIdsAfterDate,
 } from "~/.server/db-queries/registered-meters";
 
@@ -34,12 +34,14 @@ async function createAccumulatedRegisteredRecord(
     substationId,
   }: AccumulatedRegisteredInput,
 ) {
-  const currentRegisteredCount = await getRegisteredMeterCountAtDate(executor, {
-    balanceGroup,
-    targetDate: date,
-    dateComparison: "before",
-    substationId,
-  });
+  const currentRegisteredCount = await getRegisteredMeterCountBeforeCutoff(
+    executor,
+    {
+      balanceGroup,
+      cutoffDate: date,
+      substationId,
+    },
+  );
 
   const totalRegistered = newRegisteredCount + currentRegisteredCount;
 

@@ -1,8 +1,8 @@
 import {
   getUnregisteredMeterCount,
   createUnregisteredMeterRecord,
-  getUnregisteredMeterCountAtDate,
   incrementUnregisteredMetersRecords,
+  getUnregisteredMeterCountBeforeCutoff,
   getUnregisteredMeterRecordIdsAfterDate,
   updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregistered-meters";
@@ -34,12 +34,14 @@ async function createAccumulatedUnregisteredRecord(
     substationId,
   }: AccumulatedUnrecordedInput,
 ) {
-  const currentUnregistered = await getUnregisteredMeterCountAtDate(executor, {
-    balanceGroup: balanceGroup,
-    targetDate: date,
-    dateComparison: "before",
-    substationId,
-  });
+  const currentUnregistered = await getUnregisteredMeterCountBeforeCutoff(
+    executor,
+    {
+      balanceGroup: balanceGroup,
+      cutoffDate: date,
+      substationId,
+    },
+  );
 
   const accumulatedUnregistered = newUnregisteredCount + currentUnregistered;
 

@@ -27,7 +27,6 @@ declare type BalanceGroup = import("app/.server/schema").BalanceGroup;
 
 declare interface MeterCountQueryParams {
   balanceGroup: BalanceGroup;
-  targetDate: string;
-  dateComparison: "before" | "upTo";
+  cutoffDate: string;
   substationId: number;
 }

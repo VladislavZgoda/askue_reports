@@ -1,5 +1,5 @@
 import { registeredMeters } from "../schema";
-import { eq, and, desc, lte, lt, gt, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
 
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
 
@@ -166,36 +166,27 @@ export async function updateRegisteredMeterRecordById(
 }
 
 /**
- * Retrieves the registered meter count from the latest record matching the specified criteria.
+ * Retrieves the registered meter count from the latest record BEFORE a cutoff date.
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters object
- * @param params.balanceGroup - Balance group to filter by
- * @param params.targetDate - Target date for comparison (ISO string format)
- * @param params.dateComparison - Date comparison mode:
- *   - "before": selects records with date < targetDate
- *   - "upTo": selects records with date <= targetDate
+ * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР Sims")
+ * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record BEFORE this date
  * @param params.substationId - Substation ID to filter by
  *
  * @returns Registered meter count from the latest matching record, or 0 if no match found
  *
  * @example
- * // Get count up to 2025-08-16
- * const count = await getRegisteredMeterCountAtDate(executor, {
- *   balanceGroup: 'Быт',
- *   targetDate: '2025-08-16',
- *   dateComparison: 'upTo',
- *   substationId: 123
+ * // Get latest count before 2025-08-16
+ * const count = await getRegisteredMeterCountBeforeCutoff(executor, {
+ *   balanceGroup: "Быт",
+ *   cutoffDate: "2025-08-16",
+ *   substationId: 12,
  * });
  */
-export async function getRegisteredMeterCountAtDate(
+export async function getRegisteredMeterCountBeforeCutoff(
   executor: Executor,
-  {
-    balanceGroup,
-    targetDate,
-    dateComparison,
-    substationId,
-  }: MeterCountQueryParams,
+  { balanceGroup, cutoffDate, substationId }: MeterCountQueryParams,
 ): Promise<number> {
   const result = await executor.query.registeredMeters.findFirst({
     columns: {
@@ -204,9 +195,7 @@ export async function getRegisteredMeterCountAtDate(
     where: and(
       eq(registeredMeters.balanceGroup, balanceGroup),
       eq(registeredMeters.transformerSubstationId, substationId),
-      dateComparison === "before"
-        ? lt(registeredMeters.date, targetDate)
-        : lte(registeredMeters.date, targetDate),
+      lt(registeredMeters.date, cutoffDate),
     ),
     orderBy: [desc(registeredMeters.date)],
   });

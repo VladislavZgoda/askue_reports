@@ -1,5 +1,5 @@
 import { unregisteredMeters } from "../schema";
-import { eq, and, desc, lte, lt, gt, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
@@ -146,36 +146,27 @@ export async function updateUnregisteredMeterRecordById(
 }
 
 /**
- * Retrieves the unregistered meter count from the latest record matching specified criteria.
+ * Retrieves the unregistered meter count from the latest record BEFORE a cutoff date.
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters object
  * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР Sims")
- * @param params.targetDate - Target date for comparison (ISO string format)
- * @param params.dateComparison - Date comparison mode:
- *   - "before": selects records with date < targetDate (exclusive)
- *   - "upTo": selects records with date <= targetDate (inclusive)
+ * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record BEFORE this date
  * @param params.substationId - Substation ID to filter by
  *
  * @returns Unregistered meter count from the latest matching record, or 0 if no match found
  *
  * @example
- * // Get count up to 2025-08-17
- * const count = await getUnregisteredMeterCountAtDate(executor, {
- *   balanceGroup: 'ЮР П2',
- *   targetDate: '2025-08-17',
- *   dateComparison: 'upTo',
- *   substationId: 45
+ * // Get latest count before 2025-08-17
+ * const count = await getUnregisteredMeterCountBeforeCutoff(executor, {
+ *   balanceGroup: "ЮР П2",
+ *   cutoffDate: "2025-08-17",
+ *   substationId: 45,
  * });
  */
-export async function getUnregisteredMeterCountAtDate(
+export async function getUnregisteredMeterCountBeforeCutoff(
   executor: Executor,
-  {
-    balanceGroup,
-    targetDate,
-    dateComparison,
-    substationId,
-  }: MeterCountQueryParams,
+  { balanceGroup, cutoffDate, substationId }: MeterCountQueryParams,
 ): Promise<number> {
   const result = await executor.query.unregisteredMeters.findFirst({
     columns: {
@@ -184,9 +175,7 @@ export async function getUnregisteredMeterCountAtDate(
     where: and(
       eq(unregisteredMeters.balanceGroup, balanceGroup),
       eq(unregisteredMeters.transformerSubstationId, substationId),
-      dateComparison === "before"
-        ? lt(unregisteredMeters.date, targetDate)
-        : lte(unregisteredMeters.date, targetDate),
+      lt(unregisteredMeters.date, cutoffDate),
     ),
     orderBy: [desc(unregisteredMeters.date)],
   });
