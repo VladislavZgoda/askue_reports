@@ -1,14 +1,16 @@
+import * as z from "zod";
 import { Form, useSubmit } from "react-router";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
-import SummaryTable from "./components/SummaryTable";
-import Input from "~/components/Input";
-import Fieldset from "~/components/Fieldset";
 import getSubstationMeterSummary from "./.server/load-data";
 import { todayDate } from "~/utils/dateFunctions";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import type { Route } from "./+types/transformerSubstation";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
-import * as z from "zod";
+
+import SummaryTable from "./components/SummaryTable";
+import Input from "~/components/Input";
+import Fieldset from "~/components/Fieldset";
+
+import type { Route } from "./+types/transformer-substation";
 
 const dateSchema = z
   .string()
