@@ -30,3 +30,10 @@ declare interface MeterCountQueryParams {
   cutoffDate: string;
   substationId: number;
 }
+
+declare interface SubstationMeterDataParams {
+  privateDate: string;
+  legalDate: string;
+  odpuDate: string;
+  substationId: number;
+}

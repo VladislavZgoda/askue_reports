@@ -1,66 +1,59 @@
-import { getLatestMeterCountsForSubstation } from "~/.server/db-queries/transformer-substations";
+import { getAllMeterCountsForSubstation } from "~/.server/db-queries/transformer-substations";
 import { getTechnicalMeterStatsForSubstation } from "~/.server/db-queries/technical-meters";
 
-interface SubstationMeterDataParams {
-  substationId: number;
-  privateDate: string;
-  legalDate: string;
-  odpuDate: string;
-}
+type TechnicalMeterStats = NonNullable<
+  Awaited<ReturnType<typeof getTechnicalMeterStatsForSubstation>>
+>;
 
+type SubstationMeterSummary = Awaited<
+  ReturnType<typeof getAllMeterCountsForSubstation>
+> & { technicalMeters: TechnicalMeterStats };
+
+/**
+ * Retrieves a comprehensive meter summary for a substation including
+ * all balance groups and technical meter statistics
+ *
+ * @param params - Query parameters
+ * @param params.privateDate - Cutoff date for household meters (YYYY-MM-DD)
+ * @param params.legalDate - Cutoff date for commercial meters (YYYY-MM-DD)
+ * @param params.odpuDate - Cutoff date for ODPU meters (YYYY-MM-DD)
+ * @param params.substationId - Substation ID
+ *
+ * @returns Combined meter counts and technical statistics
+ *
+ * @example
+ * const summary = await getSubstationMeterSummary({
+ *   privateDate: "2025-08-24",
+ *   legalDate: "2025-08-20",
+ *   odpuDate: "2025-08-24",
+ *   substationId: 42
+ * });
+ */
 export default async function getSubstationMeterSummary({
-  substationId,
   privateDate,
   legalDate,
   odpuDate,
-}: SubstationMeterDataParams) {
-  const [
-    privateMeters,
-    legalSimsMeters,
-    legalP2Meters,
-    odpuSimsMeters,
-    odpuP2Meters,
-    technicalMeters,
-  ] = await Promise.all([
-    getLatestMeterCountsForSubstation({
-      balanceGroup: "Быт",
-      asOfDate: privateDate,
-      substationId,
-    }),
-    getLatestMeterCountsForSubstation({
-      balanceGroup: "ЮР Sims",
-      asOfDate: legalDate,
-      substationId,
-    }),
-    getLatestMeterCountsForSubstation({
-      balanceGroup: "ЮР П2",
-      asOfDate: legalDate,
-      substationId,
-    }),
-    getLatestMeterCountsForSubstation({
-      balanceGroup: "ОДПУ Sims",
-      asOfDate: odpuDate,
-      substationId,
-    }),
-    getLatestMeterCountsForSubstation({
-      balanceGroup: "ОДПУ П2",
-      asOfDate: odpuDate,
+  substationId,
+}: SubstationMeterDataParams): Promise<SubstationMeterSummary> {
+  const [meterCounts, technicalMeters] = await Promise.all([
+    getAllMeterCountsForSubstation({
+      privateDate,
+      legalDate,
+      odpuDate,
       substationId,
     }),
     getTechnicalMeterStats(substationId),
   ]);
 
   return {
-    privateMeters,
-    legalSimsMeters,
-    legalP2Meters,
-    odpuSimsMeters,
-    odpuP2Meters,
+    ...meterCounts,
     technicalMeters,
   };
 }
 
-async function getTechnicalMeterStats(substationId: number) {
+async function getTechnicalMeterStats(
+  substationId: number,
+): Promise<TechnicalMeterStats> {
   const stats = await getTechnicalMeterStatsForSubstation(substationId);
 
   return {
