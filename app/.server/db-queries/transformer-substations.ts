@@ -253,22 +253,62 @@ type LatestMonthlyInstallationsBySubstationParams = Omit<
   "targetDate"
 > & { cutoffDate: string };
 
+interface MonthlyInstallations {
+  id: number;
+  name: string;
+  installation: {
+    totalInstalled: number;
+    registeredCount: number;
+  };
+}
+
 /**
  * Retrieves the latest monthly installation records for each substation
- * up to a specific cutoff date within a given month/year period
+ * up to a specific cutoff date within a given month period
  *
- * @param balanceGroup Balance group to filter by
- * @param cutoffDate Maximum date to include (YYYY-MM-DD format)
- * @param month Target month (01-12 format)
- * @param year Target year
- * @returns Array of substations with their latest installation summary
+ * Returns the most recent installation data for each substation that matches
+ * the specified balance group, month, and year, with a date on or before
+ * the cutoff date. If no installation records are found for a substation,
+ * returns default values (0 for both counts).
+ *
+ * @param params - Query parameters
+ * @param params.balanceGroup - Balance group category to filter by (e.g., "Быт", "ЮР Sims")
+ * @param params.cutoffDate - Maximum date to include (YYYY-MM-DD format)
+ * @param params.month - Target month in 01-12 format
+ * @param params.year - Target year
+ * @returns Array of substations with their latest installation summary.
+ *
+ * @throws {Error} If month format is invalid (not in 01-12 format)
+ * @throws {Error} If cutoffDate is before the start of the target month
+ *
+ * @example
+ * const installations = await getLatestMonthlyInstallationsBySubstation({
+ *   balanceGroup: "Быт",
+ *   cutoffDate: "2025-08-24",
+ *   month: "08",
+ *   year: 2025,
+ * });
+ * // Returns: [
+ * //   {
+ * //     id: 1,
+ * //     name: "ТП-1",
+ * //     installation: { totalInstalled: 10, registeredCount: 9 }
+ * //   },
+ * //   {
+ * //     id: 2,
+ * //     name: "ТП-2",
+ * //     installation: { totalInstalled: 15, registeredCount: 14 }
+ * //   }
+ * // ]
  */
 export async function getLatestMonthlyInstallationsBySubstation({
   balanceGroup,
   cutoffDate,
   month,
   year,
-}: LatestMonthlyInstallationsBySubstationParams) {
+}: LatestMonthlyInstallationsBySubstationParams): Promise<
+  MonthlyInstallations[]
+> {
   if (!/^(0[1-9]|1[0-2])$/.test(month)) {
     throw new Error("Month must be 01-12 format");
   }
