@@ -317,10 +317,39 @@ export async function getLatestMonthlyInstallationsBySubstation({
   return transformedResult;
 }
 
+interface SubstationMeterCount {
+  id: number;
+  name: string;
+  registeredMeters: number;
+  unregisteredMeters: number;
+}
+
+/**
+ * Retrieves meter counts for all substations as of a specific date for a given balance group
+ *
+ * This function queries all substations and returns their latest registered and unregistered
+ * meter counts that are on or before the target date for the specified balance group.
+ *
+ * @param balanceGroup - The balance group category to filter by
+ * @param targetDate - The target date in YYYY-MM-DD format. Returns the latest records
+ *                             on or before this date.
+ * @returns Array of substation meter counts with:
+ *   - `id`: Substation ID
+ *   - `name`: Substation name
+ *   - `registeredMeters`: Count of registered meters (0 if none found)
+ *   - `unregisteredMeters`: Count of unregistered meters (0 if none found)
+ *
+ * @example
+ * const counts = await getSubstationMeterCountsAsOfDate("Быт", "2025-08-24");
+ * // Returns: [
+ * //   { id: 1, name: "ТП-1", registeredMeters: 15, unregisteredMeters: 1 },
+ * //   { id: 2, name: "ТП-2", registeredMeters: 20, unregisteredMeters: 5 },
+ * // ]
+ */
 export async function getSubstationMeterCountsAsOfDate(
   balanceGroup: BalanceGroup,
   targetDate: string,
-) {
+): Promise<SubstationMeterCount[]> {
   const result = await db.query.transformerSubstations.findMany({
     columns: {
       id: true,
