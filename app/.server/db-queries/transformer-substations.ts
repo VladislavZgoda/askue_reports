@@ -3,8 +3,15 @@ import { transformerSubstations } from "../schema";
 import { eq, ilike } from "drizzle-orm";
 import composeSearchString from "~/utils/searchString";
 
-export async function insertNewTS(name: string) {
-  const transSub = await db
+interface TransformerSubstationData {
+  id: number;
+  name: string;
+}
+
+export async function createTransformerSubstation(
+  name: string,
+): Promise<TransformerSubstationData> {
+  const result = await db
     .insert(transformerSubstations)
     .values({ name })
     .returning({
@@ -12,7 +19,7 @@ export async function insertNewTS(name: string) {
       name: transformerSubstations.name,
     });
 
-  return transSub[0];
+  return result[0];
 }
 
 export async function selectTransSubs(searchParam: string | null) {

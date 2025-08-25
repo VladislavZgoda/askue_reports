@@ -1,5 +1,5 @@
 import { useActionData, useNavigation, redirect } from "react-router";
-import { insertNewTS } from "~/.server/db-queries/transformer-substations";
+import { createTransformerSubstation } from "~/.server/db-queries/transformer-substations";
 import TransSubName from "~/components/TransSubName";
 import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
 import { isNotAuthenticated } from "~/.server/services/auth";
@@ -19,7 +19,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   try {
-    const transSub = await insertNewTS(name);
+    const transSub = await createTransformerSubstation(name);
 
     return redirect(`/transformer-substations/${transSub.id}`);
   } catch (error) {
