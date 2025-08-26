@@ -1,11 +1,16 @@
-import { useActionData, useNavigation, redirect } from "react-router";
+import { resolver } from "./zod-schemas/substation-name.schema";
+import { getValidatedFormData } from "remix-hook-form";
+import { href, useNavigation, redirect } from "react-router";
+import { isNotAuthenticated } from "~/.server/services/auth";
+import TransSubName from "~/components/TransSubName";
+
 import {
   updateTransSub,
   getTransformerSubstationById,
+  findTransformerSubstationByName,
 } from "~/.server/db-queries/transformer-substations";
-import TransSubName from "~/components/TransSubName";
-import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
-import { isNotAuthenticated } from "~/.server/services/auth";
+
+import type { FormData } from "./zod-schemas/substation-name.schema";
 import type { Route } from "./+types/edit";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
@@ -13,56 +18,62 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     throw new Error("Not Found");
   }
 
-  const transSub = await getTransformerSubstationById(Number(params.id));
+  const substation = await getTransformerSubstationById(Number(params.id));
 
-  if (!transSub) {
+  if (!substation) {
     throw new Error("Not Found");
   }
 
   await isNotAuthenticated(request);
 
-  return transSub;
+  return substation;
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const errNameLength = checkNameLength(name);
+  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(
+    request,
+    resolver,
+  );
 
-  if (errNameLength) {
-    return errNameLength;
+  console.log(receivedValues);
+
+  if (errors) return { errors, receivedValues };
+
+  const nameExists = await findTransformerSubstationByName(data.name);
+
+  if (nameExists) {
+    return {
+      name: { message: `Наименование ${data.name} уже существует.` },
+      receivedValues,
+    };
   }
 
-  try {
-    await updateTransSub(params.id, name);
-    return redirect(`/transformer-substations/${params.id}`);
-  } catch (error) {
-    const err = checkNameConstrains(error, name);
-    if (err) {
-      return err;
-    } else {
-      throw error;
-    }
-  }
+  await updateTransSub(params.id, data.name);
+
+  return redirect(href("/transformer-substations/:id", { id: params.id }));
 };
 
 export default function EditTransformerSubstation({
   loaderData,
+  actionData,
 }: Route.ComponentProps) {
-  const transSub = loaderData;
-  const actionData = useActionData<typeof action>() as
-    | { error: string; name: string }
-    | undefined;
+  const substation = loaderData;
+
   const navigation = useNavigation();
-  const formAction = `/transformer-substations/${transSub.id}/edit`;
+
+  const formAction = href("/transformer-substations/:id/edit", {
+    id: substation.id.toString(),
+  });
+
   const isSubmitting = navigation.formAction === formAction;
 
   return (
     <TransSubName
-      transSub={transSub}
-      isSubmitting={isSubmitting}
-      actionData={actionData}
+      name={substation.name}
+      error={actionData?.name?.message}
       formAction={formAction}
+      receivedValues={actionData?.receivedValues?.name}
+      isSubmitting={isSubmitting}
       buttonNames={{ submitName: "Изменение...", idleName: "Переименовать" }}
     />
   );

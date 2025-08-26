@@ -1,20 +1,15 @@
 import { Form, useNavigate } from "react-router";
+import { useRemixForm } from "remix-hook-form";
+import { resolver } from "~/routes/transformer-substations/zod-schemas/substation-name.schema";
+
+import type { FormData } from "~/routes/transformer-substations/zod-schemas/substation-name.schema";
 
 interface TransSubNameProps {
-  transSub:
-    | {
-        id: number;
-        name: string;
-      }
-    | undefined;
-  isSubmitting: boolean;
-  actionData:
-    | {
-        error: string;
-        name: string;
-      }
-    | undefined;
+  name: string | undefined;
+  error: string | undefined;
   formAction: string;
+  isSubmitting: boolean;
+  receivedValues: string | undefined;
   buttonNames: {
     submitName: string;
     idleName: string;
@@ -22,19 +17,29 @@ interface TransSubNameProps {
 }
 
 export default function TransSubName({
-  transSub,
-  isSubmitting,
-  actionData,
+  name,
+  error,
   formAction,
+  isSubmitting,
+  receivedValues,
   buttonNames,
 }: TransSubNameProps) {
+  const { handleSubmit, register } = useRemixForm<FormData>({
+    mode: "onSubmit",
+    resolver,
+    defaultValues: {
+      name: receivedValues ?? name,
+    },
+  });
+
   const navigate = useNavigate();
 
   return (
     <main className="flex flex-initial items-center justify-center h-full text-3xl">
       <Form
-        method="post"
+        method="POST"
         action={formAction}
+        onSubmit={void handleSubmit}
         className="flex p-8 h-2/5 w-3/5 flex-initial bg-base-200 rounded-lg"
       >
         <div className="flex flex-col justify-evenly items-center w-full h-full flex-initial">
@@ -44,13 +49,10 @@ export default function TransSubName({
               type="text"
               placeholder="ТП-1000"
               className={`input input-xs md:input-md sm:input-sm lg:input-lg w-80
-                ${actionData?.error ? "input-error" : "input-neutral"}`}
-              name="name"
-              defaultValue={actionData?.name ?? transSub?.name ?? ""}
+                ${error ? "input-error" : "input-neutral"}`}
+              {...register("name")}
             />
-            {actionData?.error && (
-              <p className="fieldset-label text-error">{actionData.error}</p>
-            )}
+            {error && <p className="fieldset-label text-error">{error}</p>}
           </fieldset>
 
           <div className="flex flex-initial justify-evenly w-full">

@@ -1,8 +1,15 @@
-import { useActionData, useNavigation, redirect } from "react-router";
-import { createTransformerSubstation } from "~/.server/db-queries/transformer-substations";
-import TransSubName from "~/components/TransSubName";
-import { checkNameConstrains, checkNameLength } from "~/utils/validateInput";
+import { resolver } from "./zod-schemas/substation-name.schema";
+import { getValidatedFormData } from "remix-hook-form";
+import { href, useNavigation, redirect } from "react-router";
 import { isNotAuthenticated } from "~/.server/services/auth";
+import TransSubName from "~/components/TransSubName";
+
+import {
+  createTransformerSubstation,
+  findTransformerSubstationByName,
+} from "~/.server/db-queries/transformer-substations";
+
+import type { FormData } from "./zod-schemas/substation-name.schema";
 import type { Route } from "./+types/new";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -10,42 +17,43 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export async function action({ request }: Route.ActionArgs) {
-  const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const errNameLength = checkNameLength(name);
+  const { errors, data, receivedValues } = await getValidatedFormData<FormData>(
+    request,
+    resolver,
+  );
 
-  if (errNameLength) {
-    return errNameLength;
+  if (errors) return { errors, receivedValues };
+
+  const nameExists = await findTransformerSubstationByName(data.name);
+
+  if (nameExists) {
+    return {
+      name: { message: `Наименование ${data.name} уже существует.` },
+      receivedValues,
+    };
   }
 
-  try {
-    const transSub = await createTransformerSubstation(name);
+  const substation = await createTransformerSubstation(data.name);
 
-    return redirect(`/transformer-substations/${transSub.id}`);
-  } catch (error) {
-    const err = checkNameConstrains(error, name);
-    if (err) {
-      return err;
-    } else {
-      throw error;
-    }
-  }
+  return redirect(
+    href("/transformer-substations/:id", { id: substation.id.toString() }),
+  );
 }
 
-export default function CreateNewTransformerSubstation() {
-  const actionData = useActionData<typeof action>() as
-    | { error: string; name: string }
-    | undefined;
+export default function CreateNewTransformerSubstation({
+  actionData,
+}: Route.ComponentProps) {
   const navigation = useNavigation();
-  const formAction = "/transformer-substations/new";
+  const formAction = href("/transformer-substations/new");
   const isSubmitting = navigation.formAction === formAction;
 
   return (
     <TransSubName
-      transSub={undefined}
-      isSubmitting={isSubmitting}
-      actionData={actionData}
+      name={undefined}
+      error={actionData?.name?.message}
       formAction={formAction}
+      receivedValues={actionData?.receivedValues.name}
+      isSubmitting={isSubmitting}
       buttonNames={{ submitName: "Создание...", idleName: "Создать" }}
     />
   );
