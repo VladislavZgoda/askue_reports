@@ -40,7 +40,7 @@ export async function action({ request }: Route.ActionArgs) {
   );
 }
 
-export default function CreateNewTransformerSubstation({
+export default function CreateTransformerSubstation({
   actionData,
 }: Route.ComponentProps) {
   const navigation = useNavigation();
