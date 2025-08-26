@@ -5,7 +5,7 @@ import { isNotAuthenticated } from "~/.server/services/auth";
 import TransSubName from "~/components/TransSubName";
 
 import {
-  updateTransSub,
+  updateTransformerSubstation,
   getTransformerSubstationById,
   findTransformerSubstationByName,
 } from "~/.server/db-queries/transformer-substations";
@@ -35,8 +35,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     resolver,
   );
 
-  console.log(receivedValues);
-
   if (errors) return { errors, receivedValues };
 
   const nameExists = await findTransformerSubstationByName(data.name);
@@ -48,7 +46,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     };
   }
 
-  await updateTransSub(params.id, data.name);
+  await updateTransformerSubstation(Number(params.id), data.name);
 
   return redirect(href("/transformer-substations/:id", { id: params.id }));
 };
