@@ -77,13 +77,16 @@ export async function deleteTransSub(id: string) {
     .where(eq(transformerSubstations.id, Number(id)));
 }
 
-export async function updateTransSub(id: string, name: string) {
+export async function updateTransformerSubstation(
+  id: number,
+  name: string,
+): Promise<void> {
   const updatedAt = new Date();
 
   await db
     .update(transformerSubstations)
     .set({ name, updatedAt })
-    .where(eq(transformerSubstations.id, Number(id)));
+    .where(eq(transformerSubstations.id, id));
 }
 
 export async function selectAllSubstations() {
