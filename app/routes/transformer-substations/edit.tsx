@@ -2,7 +2,7 @@ import { resolver } from "./zod-schemas/substation-name.schema";
 import { getValidatedFormData } from "remix-hook-form";
 import { href, useNavigation, redirect } from "react-router";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import TransSubName from "~/components/TransSubName";
+import SubstationNameForm from "~/components/SubstationNameForm";
 
 import {
   updateTransformerSubstation,
@@ -66,7 +66,7 @@ export default function EditTransformerSubstation({
   const isSubmitting = navigation.formAction === formAction;
 
   return (
-    <TransSubName
+    <SubstationNameForm
       name={substation.name}
       error={actionData?.name?.message}
       formAction={formAction}

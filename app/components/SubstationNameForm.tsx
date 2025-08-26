@@ -4,7 +4,7 @@ import { resolver } from "~/routes/transformer-substations/zod-schemas/substatio
 
 import type { FormData } from "~/routes/transformer-substations/zod-schemas/substation-name.schema";
 
-interface TransSubNameProps {
+interface SubstationNameFormProps {
   name: string | undefined;
   error: string | undefined;
   formAction: string;
@@ -16,14 +16,14 @@ interface TransSubNameProps {
   };
 }
 
-export default function TransSubName({
+export default function SubstationNameForm({
   name,
   error,
   formAction,
   isSubmitting,
   receivedValues,
   buttonNames,
-}: TransSubNameProps) {
+}: SubstationNameFormProps) {
   const { handleSubmit, register } = useRemixForm<FormData>({
     mode: "onSubmit",
     resolver,
