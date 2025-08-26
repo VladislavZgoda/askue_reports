@@ -15,7 +15,7 @@ export default function Input({
     <>
       <input
         {...props}
-        className={`input input-xs sm:input-sm md:input-md lg:input-lg ${error && "input-error"} ${className ?? ""}`}
+        className={`input input-xs sm:input-sm md:input-md lg:input-lg ${error ? "input-error" : ""} ${className ?? ""}`}
       />
       {error && (
         <p className={`fieldset-label text-error ${errorClassName}`}>{error}</p>
