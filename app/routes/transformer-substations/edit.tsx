@@ -41,7 +41,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
   if (nameExists) {
     return {
-      name: { message: `Наименование ${data.name} уже существует.` },
+      errors: {
+        name: { message: `Наименование ${data.name} уже существует.` },
+      },
       receivedValues,
     };
   }
@@ -68,7 +70,7 @@ export default function EditTransformerSubstation({
   return (
     <SubstationNameForm
       name={substation.name}
-      error={actionData?.name?.message}
+      error={actionData?.errors?.name?.message}
       formAction={formAction}
       receivedValues={actionData?.receivedValues?.name}
       isSubmitting={isSubmitting}

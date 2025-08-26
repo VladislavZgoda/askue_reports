@@ -28,7 +28,9 @@ export async function action({ request }: Route.ActionArgs) {
 
   if (nameExists) {
     return {
-      name: { message: `Наименование ${data.name} уже существует.` },
+      errors: {
+        name: { message: `Наименование ${data.name} уже существует.` },
+      },
       receivedValues,
     };
   }
@@ -50,7 +52,7 @@ export default function CreateTransformerSubstation({
   return (
     <SubstationNameForm
       name={undefined}
-      error={actionData?.name?.message}
+      error={actionData?.errors?.name?.message}
       formAction={formAction}
       receivedValues={actionData?.receivedValues.name}
       isSubmitting={isSubmitting}
