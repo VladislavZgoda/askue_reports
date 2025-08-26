@@ -22,6 +22,17 @@ export async function createTransformerSubstation(
   return result[0];
 }
 
+export async function findTransformerSubstationByName(
+  name: string,
+): Promise<boolean> {
+  const result = await db.query.transformerSubstations.findFirst({
+    columns: { name: true },
+    where: eq(transformerSubstations.name, name),
+  });
+
+  return !!result;
+}
+
 export async function selectTransSubs(searchParam: string | null) {
   try {
     const q = composeSearchString(searchParam);
