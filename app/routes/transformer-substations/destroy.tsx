@@ -1,6 +1,7 @@
-import { redirect } from "react-router";
-import { deleteTransSub } from "~/.server/db-queries/transformer-substations";
+import { href, redirect } from "react-router";
+import { deleteTransformerSubstation } from "~/.server/db-queries/transformer-substations";
 import { isNotAuthenticated } from "~/.server/services/auth";
+
 import type { Route } from "./+types/destroy";
 
 export async function loader({ request }: Route.LoaderArgs) {
@@ -8,6 +9,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export const action = async ({ params }: Route.ActionArgs) => {
-  await deleteTransSub(params.id);
-  return redirect("/");
+  await deleteTransformerSubstation(Number(params.id));
+
+  return redirect(href("/"));
 };
