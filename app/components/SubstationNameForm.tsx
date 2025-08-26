@@ -2,6 +2,10 @@ import { Form, useNavigate } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 import { resolver } from "~/routes/transformer-substations/zod-schemas/substation-name.schema";
 
+import Input from "./Input";
+import Button from "./Button";
+import Fieldset from "./Fieldset";
+
 import type { FormData } from "~/routes/transformer-substations/zod-schemas/substation-name.schema";
 
 interface SubstationNameFormProps {
@@ -35,7 +39,7 @@ export default function SubstationNameForm({
   const navigate = useNavigate();
 
   return (
-    <main className="flex flex-initial items-center justify-center h-full text-3xl">
+    <main className="flex items-center justify-center h-full">
       <Form
         method="POST"
         action={formAction}
@@ -43,38 +47,32 @@ export default function SubstationNameForm({
         className="flex p-8 h-2/5 w-3/5 flex-initial bg-base-200 rounded-lg"
       >
         <div className="flex flex-col justify-evenly items-center w-full h-full flex-initial">
-          <fieldset className="fieldset">
-            <legend className="fieldset-legend">Наименование ТП</legend>
-            <input
+          <Fieldset legend="Наименование ТП">
+            <Input
               type="text"
               placeholder="ТП-1000"
-              className={`input input-xs md:input-md sm:input-sm lg:input-lg w-80
-                ${error ? "input-error" : "input-neutral"}`}
+              className={`${!error && "input-neutral"} w-80`}
+              error={error}
               {...register("name")}
             />
-            {error && <p className="fieldset-label text-error">{error}</p>}
-          </fieldset>
+          </Fieldset>
 
-          <div className="flex flex-initial justify-evenly w-full">
-            <button
-              type={isSubmitting ? "button" : "submit"}
-              className="btn btn-primary btn-xs sm:btn-sm md:btn-md lg:btn-lg w-48"
-            >
+          <div className="flex justify-center gap-8 w-full -mt-5">
+            <Button type="submit" className="btn-primary w-48">
               {isSubmitting && (
                 <span className="loading loading-spinner"></span>
               )}
               {isSubmitting
                 ? `${buttonNames.submitName}`
                 : `${buttonNames.idleName}`}
-            </button>
-
-            <button
+            </Button>
+            <Button
               type="button"
-              className="btn btn-success btn-xs sm:btn-sm md:btn-md lg:btn-lg w-48"
+              className="btn-success w-48"
               onClick={() => void navigate(-1)}
             >
               Назад
-            </button>
+            </Button>
           </div>
         </div>
       </Form>
