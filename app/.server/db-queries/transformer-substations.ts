@@ -71,10 +71,10 @@ export async function getTransformerSubstationById(id: number) {
   return result;
 }
 
-export async function deleteTransSub(id: string) {
+export async function deleteTransformerSubstation(id: number): Promise<void> {
   await db
     .delete(transformerSubstations)
-    .where(eq(transformerSubstations.id, Number(id)));
+    .where(eq(transformerSubstations.id, id));
 }
 
 export async function updateTransformerSubstation(
