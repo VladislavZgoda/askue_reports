@@ -14,13 +14,15 @@ import {
 import type { LoaderFunctionArgs } from "react-router";
 import "./app.css";
 import MainLayout from "./layout/MainLayout";
-import { selectTransSubs } from "./.server/db-queries/transformer-substations";
+import { getTransformerSubstations } from "./.server/db-queries/transformer-substations";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
-  const transSubs = await selectTransSubs(q);
-  return { transSubs, q };
+
+  const substations = await getTransformerSubstations(q);
+
+  return { substations, q };
 }
 
 export function action() {
@@ -50,7 +52,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         }`}
       >
         {!routes.includes(matches[1]?.id) && (
-          <MainLayout transSubs={data?.transSubs} q={data?.q} />
+          <MainLayout transSubs={data?.substations} q={data?.q} />
         )}
 
         {children}
