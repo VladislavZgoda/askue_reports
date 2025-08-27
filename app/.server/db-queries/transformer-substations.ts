@@ -1,7 +1,7 @@
 import { db } from "../db";
 import { transformerSubstations } from "../schema";
 import { eq, ilike } from "drizzle-orm";
-import composeSearchString from "~/utils/searchString";
+import composeSearchString from "~/utils/search-string";
 
 interface TransformerSubstationData {
   id: number;
