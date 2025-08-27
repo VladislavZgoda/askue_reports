@@ -7,7 +7,7 @@ import {
 
 export default [
   index("./routes/index/home.tsx"),
-  route("generate-reports", "./routes/generate-reports/generateReports.tsx"),
+  route("generate-reports", "./routes/generate-reports/generate-reports.tsx"),
   route("view-data", "./routes/view-data/viewData.tsx"),
   route("download", "./routes/download.ts"),
   route("logout", "./routes/auth/logout.tsx"),

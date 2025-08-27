@@ -6,7 +6,7 @@ import {
   getMeterReportsWithAdjustments,
 } from "./db-actions/queryDbData";
 
-import type { FormData } from "../generateReports";
+import type { FormData } from "../generate-reports";
 
 type ODPU = Readonly<
   Awaited<ReturnType<typeof getMeterReportsWithAdjustments>>

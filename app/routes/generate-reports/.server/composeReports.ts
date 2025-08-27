@@ -4,7 +4,7 @@ import writeParsedData from "./writeParsedData";
 import fsp from "fs/promises";
 import fs from "fs";
 import path from "path";
-import type { FormData } from "../generateReports";
+import type { FormData } from "../generate-reports";
 
 export default async function composeReports(formData: FormData) {
   const partPath = "app/routes/generate-reports/.server/";
