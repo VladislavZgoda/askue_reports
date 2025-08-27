@@ -1,4 +1,7 @@
+import "./app.css";
+
 import {
+  href,
   Links,
   Meta,
   Outlet,
@@ -11,12 +14,13 @@ import {
   useNavigation,
   useMatches,
 } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
-import "./app.css";
+
 import MainLayout from "./layout/MainLayout";
 import { getTransformerSubstations } from "./.server/db-queries/transformer-substations";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+import type { Route } from "./+types/root";
+
+export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
 
@@ -26,7 +30,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 }
 
 export function action() {
-  return redirect("/transformer-substations/new");
+  return redirect(href("/transformer-substations/new"));
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
