@@ -4,7 +4,7 @@ import { getTechnicalMetersTotals } from "~/.server/db-queries/technical-meters"
 import {
   getPrivateMeterReportWithAdjustments,
   getMeterReportsWithAdjustments,
-} from "./db-actions/queryDbData";
+} from "./db-actions/db-queries";
 
 import type { FormData } from "../generate-reports";
 
