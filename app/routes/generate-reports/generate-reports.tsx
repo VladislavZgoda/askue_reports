@@ -12,7 +12,7 @@ import Fieldset from "~/components/Fieldset";
 
 import composeReports from "./.server/compose-reports";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import validateExcel from "./utils/validateExcel";
+import validateExcel from "./utils/validate-excel";
 
 import type { Route } from "./+types/generate-reports";
 
