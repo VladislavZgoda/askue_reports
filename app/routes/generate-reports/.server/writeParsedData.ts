@@ -1,4 +1,4 @@
-import parseExcel from "./parseExcel";
+import parseExcel from "./parse-excel";
 import exceljs from "exceljs";
 
 type ParseExcel = Awaited<ReturnType<typeof parseExcel>>;
