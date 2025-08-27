@@ -2,7 +2,7 @@ import { Form, useSubmit } from "react-router";
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
 import { isNotAuthenticated } from "~/.server/services/auth";
-import { todayDate } from "~/utils/dateFunctions";
+import { todayDate } from "~/utils/date-functions";
 import getSubstationCategorySummary from "./.server/loadData";
 import type { Route } from "./+types/viewData";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";

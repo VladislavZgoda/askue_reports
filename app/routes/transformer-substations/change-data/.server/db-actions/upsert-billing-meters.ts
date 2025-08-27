@@ -24,7 +24,7 @@ import {
 
 import { db } from "~/.server/db";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformer-substations";
-import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
+import { cutOutMonth, cutOutYear } from "~/utils/date-functions";
 
 import type { BillingFormData } from "../../validation/billing-form.schema";
 

@@ -1,7 +1,7 @@
 import type { FieldErrors } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { todayDate } from "~/utils/dateFunctions";
+import { todayDate } from "~/utils/date-functions";
 
 const billingFormSchema = z.object({
   totalCount: z.number({ error: "Введите число." }).int().gte(0),

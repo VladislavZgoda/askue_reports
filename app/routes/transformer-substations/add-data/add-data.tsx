@@ -6,7 +6,7 @@ import { technicalFormResolver } from "./validation/technical-form.schema";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meter-action-logs";
-import { todayDate } from "~/utils/dateFunctions";
+import { todayDate } from "~/utils/date-functions";
 import Input from "~/components/Input";
 import Select from "~/components/Select";
 import Button from "~/components/Button";

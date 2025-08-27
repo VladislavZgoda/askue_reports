@@ -1,4 +1,4 @@
-import { cutOutYear } from "~/utils/dateFunctions";
+import { cutOutYear } from "~/utils/date-functions";
 
 import {
   createYearlyMeterInstallation,

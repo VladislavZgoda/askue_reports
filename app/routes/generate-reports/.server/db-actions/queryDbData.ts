@@ -1,4 +1,4 @@
-import { cutOutMonth, cutOutYear } from "~/utils/dateFunctions";
+import { cutOutMonth, cutOutYear } from "~/utils/date-functions";
 
 import {
   getSubstationMeterReportsAtDate,
