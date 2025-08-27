@@ -1,4 +1,4 @@
-import createArchive from "./createArchive";
+import createArchive from "../utils/create-archive";
 import writeDbData from "./writeDbData";
 import writeParsedData from "./writeParsedData";
 import fsp from "fs/promises";
