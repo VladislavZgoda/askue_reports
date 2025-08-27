@@ -1,5 +1,5 @@
 import createArchive from "../utils/create-archive";
-import writeDbData from "./writeDbData";
+import writeDbData from "./write-db-data";
 import writeParsedData from "./writeParsedData";
 import fsp from "fs/promises";
 import fs from "fs";
