@@ -33,19 +33,21 @@ export async function findTransformerSubstationByName(
   return !!result;
 }
 
-export async function selectTransSubs(searchParam: string | null) {
+export async function getTransformerSubstations(
+  searchInput: string | null,
+): Promise<TransformerSubstationData[]> {
   try {
-    const q = composeSearchString(searchParam);
+    const searchString = composeSearchString(searchInput);
 
-    const transSubs = await db
-      .select({
-        id: transformerSubstations.id,
-        name: transformerSubstations.name,
-      })
-      .from(transformerSubstations)
-      .where(ilike(transformerSubstations.name, q));
+    const result = await db.query.transformerSubstations.findMany({
+      columns: {
+        id: true,
+        name: true,
+      },
+      where: ilike(transformerSubstations.name, searchString),
+    });
 
-    return transSubs;
+    return result;
   } catch {
     throw new Error("DB is not available", {
       cause: "Cannot connect to db",
