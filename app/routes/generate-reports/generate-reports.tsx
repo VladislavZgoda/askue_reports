@@ -10,7 +10,7 @@ import Input from "../../components/Input";
 import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
 
-import composeReports from "./.server/composeReports";
+import composeReports from "./.server/compose-reports";
 import { isNotAuthenticated } from "~/.server/services/auth";
 import validateExcel from "./utils/validateExcel";
 
