@@ -1,10 +1,14 @@
-import { Form, NavLink, useSubmit, useNavigation } from "react-router";
+import { href, Form, NavLink, useSubmit, useNavigation } from "react-router";
 import { useEffect, useState } from "react";
 
-export default function Siderbar({ transSubs, q }: TransSubs) {
+import Button from "./Button";
+
+export default function Siderbar({ substations, q }: SubstationSearchParams) {
   const [query, setQuery] = useState(q ?? "");
+
   const submit = useSubmit();
   const navigation = useNavigation();
+
   const searching =
     navigation.location &&
     new URLSearchParams(navigation.location.search).has("q");
@@ -14,19 +18,22 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
   }, [q]);
 
   const listItems = () => {
-    if (transSubs?.length) {
-      const cloneTransSubs = structuredClone(transSubs);
-      cloneTransSubs.sort((a, b) =>
+    if (substations?.length) {
+      const clonedSubstations = structuredClone(substations);
+
+      clonedSubstations.sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
           numeric: true,
           sensitivity: "base",
         }),
       );
 
-      const transformerSubstations = cloneTransSubs.map((transSub) => (
-        <li key={transSub.id} className="mb-1.5">
+      const transformerSubstations = clonedSubstations.map((substation) => (
+        <li key={substation.id} className="mb-1.5">
           <NavLink
-            to={`/transformer-substations/${transSub.id}`}
+            to={href("/transformer-substations/:id", {
+              id: substation.id.toString(),
+            })}
             prefetch="intent"
             className={({ isActive, isPending }) =>
               isActive
@@ -36,13 +43,13 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
                   : "btn btn-ghost btn-lg w-56"
             }
           >
-            {transSub.name}
+            {substation.name}
           </NavLink>
         </li>
       ));
 
       return transformerSubstations;
-    } else if (transSubs?.length === undefined) {
+    } else if (substations?.length === undefined) {
       return <li>Ошибка загрузки данных</li>;
     } else {
       return <li>Нет записей</li>;
@@ -97,13 +104,10 @@ export default function Siderbar({ transSubs, q }: TransSubs) {
             />
           </label>
         </Form>
-        <Form method="post" className="flex-initial">
-          <button
-            type="submit"
-            className="btn btn-xs sm:btn-sm md:btn-md btn-outline lg:btn-lg btn-neutral w-56"
-          >
+        <Form method="POST" className="flex-initial">
+          <Button type="submit" className="w-56 btn-neutral btn-outline">
             Добавить ТП
-          </button>
+          </Button>
         </Form>
       </div>
       <nav className="py-5">

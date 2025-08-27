@@ -56,7 +56,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         }`}
       >
         {!routes.includes(matches[1]?.id) && (
-          <MainLayout transSubs={data?.substations} q={data?.q} />
+          <MainLayout substations={data?.substations} q={data?.q} />
         )}
 
         {children}

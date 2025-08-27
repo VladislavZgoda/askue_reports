@@ -13,8 +13,8 @@ declare type Executor =
       >
     >;
 
-declare interface TransSubs {
-  transSubs:
+declare interface SubstationSearchParams {
+  substations:
     | {
         id: number;
         name: string;
