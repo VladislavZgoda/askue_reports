@@ -91,19 +91,6 @@ export async function updateTransformerSubstation(
     .where(eq(transformerSubstations.id, id));
 }
 
-export async function selectAllSubstations(): Promise<
-  TransformerSubstationData[]
-> {
-  const result = await db.query.transformerSubstations.findMany({
-    columns: {
-      id: true,
-      name: true,
-    },
-  });
-
-  return result;
-}
-
 interface SubstationMeterReportParams {
   balanceGroup: BalanceGroup;
   targetDate: string;
