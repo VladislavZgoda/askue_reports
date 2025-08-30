@@ -7,7 +7,7 @@ import SubstationNameForm from "~/components/SubstationNameForm";
 import {
   updateTransformerSubstation,
   getTransformerSubstationById,
-  findTransformerSubstationByName,
+  isTransformerSubstationNameTaken,
 } from "~/.server/db-queries/transformer-substations";
 
 import type { FormData } from "./zod-schemas/substation-name.schema";
@@ -37,9 +37,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
   if (errors) return { errors, receivedValues };
 
-  const nameExists = await findTransformerSubstationByName(data.name);
+  const nameTaken = await isTransformerSubstationNameTaken(data.name);
 
-  if (nameExists) {
+  if (nameTaken) {
     return {
       errors: {
         name: { message: `Наименование ${data.name} уже существует.` },
