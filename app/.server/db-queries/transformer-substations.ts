@@ -22,7 +22,7 @@ export async function createTransformerSubstation(
   return result[0];
 }
 
-export async function findTransformerSubstationByName(
+export async function isTransformerSubstationNameTaken(
   name: string,
 ): Promise<boolean> {
   const result = await db.query.transformerSubstations.findFirst({
