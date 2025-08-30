@@ -16,7 +16,7 @@ import {
 } from "react-router";
 
 import MainLayout from "./layout/MainLayout";
-import { getTransformerSubstations } from "./.server/db-queries/transformer-substations";
+import { searchTransformerSubstationsByName } from "./.server/db-queries/transformer-substations";
 
 import type { Route } from "./+types/root";
 
@@ -24,7 +24,7 @@ export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
 
-  const substations = await getTransformerSubstations(q);
+  const substations = await searchTransformerSubstationsByName(q);
 
   return { substations, q };
 }

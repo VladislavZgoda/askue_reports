@@ -33,11 +33,11 @@ export async function isTransformerSubstationNameTaken(
   return !!result;
 }
 
-export async function getTransformerSubstations(
-  searchInput: string | null,
+export async function searchTransformerSubstationsByName(
+  nameFilter: string | null,
 ): Promise<TransformerSubstationData[]> {
   try {
-    const searchString = composeSearchString(searchInput);
+    const searchString = composeSearchString(nameFilter);
 
     const result = await db.query.transformerSubstations.findMany({
       columns: {
