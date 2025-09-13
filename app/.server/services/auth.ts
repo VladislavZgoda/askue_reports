@@ -1,12 +1,11 @@
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 import { getUserId } from "../db-queries/users";
-import { redirect } from "react-router";
-import sessionStorage from "./session";
 import { getValidatedFormData } from "remix-hook-form";
+import { resolver } from "~/routes/auth/zodLoginSchema";
+
 import type { FieldErrors } from "react-hook-form";
 import type { FormData } from "~/routes/auth/zodLoginSchema";
-import { resolver, cookieSchema } from "~/routes/auth/zodLoginSchema";
 
 type AuthType =
   | string
@@ -48,15 +47,3 @@ authenticator.use(
   }),
   "user-login",
 );
-
-export async function isNotAuthenticated(request: Request) {
-  const session = await sessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
-
-  const user = cookieSchema.safeParse(session.get("loggedUser"));
-
-  if (!user.success) return redirect("/login");
-
-  return null;
-}
