@@ -1,11 +1,13 @@
+import * as z from "zod";
 import { Form, useSubmit } from "react-router";
+import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
+
 import Input from "~/components/Input";
 import Fieldset from "~/components/Fieldset";
-import { isNotAuthenticated } from "~/.server/services/auth";
+
 import { todayDate } from "~/utils/date-functions";
+import authMiddleware from "~/.server/middleware/auth";
 import getSubstationCategorySummary from "./.server/load-data";
-import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
-import * as z from "zod";
 
 import type { Route } from "./+types/view-data";
 
@@ -14,9 +16,9 @@ const dateSchema = z
   .nullable()
   .transform((val) => (!val || val.length === 0 ? todayDate() : val));
 
-export async function loader({ request }: Route.LoaderArgs) {
-  await isNotAuthenticated(request);
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
+export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
 
   const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));

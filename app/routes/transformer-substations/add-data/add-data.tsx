@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
+
+import authMiddleware from "~/.server/middleware/auth";
 import { billingFormResolver } from "./validation/billing-form.schema";
 import { technicalFormResolver } from "./validation/technical-form.schema";
-import { isNotAuthenticated } from "~/.server/services/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meter-action-logs";
 import { todayDate } from "~/utils/date-functions";
+
 import Input from "~/components/Input";
 import Select from "~/components/Select";
 import Button from "~/components/Button";
@@ -27,7 +29,9 @@ import type {
   TechnicalFormErrors,
 } from "./validation/technical-form.schema";
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export const loader = async ({ params }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -37,8 +41,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!substation) {
     throw new Error("Not Found");
   }
-
-  await isNotAuthenticated(request);
 
   const actionLogs = await getRecentActionLogsForSubstation(substation.id);
 

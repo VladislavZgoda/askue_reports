@@ -1,10 +1,11 @@
 import * as z from "zod";
 import { Form, useSubmit } from "react-router";
-import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
-import getSubstationMeterSummary from "./.server/load-data";
-import { todayDate } from "~/utils/date-functions";
-import { isNotAuthenticated } from "~/.server/services/auth";
 import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
+
+import { todayDate } from "~/utils/date-functions";
+import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
+import authMiddleware from "~/.server/middleware/auth";
+import getSubstationMeterSummary from "./.server/load-data";
 
 import SummaryTable from "./components/SummaryTable";
 import Input from "~/components/Input";
@@ -17,12 +18,12 @@ const dateSchema = z
   .nullable()
   .transform((val) => (!val || val.length === 0 ? todayDate() : val));
 
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
-
-  await isNotAuthenticated(request);
 
   const substation = await getTransformerSubstationById(Number(params.id));
 

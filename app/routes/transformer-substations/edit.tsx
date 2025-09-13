@@ -1,7 +1,8 @@
 import { resolver } from "./zod-schemas/substation-name.schema";
 import { getValidatedFormData } from "remix-hook-form";
 import { href, useNavigation, redirect } from "react-router";
-import { isNotAuthenticated } from "~/.server/services/auth";
+
+import authMiddleware from "~/.server/middleware/auth";
 import SubstationNameForm from "~/components/SubstationNameForm";
 
 import {
@@ -13,7 +14,9 @@ import {
 import type { FormData } from "./zod-schemas/substation-name.schema";
 import type { Route } from "./+types/edit";
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export const loader = async ({ params }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -23,8 +26,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!substation) {
     throw new Error("Not Found");
   }
-
-  await isNotAuthenticated(request);
 
   return substation;
 };

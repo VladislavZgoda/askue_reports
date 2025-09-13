@@ -11,7 +11,7 @@ import Button from "~/components/Button";
 import Fieldset from "~/components/Fieldset";
 
 import composeReports from "./.server/compose-reports";
-import { isNotAuthenticated } from "~/.server/services/auth";
+import authMiddleware from "~/.server/middleware/auth";
 import validateExcel from "./utils/validate-excel";
 
 import type { Route } from "./+types/generate-reports";
@@ -111,8 +111,10 @@ const resolver = zodResolver(formSchema);
 
 export type FormData = z.infer<typeof formSchema>;
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return await isNotAuthenticated(request);
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export function loader() {
+  return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {

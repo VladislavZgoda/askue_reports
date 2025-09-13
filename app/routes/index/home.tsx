@@ -1,8 +1,11 @@
-import { isNotAuthenticated } from "~/.server/services/auth";
+import authMiddleware from "~/.server/middleware/auth";
+
 import type { Route } from "./+types/home";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return await isNotAuthenticated(request);
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export function loader() {
+  return null;
 }
 
 export default function Index() {

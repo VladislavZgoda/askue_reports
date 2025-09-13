@@ -1,10 +1,13 @@
-import type { Route } from "./+types/logout";
-import sessionStorage from "~/.server/services/session";
 import { href, redirect } from "react-router";
-import { isNotAuthenticated } from "~/.server/services/auth";
+import sessionStorage from "~/.server/services/session";
+import authMiddleware from "~/.server/middleware/auth";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return await isNotAuthenticated(request);
+import type { Route } from "./+types/logout";
+
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export function loader() {
+  return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {

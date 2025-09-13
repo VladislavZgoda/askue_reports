@@ -1,11 +1,14 @@
 import { href, redirect } from "react-router";
+
+import authMiddleware from "~/.server/middleware/auth";
 import { deleteTransformerSubstation } from "~/.server/db-queries/transformer-substations";
-import { isNotAuthenticated } from "~/.server/services/auth";
 
 import type { Route } from "./+types/destroy";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return await isNotAuthenticated(request);
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export function loader() {
+  return null;
 }
 
 export const action = async ({ params }: Route.ActionArgs) => {

@@ -1,8 +1,8 @@
 import { href, useFetcher } from "react-router";
 import { useState, useEffect, useRef } from "react";
 
+import authMiddleware from "~/.server/middleware/auth";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
-import { isNotAuthenticated } from "~/.server/services/auth";
 
 import {
   loadAllSubstationMeterReports,
@@ -18,7 +18,9 @@ import type { Route } from "./+types/change-data";
 import type { BillingFormErrors } from "./validation/billing-form.schema";
 import type { TechnicalFormErrors } from "./validation/technical-form.schema";
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export const loader = async ({ params }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
     throw new Error("Not Found");
   }
@@ -28,8 +30,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!substation) {
     throw new Error("Not Found");
   }
-
-  await isNotAuthenticated(request);
 
   const balanceGroups = [
     "Быт",

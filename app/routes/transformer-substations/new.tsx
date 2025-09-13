@@ -1,7 +1,8 @@
 import { resolver } from "./zod-schemas/substation-name.schema";
 import { getValidatedFormData } from "remix-hook-form";
 import { href, useNavigation, redirect } from "react-router";
-import { isNotAuthenticated } from "~/.server/services/auth";
+
+import authMiddleware from "~/.server/middleware/auth";
 import SubstationNameForm from "~/components/SubstationNameForm";
 
 import {
@@ -12,8 +13,10 @@ import {
 import type { FormData } from "./zod-schemas/substation-name.schema";
 import type { Route } from "./+types/new";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  return await isNotAuthenticated(request);
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+
+export function loader() {
+  return null;
 }
 
 export async function action({ request }: Route.ActionArgs) {
