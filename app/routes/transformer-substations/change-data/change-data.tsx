@@ -22,13 +22,13 @@ export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   if (!Number(params.id)) {
-    throw new Error("Not Found");
+    throw new Error("400 Bad Request");
   }
 
   const substation = await getTransformerSubstationById(Number(params.id));
 
   if (!substation) {
-    throw new Error("Not Found");
+    throw new Error("404 Not Found");
   }
 
   const balanceGroups = [
