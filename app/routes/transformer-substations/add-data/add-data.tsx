@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 
+import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
 import { billingFormResolver } from "./validation/billing-form.schema";
 import { technicalFormResolver } from "./validation/technical-form.schema";
@@ -29,13 +30,12 @@ import type {
   TechnicalFormErrors,
 } from "./validation/technical-form.schema";
 
-export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+export const middleware: Route.MiddlewareFunction[] = [
+  authMiddleware,
+  urlMiddleware,
+];
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  if (!Number(params.id)) {
-    throw new Error("400 Bad Request");
-  }
-
   const substation = await getTransformerSubstationById(Number(params.id));
 
   if (!substation) {

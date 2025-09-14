@@ -2,6 +2,7 @@ import { resolver } from "./zod-schemas/substation-name.schema";
 import { getValidatedFormData } from "remix-hook-form";
 import { href, useNavigation, redirect } from "react-router";
 
+import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
 import SubstationNameForm from "~/components/SubstationNameForm";
 
@@ -14,13 +15,12 @@ import {
 import type { FormData } from "./zod-schemas/substation-name.schema";
 import type { Route } from "./+types/edit";
 
-export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+export const middleware: Route.MiddlewareFunction[] = [
+  authMiddleware,
+  urlMiddleware,
+];
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  if (!Number(params.id)) {
-    throw new Error("400 Bad Request");
-  }
-
   const substation = await getTransformerSubstationById(Number(params.id));
 
   if (!substation) {

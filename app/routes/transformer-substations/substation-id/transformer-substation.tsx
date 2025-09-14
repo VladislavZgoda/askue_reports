@@ -4,6 +4,7 @@ import { createClientLoaderCache, CacheRoute } from "remix-client-cache";
 
 import { todayDate } from "~/utils/date-functions";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
+import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
 import getSubstationMeterSummary from "./.server/load-data";
 
@@ -18,13 +19,12 @@ const dateSchema = z
   .nullable()
   .transform((val) => (!val || val.length === 0 ? todayDate() : val));
 
-export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
+export const middleware: Route.MiddlewareFunction[] = [
+  authMiddleware,
+  urlMiddleware,
+];
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  if (!Number(params.id)) {
-    throw new Error("400 Bad Request");
-  }
-
   const substation = await getTransformerSubstationById(Number(params.id));
 
   if (!substation) {
