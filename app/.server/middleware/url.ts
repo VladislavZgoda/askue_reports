@@ -2,8 +2,7 @@
 // @ts-ignore: TS7031
 export default function urlMiddleware({ request }): void {
   // eslint-disable-next-line
-  const url = request.url;
-  // eslint-disable-next-line
+  const url = request.url as string;
   const id = new URL(url).pathname.split("/")[2];
 
   if (!Number(id)) {
