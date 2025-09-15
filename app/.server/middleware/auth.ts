@@ -1,4 +1,4 @@
-import { redirect } from "react-router";
+import { href, redirect } from "react-router";
 import { cookieSchema } from "~/routes/auth/zodLoginSchema";
 import sessionStorage from "../services/session";
 
@@ -14,5 +14,11 @@ export default async function authMiddleware({
 
   const user = cookieSchema.safeParse(session.get("loggedUser"));
 
-  if (!user.success) return redirect("/login");
+  // eslint-disable-next-line
+  const url = request.url as string;
+  const pathname = new URL(url).pathname.split("/")?.[1] as string | undefined;
+
+  if (!user.success && pathname !== "login") return redirect(href("/login"));
+
+  if (user.success && pathname === "login") return redirect(href("/"));
 }
