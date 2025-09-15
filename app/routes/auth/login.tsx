@@ -1,20 +1,16 @@
-import type { Route } from "./+types/login";
 import { Form, redirect, useNavigation } from "react-router";
+import { useRemixForm } from "remix-hook-form";
 import { authenticator } from "~/.server/services/auth";
 import sessionStorage from "~/.server/services/session";
-import { useRemixForm } from "remix-hook-form";
-import { resolver, cookieSchema } from "./zodLoginSchema";
+import { resolver } from "./zodLoginSchema";
+import authMiddleware from "~/.server/middleware/auth";
+
+import type { Route } from "./+types/login";
 import type { FormData } from "./zodLoginSchema";
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const session = await sessionStorage.getSession(
-    request.headers.get("cookie"),
-  );
+export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-  const user = cookieSchema.safeParse(session.get("loggedUser"));
-
-  if (user.success) return redirect("/");
-
+export function loader() {
   return null;
 }
 
