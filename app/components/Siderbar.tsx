@@ -1,5 +1,5 @@
 import { href, Form, NavLink, useSubmit, useNavigation } from "react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Button from "./Button";
 
@@ -12,10 +12,6 @@ export default function Siderbar({ substations, q }: SubstationSearchParams) {
   const searching =
     navigation.location &&
     new URLSearchParams(navigation.location.search).has("q");
-
-  useEffect(() => {
-    setQuery(q ?? "");
-  }, [q]);
 
   const listItems = () => {
     if (substations?.length) {
@@ -42,6 +38,9 @@ export default function Siderbar({ substations, q }: SubstationSearchParams) {
                   ? "btn btn-ghost btn-lg btn-active w-56"
                   : "btn btn-ghost btn-lg w-56"
             }
+            onClick={() => {
+              setQuery("");
+            }}
           >
             {substation.name}
           </NavLink>
@@ -99,7 +98,7 @@ export default function Siderbar({ substations, q }: SubstationSearchParams) {
               placeholder="Поиск ТП"
               aria-label="Поиск ТП"
               name="q"
-              onChange={(e) => setQuery(e.currentTarget.value)}
+              onChange={(e) => setQuery(e.target.value)}
               value={query}
             />
           </label>
