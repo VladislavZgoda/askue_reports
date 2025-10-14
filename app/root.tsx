@@ -8,7 +8,6 @@ import {
   Scripts,
   ScrollRestoration,
   redirect,
-  useRouteLoaderData,
   useRouteError,
   isRouteErrorResponse,
   useNavigation,
@@ -34,7 +33,6 @@ export function action() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const data = useRouteLoaderData<typeof loader>("root");
   const matches = useMatches();
   const routes = ["routes/*", "routes/auth/login", "routes/404"];
 
@@ -55,9 +53,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             : "font-sans bg-base-200 box-border"
         }`}
       >
-        {!routes.includes(matches[1]?.id) && (
-          <MainLayout substations={data?.substations} q={data?.q} />
-        )}
+        {!routes.includes(matches[1]?.id) && <MainLayout />}
 
         {children}
         <ScrollRestoration />

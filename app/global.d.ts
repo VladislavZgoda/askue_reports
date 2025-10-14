@@ -13,16 +13,6 @@ declare type Executor =
       >
     >;
 
-declare interface SubstationSearchParams {
-  substations:
-    | {
-        id: number;
-        name: string;
-      }[]
-    | undefined;
-  q: string | null | undefined;
-}
-
 declare type BalanceGroup = import("app/.server/schema").BalanceGroup;
 
 declare interface MeterCountQueryParams {

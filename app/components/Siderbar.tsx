@@ -1,11 +1,13 @@
 import { href, Form, NavLink, useSubmit, useNavigation } from "react-router";
-import { useState } from "react";
-
 import Button from "./Button";
 
-export default function Siderbar({ substations, q }: SubstationSearchParams) {
-  const [query, setQuery] = useState(q ?? "");
+import type { SiderbarProps } from "~/layout/MainLayout";
 
+export default function Siderbar({
+  substations,
+  query,
+  setQuery,
+}: SiderbarProps) {
   const submit = useSubmit();
   const navigation = useNavigation();
 
@@ -64,7 +66,7 @@ export default function Siderbar({ substations, q }: SubstationSearchParams) {
         <Form
           role="search"
           onChange={(e) => {
-            const isFirstSearch = q === null;
+            const isFirstSearch = query === null;
 
             void submit(e.currentTarget, {
               replace: !isFirstSearch,
