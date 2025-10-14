@@ -62,7 +62,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   );
 
   const isBillingAction = fetcherBillingMeters.formAction === billingAction;
-  const [billingErrors, setBillingErrors] = useState(fetcherBillingMeters.data);
+  const billingErrors = fetcherBillingMeters.data;
 
   const billingForm = useRemixForm<BillingFormData>({
     resolver: billingFormResolver,
@@ -84,9 +84,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   const isTechnicalAction =
     fetcherTechnicalMeters.formAction === technicalAction;
 
-  const [technicalErrors, setTechnicalErrors] = useState(
-    fetcherTechnicalMeters.data,
-  );
+  const technicalErrors = fetcherTechnicalMeters.data;
 
   const technicalForm = useRemixForm<TechnicalForm>({
     resolver: technicalFormResolver,
@@ -104,25 +102,17 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   useEffect(() => {
     if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
-      setBillingErrors(undefined);
       showToast();
       billingForm.reset();
     }
-
-    if (fetcherBillingMeters.data) setBillingErrors(fetcherBillingMeters.data);
 
     if (
       !isSubmittingTechnical &&
       !fetcherTechnicalMeters.data &&
       isTechnicalAction
     ) {
-      setTechnicalErrors(undefined);
       showToast();
       technicalForm.reset();
-    }
-
-    if (fetcherTechnicalMeters.data) {
-      setTechnicalErrors(fetcherTechnicalMeters.data);
     }
   }, [
     fetcherBillingMeters.data,
