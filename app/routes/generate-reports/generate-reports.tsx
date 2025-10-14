@@ -2,7 +2,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFetcher } from "react-router";
 import { useRemixForm, getValidatedFormData } from "remix-hook-form";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import Select from "../../components/Select";
 import InputExcel from "./components/InputExcel";
@@ -150,9 +150,9 @@ export async function clientAction({ serverAction }: Route.ClientActionArgs) {
 export default function GenerateReports() {
   const fetcher = useFetcher<typeof action>();
   const isSubmitting = fetcher.state === "submitting";
+  const errors = fetcher.data;
   const defaultDate = todayDate();
   const year = cutOutYear(todayDate());
-  const [errors, setErrors] = useState(fetcher.data);
   const redStar = <span className="text-red-600 text-sm">*</span>;
 
   const { handleSubmit, register, reset } = useRemixForm<FormData>({
@@ -174,16 +174,13 @@ export default function GenerateReports() {
     if (isSubmitting) return;
 
     reset();
-    setErrors(null);
+    fetcher.unstable_reset();
   };
 
   useEffect(() => {
     if (!fetcher.data && fetcher.state === "idle") {
-      setErrors(null);
       reset();
     }
-
-    if (fetcher.data) setErrors({ ...fetcher.data });
   }, [fetcher.data, fetcher.state, reset]);
 
   return (
