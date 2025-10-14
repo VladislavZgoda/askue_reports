@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 
@@ -53,6 +53,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
+  const billingErrors = fetcherBillingMeters.data;
 
   const billingAction = href(
     "/transformer-substations/:id/add-billing-meters",
@@ -62,7 +63,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
   );
 
   const isBillingAction = fetcherBillingMeters.formAction === billingAction;
-  const billingErrors = fetcherBillingMeters.data;
 
   const billingForm = useRemixForm<BillingFormData>({
     resolver: billingFormResolver,
@@ -75,6 +75,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
   const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
+  const technicalErrors = fetcherTechnicalMeters.data;
 
   const technicalAction = href(
     "/transformer-substations/:id/add-technical-meters",
@@ -83,8 +84,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
 
   const isTechnicalAction =
     fetcherTechnicalMeters.formAction === technicalAction;
-
-  const technicalErrors = fetcherTechnicalMeters.data;
 
   const technicalForm = useRemixForm<TechnicalForm>({
     resolver: technicalFormResolver,
@@ -100,31 +99,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     }, 4000);
   };
 
-  useEffect(() => {
-    if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
-      showToast();
-      billingForm.reset();
-    }
-
-    if (
-      !isSubmittingTechnical &&
-      !fetcherTechnicalMeters.data &&
-      isTechnicalAction
-    ) {
-      showToast();
-      technicalForm.reset();
-    }
-  }, [
-    fetcherBillingMeters.data,
-    isSubmittingBilling,
-    isBillingAction,
-    fetcherTechnicalMeters.data,
-    isSubmittingTechnical,
-    isTechnicalAction,
-    billingForm,
-    technicalForm,
-  ]);
-
   return (
     <main>
       <LinkToSubstation
@@ -136,7 +110,18 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcherBillingMeters.Form
-            onSubmit={void billingForm.handleSubmit()}
+            onSubmit={
+              void billingForm.handleSubmit().finally(() => {
+                if (
+                  !isSubmittingBilling &&
+                  !fetcherBillingMeters.data &&
+                  isBillingAction
+                ) {
+                  showToast();
+                  billingForm.reset();
+                }
+              })
+            }
             method="POST"
             action={billingAction}
             className="flex flex-col gap-5 h-full"
@@ -195,7 +180,18 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить техучеты</h2>
           <fetcherTechnicalMeters.Form
-            onSubmit={void technicalForm.handleSubmit()}
+            onSubmit={
+              void technicalForm.handleSubmit().finally(() => {
+                if (
+                  !isSubmittingTechnical &&
+                  !fetcherTechnicalMeters.data &&
+                  isTechnicalAction
+                ) {
+                  showToast();
+                  technicalForm.reset();
+                }
+              })
+            }
             method="POST"
             action={technicalAction}
             className="flex flex-col gap-5 h-full"
