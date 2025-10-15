@@ -1,5 +1,4 @@
 import { useRemixForm } from "remix-hook-form";
-import { useState, useEffect } from "react";
 import { technicalFormResolver as resolver } from "../validation/technical-form.schema";
 
 import Input from "~/components/Input";
@@ -37,12 +36,6 @@ export default function TechnicalMetersTabPanel({
 }: PanelProps) {
   const { totalCount, underVoltageCount } = technicalMeters;
 
-  const [inputErrors, setInputErrors] = useState(errors);
-
-  useEffect(() => {
-    setInputErrors(errors);
-  }, [errors]);
-
   const { handleSubmit, register, reset } = useRemixForm<TechnicalFormData>({
     mode: "onSubmit",
     resolver,
@@ -65,7 +58,7 @@ export default function TechnicalMetersTabPanel({
                 type="number"
                 min={0}
                 placeholder="0"
-                error={inputErrors?.quantity?.message}
+                error={errors?.quantity?.message}
                 errorClassName={errorStyles}
                 {...register("quantity")}
               />
@@ -75,7 +68,7 @@ export default function TechnicalMetersTabPanel({
                 type="number"
                 min={0}
                 placeholder="0"
-                error={inputErrors?.underVoltage?.message}
+                error={errors?.underVoltage?.message}
                 errorClassName={errorStyles}
                 {...register("underVoltage")}
               />
@@ -95,7 +88,7 @@ export default function TechnicalMetersTabPanel({
           className="mt-5 ml-5 w-50 btn-neutral btn-outline"
           onClick={() => {
             reset();
-            setInputErrors(undefined);
+            fetcher.unstable_reset();
           }}
         >
           Очистить форму
