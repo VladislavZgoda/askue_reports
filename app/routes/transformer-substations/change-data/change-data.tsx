@@ -1,5 +1,5 @@
 import { href, useFetcher } from "react-router";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
@@ -59,13 +59,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
 
-  const submissionStateRef = useRef({
-    isSubmitting: false,
-    lastAction: "",
-  });
-
   const fetcherBillingData = fetcherBillingMeters.data;
-  const isSubmittingBilling = fetcherBillingMeters.state === "submitting";
 
   const billingAction = href(
     "/transformer-substations/:id/change-billing-meters",
@@ -74,9 +68,6 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     },
   );
 
-  const fetcherTechnicalData = fetcherTechnicalMeters.data;
-  const isSubmittingTechnical = fetcherTechnicalMeters.state === "submitting";
-
   const technicalAction = href(
     "/transformer-substations/:id/change-technical-meters",
     {
@@ -84,51 +75,12 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
     },
   );
 
-  useEffect(() => {
-    if (isSubmittingTechnical) {
-      submissionStateRef.current = {
-        isSubmitting: true,
-        lastAction: fetcherTechnicalMeters.formAction || "",
-      };
-    } else if (submissionStateRef.current.isSubmitting) {
-      if (fetcherTechnicalData === null) {
-        setIsVisible(true);
-        setTimeout(() => setIsVisible(false), 4000);
-
-        fetcherTechnicalMeters.data = undefined;
-      }
-    }
-  }, [
-    isSubmittingTechnical,
-    fetcherTechnicalMeters.formAction,
-    fetcherTechnicalData,
-    fetcherTechnicalMeters,
-  ]);
-
-  useEffect(() => {
-    if (isSubmittingBilling) {
-      submissionStateRef.current = {
-        isSubmitting: true,
-        lastAction: fetcherBillingMeters.formAction || "",
-      };
-    } else if (submissionStateRef.current.isSubmitting) {
-      if (submissionStateRef.current.lastAction === billingAction) {
-        if (fetcherBillingData === null) {
-          setIsVisible(true);
-          setTimeout(() => setIsVisible(false), 4000);
-
-          fetcherBillingMeters.data = undefined;
-        }
-      }
-
-      submissionStateRef.current.isSubmitting = false;
-    }
-  }, [
-    isSubmittingBilling,
-    fetcherBillingData,
-    billingAction,
-    fetcherBillingMeters,
-  ]);
+  const showToast = () => {
+    setIsVisible(true);
+    setTimeout(() => {
+      setIsVisible(false);
+    }, 4000);
+  };
 
   const errorsForPrivate =
     fetcherBillingData?.errors &&
@@ -176,8 +128,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports.Быт}
-          isSubmitting={isSubmittingBilling}
           balanceGroup="Быт"
+          showToast={showToast}
         />
 
         <BalanceGroupTabPanel
@@ -185,8 +137,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports["ЮР Sims"]}
-          isSubmitting={isSubmittingBilling}
           balanceGroup="ЮР Sims"
+          showToast={showToast}
         />
 
         <BalanceGroupTabPanel
@@ -194,8 +146,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports["ЮР П2"]}
-          isSubmitting={isSubmittingBilling}
           balanceGroup="ЮР П2"
+          showToast={showToast}
         />
 
         <BalanceGroupTabPanel
@@ -203,8 +155,8 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports["ОДПУ Sims"]}
-          isSubmitting={isSubmittingBilling}
           balanceGroup="ОДПУ Sims"
+          showToast={showToast}
         />
 
         <BalanceGroupTabPanel
@@ -212,16 +164,15 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
           action={billingAction}
           fetcher={fetcherBillingMeters}
           meterReport={meterReports["ОДПУ П2"]}
-          isSubmitting={isSubmittingBilling}
           balanceGroup="ОДПУ П2"
+          showToast={showToast}
         />
 
         <TechnicalMetersTabPanel
-          errors={fetcherTechnicalData}
           action={technicalAction}
           fetcher={fetcherTechnicalMeters}
           technicalMeters={technicalMeters}
-          isSubmitting={isSubmittingTechnical}
+          showToast={showToast}
         />
       </div>
 

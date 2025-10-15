@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver as resolver } from "../validation/billing-form.schema";
 
@@ -32,8 +33,8 @@ interface PanelProps {
   action: string;
   fetcher: FetcherWithComponents<BillingFormErrors>;
   meterReport: MeterReport;
-  isSubmitting: boolean;
   balanceGroup: BalanceGroup;
+  showToast: () => void;
 }
 
 export default function BalanceGroupTabPanel({
@@ -41,8 +42,8 @@ export default function BalanceGroupTabPanel({
   action,
   fetcher,
   meterReport,
-  isSubmitting,
   balanceGroup,
+  showToast,
 }: PanelProps) {
   const {
     registeredMeters,
@@ -50,6 +51,10 @@ export default function BalanceGroupTabPanel({
     yearlyInstallation,
     monthlyInstallation,
   } = meterReport;
+
+  const errorStyles = "w-52 text-pretty";
+  const isSubmitting = fetcher.state === "submitting";
+  const isBillingAction = fetcher.formAction === action;
 
   const { handleSubmit, register, reset } = useRemixForm<BillingFormData>({
     mode: "onSubmit",
@@ -66,7 +71,11 @@ export default function BalanceGroupTabPanel({
     },
   });
 
-  const errorStyles = "w-52 text-pretty";
+  useEffect(() => {
+    if (!isSubmitting && !fetcher.data && isBillingAction) {
+      showToast();
+    }
+  }, [isSubmitting, isBillingAction, showToast, fetcher.data]);
 
   return (
     <TabPanel checked={balanceGroup === "Быт"} label={balanceGroup}>

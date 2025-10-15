@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRemixForm } from "remix-hook-form";
 import { technicalFormResolver as resolver } from "../validation/technical-form.schema";
 
@@ -20,24 +21,25 @@ interface TechnicalMetersStats {
 }
 
 interface PanelProps {
-  errors: TechnicalFormErrors | undefined;
   action: string;
   fetcher: FetcherWithComponents<TechnicalFormErrors>;
   technicalMeters: TechnicalMetersStats;
-  isSubmitting: boolean;
+  showToast: () => void;
 }
 
 export default function TechnicalMetersTabPanel({
-  errors,
   action,
   fetcher,
   technicalMeters,
-  isSubmitting,
+  showToast,
 }: PanelProps) {
   const { totalCount, underVoltageCount } = technicalMeters;
+  const isTechnicalAction = fetcher.formAction === action;
+  const isSubmitting = fetcher.state === "submitting";
+  const errors = fetcher.data;
+  const errorStyles = "w-52 text-pretty";
 
   const { handleSubmit, register, reset } = useRemixForm<TechnicalFormData>({
-    mode: "onSubmit",
     resolver,
     fetcher,
     defaultValues: {
@@ -46,7 +48,11 @@ export default function TechnicalMetersTabPanel({
     },
   });
 
-  const errorStyles = "w-52 text-pretty";
+  useEffect(() => {
+    if (!isSubmitting && !errors && isTechnicalAction) {
+      showToast();
+    }
+  }, [errors, isSubmitting, isTechnicalAction, showToast]);
 
   return (
     <TabPanel checked={false} label="Техучёт">
