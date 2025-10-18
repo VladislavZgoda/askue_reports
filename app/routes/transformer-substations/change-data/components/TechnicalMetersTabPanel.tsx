@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useRemixForm } from "remix-hook-form";
 import { technicalFormResolver as resolver } from "../validation/technical-form.schema";
 
@@ -48,11 +48,13 @@ export default function TechnicalMetersTabPanel({
     },
   });
 
+  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+
   useEffect(() => {
     if (!isSubmitting && !errors && isTechnicalAction) {
-      showToast();
+      onSeccessfulSubmit();
     }
-  }, [errors, isSubmitting, isTechnicalAction, showToast]);
+  }, [errors, isSubmitting, isTechnicalAction]);
 
   return (
     <TabPanel checked={false} label="Техучёт">

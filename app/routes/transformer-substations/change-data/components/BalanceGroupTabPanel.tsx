@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useEffectEvent } from "react";
 import { useRemixForm } from "remix-hook-form";
 import { billingFormResolver as resolver } from "../validation/billing-form.schema";
 
@@ -71,11 +71,13 @@ export default function BalanceGroupTabPanel({
     },
   });
 
+  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+
   useEffect(() => {
     if (!isSubmitting && !fetcher.data && isBillingAction) {
-      showToast();
+      onSeccessfulSubmit();
     }
-  }, [isSubmitting, isBillingAction, showToast, fetcher.data]);
+  }, [isSubmitting, isBillingAction, fetcher.data]);
 
   return (
     <TabPanel checked={balanceGroup === "Быт"} label={balanceGroup}>
