@@ -11,7 +11,7 @@
     "typecheck": "react-router typegen && tsc",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx app/.server/migrate.ts",
-    "prettier": "npx prettier . --write"
+    "format": "npx prettier . --write"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
