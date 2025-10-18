@@ -1,5 +1,5 @@
 import { href, useFetcher } from "react-router";
-import { useState } from "react";
+import { useState, Activity } from "react";
 
 import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
@@ -53,8 +53,14 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const { substation, meterReports, technicalMeters } = loaderData;
+  const [isShowingToast, setIsShowingToast] = useState(false);
 
-  const [isVisible, setIsVisible] = useState(false);
+  const showToast = () => {
+    setIsShowingToast(true);
+    setTimeout(() => {
+      setIsShowingToast(false);
+    }, 4000);
+  };
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
@@ -74,13 +80,6 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
       id: substation.id.toString(),
     },
   );
-
-  const showToast = () => {
-    setIsVisible(true);
-    setTimeout(() => {
-      setIsVisible(false);
-    }, 4000);
-  };
 
   const errorsForPrivate =
     fetcherBillingData?.errors &&
@@ -176,7 +175,9 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
         />
       </div>
 
-      <Toast isVisible={isVisible} message="Данные успешно обновлены." />
+      <Activity mode={isShowingToast ? "visible" : "hidden"}>
+        <Toast message="Данные успешно обновлены." />
+      </Activity>
     </main>
   );
 }

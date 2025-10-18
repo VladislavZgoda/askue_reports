@@ -1,4 +1,4 @@
-import { useState, useEffect, useEffectEvent } from "react";
+import { useState, useEffect, useEffectEvent, Activity } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 
@@ -90,12 +90,12 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     fetcher: fetcherTechnicalMeters,
   });
 
-  const [isVisible, setIsVisible] = useState(false);
+  const [isShowingToast, setIsShowingToast] = useState(false);
 
   const showToast = () => {
-    setIsVisible(true);
+    setIsShowingToast(true);
     setTimeout(() => {
-      setIsVisible(false);
+      setIsShowingToast(false);
     }, 4000);
   };
 
@@ -237,7 +237,9 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <Log actionLogs={actionLogs} />
       </div>
 
-      <Toast isVisible={isVisible} message="Данные успешно добавлены." />
+      <Activity mode={isShowingToast ? "visible" : "hidden"}>
+        <Toast message="Данные успешно добавлены." />
+      </Activity>
     </main>
   );
 }
