@@ -140,9 +140,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcherBillingMeters.Form
-            onSubmit={
-              void billingForm.handleSubmit
-            }
+            onSubmit={void billingForm.handleSubmit}
             method="POST"
             action={billingAction}
             className="flex flex-col gap-5 h-full"
