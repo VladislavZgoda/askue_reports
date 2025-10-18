@@ -81,7 +81,7 @@ export default function BalanceGroupTabPanel({
 
   return (
     <TabPanel checked={balanceGroup === "Быт"} label={balanceGroup}>
-      <fetcher.Form method="POST" action={action} onSubmit={void handleSubmit}>
+      <fetcher.Form method="POST" action={action} onSubmit={() => handleSubmit}>
         <div className="flex gap-8">
           <Container heading="Всего счетчиков">
             <Fieldset

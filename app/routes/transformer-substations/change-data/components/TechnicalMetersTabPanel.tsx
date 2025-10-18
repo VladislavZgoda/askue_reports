@@ -58,7 +58,7 @@ export default function TechnicalMetersTabPanel({
 
   return (
     <TabPanel checked={false} label="Техучёт">
-      <fetcher.Form method="POST" action={action} onSubmit={void handleSubmit}>
+      <fetcher.Form method="POST" action={action} onSubmit={() => handleSubmit}>
         <div className="flex gap-8">
           <Container heading="Всего счетчиков">
             <Fieldset legend="Количество ПУ">
