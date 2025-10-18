@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useEffectEvent } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 
@@ -99,6 +99,36 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     }, 4000);
   };
 
+  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+
+  useEffect(() => {
+    if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
+      onSeccessfulSubmit();
+      billingForm.reset();
+    }
+  }, [
+    billingForm,
+    fetcherBillingMeters.data,
+    isBillingAction,
+    isSubmittingBilling,
+  ]);
+
+  useEffect(() => {
+    if (
+      !isSubmittingTechnical &&
+      !fetcherTechnicalMeters.data &&
+      isTechnicalAction
+    ) {
+      onSeccessfulSubmit();
+      technicalForm.reset();
+    }
+  }, [
+    fetcherTechnicalMeters.data,
+    isSubmittingTechnical,
+    isTechnicalAction,
+    technicalForm,
+  ]);
+
   return (
     <main>
       <LinkToSubstation
@@ -111,16 +141,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcherBillingMeters.Form
             onSubmit={
-              void billingForm.handleSubmit().finally(() => {
-                if (
-                  !isSubmittingBilling &&
-                  !fetcherBillingMeters.data &&
-                  isBillingAction
-                ) {
-                  showToast();
-                  billingForm.reset();
-                }
-              })
+              void billingForm.handleSubmit
             }
             method="POST"
             action={billingAction}
@@ -180,18 +201,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить техучеты</h2>
           <fetcherTechnicalMeters.Form
-            onSubmit={
-              void technicalForm.handleSubmit().finally(() => {
-                if (
-                  !isSubmittingTechnical &&
-                  !fetcherTechnicalMeters.data &&
-                  isTechnicalAction
-                ) {
-                  showToast();
-                  technicalForm.reset();
-                }
-              })
-            }
+            onSubmit={() => technicalForm.handleSubmit}
             method="POST"
             action={technicalAction}
             className="flex flex-col gap-5 h-full"
