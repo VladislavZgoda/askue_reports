@@ -234,7 +234,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           </fetcherTechnicalMeters.Form>
         </section>
 
-        <Log actionLogs={actionLogs} />
+        {actionLogs.length > 0 && <Log actionLogs={actionLogs} />}
       </div>
 
       <Activity mode={isShowingToast ? "visible" : "hidden"}>
