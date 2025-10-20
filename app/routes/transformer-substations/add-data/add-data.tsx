@@ -1,4 +1,4 @@
-import { useState, useEffect, useEffectEvent, Activity } from "react";
+import { useEffect, useEffectEvent, Activity } from "react";
 import { href, useFetcher } from "react-router";
 import { useRemixForm } from "remix-hook-form";
 
@@ -9,6 +9,7 @@ import { technicalFormResolver } from "./validation/technical-form.schema";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 import { getRecentActionLogsForSubstation } from "~/.server/db-queries/meter-action-logs";
 import { todayDate } from "~/utils/date-functions";
+import { useToast } from "~/hooks/use-toast";
 
 import Input from "~/components/Input";
 import Select from "~/components/Select";
@@ -49,6 +50,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function AddData({ loaderData }: Route.ComponentProps) {
   const { substation, actionLogs } = loaderData;
+  const { isShowingToast, showToast } = useToast();
   const defaultDate = todayDate();
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
@@ -89,15 +91,6 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     resolver: technicalFormResolver,
     fetcher: fetcherTechnicalMeters,
   });
-
-  const [isShowingToast, setIsShowingToast] = useState(false);
-
-  const showToast = () => {
-    setIsShowingToast(true);
-    setTimeout(() => {
-      setIsShowingToast(false);
-    }, 4000);
-  };
 
   const onSuccessfulSubmit = useEffectEvent(() => showToast());
 

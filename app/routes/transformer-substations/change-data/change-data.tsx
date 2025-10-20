@@ -1,8 +1,9 @@
 import { href, useFetcher } from "react-router";
-import { useState, Activity } from "react";
+import { Activity } from "react";
 
 import urlMiddleware from "~/.server/middleware/url";
 import authMiddleware from "~/.server/middleware/auth";
+import { useToast } from "~/hooks/use-toast";
 import { getTransformerSubstationById } from "~/.server/db-queries/transformer-substations";
 
 import {
@@ -53,14 +54,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function ChangeData({ loaderData }: Route.ComponentProps) {
   const { substation, meterReports, technicalMeters } = loaderData;
-  const [isShowingToast, setIsShowingToast] = useState(false);
-
-  const showToast = () => {
-    setIsShowingToast(true);
-    setTimeout(() => {
-      setIsShowingToast(false);
-    }, 4000);
-  };
+  const { isShowingToast, showToast } = useToast();
 
   const fetcherBillingMeters = useFetcher<BillingFormErrors>();
   const fetcherTechnicalMeters = useFetcher<TechnicalFormErrors>();
