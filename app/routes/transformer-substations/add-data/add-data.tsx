@@ -99,11 +99,11 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
     }, 4000);
   };
 
-  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+  const onSuccessfulSubmit = useEffectEvent(() => showToast());
 
   useEffect(() => {
     if (!isSubmittingBilling && !fetcherBillingMeters.data && isBillingAction) {
-      onSeccessfulSubmit();
+      onSuccessfulSubmit();
       billingForm.reset();
     }
   }, [
@@ -119,7 +119,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       !fetcherTechnicalMeters.data &&
       isTechnicalAction
     ) {
-      onSeccessfulSubmit();
+      onSuccessfulSubmit();
       technicalForm.reset();
     }
   }, [

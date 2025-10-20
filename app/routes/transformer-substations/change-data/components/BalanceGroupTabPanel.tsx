@@ -71,11 +71,11 @@ export default function BalanceGroupTabPanel({
     },
   });
 
-  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+  const onSuccessfulSubmit = useEffectEvent(() => showToast());
 
   useEffect(() => {
     if (!isSubmitting && !fetcher.data && isBillingAction) {
-      onSeccessfulSubmit();
+      onSuccessfulSubmit();
     }
   }, [isSubmitting, isBillingAction, fetcher.data]);
 

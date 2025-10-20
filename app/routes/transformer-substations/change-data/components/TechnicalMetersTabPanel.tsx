@@ -48,11 +48,11 @@ export default function TechnicalMetersTabPanel({
     },
   });
 
-  const onSeccessfulSubmit = useEffectEvent(() => showToast());
+  const onSuccessfulSubmit = useEffectEvent(() => showToast());
 
   useEffect(() => {
     if (!isSubmitting && !errors && isTechnicalAction) {
-      onSeccessfulSubmit();
+      onSuccessfulSubmit();
     }
   }, [errors, isSubmitting, isTechnicalAction]);
 
