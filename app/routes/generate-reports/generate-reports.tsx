@@ -193,7 +193,7 @@ export default function GenerateReports() {
       </p>
 
       <fetcher.Form
-        onSubmit={() => handleSubmit}
+        onSubmit={void handleSubmit}
         className="flex flex-col w-[30vw] gap-6"
         method="post"
         encType="multipart/form-data"

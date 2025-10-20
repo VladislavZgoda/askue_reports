@@ -199,7 +199,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
           <h2>Добавить техучеты</h2>
           <fetcherTechnicalMeters.Form
-            onSubmit={() => technicalForm.handleSubmit}
+            onSubmit={void technicalForm.handleSubmit}
             method="POST"
             action={technicalAction}
             className="flex flex-col gap-5 h-full"
