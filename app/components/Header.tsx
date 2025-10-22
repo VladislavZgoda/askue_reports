@@ -3,7 +3,7 @@ import { href, Link, Form, NavLink } from "react-router";
 import logo from "../../images/logo.svg";
 import Button from "./Button";
 
-import type { SetQuery } from "~/layout/MainLayout";
+import type { SetQuery } from "~/layouts/DashboardLayout";
 
 export default function Header({ setQuery }: { setQuery: SetQuery }) {
   const handleLinkClick = () => setQuery("");

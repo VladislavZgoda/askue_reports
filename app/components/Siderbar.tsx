@@ -1,7 +1,7 @@
 import { href, Form, NavLink, useSubmit, useNavigation } from "react-router";
 import Button from "./Button";
 
-import type { SiderbarProps } from "~/layout/MainLayout";
+import type { SiderbarProps } from "~/layouts/DashboardLayout";
 
 export default function Siderbar({
   substations,

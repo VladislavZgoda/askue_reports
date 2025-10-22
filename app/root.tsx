@@ -10,11 +10,8 @@ import {
   redirect,
   useRouteError,
   isRouteErrorResponse,
-  useNavigation,
-  useMatches,
 } from "react-router";
 
-import MainLayout from "./layout/MainLayout";
 import { searchTransformerSubstationsByName } from "./.server/db-queries/transformer-substations";
 
 import type { Route } from "./+types/root";
@@ -33,9 +30,6 @@ export function action() {
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const matches = useMatches();
-  const routes = ["routes/*", "routes/auth/login", "routes/404"];
-
   return (
     <html lang="ru" data-theme="retro">
       <head>
@@ -45,16 +39,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Отчеты АСКУЭ</title>
       </head>
-      <body
-        className={`${
-          !routes.includes(matches[1]?.id)
-            ? `font-sans box-border grid grid-cols-[1fr_1fr_1fr_1fr_1fr] grid-rows-[1fr_2fr_2fr_2fr_3rem]
-            lg:grid-cols-[24rem_1fr_1fr_1fr_1fr] lg:grid-rows-[8rem_2fr_2fr_2fr_3rem]`
-            : "font-sans bg-base-200 box-border"
-        }`}
-      >
-        {!routes.includes(matches[1]?.id) && <MainLayout />}
-
+      <body>
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -64,27 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  const navigation = useNavigation();
-  const matches = useMatches();
-  const routes = ["routes/$", "routes/auth/login"];
-
-  return (
-    <div
-      className={`${
-        !routes.includes(matches[1]?.id)
-          ? "col-start-2 col-span-4 row-start-2 row-span-3"
-          : "h-screen w-screen flex justify-center items-center"
-      }`}
-    >
-      {navigation.state === "loading" ? (
-        <div className="flex justify-center items-center h-full">
-          <span className="loading loading-spinner text-primary size-72"></span>
-        </div>
-      ) : (
-        <Outlet />
-      )}
-    </div>
-  );
+  return <Outlet />;
 }
 
 export function ErrorBoundary() {
