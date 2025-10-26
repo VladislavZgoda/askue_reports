@@ -66,8 +66,8 @@ export default CacheRoute(function TransformerSubstation({
 
   return (
     <main className="m-2">
-      <section className="flex justify-between w-[60%]">
-        <ul className="menu bg-base-200 rounded-box w-96 menu-lg row-span-1 shadow-md">
+      <section className="flex w-[60%] justify-between">
+        <ul className="menu bg-base-200 rounded-box menu-lg row-span-1 w-96 shadow-md">
           <li>
             <h2 className="menu-title">{substation.name}</h2>
             <ul>
@@ -96,7 +96,7 @@ export default CacheRoute(function TransformerSubstation({
         </ul>
 
         <Form
-          className="flex flex-col bg-base-200 px-10 py-5 rounded-md gap-2 shadow-md"
+          className="bg-base-200 flex flex-col gap-2 rounded-md px-10 py-5 shadow-md"
           onChange={(e) => {
             void submit(e.currentTarget);
           }}

@@ -12,7 +12,7 @@ export default function LinkToSubstation({ substationId, name }: LinkProps) {
       className="link link-neutral"
       prefetch="intent"
     >
-      <h1 className="text-center mb-6 mt-2 font-bold text-xl">{name}</h1>
+      <h1 className="mt-2 mb-6 text-center text-xl font-bold">{name}</h1>
     </Link>
   );
 }

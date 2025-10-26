@@ -153,7 +153,7 @@ export default function GenerateReports() {
   const errors = fetcher.data;
   const defaultDate = todayDate();
   const year = cutOutYear(todayDate());
-  const redStar = <span className="text-red-600 text-sm">*</span>;
+  const redStar = <span className="text-sm text-red-600">*</span>;
 
   const { handleSubmit, register, reset } = useRemixForm<FormData>({
     resolver,
@@ -185,7 +185,7 @@ export default function GenerateReports() {
 
   return (
     <main className="mt-5 ml-10">
-      <h1 className="font-bold text-xl">
+      <h1 className="text-xl font-bold">
         Выберите даты для данных из балансных групп
       </h1>
       <p className="mb-1.5 text-xs">
@@ -194,12 +194,12 @@ export default function GenerateReports() {
 
       <fetcher.Form
         onSubmit={void handleSubmit}
-        className="flex flex-col w-[30vw] gap-6"
+        className="flex w-[30vw] flex-col gap-6"
         method="post"
         encType="multipart/form-data"
       >
         <section className="flex flex-col">
-          <div className="flex gap-18 mb-1">
+          <div className="mb-1 flex gap-18">
             <Fieldset className="w-full" legend={<div>Быт{redStar}</div>}>
               <Input
                 type="date"
@@ -219,7 +219,7 @@ export default function GenerateReports() {
               />
             </Fieldset>
           </div>
-          <div className="flex gap-18 mb-1">
+          <div className="mb-1 flex gap-18">
             <Fieldset className="w-full" legend={<div>Юр{redStar}</div>}>
               <Input
                 type="date"
@@ -261,7 +261,7 @@ export default function GenerateReports() {
           </div>
         </section>
 
-        <h2 className="font-semibold -mb-5">
+        <h2 className="-mb-5 font-semibold">
           Выберите месяц и год для заголовков отчётов
         </h2>
 
@@ -284,7 +284,7 @@ export default function GenerateReports() {
           </Fieldset>
         </section>
 
-        <h2 className="font-semibold -mb-5">
+        <h2 className="-mb-5 font-semibold">
           Добавить данные из приложения №9 (необязательно)
         </h2>
 
@@ -294,7 +294,7 @@ export default function GenerateReports() {
 
         <div className="mt-2.5 flex gap-18">
           <Button
-            className={`flex-1 btn-primary ${isSubmitting && "btn-active"}`}
+            className={`btn-primary flex-1 ${isSubmitting && "btn-active"}`}
             type={isSubmitting ? "button" : "submit"}
           >
             {isSubmitting && <span className="loading loading-spinner"></span>}
@@ -302,7 +302,7 @@ export default function GenerateReports() {
           </Button>
 
           <Button
-            className="flex-1 btn-neutral"
+            className="btn-neutral flex-1"
             type="button"
             onClick={handleReset}
           >

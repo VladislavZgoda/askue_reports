@@ -178,14 +178,14 @@ export default function BalanceGroupTabPanel({
         </div>
         <Button
           type={isSubmitting ? "button" : "submit"}
-          className={`mt-5 w-50 btn-outline btn-accent ${isSubmitting && "btn-active"}`}
+          className={`btn-outline btn-accent mt-5 w-50 ${isSubmitting && "btn-active"}`}
         >
           {isSubmitting && <span className="loading loading-spinner"></span>}
           {isSubmitting ? "Изменение..." : "Изменить данные"}
         </Button>
         <Button
           type="button"
-          className="mt-5 ml-5 w-50 btn-neutral btn-outline"
+          className="btn-neutral btn-outline mt-5 ml-5 w-50"
           onClick={() => {
             reset();
             fetcher.unstable_reset();

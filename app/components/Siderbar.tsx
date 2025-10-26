@@ -35,7 +35,7 @@ export default function Siderbar({
             prefetch="intent"
             className={({ isActive, isPending }) =>
               isActive
-                ? "btn btn-info btn-lg btn-active w-56 shadow-xs shadow-neutral"
+                ? "btn btn-info btn-lg btn-active shadow-neutral w-56 shadow-xs"
                 : isPending
                   ? "btn btn-ghost btn-lg btn-active w-56"
                   : "btn btn-ghost btn-lg w-56"
@@ -58,11 +58,8 @@ export default function Siderbar({
   };
 
   return (
-    <div className="col-span-1 row-start-2 row-span-3 border-r-2 border-neutral">
-      <div
-        className="flex p-3 items-center flex-col justify-between
-           border-b-2 border-neutral h-36 flex-initial"
-      >
+    <div className="border-neutral col-span-1 row-span-3 row-start-2 border-r-2">
+      <div className="border-neutral flex h-36 flex-initial flex-col items-center justify-between border-b-2 p-3">
         <Form
           role="search"
           onChange={(e) => {
@@ -106,13 +103,13 @@ export default function Siderbar({
           </label>
         </Form>
         <Form method="POST" className="flex-initial">
-          <Button type="submit" className="w-56 btn-neutral btn-outline">
+          <Button type="submit" className="btn-neutral btn-outline w-56">
             Добавить ТП
           </Button>
         </Form>
       </div>
       <nav className="py-5">
-        <ul className="flex overflow-auto flex-col items-center h-[65vh] ml-3">
+        <ul className="ml-3 flex h-[65vh] flex-col items-center overflow-auto">
           {listItems()}
         </ul>
       </nav>

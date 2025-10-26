@@ -117,7 +117,7 @@ export default CacheRoute(function ViewData({
   const metersTotal = unregisteredTotal + registeredTotal;
 
   return (
-    <main className="w-[90%] mr-auto ml-auto">
+    <main className="mr-auto ml-auto w-[90%]">
       <Form
         className="mt-5 flex justify-center gap-8"
         onChange={(e) => {
@@ -151,9 +151,9 @@ export default CacheRoute(function ViewData({
         </div>
       </Form>
 
-      <div className="overflow-x-auto max-h-[70vh] mt-5 mb-10">
-        <table className="table table-xs sm:table-sm md:table-md lg:table-lg">
-          <thead className="sticky top-0 bg-base-200">
+      <div className="mt-5 mb-10 max-h-[70vh] overflow-x-auto">
+        <table className="table-xs sm:table-sm md:table-md lg:table-lg table">
+          <thead className="bg-base-200 sticky top-0">
             <tr>
               <th></th>
               <th>ТП</th>

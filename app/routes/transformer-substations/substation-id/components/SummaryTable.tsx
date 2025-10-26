@@ -58,9 +58,9 @@ export default function SummaryTable({ summary }: StatTableProps) {
     odpuP2Meters.registeredMeterCount;
 
   return (
-    <div className="overflow-auto max-h-[50vh] mt-5 mb-5">
+    <div className="mt-5 mb-5 max-h-[50vh] overflow-auto">
       <table className="table">
-        <thead className="sticky top-0 bg-base-200">
+        <thead className="bg-base-200 sticky top-0">
           <tr className="text-lg">
             <th></th>
             <th>Тип</th>

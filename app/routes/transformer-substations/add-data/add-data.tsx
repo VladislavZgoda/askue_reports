@@ -129,14 +129,14 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
         name={substation.name}
       />
 
-      <div className="flex ml-6 gap-x-8">
-        <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
+      <div className="ml-6 flex gap-x-8">
+        <section className="bg-base-200 flex w-80 flex-col gap-3 rounded-lg p-5 shadow-md">
           <h2>Добавить новые потребительские ПУ</h2>
           <fetcherBillingMeters.Form
             onSubmit={void billingForm.handleSubmit}
             method="POST"
             action={billingAction}
-            className="flex flex-col gap-5 h-full"
+            className="flex h-full flex-col gap-5"
           >
             <Fieldset legend="Количество ПУ">
               <Input
@@ -189,13 +189,13 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           </fetcherBillingMeters.Form>
         </section>
 
-        <section className="flex flex-col gap-3 bg-base-200 p-5 rounded-lg w-80 shadow-md">
+        <section className="bg-base-200 flex w-80 flex-col gap-3 rounded-lg p-5 shadow-md">
           <h2>Добавить техучеты</h2>
           <fetcherTechnicalMeters.Form
             onSubmit={void technicalForm.handleSubmit}
             method="POST"
             action={technicalAction}
-            className="flex flex-col gap-5 h-full"
+            className="flex h-full flex-col gap-5"
           >
             <Fieldset legend="Количество Техучетов">
               <Input

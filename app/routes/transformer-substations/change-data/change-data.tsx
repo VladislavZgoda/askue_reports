@@ -114,7 +114,7 @@ export default function ChangeData({ loaderData }: Route.ComponentProps) {
 
       <div
         role="tablist"
-        className="tabs tabs-lift ml-14 mr-14 shadow-md bg-base-200"
+        className="tabs tabs-lift bg-base-200 mr-14 ml-14 shadow-md"
       >
         <BalanceGroupTabPanel
           errors={errorsForPrivate}

@@ -39,14 +39,14 @@ export default function SubstationNameForm({
   const navigate = useNavigate();
 
   return (
-    <main className="flex items-center justify-center h-full">
+    <main className="flex h-full items-center justify-center">
       <Form
         method="POST"
         action={formAction}
         onSubmit={void handleSubmit}
-        className="flex p-8 h-2/5 w-3/5 flex-initial bg-base-200 rounded-lg"
+        className="bg-base-200 flex h-2/5 w-3/5 flex-initial rounded-lg p-8"
       >
-        <div className="flex flex-col justify-evenly items-center w-full h-full flex-initial">
+        <div className="flex h-full w-full flex-initial flex-col items-center justify-evenly">
           <Fieldset legend="Наименование ТП">
             <Input
               type="text"
@@ -57,7 +57,7 @@ export default function SubstationNameForm({
             />
           </Fieldset>
 
-          <div className="flex justify-center gap-8 w-full -mt-5">
+          <div className="-mt-5 flex w-full justify-center gap-8">
             <Button type="submit" className="btn-primary w-48">
               {isSubmitting && (
                 <span className="loading loading-spinner"></span>
