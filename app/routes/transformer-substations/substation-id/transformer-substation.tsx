@@ -67,7 +67,7 @@ export default CacheRoute(function TransformerSubstation({
   return (
     <main className="m-2">
       <section className="flex w-[60%] justify-between">
-        <ul className="menu bg-base-200 rounded-box menu-lg row-span-1 w-96 shadow-md">
+        <ul className="menu bg-base-200 rounded-box menu-lg w-96 shadow-sm">
           <li>
             <h2 className="menu-title">{substation.name}</h2>
             <ul>
@@ -96,35 +96,37 @@ export default CacheRoute(function TransformerSubstation({
         </ul>
 
         <Form
-          className="bg-base-200 flex flex-col gap-2 rounded-md px-10 py-5 shadow-md"
+          className="card card-border bg-base-200 w-96 shadow-sm"
           onChange={(e) => {
             void submit(e.currentTarget);
           }}
         >
-          <p>Выберете даты для данных</p>
-          <Fieldset legend="БЫТ">
-            <Input
-              type="date"
-              name="privateDate"
-              defaultValue={loadValues.privateDate}
-            />
-          </Fieldset>
+          <div className="card-body">
+            <h2 className="card-title">Выберете даты для данных</h2>
+            <Fieldset legend="БЫТ">
+              <Input
+                type="date"
+                name="privateDate"
+                defaultValue={loadValues.privateDate}
+              />
+            </Fieldset>
 
-          <Fieldset legend="ЮР">
-            <Input
-              type="date"
-              name="legalDate"
-              defaultValue={loadValues.legalDate}
-            />
-          </Fieldset>
+            <Fieldset legend="ЮР">
+              <Input
+                type="date"
+                name="legalDate"
+                defaultValue={loadValues.legalDate}
+              />
+            </Fieldset>
 
-          <Fieldset legend="ОДПУ">
-            <Input
-              type="date"
-              name="odpuDate"
-              defaultValue={loadValues.odpuDate}
-            />
-          </Fieldset>
+            <Fieldset legend="ОДПУ">
+              <Input
+                type="date"
+                name="odpuDate"
+                defaultValue={loadValues.odpuDate}
+              />
+            </Fieldset>
+          </div>
         </Form>
       </section>
 
