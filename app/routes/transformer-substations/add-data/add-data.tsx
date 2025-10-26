@@ -130,101 +130,129 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       />
 
       <div className="ml-6 flex gap-x-8">
-        <section className="bg-base-200 flex w-80 flex-col gap-3 rounded-lg p-5 shadow-md">
-          <h2>Добавить новые потребительские ПУ</h2>
-          <fetcherBillingMeters.Form
-            onSubmit={void billingForm.handleSubmit}
-            method="POST"
-            action={billingAction}
-            className="flex h-full flex-col gap-5"
-          >
-            <Fieldset legend="Количество ПУ">
-              <Input
-                type="number"
-                min={0}
-                placeholder="0"
-                error={billingErrors?.totalCount?.message}
-                {...billingForm.register("totalCount")}
-              />
-            </Fieldset>
-            <Fieldset legend="Из них добавлено в систему">
-              <Input
-                type="number"
-                min={0}
-                placeholder="0"
-                error={billingErrors?.registeredCount?.message}
-                {...billingForm.register("registeredCount")}
-              />
-            </Fieldset>
-            <Fieldset legend="Балансова группа">
-              <Select
-                defaultValue="Выбрать группу"
-                error={billingErrors?.balanceGroup?.message}
-                {...billingForm.register("balanceGroup")}
-              >
-                <option disabled={true}>Выбрать группу</option>
-                <option value="Быт">Быт</option>
-                <option value="ЮР Sims">ЮР Sims</option>
-                <option value="ЮР П2">ЮР П2</option>
-                <option value="ОДПУ Sims">ОДПУ Sims</option>
-                <option value="ОДПУ П2">ОДПУ П2</option>
-              </Select>
-            </Fieldset>
-            <Fieldset legend="Дата">
-              <Input
-                type="date"
-                error={billingErrors?.date?.message}
-                {...billingForm.register("date")}
-              />
-            </Fieldset>
-            <Button
-              type={isSubmittingBilling ? "button" : "submit"}
-              className={`btn-outline btn-success ${isSubmittingBilling && "btn-active"}`}
+        <section className="card card-border bg-base-100 w-96 shadow-sm">
+          <div className="card-body">
+            <h2 className="card-title">Добавить новые потребительские ПУ</h2>
+            <fetcherBillingMeters.Form
+              onSubmit={void billingForm.handleSubmit}
+              method="POST"
+              action={billingAction}
+              className="flex h-full flex-col gap-5"
             >
-              {isSubmittingBilling && (
-                <span className="loading loading-spinner"></span>
-              )}
-              {isSubmittingBilling ? "Запись..." : "Добавить"}
-            </Button>
-          </fetcherBillingMeters.Form>
+              <Fieldset legend="Количество ПУ">
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  error={billingErrors?.totalCount?.message}
+                  {...billingForm.register("totalCount")}
+                />
+              </Fieldset>
+              <Fieldset legend="Из них добавлено в систему">
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  error={billingErrors?.registeredCount?.message}
+                  {...billingForm.register("registeredCount")}
+                />
+              </Fieldset>
+              <Fieldset legend="Балансова группа">
+                <Select
+                  defaultValue="Выбрать группу"
+                  error={billingErrors?.balanceGroup?.message}
+                  {...billingForm.register("balanceGroup")}
+                >
+                  <option disabled={true}>Выбрать группу</option>
+                  <option value="Быт">Быт</option>
+                  <option value="ЮР Sims">ЮР Sims</option>
+                  <option value="ЮР П2">ЮР П2</option>
+                  <option value="ОДПУ Sims">ОДПУ Sims</option>
+                  <option value="ОДПУ П2">ОДПУ П2</option>
+                </Select>
+              </Fieldset>
+              <Fieldset legend="Дата">
+                <Input
+                  type="date"
+                  error={billingErrors?.date?.message}
+                  {...billingForm.register("date")}
+                />
+              </Fieldset>
+              <div className="card-actions gap-20">
+                <Button
+                  type={isSubmittingBilling ? "button" : "submit"}
+                  className={`btn btn-success btn-outline ${isSubmittingBilling && "btn-active"}`}
+                >
+                  {isSubmittingBilling && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+                  {isSubmittingBilling ? "Запись..." : "Добавить"}
+                </Button>
+                <Button
+                  type="button"
+                  className="btn btn-neutral btn-outline"
+                  onClick={() => {
+                    billingForm.reset();
+                    fetcherBillingMeters.unstable_reset();
+                  }}
+                >
+                  Сбросить
+                </Button>
+              </div>
+            </fetcherBillingMeters.Form>
+          </div>
         </section>
 
-        <section className="bg-base-200 flex w-80 flex-col gap-3 rounded-lg p-5 shadow-md">
-          <h2>Добавить техучеты</h2>
-          <fetcherTechnicalMeters.Form
-            onSubmit={void technicalForm.handleSubmit}
-            method="POST"
-            action={technicalAction}
-            className="flex h-full flex-col gap-5"
-          >
-            <Fieldset legend="Количество Техучетов">
-              <Input
-                type="number"
-                min={0}
-                placeholder="0"
-                error={technicalErrors?.quantity?.message}
-                {...technicalForm.register("quantity")}
-              />
-            </Fieldset>
-            <Fieldset legend="Из них под напряжением">
-              <Input
-                type="number"
-                min={0}
-                placeholder="0"
-                error={technicalErrors?.underVoltage?.message}
-                {...technicalForm.register("underVoltage")}
-              />
-            </Fieldset>
-            <Button
-              type={isSubmittingTechnical ? "button" : "submit"}
-              className={`btn-outline btn-success mt-auto ${isSubmittingTechnical && "btn-active"}`}
+        <section className="card card-border bg-base-100 w-96 shadow-sm">
+          <div className="card-body">
+            <h2 className="card-title">Добавить техучеты</h2>
+            <fetcherTechnicalMeters.Form
+              onSubmit={void technicalForm.handleSubmit}
+              method="POST"
+              action={technicalAction}
+              className="flex h-full flex-col gap-5"
             >
-              {isSubmittingTechnical && (
-                <span className="loading loading-spinner"></span>
-              )}
-              {isSubmittingTechnical ? "Запись..." : "Добавить"}
-            </Button>
-          </fetcherTechnicalMeters.Form>
+              <Fieldset legend="Количество Техучетов">
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  error={technicalErrors?.quantity?.message}
+                  {...technicalForm.register("quantity")}
+                />
+              </Fieldset>
+              <Fieldset legend="Из них под напряжением">
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="0"
+                  error={technicalErrors?.underVoltage?.message}
+                  {...technicalForm.register("underVoltage")}
+                />
+              </Fieldset>
+              <div className="card-actions mt-auto gap-20">
+                <Button
+                  type={isSubmittingTechnical ? "button" : "submit"}
+                  className={`btn btn-outline btn-success ${isSubmittingTechnical && "btn-active"}`}
+                >
+                  {isSubmittingTechnical && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+                  {isSubmittingTechnical ? "Запись..." : "Добавить"}
+                </Button>
+                <Button
+                  type="button"
+                  className="btn btn-neutral btn-outline"
+                  onClick={() => {
+                    technicalForm.reset();
+                    fetcherTechnicalMeters.unstable_reset();
+                  }}
+                >
+                  Сбросить
+                </Button>
+              </div>
+            </fetcherTechnicalMeters.Form>
+          </div>
         </section>
 
         {actionLogs.length > 0 && <Log actionLogs={actionLogs} />}
