@@ -39,17 +39,12 @@ export default function DashboardLayout() {
         setQuery={setQuery}
       />
       <Footer />
-      <div className="col-start-2 col-span-4 row-start-2 row-span-3">
-        {navigation.state === "loading" ? <Spinner /> : <Outlet />}
+      <div
+        className={`${navigation.state === "loading" ? "opacity-25 transition-opacity duration-200 delay-200" : ""}
+          col-start-2 col-span-4 row-start-2 row-span-3`}
+      >
+        <Outlet />
       </div>
-    </div>
-  );
-}
-
-function Spinner() {
-  return (
-    <div className="flex justify-center items-center h-full">
-      <span className="loading loading-spinner text-primary size-72"></span>
     </div>
   );
 }
