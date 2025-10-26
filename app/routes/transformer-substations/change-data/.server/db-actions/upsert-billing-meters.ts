@@ -34,31 +34,31 @@ type BillingMetersParams = BillingFormData & { substationId: number };
  * Coordinates atomic upsert of all billing meter records
  *
  * @remarks
- * Performs in a single transaction:
- * 1. Upserts registered/unregistered meter aggregates
- * 2. Upserts yearly installation records
- * 3. Upserts monthly installation records
+ *   Performs in a single transaction:
  *
- * Only updates records when values actually change
+ *   1. Upserts registered/unregistered meter aggregates
+ *   2. Upserts yearly installation records
+ *   3. Upserts monthly installation records
+ *
+ *   Only updates records when values actually change
+ * @example
+ *   await upsertBillingMeterRecords({
+ *     substationId: 42,
+ *     balanceGroup: "ЮР П2",
+ *     totalCount: 15,
+ *     registeredCount: 12,
+ *     // ... other params
+ *   });
  *
  * @param params - Billing meter data
- *   @param params.totalCount - Total meters installed
- *   @param params.registeredCount - Meters registered in system
- *   @param params.yearlyTotalInstalled - Yearly installed meters
- *   @param params.yearlyRegisteredCount - Yearly registered meters
- *   @param params.monthlyTotalInstalled - Monthly installed meters
- *   @param params.monthlyRegisteredCount - Monthly registered meters
- *   @param params.balanceGroup - Balance group category
- *   @param params.substationId - Associated substation ID
- *
- * @example
- * await upsertBillingMeterRecords({
- *   substationId: 42,
- *   balanceGroup: 'ЮР П2',
- *   totalCount: 15,
- *   registeredCount: 12,
- *   // ... other params
- * });
+ * @param params.totalCount - Total meters installed
+ * @param params.registeredCount - Meters registered in system
+ * @param params.yearlyTotalInstalled - Yearly installed meters
+ * @param params.yearlyRegisteredCount - Yearly registered meters
+ * @param params.monthlyTotalInstalled - Monthly installed meters
+ * @param params.monthlyRegisteredCount - Monthly registered meters
+ * @param params.balanceGroup - Balance group category
+ * @param params.substationId - Associated substation ID
  */
 export default async function upsertBillingMeterRecords(
   params: BillingMetersParams,
@@ -192,7 +192,6 @@ interface RegisteredMeterUpsertParams {
  *
  * @param executor - Database executor
  * @param params - Upsert parameters
- *
  * @note Only updates if newCount differs from existingCount
  */
 async function upsertRegisteredMeterRecord(
@@ -240,7 +239,6 @@ interface UnregisteredMeterUpsertParams {
  *
  * @param executor - Database executor
  * @param params - Upsert parameters
- *
  * @note Calculates new unregistered count as (totalCount - registeredCount)
  */
 async function upsertUnregisteredMeterRecord(
@@ -294,7 +292,6 @@ interface YearlyInstallationUpsertParams {
  *
  * @param executor - Database executor
  * @param params - Upsert parameters
- *
  * @note Only updates if values changed
  */
 async function upsertYearlyInstallationRecord(
@@ -360,7 +357,6 @@ interface MonthlyInstallationUpsertParams {
  *
  * @param executor - Database executor
  * @param params - Upsert parameters
- *
  * @note Only updates if values changed
  */
 async function upsertMonthlyInstallationRecord(

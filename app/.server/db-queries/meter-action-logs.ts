@@ -5,17 +5,17 @@ import { eq, desc } from "drizzle-orm";
 /**
  * Inserts a meter action log entry into the database
  *
+ * @example
+ *   // Within a transaction:
+ *   await insertMeterActionLog(tx, "Meters added: 5", 42);
+ *
+ *   // Direct connection:
+ *   await insertMeterActionLog(db, "Technical meters updated", 42);
+ *
  * @param executor - Database executor (transaction or direct connection) to use
  * @param action - Description of the action being logged
  * @param substationId - ID of the substation associated with the action
  * @returns Promise that resolves when operation completes
- *
- * @example
- * // Within a transaction:
- * await insertMeterActionLog(tx, "Meters added: 5", 42);
- *
- * // Direct connection:
- * await insertMeterActionLog(db, "Technical meters updated", 42);
  */
 export async function insertMeterActionLog(
   executor: Executor,

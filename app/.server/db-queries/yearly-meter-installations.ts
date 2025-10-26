@@ -19,6 +19,16 @@ interface YearlyMeterInstallationInput {
 /**
  * Creates a new yearly meter installation record
  *
+ * @example
+ *   await createYearlyMeterInstallation(tx, {
+ *     totalInstalled: 6,
+ *     registeredCount: 5,
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-14",
+ *     substationId: 15,
+ *     year: 2025,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Input data for the new record
  * @param params.totalInstalled - Total meters installed for the year
@@ -27,18 +37,7 @@ interface YearlyMeterInstallationInput {
  * @param params.date - Date of the record
  * @param params.substationId - Transformer substation ID
  * @param params.year - Year of the installation record
- *
  * @throws Will throw if registeredCount more than totalInstalled
- *
- * @example
- * await createYearlyMeterInstallation(tx, {
- *   totalInstalled: 6,
- *   registeredCount: 5,
- *   balanceGroup: "Быт",
- *   date: "2025-08-14",
- *   substationId: 15,
- *   year: 2025
- * })
  */
 export async function createYearlyMeterInstallation(
   executor: Executor,
@@ -75,22 +74,22 @@ interface YearlyInstallationIdParams {
 }
 
 /**
- * Retrieves the most recent yearly meter installation ID for a given combination of parameters
+ * Retrieves the most recent yearly meter installation ID for a given
+ * combination of parameters
+ *
+ * @example
+ *   const id = await getLatestYearlyInstallationId(tx, {
+ *     balanceGroup: "Быт",
+ *     substationId: 15,
+ *     year: 2025,
+ *   });
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Filter parameters
  * @param params.balanceGroup - Balance group category (e.g. "Быт")
  * @param params.substationId - Transformer substation ID
  * @param params.year - Year of the installation record
- *
  * @returns The latest installation record ID, or 'undefined' if no match found
- *
- * @example
- * const id = await getLatestYearlyInstallationId(tx, {
- *   balanceGroup: "Быт",
- *   substationId: 15,
- *   year: 2025
- * })
  */
 export async function getLatestYearlyInstallationId(
   executor: Executor,
@@ -120,21 +119,20 @@ interface YearlyInstallationUpdateInput {
 /**
  * Updates a yearly installation record by its ID
  *
+ * @example
+ *   await updateYearlyInstallationRecordById(tx, {
+ *     id: 12,
+ *     totalInstalled: 5,
+ *     registeredCount: 4,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.id - Record ID to update
  * @param params.totalInstalled - New total installed meters count
  * @param params.registeredCount - New registered meters count
- *
  * @throws Will throw if registeredCount more than totalInstalled
  * @throws Will throw if no record with the given ID exists
- *
- * @example
- * await updateYearlyInstallationRecordById(tx, {
- *   id: 12,
- *   totalInstalled: 5,
- *   registeredCount: 4
- * })
  */
 export async function updateYearlyInstallationRecordById(
   executor: Executor,
@@ -168,27 +166,28 @@ interface YearlyMeterInstallationsStatsParams {
 /**
  * Retrieves yearly meter installation statistics by exact match criteria
  *
+ * @example
+ *   const stats = await getYearlyMeterInstallationStats(executor, {
+ *     balanceGroup: "ЮР П2",
+ *     date: "2025-08-17",
+ *     year: 2025,
+ *     substationId: 789,
+ *   });
+ *
+ *   // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Lookup parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.date - Exact record date (ISO date string)
  * @param params.year - Year of installation statistics
  * @param params.substationId - Transformer substation ID
- *
  * @returns Object containing:
+ *
  *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters
- *   Returns `undefined` if no matching record found
- *
- * @example
- * const stats = await getYearlyMeterInstallationStats(executor, {
- *   balanceGroup: 'ЮР П2',
- *   date: '2025-08-17',
- *   year: 2025,
- *   substationId: 789
- * });
- *
- * // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
+ *   - `registeredCount`: Currently registered meters Returns `undefined` if no
+ *       matching record found
  */
 export async function getYearlyMeterInstallationStats(
   executor: Executor,
@@ -220,31 +219,34 @@ interface YearlyInstallationSummaryQuery {
 }
 
 /**
- * Retrieves yearly installation statistics from the latest record BEFORE a cutoff date
+ * Retrieves yearly installation statistics from the latest record BEFORE a
+ * cutoff date
+ *
+ * @example
+ *   // Get latest 2025 stats before June 1st
+ *   const stats = await getYearlyInstallationSummaryBeforeCutoff(executor, {
+ *     balanceGroup: "ОДПУ П2",
+ *     cutoffDate: "2025-06-01",
+ *     substationId: 101,
+ *     year: 2025,
+ *   });
+ *
+ *   // Returns: { totalInstalled: 85, registeredCount: 80 }
+ *   // Or zero stats: { totalInstalled: 0, registeredCount: 0 }
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
- * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record BEFORE this date
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
+ * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record
+ *   BEFORE this date
  * @param params.year - Year of installation statistics
  * @param params.substationId - Transformer substation ID
- *
  * @returns Object containing:
+ *
  *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters
- *   Returns `{ totalInstalled: 0, registeredCount: 0 }` if no matching record found
- *
- * @example
- * // Get latest 2025 stats before June 1st
- * const stats = await getYearlyInstallationSummaryBeforeCutoff(executor, {
- *   balanceGroup: 'ОДПУ П2',
- *   cutoffDate: '2025-06-01',
- *   substationId: 101,
- *   year: 2025
- * });
- *
- * // Returns: { totalInstalled: 85, registeredCount: 80 }
- * // Or zero stats: { totalInstalled: 0, registeredCount: 0 }
+ *   - `registeredCount`: Currently registered meters Returns `{ totalInstalled: 0,
+ *       registeredCount: 0 }` if no matching record found
  */
 export async function getYearlyInstallationSummaryBeforeCutoff(
   executor: Executor,
@@ -281,26 +283,26 @@ interface YearlyMeterInstallationUpdateParams {
 /**
  * Updates an existing yearly meter installation record
  *
+ * @example
+ *   await updateYearlyMeterInstallation(executor, {
+ *     totalInstalled: 10,
+ *     registeredCount: 8,
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-18",
+ *     year: 2025,
+ *     substationId: 4,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.totalInstalled - New total installed meters count
  * @param params.registeredCount - New registered meters count
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.date - Exact date of the record (YYYY-MM-DD format)
  * @param params.year - Year of installation record
  * @param param.substationId - Transformer substation ID
- *
- * @throws {Error} if no matching record is found
- *
- * @example
- * await updateYearlyMeterInstallation(executor, {
- *   totalInstalled: 10,
- *   registeredCount: 8,
- *   balanceGroup: "Быт",
- *   date: "2025-08-18",
- *   year: 2025,
- *   substationId: 4,
- * })
+ * @throws {Error} If no matching record is found
  */
 export async function updateYearlyMeterInstallation(
   executor: Executor,
@@ -351,22 +353,25 @@ interface YearlyInstallationRecordQuery {
 /**
  * Retrieves yearly installation record IDs created after a specific date
  *
+ * @example
+ *   const futureRecordIds = await getYearlyInstallationRecordsAfterDate(
+ *     executor,
+ *     {
+ *       balanceGroup: "Быт",
+ *       startDate: "2025-08-01",
+ *       year: 2025,
+ *       substationId: 12,
+ *     },
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Filter parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.startDate - Minimum date threshold (exclusive) in YYYY-MM-DD
  * @param params.year - Year of installation record
  * @param params.substationId - Transformer substation ID
- *
  * @returns Array of record IDs. Empty array if no matches found.
- *
- * @example
- * const futureRecordIds = await getYearlyInstallationRecordsAfterDate(executor, {
- *   balanceGroup: "Быт",
- *   startDate: "2025-08-01",
- *   year: 2025,
- *   substationId: 12,
- * })
  */
 export async function getYearlyInstallationRecordsAfterDate(
   executor: Executor,
@@ -393,17 +398,20 @@ export async function getYearlyInstallationRecordsAfterDate(
 /**
  * Updates yearly installation records in batch with safety validation
  *
+ * @example
+ *   const updatedCount = await incrementYearlyInstallationRecords(
+ *     executor,
+ *     [1, 15, 25],
+ *     2,
+ *     1,
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param ids - Record IDs to update
  * @param totalIncrement - Value to add to total_installed
  * @param registeredIncrement - Value to add to registered_count
- *
  * @returns Number of successfully updated records
- *
  * @throws Error if validation fails (registered > total)
- *
- * @example
- * const updatedCount = await incrementYearlyInstallationRecords(executor, [1, 15, 25], 2, 1)
  */
 export async function incrementYearlyInstallationRecords(
   executor: Executor,

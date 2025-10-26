@@ -12,7 +12,8 @@ type MeterReport = Awaited<
  *
  * @param substationId - ID of the substation to retrieve data for
  * @param balanceGroups - Array of balance groups to include
- * @returns Promise resolving to an object keyed by balance group with meter reports
+ * @returns Promise resolving to an object keyed by balance group with meter
+ *   reports
  */
 export function loadAllSubstationMeterReports<Groups extends BalanceGroup>(
   substationId: number,
@@ -38,13 +39,12 @@ interface TechnicalMeterReport {
 /**
  * Loads technical meter statistics for a substation
  *
- * @param substationId - ID of the substation to retrieve technical meters for
- * @returns Object containing:
- *   totalCount: Total quantity of technical meters
- *   underVoltageCount: Number of meters operating under voltage
- *
  * @example
- * const { totalCount, underVoltageCount } = await loadTechnicalMeters(42);
+ *   const { totalCount, underVoltageCount } = await loadTechnicalMeters(42);
+ *
+ * @param substationId - ID of the substation to retrieve technical meters for
+ * @returns Object containing: totalCount: Total quantity of technical meters
+ *   underVoltageCount: Number of meters operating under voltage
  */
 export async function loadTechnicalMeters(
   substationId: number,

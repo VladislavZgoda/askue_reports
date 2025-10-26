@@ -13,15 +13,15 @@ interface TechnicalMetersParams {
 /**
  * Creates a new technical meter record in the database
  *
+ * @example
+ *   await createTechnicalMeterRecord(tx, {
+ *     substationId: 42,
+ *     quantity: 10,
+ *     underVoltage: 3,
+ *   });
+ *
  * @param executor - Database executor (transaction or connection)
  * @param params - Creation parameters
- *
- * @example
- * await createTechnicalMeterRecord(tx, {
- *   substationId: 42,
- *   quantity: 10,
- *   underVoltage: 3
- * });
  */
 export async function createTechnicalMeterRecord(
   executor: Executor,
@@ -44,8 +44,8 @@ interface TechnicalMetersStats {
  *
  * @param substationId ID of the transformer substation
  * @param executor [executor=db] - Database executor
- * @returns Object containing {quantity, underVoltage} counts,
- *          or undefined if no record exists
+ * @returns Object containing {quantity, underVoltage} counts, or undefined if
+ *   no record exists
  */
 export async function getTechnicalMeterStatsForSubstation(
   substationId: number,
@@ -65,20 +65,21 @@ export async function getTechnicalMeterStatsForSubstation(
 /**
  * Updates technical meter statistics for a substation
  *
- * @param executor - Database executor (transaction or connection).
- * @param params - Update parameters
- *   @param params.quantity - New total quantity of technical meters
- *   @param params.underVoltage - New count of meters operating under voltage
- *   @param params.substationId - ID of the substation to update
- *
  * @remarks
- * - Automatically sets `updatedAt` to current timestamp
+ *   - Automatically sets `updatedAt` to current timestamp
  *
  * @example
- * await updateTechnicalMetersForSubstation(
- *   tx,
- *   { quantity: 15, underVoltage: 3, substationId: 42 },
- * );
+ *   await updateTechnicalMetersForSubstation(tx, {
+ *     quantity: 15,
+ *     underVoltage: 3,
+ *     substationId: 42,
+ *   });
+ *
+ * @param executor - Database executor (transaction or connection).
+ * @param params - Update parameters
+ * @param params.quantity - New total quantity of technical meters
+ * @param params.underVoltage - New count of meters operating under voltage
+ * @param params.substationId - ID of the substation to update
  */
 export async function updateTechnicalMetersForSubstation(
   executor: Executor,

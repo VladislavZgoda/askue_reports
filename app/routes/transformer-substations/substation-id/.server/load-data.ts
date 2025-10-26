@@ -10,24 +10,23 @@ type SubstationMeterSummary = Awaited<
 > & { technicalMeters: TechnicalMeterStats };
 
 /**
- * Retrieves a comprehensive meter summary for a substation including
- * all balance groups and technical meter statistics
+ * Retrieves a comprehensive meter summary for a substation including all
+ * balance groups and technical meter statistics
+ *
+ * @example
+ *   const summary = await getSubstationMeterSummary({
+ *     privateDate: "2025-08-24",
+ *     legalDate: "2025-08-20",
+ *     odpuDate: "2025-08-24",
+ *     substationId: 42,
+ *   });
  *
  * @param params - Query parameters
  * @param params.privateDate - Cutoff date for household meters (YYYY-MM-DD)
  * @param params.legalDate - Cutoff date for commercial meters (YYYY-MM-DD)
  * @param params.odpuDate - Cutoff date for ODPU meters (YYYY-MM-DD)
  * @param params.substationId - Substation ID
- *
  * @returns Combined meter counts and technical statistics
- *
- * @example
- * const summary = await getSubstationMeterSummary({
- *   privateDate: "2025-08-24",
- *   legalDate: "2025-08-20",
- *   odpuDate: "2025-08-24",
- *   substationId: 42
- * });
  */
 export default async function getSubstationMeterSummary({
   privateDate,

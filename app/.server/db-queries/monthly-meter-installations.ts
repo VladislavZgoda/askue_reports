@@ -20,6 +20,17 @@ interface MonthlyInstallationInput {
 /**
  * Creates new monthly installation record after validation
  *
+ * @example
+ *   await createMonthlyInstallationRecord(tx, {
+ *     totalInstalled: 6,
+ *     registeredCount: 5,
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-14",
+ *     substationId: 15,
+ *     month: "08",
+ *     year: 2025,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Input data for the new record
  * @param params.totalInstalled - Total meters installed for the month
@@ -29,19 +40,7 @@ interface MonthlyInstallationInput {
  * @param params.substationId - Transformer substation ID
  * @param params.month - Month of the installation record
  * @param params.year - Year of the installation record
- *
  * @throws If validation fails (registeredCount > totalInstalled)
- *
- * @example
- * await createMonthlyInstallationRecord(tx, {
- *   totalInstalled: 6,
- *   registeredCount: 5,
- *   balanceGroup: "Быт",
- *   date: "2025-08-14",
- *   substationId: 15,
- *   month: "08",
- *   year: 2025
- * })
  */
 export async function createMonthlyInstallationRecord(
   executor: Executor,
@@ -86,28 +85,28 @@ interface MonthlyInstallationUpdateParams {
 /**
  * Updates an existing monthly meter installation record
  *
+ * @example
+ *   await updateMonthlyInstallationRecord(executor, {
+ *     totalInstalled: 10,
+ *     registeredCount: 8,
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-18",
+ *     month: "07",
+ *     year: 2025,
+ *     substationId: 5,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.totalInstalled - New total installed meters count
  * @param params.registeredCount - New registered meters count
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.date - Exact date of the record (YYYY-MM-DD format)
  * @param params.month - Month of the installation record
  * @param params.year - Year of installation record
  * @param param.substationId - Transformer substation ID
- *
- * @throws {Error} if no matching record is found
- *
- * @example
- * await updateMonthlyInstallationRecord(executor, {
- *   totalInstalled: 10,
- *   registeredCount: 8,
- *   balanceGroup: "Быт",
- *   date: "2025-08-18",
- *   month: "07",
- *   year: 2025,
- *   substationId: 5,
- * })
+ * @throws {Error} If no matching record is found
  */
 export async function updateMonthlyInstallationRecord(
   executor: Executor,
@@ -164,29 +163,30 @@ interface MonthlyMeterInstallationsStatsParams {
 /**
  * Retrieves monthly installation stats by exact match criteria
  *
+ * @example
+ *   const stats = await getMonthlyMeterInstallationStats(executor, {
+ *     balanceGroup: "ЮР П2",
+ *     date: "2025-08-17",
+ *     month: "08",
+ *     year: 2025,
+ *     substationId: 78,
+ *   });
+ *
+ *   // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Lookup parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.date - Exact record date (ISO date string)
  * @param params.month - Month of installation statistics
  * @param params.year - Year of installation statistics
  * @param params.substationId - Transformer substation ID
- *
  * @returns Object containing:
+ *
  *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters
- *   Returns `undefined` if no matching record found
- *
- * @example
- * const stats = await getMonthlyMeterInstallationStats(executor, {
- *   balanceGroup: 'ЮР П2',
- *   date: '2025-08-17',
- *   month: '08',
- *   year: 2025,
- *   substationId: 78
- * });
- *
- * // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
+ *   - `registeredCount`: Currently registered meters Returns `undefined` if no
+ *       matching record found
  */
 export async function getMonthlyMeterInstallationStats(
   executor: Executor,
@@ -223,7 +223,16 @@ interface MonthlyInstallationIdParams {
 }
 
 /**
- * Retrieves the most recent monthly meter installation ID for a given combination of parameters
+ * Retrieves the most recent monthly meter installation ID for a given
+ * combination of parameters
+ *
+ * @example
+ *   const id = await getLatestMonthlyInstallationId(tx, {
+ *     balanceGroup: "Быт",
+ *     substationId: 15,
+ *     month: "08",
+ *     year: 2025,
+ *   });
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Filter parameters
@@ -231,16 +240,7 @@ interface MonthlyInstallationIdParams {
  * @param params.substationId Transformer substation ID (e.g. 7)
  * @param params.month Month of the installation record (e.g "01")
  * @param params.year Year of the installation record (e.g. 2025)
- *
  * @returns The latest installation record ID, or 'undefined' if no match found
- *
- * @example
- * const id = await getLatestMonthlyInstallationId(tx, {
- *   balanceGroup: "Быт",
- *   substationId: 15,
- *   month: "08",
- *   year: 2025
- * })
  */
 export async function getLatestMonthlyInstallationId(
   executor: Executor,
@@ -271,21 +271,20 @@ interface MonthlyInstallationUpdateInput {
 /**
  * Updates a monthly installation record by its ID
  *
+ * @example
+ *   await updateMonthlyInstallationRecordById(tx, {
+ *     id: 12,
+ *     totalInstalled: 5,
+ *     registeredCount: 4,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.id Record ID to update
  * @param params.totalInstalled New total installed meters count
  * @param params.registeredCount New registered meters count
- *
  * @throws Will throw if registeredCount more than totalInstalled
  * @throws Will throw if no record with the given ID exists
- *
- * @example
- * await updateMonthlyInstallationRecordById(tx, {
- *   id: 12,
- *   totalInstalled: 5,
- *   registeredCount: 4
- * })
  */
 export async function updateMonthlyInstallationRecordById(
   executor: Executor,
@@ -315,33 +314,36 @@ interface MonthlyInstallationSummaryQuery {
 }
 
 /**
- * Retrieves monthly installation statistics from the latest record BEFORE a cutoff date
+ * Retrieves monthly installation statistics from the latest record BEFORE a
+ * cutoff date
+ *
+ * @example
+ *   // Get latest 2025 stats before June 1st
+ *   const stats = await getMonthlyInstallationSummaryBeforeCutoff(executor, {
+ *     balanceGroup: "ОДПУ П2",
+ *     cutoffDate: "2025-06-15",
+ *     month: "06",
+ *     year: 2025,
+ *     substationId: 101,
+ *   });
+ *
+ *   // Returns: { totalInstalled: 85, registeredCount: 80 }
+ *   // Or zero stats: { totalInstalled: 0, registeredCount: 0 }
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
- * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record BEFORE this date
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
+ * @param params.cutoffDate - Cutoff date (ISO string) - returns latest record
+ *   BEFORE this date
  * @param params.month - Month of installation statistics
  * @param params.year - Year of installation statistics
  * @param params.substationId - Transformer substation ID
- *
  * @returns Object containing:
+ *
  *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters
- *   Returns `{ totalInstalled: 0, registeredCount: 0 }` if no matching record found
- *
- * @example
- * // Get latest 2025 stats before June 1st
- * const stats = await getMonthlyInstallationSummaryBeforeCutoff(executor, {
- *   balanceGroup: 'ОДПУ П2',
- *   cutoffDate: '2025-06-15',
- *   month: '06',
- *   year: 2025,
- *   substationId: 101,
- * });
- *
- * // Returns: { totalInstalled: 85, registeredCount: 80 }
- * // Or zero stats: { totalInstalled: 0, registeredCount: 0 }
+ *   - `registeredCount`: Currently registered meters Returns `{ totalInstalled: 0,
+ *       registeredCount: 0 }` if no matching record found
  */
 export async function getMonthlyInstallationSummaryBeforeCutoff(
   executor: Executor,
@@ -382,24 +384,27 @@ interface MonthlyInstallationRecordQuery {
 /**
  * Retrieves monthly installation record IDs created after a specific date
  *
+ * @example
+ *   const futureRecordIds = await getMonthlyInstallationRecordsAfterDate(
+ *     executor,
+ *     {
+ *       balanceGroup: "Быт",
+ *       startDate: "2025-08-01",
+ *       month: "08",
+ *       year: 2025,
+ *       substationId: 12,
+ *     },
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Filter parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
+ *   etc.)
  * @param params.startDate - Minimum date threshold (exclusive) in YYYY-MM-DD
  * @param params.month - Month of installation records
  * @param params.year - Year of installation records
  * @param params.substationId - Transformer substation ID
- *
  * @returns Array of record IDs. Empty array if no matches found.
- *
- * @example
- * const futureRecordIds = await getMonthlyInstallationRecordsAfterDate(executor, {
- *   balanceGroup: "Быт",
- *   startDate: "2025-08-01",
- *   month: "08",
- *   year: 2025,
- *   substationId: 12,
- * })
  */
 export async function getMonthlyInstallationRecordsAfterDate(
   executor: Executor,
@@ -432,17 +437,20 @@ export async function getMonthlyInstallationRecordsAfterDate(
  *
  * Atomically increments counts with safety validation
  *
+ * @example
+ *   const updatedCount = await incrementYearlyInstallationRecords(
+ *     executor,
+ *     [1, 15, 25],
+ *     2,
+ *     1,
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param ids - Record IDs to update
  * @param totalIncrement - Value to add to total_installed
  * @param registeredIncrement - Value to add to registered_count
- *
- * @throws Error if validation fails (registered > total)
- *
  * @returns Number of updated records
- *
- * @example
- * const updatedCount = await incrementYearlyInstallationRecords(executor, [1, 15, 25], 2, 1)
+ * @throws Error if validation fails (registered > total)
  */
 export async function incrementMonthlyInstallationRecords(
   executor: Executor,

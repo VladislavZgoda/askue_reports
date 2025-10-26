@@ -89,32 +89,34 @@ interface YearlyInstallationData {
 
 /**
  * Processes yearly meter installation data atomically:
+ *
  * 1. Updates or creates yearly accumulation records
  * 2. Propagates installation counts to future records
  *
- * Performs all operations within a database transaction to ensure data consistency
+ * Performs all operations within a database transaction to ensure data
+ * consistency
  *
+ * @example
+ *   await processYearlyInstallations({
+ *     totalCount: 15,
+ *     registeredCount: 12,
+ *     balanceGroup: "Быт",
+ *     date: "2023-06-15",
+ *     substationId: 42,
+ *   });
+ *
+ * @property totalCount - Total meters installed
+ * @property registeredCount - Meters registered in system
+ * @property balanceGroup - Balance group category
+ * @property date - Installation date (YYYY-MM-DD)
+ * @property substationId - Associated substation ID
  * @param executor - Database executor
  * @param yearlyInstallation Installation data with validation
- *   @property totalCount - Total meters installed
- *   @property registeredCount - Meters registered in system
- *   @property balanceGroup - Balance group category
- *   @property date - Installation date (YYYY-MM-DD)
- *   @property substationId - Associated substation ID
- *
  * @throws Error if:
+ *
  *   - Validation fails (registered > total)
  *   - Batch update partially fails
  *   - Database constraints are violated
- *
- * @example
- * await processYearlyInstallations({
- *   totalCount: 15,
- *   registeredCount: 12,
- *   balanceGroup: 'Быт',
- *   date: '2023-06-15',
- *   substationId: 42
- * });
  */
 export default async function processYearlyInstallations(
   executor: Executor,

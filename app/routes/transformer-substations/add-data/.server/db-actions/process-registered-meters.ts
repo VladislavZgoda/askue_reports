@@ -62,29 +62,30 @@ interface RegisteredData {
 
 /**
  * Processes registered meter data atomically:
+ *
  * 1. Updates or creates registered meter accumulation records
  * 2. Propagates counts to future records
  *
  * Only runs when registeredCount > 0
  *
+ * @example
+ *   await processRegisteredMeters({
+ *     registeredCount: 12,
+ *     balanceGroup: "ЮР П2",
+ *     date: "2023-06-15",
+ *     substationId: 42,
+ *   });
+ *
+ * @property registeredCount - Meters registered in system
+ * @property balanceGroup - Balance group category
+ * @property date - Installation date (YYYY-MM-DD)
+ * @property substationId - Associated substation ID
  * @param executor - Database executor
  * @param registeredInput - Validated installation data
- *   @property registeredCount - Meters registered in system
- *   @property balanceGroup - Balance group category
- *   @property date - Installation date (YYYY-MM-DD)
- *   @property substationId - Associated substation ID
- *
  * @throws {Error} When:
+ *
  *   - Batch update partially fails
  *   - Database constraints are violated
- *
- * @example
- * await processRegisteredMeters({
- *   registeredCount: 12,
- *   balanceGroup: 'ЮР П2',
- *   date: '2023-06-15',
- *   substationId: 42
- * });
  */
 export default async function processRegisteredMetersInTx(
   executor: Executor,

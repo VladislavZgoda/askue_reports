@@ -24,19 +24,19 @@ interface TechnicalMeterInput {
  * Atomically adds or updates technical meters for a substation
  *
  * @remarks
- * - Performs all operations within a database transaction
- * - Updates existing records by adding new quantities
- * - Creates new record if none exists
- * - Creates audit log entry
- *
- * @param input - Technical meter data
+ *   - Performs all operations within a database transaction
+ *   - Updates existing records by adding new quantities
+ *   - Creates new record if none exists
+ *   - Creates audit log entry
  *
  * @example
- * await addOrUpdateTechnicalMeters({
- *   substationId: 42,
- *   quantity: 5,
- *   underVoltage: 2
- * });
+ *   await addOrUpdateTechnicalMeters({
+ *     substationId: 42,
+ *     quantity: 5,
+ *     underVoltage: 2,
+ *   });
+ *
+ * @param input - Technical meter data
  */
 export default async function addOrUpdateTechnicalMeters(
   input: TechnicalMeterInput,
@@ -66,7 +66,6 @@ export default async function addOrUpdateTechnicalMeters(
  *
  * @param executor - Database executor (transaction or connection)
  * @param input - Technical meter input parameters
- *
  * @logformat
  * Template: "Техучеты: {quantity} {underVoltage}. Добавлено: {timestamp}"
  * Example: "Техучеты: 5 2. Добавлено: 19.07.2023, 14:25:03"

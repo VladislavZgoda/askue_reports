@@ -63,31 +63,32 @@ interface UnregisteredData {
 
 /**
  * Processes unregistered meter data atomically:
+ *
  * 1. Updates or creates unregistered meter accumulation records
  * 2. Propagates counts to future records
  *
  * Performs all operations within a database transaction
  *
+ * @example
+ *   await processUnregisteredMeters({
+ *     totalCount: 15,
+ *     registeredCount: 12,
+ *     balanceGroup: "ЮР П2",
+ *     date: "2023-06-15",
+ *     substationId: 42,
+ *   });
+ *
+ * @property totalCount - Total meters installed
+ * @property registeredCount - Meters registered in system
+ * @property balanceGroup - Balance group category
+ * @property date - Installation date (YYYY-MM-DD)
+ * @property substationId - Associated substation ID
  * @param executor - Database executor
  * @param unregisteredInput - Validated installation data
- *   @property totalCount - Total meters installed
- *   @property registeredCount - Meters registered in system
- *   @property balanceGroup - Balance group category
- *   @property date - Installation date (YYYY-MM-DD)
- *   @property substationId - Associated substation ID
- *
  * @throws {Error} When:
+ *
  *   - Batch update partially fails
  *   - Database constraints are violated
- *
- * @example
- * await processUnregisteredMeters({
- *   totalCount: 15,
- *   registeredCount: 12,
- *   balanceGroup: 'ЮР П2',
- *   date: '2023-06-15',
- *   substationId: 42
- * });
  */
 export default async function processUnregisteredMetersInTx(
   executor: Executor,

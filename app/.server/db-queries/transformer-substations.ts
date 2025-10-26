@@ -99,20 +99,22 @@ interface SubstationMeterReportParams {
 }
 
 /**
- * Retrieves comprehensive meter reports for all substations as of a specific date
+ * Retrieves comprehensive meter reports for all substations as of a specific
+ * date
  *
  * Report includes for each substation:
+ *
  * - Current registered meter counts (latest before/on targetDate)
  * - Current unregistered meter counts (latest before/on targetDate)
  * - Yearly installation summary for specified year (latest before/on targetDate)
- * - Monthly installation summary for specified month/year (latest before/on targetDate)
+ * - Monthly installation summary for specified month/year (latest before/on
+ *   targetDate)
  *
  * @param params Report parameters
  * @param params.balanceGroup Balance group to filter by
  * @param params.targetDate The "as-of" date for all reports (YYYY-MM-DD format)
  * @param params.month Target month for monthly installation data (MM format)
  * @param params.year Target year for yearly/monthly installation data
- *
  * @returns Array of substations with their meter reports
  */
 export async function getSubstationMeterReportsAtDate({
@@ -275,43 +277,43 @@ interface MonthlyInstallations {
 }
 
 /**
- * Retrieves the latest monthly installation records for each substation
- * up to a specific cutoff date within a given month period
+ * Retrieves the latest monthly installation records for each substation up to a
+ * specific cutoff date within a given month period
  *
  * Returns the most recent installation data for each substation that matches
- * the specified balance group, month, and year, with a date on or before
- * the cutoff date. If no installation records are found for a substation,
- * returns default values (0 for both counts).
+ * the specified balance group, month, and year, with a date on or before the
+ * cutoff date. If no installation records are found for a substation, returns
+ * default values (0 for both counts).
+ *
+ * @example
+ *   const installations = await getLatestMonthlyInstallationsBySubstation({
+ *     balanceGroup: "Быт",
+ *     cutoffDate: "2025-08-24",
+ *     month: "08",
+ *     year: 2025,
+ *   });
+ *   // Returns: [
+ *   //   {
+ *   //     id: 1,
+ *   //     name: "ТП-1",
+ *   //     installation: { totalInstalled: 10, registeredCount: 9 }
+ *   //   },
+ *   //   {
+ *   //     id: 2,
+ *   //     name: "ТП-2",
+ *   //     installation: { totalInstalled: 15, registeredCount: 14 }
+ *   //   }
+ *   // ]
  *
  * @param params - Query parameters
- * @param params.balanceGroup - Balance group category to filter by (e.g., "Быт", "ЮР Sims")
+ * @param params.balanceGroup - Balance group category to filter by (e.g.,
+ *   "Быт", "ЮР Sims")
  * @param params.cutoffDate - Maximum date to include (YYYY-MM-DD format)
  * @param params.month - Target month in 01-12 format
  * @param params.year - Target year
  * @returns Array of substations with their latest installation summary.
- *
  * @throws {Error} If month format is invalid (not in 01-12 format)
  * @throws {Error} If cutoffDate is before the start of the target month
- *
- * @example
- * const installations = await getLatestMonthlyInstallationsBySubstation({
- *   balanceGroup: "Быт",
- *   cutoffDate: "2025-08-24",
- *   month: "08",
- *   year: 2025,
- * });
- * // Returns: [
- * //   {
- * //     id: 1,
- * //     name: "ТП-1",
- * //     installation: { totalInstalled: 10, registeredCount: 9 }
- * //   },
- * //   {
- * //     id: 2,
- * //     name: "ТП-2",
- * //     installation: { totalInstalled: 15, registeredCount: 14 }
- * //   }
- * // ]
  */
 export async function getLatestMonthlyInstallationsBySubstation({
   balanceGroup,
@@ -377,26 +379,32 @@ interface SubstationMeterCount {
 }
 
 /**
- * Retrieves meter counts for all substations as of a specific date for a given balance group
+ * Retrieves meter counts for all substations as of a specific date for a given
+ * balance group
  *
- * This function queries all substations and returns their latest registered and unregistered
- * meter counts that are on or before the target date for the specified balance group.
+ * This function queries all substations and returns their latest registered and
+ * unregistered meter counts that are on or before the target date for the
+ * specified balance group.
+ *
+ * @example
+ *   const counts = await getSubstationMeterCountsAsOfDate(
+ *     "Быт",
+ *     "2025-08-24",
+ *   );
+ *   // Returns: [
+ *   //   { id: 1, name: "ТП-1", registeredMeters: 15, unregisteredMeters: 1 },
+ *   //   { id: 2, name: "ТП-2", registeredMeters: 20, unregisteredMeters: 5 },
+ *   // ]
  *
  * @param balanceGroup - The balance group category to filter by
- * @param targetDate - The target date in YYYY-MM-DD format. Returns the latest records
- *                             on or before this date.
+ * @param targetDate - The target date in YYYY-MM-DD format. Returns the latest
+ *   records on or before this date.
  * @returns Array of substation meter counts with:
+ *
  *   - `id`: Substation ID
  *   - `name`: Substation name
  *   - `registeredMeters`: Count of registered meters (0 if none found)
  *   - `unregisteredMeters`: Count of unregistered meters (0 if none found)
- *
- * @example
- * const counts = await getSubstationMeterCountsAsOfDate("Быт", "2025-08-24");
- * // Returns: [
- * //   { id: 1, name: "ТП-1", registeredMeters: 15, unregisteredMeters: 1 },
- * //   { id: 2, name: "ТП-2", registeredMeters: 20, unregisteredMeters: 5 },
- * // ]
  */
 export async function getSubstationMeterCountsAsOfDate(
   balanceGroup: BalanceGroup,
@@ -474,10 +482,8 @@ type BatchedReport<Groups extends BalanceGroup> = Record<Groups, MeterReport>;
  * Retrieves batched meter reports for multiple balance groups
  *
  * @template Group - Specific balance group type
- *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
- *
  * @returns Report object keyed by balance groups
  */
 export async function getBatchedSubstationMeterReports<
@@ -588,24 +594,24 @@ interface MeterCountsForSubstation {
  * Retrieves comprehensive meter counts for all balance groups in a substation
  * using different cutoff dates for each category.
  *
- * This function executes a single database query to fetch both registered and unregistered
- * meter counts for all balance groups, using appropriate cutoff dates for each category.
+ * This function executes a single database query to fetch both registered and
+ * unregistered meter counts for all balance groups, using appropriate cutoff
+ * dates for each category.
+ *
+ * @example
+ *   const counts = await getAllMeterCountsForSubstation({
+ *     privateDate: "2025-08-24",
+ *     legalDate: "2025-08-20",
+ *     odpuDate: "2025-08-24",
+ *     substationId: 42,
+ *   });
  *
  * @param params - Query parameters
  * @param params.privateDate - Cutoff date for private meters (Быт)
  * @param params.legalDate - Cutoff date for legal meters (ЮР Sims, ЮР П2)
  * @param params.odpuDate - Cutoff date for ODPU meters (ОДПУ Sims, ОДПУ П2)
  * @param params.substationId - Substation ID
- *
  * @returns Object containing meter counts for all balance groups
- *
- * @example
- * const counts = await getAllMeterCountsForSubstation({
- *   privateDate: "2025-08-24",
- *   legalDate: "2025-08-20",
- *   odpuDate: "2025-08-24",
- *   substationId: 42,
- * });
  */
 export async function getAllMeterCountsForSubstation({
   privateDate,
@@ -729,17 +735,13 @@ export async function getAllMeterCountsForSubstation({
   };
 }
 
-/**
- * Represents a registered meter record from the database
- */
+/** Represents a registered meter record from the database */
 interface RegisteredMeterRecord {
   registeredMeterCount: number;
   balanceGroup: BalanceGroup;
 }
 
-/**
- * Represents an unregistered meter record from the database
- */
+/** Represents an unregistered meter record from the database */
 interface UnregisteredMeterRecord {
   unregisteredMeterCount: number;
   balanceGroup: BalanceGroup;
@@ -749,7 +751,8 @@ interface UnregisteredMeterRecord {
  * Type guard to check if a record is a RegisteredMeterRecord
  *
  * @param record - The record to check
- * @returns True if the record has registeredMeterCount and balanceGroup properties
+ * @returns True if the record has registeredMeterCount and balanceGroup
+ *   properties
  */
 function isRegisteredMeterRecord(
   record: unknown,
@@ -766,7 +769,8 @@ function isRegisteredMeterRecord(
  * Type guard to check if a record is an UnregisteredMeterRecord
  *
  * @param record - The record to check
- * @returns True if the record has unregisteredMeterCount and balanceGroup properties
+ * @returns True if the record has unregisteredMeterCount and balanceGroup
+ *   properties
  */
 function isUnregisteredMeterRecord(
   record: unknown,

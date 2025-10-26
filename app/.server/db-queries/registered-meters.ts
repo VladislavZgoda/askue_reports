@@ -13,21 +13,21 @@ interface RegisteredMeterInput {
 /**
  * Creates a new registered meter record in the database
  *
+ * @example
+ *   // Inside a transaction
+ *   await createRegisteredMeterRecord(tx, {
+ *     registeredMeterCount: 5,
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-13",
+ *     substationId: 10,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Input parameters for meter registration
  * @param params.registeredMeterCount Count of registered meters
  * @param params.balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
  * @param params.date Record date (YYYY-MM-DD format)
  * @param params.substationId Transformer substation ID
- *
- * @example
- * // Inside a transaction
- * await createRegisteredMeterRecord(tx, {
- *   registeredMeterCount: 5,
- *   balanceGroup: "Быт",
- *   date: "2025-08-13",
- *   substationId: 10
- * })
  */
 export async function createRegisteredMeterRecord(
   executor: Executor,
@@ -56,22 +56,21 @@ interface RegisteredMeterCountUpdate {
 /**
  * Updates registered meter count by composite key
  *
+ * @example
+ *   await updateRegisteredMeterCount(executor, {
+ *   registeredMeterCount: 5,
+ *   balanceGroup: "ЮР Sims",
+ *   date: "2025-08-17"
+ *   substationId: 10
+ *   })
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.registeredMeterCount - New meter count value
  * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
  * @param params.date - Record date (YYYY-MM-DD)
  * @param params.substationId - Associated substation ID
- *
  * @throws {Error} When no matching record found
- *
- * @example
- * await updateRegisteredMeterCount(executor, {
- *   registeredMeterCount: 5,
- *   balanceGroup: "ЮР Sims",
- *   date: "2025-08-17"
- *   substationId: 10
- * })
  */
 export async function updateRegisteredMeterCount(
   executor: Executor,
@@ -102,10 +101,10 @@ export async function updateRegisteredMeterCount(
 }
 
 /**
- * Fetches the latest registered meter ID by date for a given balance group and substation.
+ * Fetches the latest registered meter ID by date for a given balance group and
+ * substation.
  *
  * @param executor - Database client for query execution (supports transactions)
- *
  * @returns ID of the most recent record, or 'undefined' if none exists.
  */
 export async function getLatestRegisteredMeterId(
@@ -135,18 +134,17 @@ interface RegisteredMeterUpdateInput {
 /**
  * Updates a registered meter record by its ID
  *
+ * @example
+ *   await updateRegisteredMeterRecordById(tx, {
+ *     id: 123,
+ *     registeredMeterCount: 85,
+ *   });
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Update parameters
  * @param params.id Record ID to update
  * @param params.registeredMeterCount New count of registered meters
- *
  * @throws Will throw if no record with the given ID exists
- *
- * @example
- * await updateRegisteredMeterRecordById(tx, {
- *   id: 123,
- *   registeredMeterCount: 85
- * });
  */
 export async function updateRegisteredMeterRecordById(
   executor: Executor,
@@ -166,23 +164,26 @@ export async function updateRegisteredMeterRecordById(
 }
 
 /**
- * Retrieves the registered meter count from the latest record BEFORE a cutoff date.
+ * Retrieves the registered meter count from the latest record BEFORE a cutoff
+ * date.
+ *
+ * @example
+ *   // Get latest count before 2025-08-16
+ *   const count = await getRegisteredMeterCountBeforeCutoff(executor, {
+ *     balanceGroup: "Быт",
+ *     cutoffDate: "2025-08-16",
+ *     substationId: 12,
+ *   });
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters object
- * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР Sims")
- * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record BEFORE this date
+ * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР
+ *   Sims")
+ * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record
+ *   BEFORE this date
  * @param params.substationId - Substation ID to filter by
- *
- * @returns Registered meter count from the latest matching record, or 0 if no match found
- *
- * @example
- * // Get latest count before 2025-08-16
- * const count = await getRegisteredMeterCountBeforeCutoff(executor, {
- *   balanceGroup: "Быт",
- *   cutoffDate: "2025-08-16",
- *   substationId: 12,
- * });
+ * @returns Registered meter count from the latest matching record, or 0 if no
+ *   match found
  */
 export async function getRegisteredMeterCountBeforeCutoff(
   executor: Executor,
@@ -210,23 +211,24 @@ interface RegisteredMeterLookupParams {
 }
 
 /**
- * Retrieves the registered meter count for a specific balance group, date, and substation
+ * Retrieves the registered meter count for a specific balance group, date, and
+ * substation
+ *
+ * @example
+ *   // Get count for specific date and substation
+ *   const count = await getRegisteredMeterCount(executor, {
+ *     balanceGroup: "Быт",
+ *     date: "2025-08-16",
+ *     substationId: 42,
+ *   });
  *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Lookup parameters with exact match criteria
- * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР
+ *   Sims', etc.)
  * @param params.date - Exact date to match (ISO date string)
  * @param params.substationId - Substation ID to filter by
- *
  * @returns The registered meter count if found, otherwise undefined
- *
- * @example
- * // Get count for specific date and substation
- * const count = await getRegisteredMeterCount(executor, {
- *   balanceGroup: 'Быт',
- *   date: '2025-08-16',
- *   substationId: 42
- * });
  */
 export async function getRegisteredMeterCount(
   executor: Executor,
@@ -251,14 +253,17 @@ export async function getRegisteredMeterCount(
  *
  * Atomically increments counts for multiple records
  *
+ * @example
+ *   const updatedCount = await incrementRegisteredMetersRecords(
+ *     executor,
+ *     [10, 21, 33],
+ *     2,
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param ids - Record IDs to update
  * @param newRegisteredCount - Value to add to registered_meter_count
- *
  * @returns Number of updated records
- *
- * @example
- * const updatedCount = await incrementRegisteredMetersRecords(executor, [10, 21, 33], 2)
  */
 export async function incrementRegisteredMetersRecords(
   executor: Executor,
@@ -288,20 +293,23 @@ interface RegisteredMeterIdsQueryParams {
 /**
  * Gets IDs of registered meter records after a specific date
  *
+ * @example
+ *   const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(
+ *     executor,
+ *     {
+ *       balanceGroup: "Быт",
+ *       startDate: "2025-08-17",
+ *       substationId: 12,
+ *     },
+ *   );
+ *
  * @param executor - Database client for query execution (supports transactions)
  * @param params - Query parameters
- * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР Sims', etc.)
+ * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР
+ *   Sims', etc.)
  * @param params.startDate - Exclusive lower bound date
  * @param params.substationId - Associated substation ID
- *
  * @returns Array of record IDs
- *
- * @example
- * const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(executor, {
- *   balanceGroup: 'Быт',
- *   startDate: '2025-08-17',
- *   substationId: 12
- * })
  */
 export async function getRegisteredMeterRecordIdsAfterDate(
   executor: Executor,

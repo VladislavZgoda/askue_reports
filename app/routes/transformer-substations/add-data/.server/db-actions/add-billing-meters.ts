@@ -24,23 +24,24 @@ type BillingInstallationData = BillingValidationForm & {
  * Processes billing meter installation atomically within a database transaction
  *
  * @remarks
- * Performs in this order:
- * 1. Processes unregistered meters (if any)
- * 2. Processes registered meters, yearly installations, monthly installations, and audit log in parallel
+ *   Performs in this order:
  *
- * All operations succeed or fail together due to transaction wrapper.
+ *   1. Processes unregistered meters (if any)
+ *   2. Processes registered meters, yearly installations, monthly installations, and
+ *        audit log in parallel
+ *
+ *   All operations succeed or fail together due to transaction wrapper.
+ * @example
+ *   await addBillingMeters({
+ *     substationId: 42,
+ *     balanceGroup: "ЮР П2",
+ *     totalCount: 15,
+ *     registeredCount: 12,
+ *     date: "2023-06-15",
+ *   });
  *
  * @param installation - Billing meter installation data
  * @throws {Error} If any sub-operation fails, triggering transaction rollback
- *
- * @example
- * await addBillingMeters({
- *   substationId: 42,
- *   balanceGroup: 'ЮР П2',
- *   totalCount: 15,
- *   registeredCount: 12,
- *   date: '2023-06-15'
- * });
  */
 export default async function addBillingMeters(
   installation: BillingInstallationData,
@@ -64,11 +65,11 @@ export default async function addBillingMeters(
 /**
  * Creates audit log entry for billing meter installation
  *
+ * @example
+ *   Log format: "ЮР П2: 15 12 15.06.2023. Добавлено: 19.07.2023, 14:25:03"
+ *
  * @param executor - Database executor (transaction or connection)
  * @param installation - Billing installation data
- *
- * @example
- * Log format: "ЮР П2: 15 12 15.06.2023. Добавлено: 19.07.2023, 14:25:03"
  */
 async function logBillingMeterAction(
   executor: Executor,

@@ -7,11 +7,13 @@ import {
 } from "~/.server/db-queries/transformer-substations";
 
 /**
- * Generates a private meter report with optional adjustments for installation changes
+ * Generates a private meter report with optional adjustments for installation
+ * changes
  *
  * @param reportDate Primary date for the base report (YYYY-MM-DD)
  * @param adjustmentPeriodStart Optional start date for installation adjustments
- * @returns Meter report with installations adjusted if adjustment period is provided
+ * @returns Meter report with installations adjusted if adjustment period is
+ *   provided
  */
 export async function getPrivateMeterReportWithAdjustments(
   reportDate: string,
