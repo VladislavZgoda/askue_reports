@@ -130,7 +130,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       />
 
       <div className="ml-6 flex gap-x-8">
-        <section className="card card-border bg-base-100 w-96 shadow-sm">
+        <section className="card card-border bg-base-200 w-96 shadow-sm">
           <div className="card-body">
             <h2 className="card-title">Добавить новые потребительские ПУ</h2>
             <fetcherBillingMeters.Form
@@ -203,7 +203,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
           </div>
         </section>
 
-        <section className="card card-border bg-base-100 w-96 shadow-sm">
+        <section className="card card-border bg-base-200 w-96 shadow-sm">
           <div className="card-body">
             <h2 className="card-title">Добавить техучеты</h2>
             <fetcherTechnicalMeters.Form
