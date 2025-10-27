@@ -178,7 +178,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
                   {...billingForm.register("date")}
                 />
               </Fieldset>
-              <div className="card-actions gap-20">
+              <div className="card-actions gap-18">
                 <Button
                   type={isSubmittingBilling ? "button" : "submit"}
                   className={`btn btn-success btn-outline ${isSubmittingBilling && "btn-active"}`}
@@ -230,7 +230,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
                   {...technicalForm.register("underVoltage")}
                 />
               </Fieldset>
-              <div className="card-actions mt-auto gap-20">
+              <div className="card-actions mt-auto gap-18">
                 <Button
                   type={isSubmittingTechnical ? "button" : "submit"}
                   className={`btn btn-outline btn-success ${isSubmittingTechnical && "btn-active"}`}
