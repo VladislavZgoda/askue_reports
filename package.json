@@ -32,7 +32,7 @@
     "remix-auth-form": "^3.0.0",
     "remix-client-cache": "^3.0.0",
     "remix-hook-form": "^7.0.1",
-    "zip-a-folder": "^3.1.7",
+    "zip-a-folder": "^4.0.4",
     "zod": "^4.0.5"
   },
   "devDependencies": {
