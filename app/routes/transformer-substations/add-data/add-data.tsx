@@ -193,7 +193,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
                   className="btn btn-neutral btn-outline"
                   onClick={() => {
                     billingForm.reset();
-                    fetcherBillingMeters.unstable_reset();
+                    fetcherBillingMeters.reset();
                   }}
                 >
                   Сбросить
@@ -245,7 +245,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
                   className="btn btn-neutral btn-outline"
                   onClick={() => {
                     technicalForm.reset();
-                    fetcherTechnicalMeters.unstable_reset();
+                    fetcherTechnicalMeters.reset();
                   }}
                 >
                   Сбросить

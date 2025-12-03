@@ -96,7 +96,7 @@ export default function TechnicalMetersTabPanel({
           className="btn-neutral btn-outline mt-5 ml-5 w-50"
           onClick={() => {
             reset();
-            fetcher.unstable_reset();
+            fetcher.reset();
           }}
         >
           Очистить форму

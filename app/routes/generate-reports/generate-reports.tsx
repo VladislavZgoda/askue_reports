@@ -174,7 +174,7 @@ export default function GenerateReports() {
     if (isSubmitting) return;
 
     reset();
-    fetcher.unstable_reset();
+    fetcher.reset();
   };
 
   useEffect(() => {
