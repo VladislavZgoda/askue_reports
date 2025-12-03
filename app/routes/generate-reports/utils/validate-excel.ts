@@ -33,8 +33,6 @@ function checkTitles(ws: exceljs.Worksheet) {
 
   if (!(cellValue(ws, "I2") === "Адрес")) return false;
 
-  if (!(cellValue(ws, "I2") === "Адрес")) return false;
-
   if (!(cellValue(ws, "J2") === "ФИО абонента")) return false;
 
   if (!(cellValue(ws, "K2") === "Дата_АСКУЭ")) return false;
