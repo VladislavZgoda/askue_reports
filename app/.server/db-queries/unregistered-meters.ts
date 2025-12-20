@@ -1,5 +1,6 @@
 import { unregisteredMeters } from "../schema";
-import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
+import { increment } from "./query-helpers";
+import { eq, and, desc, lt, gt, inArray } from "drizzle-orm";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
@@ -238,84 +239,45 @@ export async function updateUnregisteredMeterRecordByCompositeKey(
   }
 }
 
-interface UnregisteredMeterQueryParams {
+interface UnregisteredMetersIncrementParams {
+  incrementValue: number;
   balanceGroup: UnregisteredMeters["balanceGroup"];
-  startDate: UnregisteredMeters["date"];
+  minDate: UnregisteredMeters["date"];
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
 /**
- * Gets IDs of unregistered meter records after a specific date
- *
- * @example
- *   const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate(
- *     executor,
- *     {
- *       balanceGroup: "ЮР Sims",
- *       startDate: "2025-08-17",
- *       substationId: 45,
- *     },
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Query parameters
- * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.startDate - Exclusive lower bound date
- * @param params.substationId - Associated substation ID
- * @returns Array of record IDs
+ * Batch increments unregistered meter counts for future records. Updates all
+ * records with date > minDate for the given balance group and substation.
  */
-export async function getUnregisteredMeterRecordIdsAfterDate(
+export async function incrementFutureUnregisteredMeters(
   executor: Executor,
-  { balanceGroup, startDate, substationId }: UnregisteredMeterQueryParams,
-): Promise<number[]> {
-  const result = await executor.query.unregisteredMeters.findMany({
-    columns: {
-      id: true,
-    },
-    where: and(
-      gt(unregisteredMeters.date, startDate),
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-    ),
-  });
+  {
+    incrementValue,
+    balanceGroup,
+    minDate,
+    substationId,
+  }: UnregisteredMetersIncrementParams,
+): Promise<void> {
+  const futureRecordIds = executor
+    .select({ id: unregisteredMeters.id })
+    .from(unregisteredMeters)
+    .where(
+      and(
+        gt(unregisteredMeters.date, minDate),
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, substationId),
+      ),
+    );
 
-  const transformedResult = result.map((r) => r.id);
-
-  return transformedResult;
-}
-
-/**
- * Batched update of future unregistered meter records
- *
- * Atomically increments counts for multiple records
- *
- * @example
- *   const updatedCount = await incrementUnregisteredMetersRecords(
- *     executor,
- *     [12, 22, 44],
- *     3,
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param ids - Record IDs to update
- * @param newUnregisteredCount - Value to add to unregistered_meter_count
- * @returns Number of updated records
- */
-export async function incrementUnregisteredMetersRecords(
-  executor: Executor,
-  ids: number[],
-  newUnregisteredCount: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
+  await executor
     .update(unregisteredMeters)
     .set({
-      unregisteredMeterCount: sql`${unregisteredMeters.unregisteredMeterCount} + ${newUnregisteredCount}`,
+      unregisteredMeterCount: increment(
+        unregisteredMeters.unregisteredMeterCount,
+        incrementValue,
+      ),
       updatedAt: new Date(),
     })
-    .where(and(inArray(unregisteredMeters.id, ids)))
-    .returning();
-
-  return result.length;
+    .where(inArray(unregisteredMeters.id, futureRecordIds));
 }

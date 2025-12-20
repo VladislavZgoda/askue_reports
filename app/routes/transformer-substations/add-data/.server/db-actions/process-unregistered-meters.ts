@@ -1,9 +1,8 @@
 import {
   getUnregisteredMeterCount,
   createUnregisteredMeterRecord,
-  incrementUnregisteredMetersRecords,
+  incrementFutureUnregisteredMeters,
   getUnregisteredMeterCountBeforeCutoff,
-  getUnregisteredMeterRecordIdsAfterDate,
   updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregistered-meters";
 
@@ -126,27 +125,11 @@ export default async function processUnregisteredMetersInTx(
     });
   }
 
-  // 3. Get future records (transactional)
-  const futureRecordIds = await getUnregisteredMeterRecordIdsAfterDate(
-    executor,
-    {
-      balanceGroup,
-      startDate: date,
-      substationId,
-    },
-  );
-
-  // 4. Batch update future records (transactional)
-  if (futureRecordIds.length > 0) {
-    const updatedCount = await incrementUnregisteredMetersRecords(
-      executor,
-      futureRecordIds,
-      newUnregisteredCount,
-    );
-
-    if (updatedCount !== futureRecordIds.length) {
-      const failedCount = futureRecordIds.length - updatedCount;
-      throw new Error(`Failed to update ${failedCount} records.`);
-    }
-  }
+  // 3. Batch update future records (transactional)
+  await incrementFutureUnregisteredMeters(executor, {
+    incrementValue: newUnregisteredCount,
+    balanceGroup,
+    minDate: date,
+    substationId,
+  });
 }
