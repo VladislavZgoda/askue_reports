@@ -1,56 +1,9 @@
 import {
   getUnregisteredMeterCount,
-  createUnregisteredMeterRecord,
   incrementFutureUnregisteredMeters,
-  getUnregisteredMeterCountBeforeCutoff,
+  createCumulativeUnregisteredMeterRecord,
   updateUnregisteredMeterRecordByCompositeKey,
 } from "~/.server/db-queries/unregistered-meters";
-
-interface AccumulatedUnrecordedInput {
-  newUnregisteredCount: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  substationId: number;
-}
-
-/**
- * Creates accumulated unregistered meter record
- *
- * Calculates new totals based on previous records before the cutoff date
- *
- * @param executor - Database executor
- * @param newUnregisteredCount - New unregistered meters to add
- * @param balanceGroup - Balance group category
- * @param date - Record date (YYYY-MM-DD)
- * @param substationId - Associated substation ID
- */
-async function createAccumulatedUnregisteredRecord(
-  executor: Executor,
-  {
-    newUnregisteredCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: AccumulatedUnrecordedInput,
-) {
-  const currentUnregistered = await getUnregisteredMeterCountBeforeCutoff(
-    executor,
-    {
-      balanceGroup: balanceGroup,
-      cutoffDate: date,
-      substationId,
-    },
-  );
-
-  const accumulatedUnregistered = newUnregisteredCount + currentUnregistered;
-
-  await createUnregisteredMeterRecord(executor, {
-    unregisteredMeterCount: accumulatedUnregistered,
-    balanceGroup: balanceGroup,
-    date: date,
-    substationId: substationId,
-  });
-}
 
 interface UnregisteredData {
   readonly balanceGroup: BalanceGroup;
@@ -84,10 +37,6 @@ interface UnregisteredData {
  * @property substationId - Associated substation ID
  * @param executor - Database executor
  * @param unregisteredInput - Validated installation data
- * @throws {Error} When:
- *
- *   - Batch update partially fails
- *   - Database constraints are violated
  */
 export default async function processUnregisteredMetersInTx(
   executor: Executor,
@@ -117,8 +66,8 @@ export default async function processUnregisteredMetersInTx(
       substationId,
     });
   } else {
-    await createAccumulatedUnregisteredRecord(executor, {
-      newUnregisteredCount,
+    await createCumulativeUnregisteredMeterRecord(executor, {
+      unregisteredMeterCount: newUnregisteredCount,
       balanceGroup,
       date,
       substationId,

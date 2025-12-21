@@ -1,6 +1,6 @@
 import { unregisteredMeters } from "../schema";
 import { increment } from "./query-helpers";
-import { eq, and, desc, lt, gt, inArray } from "drizzle-orm";
+import { eq, and, desc, lt, gt, inArray, sql } from "drizzle-orm";
 
 type UnregisteredMeters = typeof unregisteredMeters.$inferSelect;
 
@@ -41,6 +41,54 @@ export async function createUnregisteredMeterRecord(
 ): Promise<void> {
   await executor.insert(unregisteredMeters).values({
     unregisteredMeterCount,
+    balanceGroup,
+    date,
+    transformerSubstationId: substationId,
+  });
+}
+
+/**
+ * Creates a new unregistered meter record with a cumulative count. Finds the
+ * most recent record for the same balance group and substation (with an earlier
+ * date) and adds the new count to it.
+ *
+ * This creates a running total of unregistered meters over time.
+ *
+ * @param executor - Database connection or transaction
+ * @param input - Parameters for the new record
+ * @param input.unregisteredMeterCount - Number of new unregistered meters to
+ *   add
+ * @param input.balanceGroup - Balance group for the record
+ * @param input.date - Date of the new record (must be later than previous
+ *   records)
+ * @param input.substationId - Substation ID for the record
+ */
+export async function createCumulativeUnregisteredMeterRecord(
+  executor: Executor,
+  {
+    unregisteredMeterCount,
+    balanceGroup,
+    date,
+    substationId,
+  }: UnregisteredMeterRecordInput,
+): Promise<void> {
+  const previousCount = executor
+    .select({
+      unregisteredMeterCount: unregisteredMeters.unregisteredMeterCount,
+    })
+    .from(unregisteredMeters)
+    .where(
+      and(
+        eq(unregisteredMeters.balanceGroup, balanceGroup),
+        eq(unregisteredMeters.transformerSubstationId, substationId),
+        lt(unregisteredMeters.date, date),
+      ),
+    )
+    .orderBy(desc(unregisteredMeters.date))
+    .limit(1);
+
+  await executor.insert(unregisteredMeters).values({
+    unregisteredMeterCount: sql`coalesce((${previousCount}), 0) + ${unregisteredMeterCount}`,
     balanceGroup,
     date,
     transformerSubstationId: substationId,
@@ -142,54 +190,6 @@ export async function updateUnregisteredMeterRecordById(
   if (!updatedRecord) {
     throw new Error(`Unregistered meter record with ID ${id} not found`);
   }
-}
-
-/**
- * Retrieves the unregistered meter count from the latest record BEFORE a cutoff
- * date.
- *
- * @example
- *   // Get latest count before 2025-08-17
- *   const count = await getUnregisteredMeterCountBeforeCutoff(executor, {
- *     balanceGroup: "ЮР П2",
- *     cutoffDate: "2025-08-17",
- *     substationId: 45,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Query parameters object
- * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР
- *   Sims")
- * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record
- *   BEFORE this date
- * @param params.substationId - Substation ID to filter by
- * @returns Unregistered meter count from the latest matching record, or 0 if no
- *   match found
- */
-export async function getUnregisteredMeterCountBeforeCutoff(
-  executor: Executor,
-  { balanceGroup, cutoffDate, substationId }: MeterCountQueryParams,
-): Promise<number> {
-  const result = await executor.query.unregisteredMeters.findFirst({
-    columns: {
-      unregisteredMeterCount: true,
-    },
-    where: and(
-      eq(unregisteredMeters.balanceGroup, balanceGroup),
-      eq(unregisteredMeters.transformerSubstationId, substationId),
-      lt(unregisteredMeters.date, cutoffDate),
-    ),
-    orderBy: [desc(unregisteredMeters.date)],
-  });
-
-  return result ? result.unregisteredMeterCount : 0;
-}
-
-interface UnregisteredMeterRecordInput {
-  unregisteredMeterCount: UnregisteredMeters["unregisteredMeterCount"];
-  balanceGroup: UnregisteredMeters["balanceGroup"];
-  date: UnregisteredMeters["date"];
-  substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
 /**
