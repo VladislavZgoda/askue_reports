@@ -1,8 +1,8 @@
 import {
-  getUnregisteredMeterCount,
+  findUnregisteredMeterId,
   incrementFutureUnregisteredMeters,
   createCumulativeUnregisteredMeterRecord,
-  updateUnregisteredMeterRecordByCompositeKey,
+  incrementUnregisteredMeterById,
 } from "~/.server/db-queries/unregistered-meters";
 
 interface UnregisteredData {
@@ -14,29 +14,20 @@ interface UnregisteredData {
 }
 
 /**
- * Processes unregistered meter data atomically:
+ * Processes unregistered meter data atomically within a transaction:
  *
- * 1. Updates or creates unregistered meter accumulation records
- * 2. Propagates counts to future records
+ * 1. Finds or creates an unregistered meter record for the given date
+ * 2. Updates the count for that date (incrementing existing or creating new)
+ * 3. Propagates the count to all future records for the same group/substation
  *
- * Performs all operations within a database transaction
- *
- * @example
- *   await processUnregisteredMeters({
- *     totalCount: 15,
- *     registeredCount: 12,
- *     balanceGroup: "ЮР П2",
- *     date: "2023-06-15",
- *     substationId: 42,
- *   });
- *
- * @property totalCount - Total meters installed
- * @property registeredCount - Meters registered in system
- * @property balanceGroup - Balance group category
- * @property date - Installation date (YYYY-MM-DD)
- * @property substationId - Associated substation ID
- * @param executor - Database executor
+ * @param executor - Database executor (must be within a transaction for
+ *   atomicity)
  * @param unregisteredInput - Validated installation data
+ * @param unregisteredInput.totalCount - Total meters installed
+ * @param unregisteredInput.registeredCount - Meters registered in system
+ * @param unregisteredInput.balanceGroup - Balance group category
+ * @param unregisteredInput.date - Installation date (YYYY-MM-DD)
+ * @param unregisteredInput.substationId - Associated substation ID
  */
 export default async function processUnregisteredMetersInTx(
   executor: Executor,
@@ -51,20 +42,19 @@ export default async function processUnregisteredMetersInTx(
   const newUnregisteredCount = totalCount - registeredCount;
 
   // 1. Get current count (transactional)
-  const currentUnregistered = await getUnregisteredMeterCount(executor, {
+  const existingRecordId = await findUnregisteredMeterId(executor, {
     balanceGroup,
     substationId,
     date,
   });
 
   // 2. Update or create accumulation (transactional)
-  if (currentUnregistered) {
-    await updateUnregisteredMeterRecordByCompositeKey(executor, {
-      unregisteredMeterCount: newUnregisteredCount + currentUnregistered,
-      balanceGroup,
-      date,
-      substationId,
-    });
+  if (existingRecordId) {
+    await incrementUnregisteredMeterById(
+      executor,
+      existingRecordId,
+      newUnregisteredCount,
+    );
   } else {
     await createCumulativeUnregisteredMeterRecord(executor, {
       unregisteredMeterCount: newUnregisteredCount,

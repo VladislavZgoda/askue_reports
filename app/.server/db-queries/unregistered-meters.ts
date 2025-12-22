@@ -95,31 +95,19 @@ export async function createCumulativeUnregisteredMeterRecord(
   });
 }
 
-interface UnregisteredMeterQuery {
+interface FindUnregisteredMeterParams {
   date: UnregisteredMeters["date"];
   balanceGroup: UnregisteredMeters["balanceGroup"];
   substationId: UnregisteredMeters["transformerSubstationId"];
 }
 
-/**
- * Retrieves unregistered meter count value for specific date, balance group and
- * substation
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Query parameters object
- * @param params.date - Date of record (YYYY-MM-DD format)
- * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР
- *   Sims")
- * @param params.substationId - Transformer substation ID
- * @returns Number of unregistered meters, or undefined if no record exists
- */
-export async function getUnregisteredMeterCount(
+export async function findUnregisteredMeterId(
   executor: Executor,
-  { date, balanceGroup, substationId }: UnregisteredMeterQuery,
+  { date, balanceGroup, substationId }: FindUnregisteredMeterParams,
 ): Promise<number | undefined> {
   const result = await executor.query.unregisteredMeters.findFirst({
     columns: {
-      unregisteredMeterCount: true,
+      id: true,
     },
     where: and(
       eq(unregisteredMeters.date, date),
@@ -128,7 +116,7 @@ export async function getUnregisteredMeterCount(
     ),
   });
 
-  return result?.unregisteredMeterCount;
+  return result?.id;
 }
 
 /**
@@ -193,45 +181,30 @@ export async function updateUnregisteredMeterRecordById(
 }
 
 /**
- * Updates unregistered meter record by composite key
+ * Increments the unregistered meter count for a specific record.
  *
- * @example
- *   await updateUnregisteredMeterRecordByCompositeKey(executor, {
- *     unregisteredMeterCount: 5,
- *     balanceGroup: "Быт",
- *     date: "2025-08-17",
- *     substationId: 15,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Update parameters
- * @param params.unregisteredMeterCount - New meter count value
- * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.date - Record date (YYYY-MM-DD)
- * @param params.substationId - Associated substation ID
- * @throws {Error} When no matching record found
+ * @param executor - Database connection or transaction
+ * @param recordId - ID of the unregistered meter record to update
+ * @param amount - Amount to add to the existing count
+ * @throws {Error} If no record with the given ID exists
  */
-export async function updateUnregisteredMeterRecordByCompositeKey(
+export async function incrementUnregisteredMeterById(
   executor: Executor,
-  {
-    unregisteredMeterCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: UnregisteredMeterRecordInput,
+  recordId: number,
+  amount: number,
 ): Promise<void> {
   const updatedAt = new Date();
 
   const [updatedRecord] = await executor
     .update(unregisteredMeters)
-    .set({ unregisteredMeterCount, updatedAt })
-    .where(
-      and(
-        eq(unregisteredMeters.transformerSubstationId, substationId),
-        eq(unregisteredMeters.date, date),
-        eq(unregisteredMeters.balanceGroup, balanceGroup),
+    .set({
+      unregisteredMeterCount: increment(
+        unregisteredMeters.unregisteredMeterCount,
+        amount,
       ),
-    )
+      updatedAt,
+    })
+    .where(and(eq(unregisteredMeters.id, recordId)))
     .returning();
 
   if (!updatedRecord) {
