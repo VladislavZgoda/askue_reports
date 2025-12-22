@@ -1,4 +1,5 @@
 import { registeredMeters } from "../schema";
+import { increment } from "./query-helpers";
 import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
 
 type RegisteredMeters = typeof registeredMeters.$inferSelect;
@@ -46,53 +47,31 @@ export async function createRegisteredMeterRecord(
   });
 }
 
-interface RegisteredMeterCountUpdate {
-  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  date: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
-}
-
 /**
- * Updates registered meter count by composite key
+ * Increments the registered meter count for a specific record.
  *
- * @example
- *   await updateRegisteredMeterCount(executor, {
- *   registeredMeterCount: 5,
- *   balanceGroup: "ЮР Sims",
- *   date: "2025-08-17"
- *   substationId: 10
- *   })
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Update parameters
- * @param params.registeredMeterCount - New meter count value
- * @param params.balanceGroup - Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.date - Record date (YYYY-MM-DD)
- * @param params.substationId - Associated substation ID
- * @throws {Error} When no matching record found
+ * @param executor - Database connection or transaction
+ * @param recordId - ID of the registered meter record to update
+ * @param amount - Amount to add to the existing count
+ * @throws {Error} If no record with the given ID exists
  */
-export async function updateRegisteredMeterCount(
+export async function incrementRegisteredMeterById(
   executor: Executor,
-  {
-    registeredMeterCount,
-    balanceGroup,
-    date,
-    substationId,
-  }: RegisteredMeterCountUpdate,
-) {
+  recordId: number,
+  amount: number,
+): Promise<void> {
   const updatedAt = new Date();
 
   const [updatedRecord] = await executor
     .update(registeredMeters)
-    .set({ registeredMeterCount, updatedAt })
-    .where(
-      and(
-        eq(registeredMeters.transformerSubstationId, substationId),
-        eq(registeredMeters.date, date),
-        eq(registeredMeters.balanceGroup, balanceGroup),
+    .set({
+      registeredMeterCount: increment(
+        registeredMeters.registeredMeterCount,
+        amount,
       ),
-    )
+      updatedAt,
+    })
+    .where(and(eq(registeredMeters.id, recordId)))
     .returning();
 
   if (!updatedRecord) {
@@ -163,80 +142,19 @@ export async function updateRegisteredMeterRecordById(
   }
 }
 
-/**
- * Retrieves the registered meter count from the latest record BEFORE a cutoff
- * date.
- *
- * @example
- *   // Get latest count before 2025-08-16
- *   const count = await getRegisteredMeterCountBeforeCutoff(executor, {
- *     balanceGroup: "Быт",
- *     cutoffDate: "2025-08-16",
- *     substationId: 12,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Query parameters object
- * @param params.balanceGroup - Balance group to filter by (e.g., "Быт", "ЮР
- *   Sims")
- * @param params.cutoffDate - Cutoff date (YYYY-MM-DD) - returns latest record
- *   BEFORE this date
- * @param params.substationId - Substation ID to filter by
- * @returns Registered meter count from the latest matching record, or 0 if no
- *   match found
- */
-export async function getRegisteredMeterCountBeforeCutoff(
-  executor: Executor,
-  { balanceGroup, cutoffDate, substationId }: MeterCountQueryParams,
-): Promise<number> {
-  const result = await executor.query.registeredMeters.findFirst({
-    columns: {
-      registeredMeterCount: true,
-    },
-    where: and(
-      eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.transformerSubstationId, substationId),
-      lt(registeredMeters.date, cutoffDate),
-    ),
-    orderBy: [desc(registeredMeters.date)],
-  });
-
-  return result ? result.registeredMeterCount : 0;
-}
-
-interface RegisteredMeterLookupParams {
+interface FindRegisteredMeterParams {
   balanceGroup: RegisteredMeters["balanceGroup"];
   date: RegisteredMeters["date"];
   substationId: RegisteredMeters["transformerSubstationId"];
 }
 
-/**
- * Retrieves the registered meter count for a specific balance group, date, and
- * substation
- *
- * @example
- *   // Get count for specific date and substation
- *   const count = await getRegisteredMeterCount(executor, {
- *     balanceGroup: "Быт",
- *     date: "2025-08-16",
- *     substationId: 42,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Lookup parameters with exact match criteria
- * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР
- *   Sims', etc.)
- * @param params.date - Exact date to match (ISO date string)
- * @param params.substationId - Substation ID to filter by
- * @returns The registered meter count if found, otherwise undefined
- */
-export async function getRegisteredMeterCount(
+export async function findRegisteredMeterId(
   executor: Executor,
-  { balanceGroup, date, substationId }: RegisteredMeterLookupParams,
+  { balanceGroup, date, substationId }: FindRegisteredMeterParams,
 ): Promise<number | undefined> {
   const result = await executor.query.registeredMeters.findFirst({
     columns: {
-      registeredMeterCount: true,
+      id: true,
     },
     where: and(
       eq(registeredMeters.balanceGroup, balanceGroup),
@@ -245,88 +163,95 @@ export async function getRegisteredMeterCount(
     ),
   });
 
-  return result?.registeredMeterCount;
+  return result?.id;
 }
 
-/**
- * Batched update of future registered meter records
- *
- * Atomically increments counts for multiple records
- *
- * @example
- *   const updatedCount = await incrementRegisteredMetersRecords(
- *     executor,
- *     [10, 21, 33],
- *     2,
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param ids - Record IDs to update
- * @param newRegisteredCount - Value to add to registered_meter_count
- * @returns Number of updated records
- */
-export async function incrementRegisteredMetersRecords(
-  executor: Executor,
-  ids: number[],
-  newRegisteredCount: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
-    .update(registeredMeters)
-    .set({
-      registeredMeterCount: sql`${registeredMeters.registeredMeterCount} + ${newRegisteredCount}`,
-      updatedAt: new Date(),
-    })
-    .where(and(inArray(registeredMeters.id, ids)))
-    .returning();
-
-  return result.length;
-}
-
-interface RegisteredMeterIdsQueryParams {
+interface RegisteredMetersIncrementParams {
+  incrementValue: number;
   balanceGroup: RegisteredMeters["balanceGroup"];
-  startDate: RegisteredMeters["date"];
+  minDate: RegisteredMeters["date"];
   substationId: RegisteredMeters["transformerSubstationId"];
 }
 
 /**
- * Gets IDs of registered meter records after a specific date
- *
- * @example
- *   const futureRecordIds = await getRegisteredMeterRecordIdsAfterDate(
- *     executor,
- *     {
- *       balanceGroup: "Быт",
- *       startDate: "2025-08-17",
- *       substationId: 12,
- *     },
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Query parameters
- * @param params.balanceGroup - Balance group to filter by (e.g., 'Быт', 'ЮР
- *   Sims', etc.)
- * @param params.startDate - Exclusive lower bound date
- * @param params.substationId - Associated substation ID
- * @returns Array of record IDs
+ * Batch increments registered meter counts for future records. Updates all
+ * records with date > minDate for the given balance group and substation.
  */
-export async function getRegisteredMeterRecordIdsAfterDate(
+export async function incrementFutureRegisteredMeters(
   executor: Executor,
-  { balanceGroup, startDate, substationId }: RegisteredMeterIdsQueryParams,
-): Promise<number[]> {
-  const result = await executor
+  {
+    incrementValue,
+    balanceGroup,
+    minDate,
+    substationId,
+  }: RegisteredMetersIncrementParams,
+): Promise<void> {
+  const futureRecordIds = executor
     .select({ id: registeredMeters.id })
     .from(registeredMeters)
     .where(
       and(
-        gt(registeredMeters.date, startDate),
+        gt(registeredMeters.date, minDate),
         eq(registeredMeters.balanceGroup, balanceGroup),
         eq(registeredMeters.transformerSubstationId, substationId),
       ),
     );
 
-  const transformedResult = result.map((r) => r.id);
+  await executor
+    .update(registeredMeters)
+    .set({
+      registeredMeterCount: increment(
+        registeredMeters.registeredMeterCount,
+        incrementValue,
+      ),
+      updatedAt: new Date(),
+    })
+    .where(and(inArray(registeredMeters.id, futureRecordIds)));
+}
 
-  return transformedResult;
+/**
+ * Creates a new registered meter record with a cumulative count. Finds the most
+ * recent record for the same balance group and substation (with an earlier
+ * date) and adds the new count to it.
+ *
+ * This creates a running total of registered meters over time.
+ *
+ * @param executor - Database connection or transaction
+ * @param input - Parameters for the new record
+ * @param input.registeredMeterCount - Number of new registered meters to add
+ * @param input.balanceGroup - Balance group for the record
+ * @param input.date - Date of the new record (must be later than previous
+ *   records)
+ * @param input.substationId - Substation ID for the record
+ */
+export async function createCumulativeRegisteredMeterRecord(
+  executor: Executor,
+  {
+    registeredMeterCount,
+    balanceGroup,
+    date,
+    substationId,
+  }: RegisteredMeterInput,
+): Promise<void> {
+  const previousCount = executor
+    .select({
+      registeredMeterCount: registeredMeters.registeredMeterCount,
+    })
+    .from(registeredMeters)
+    .where(
+      and(
+        eq(registeredMeters.balanceGroup, balanceGroup),
+        eq(registeredMeters.transformerSubstationId, substationId),
+        lt(registeredMeters.date, date),
+      ),
+    )
+    .orderBy(desc(registeredMeters.date))
+    .limit(1);
+
+  await executor.insert(registeredMeters).values({
+    registeredMeterCount: sql`coalesce((${previousCount}), 0) + ${registeredMeterCount}`,
+    balanceGroup,
+    date,
+    transformerSubstationId: substationId,
+  });
 }
