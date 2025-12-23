@@ -4,8 +4,7 @@ import {
   createMonthlyInstallationRecord,
   updateMonthlyInstallationRecord,
   getMonthlyMeterInstallationStats,
-  incrementMonthlyInstallationRecords,
-  getMonthlyInstallationRecordsAfterDate,
+  incrementFutureMonthlyInstallations,
   getMonthlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/monthly-meter-installations";
 
@@ -125,7 +124,6 @@ interface MonthlyInstallationData {
  * @throws {Error} When:
  *
  *   - Registered count exceeds total installed
- *   - Batch update partially fails
  *   - Database constraints are violated
  */
 export default async function processMonthlyInstallations(
@@ -165,33 +163,14 @@ export default async function processMonthlyInstallations(
     );
   }
 
-  // 3. Get future records (transactional)
-  const futureRecordIds = await getMonthlyInstallationRecordsAfterDate(
-    executor,
-    {
-      balanceGroup,
-      startDate: date,
-      substationId,
-      month,
-      year,
-    },
-  );
-
-  // 4. Batch update future records (transactional)
-  if (futureRecordIds.length > 0) {
-    const updatedCount = await incrementMonthlyInstallationRecords(
-      executor,
-      futureRecordIds,
-      totalCount,
-      registeredCount,
-    );
-
-    if (updatedCount !== futureRecordIds.length) {
-      const failedCount = futureRecordIds.length - updatedCount;
-      throw new Error(
-        `Failed to update ${failedCount} records. ` +
-          "Update would violate registered_count <= total_installed constraint.",
-      );
-    }
-  }
+  // 3. Batch update future records (transactional)
+  await incrementFutureMonthlyInstallations(executor, {
+    totalIncrement: totalCount,
+    registeredIncrement: registeredCount,
+    minDate: date,
+    balanceGroup,
+    substationId,
+    month,
+    year,
+  });
 }
