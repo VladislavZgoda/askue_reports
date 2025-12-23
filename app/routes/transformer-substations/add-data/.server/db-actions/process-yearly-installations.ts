@@ -4,8 +4,7 @@ import {
   createYearlyMeterInstallation,
   updateYearlyMeterInstallation,
   getYearlyMeterInstallationStats,
-  incrementYearlyInstallationRecords,
-  getYearlyInstallationRecordsAfterDate,
+  incrementFutureYearlyInstallations,
   getYearlyInstallationSummaryBeforeCutoff,
 } from "~/.server/db-queries/yearly-meter-installations";
 
@@ -115,7 +114,6 @@ interface YearlyInstallationData {
  * @throws Error if:
  *
  *   - Validation fails (registered > total)
- *   - Batch update partially fails
  *   - Database constraints are violated
  */
 export default async function processYearlyInstallations(
@@ -151,32 +149,13 @@ export default async function processYearlyInstallations(
     );
   }
 
-  // 3. Get future records (transactional)
-  const futureRecordIds = await getYearlyInstallationRecordsAfterDate(
-    executor,
-    {
-      balanceGroup,
-      startDate: date,
-      substationId,
-      year,
-    },
-  );
-
-  // 4. Batch update future records (transactional)
-  if (futureRecordIds.length > 0) {
-    const updatedCount = await incrementYearlyInstallationRecords(
-      executor,
-      futureRecordIds,
-      totalCount,
-      registeredCount,
-    );
-
-    if (updatedCount !== futureRecordIds.length) {
-      const failedCount = futureRecordIds.length - updatedCount;
-      throw new Error(
-        `Failed to update ${failedCount} records. ` +
-          "Update would violate registered_count <= total_installed constraint.",
-      );
-    }
-  }
+  // 3. Batch update future records (transactional)
+  await incrementFutureYearlyInstallations(executor, {
+    totalIncrement: totalCount,
+    registeredIncrement: registeredCount,
+    balanceGroup,
+    minDate: date,
+    substationId,
+    year,
+  });
 }

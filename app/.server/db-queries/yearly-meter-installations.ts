@@ -1,6 +1,7 @@
 import { yearlyMeterInstallations } from "../schema";
-import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, lt, gt, inArray } from "drizzle-orm";
 
+import { increment } from "./query-helpers";
 import { validateInstallationParams } from "~/utils/installation-params";
 
 import type { InstallationStats } from "~/utils/installation-params";
@@ -343,99 +344,61 @@ export async function updateYearlyMeterInstallation(
   }
 }
 
-interface YearlyInstallationRecordQuery {
+interface YearlyInstallationIncrementParams {
+  totalIncrement: YearlyMeterInstallations["totalInstalled"];
+  registeredIncrement: YearlyMeterInstallations["registeredCount"];
   balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  startDate: YearlyMeterInstallations["date"];
+  minDate: YearlyMeterInstallations["date"];
   substationId: YearlyMeterInstallations["transformerSubstationId"];
   year: YearlyMeterInstallations["year"];
 }
 
 /**
- * Retrieves yearly installation record IDs created after a specific date
- *
- * @example
- *   const futureRecordIds = await getYearlyInstallationRecordsAfterDate(
- *     executor,
- *     {
- *       balanceGroup: "Быт",
- *       startDate: "2025-08-01",
- *       year: 2025,
- *       substationId: 12,
- *     },
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Filter parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
- *   etc.)
- * @param params.startDate - Minimum date threshold (exclusive) in YYYY-MM-DD
- * @param params.year - Year of installation record
- * @param params.substationId - Transformer substation ID
- * @returns Array of record IDs. Empty array if no matches found.
+ * Batch increments yearly installations for future records. Updates all records
+ * with date > minDate for the given balance group, substation and year.
  */
-export async function getYearlyInstallationRecordsAfterDate(
+export async function incrementFutureYearlyInstallations(
   executor: Executor,
-  {
+  params: YearlyInstallationIncrementParams,
+): Promise<void> {
+  const {
+    totalIncrement,
+    registeredIncrement,
     balanceGroup,
-    startDate,
-    year,
+    minDate,
     substationId,
-  }: YearlyInstallationRecordQuery,
-): Promise<number[]> {
-  const result = await executor.query.yearlyMeterInstallations.findMany({
-    columns: { id: true },
-    where: and(
-      eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-      gt(yearlyMeterInstallations.date, startDate),
-      eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-      eq(yearlyMeterInstallations.year, year),
-    ),
+    year,
+  } = params;
+
+  validateInstallationParams({
+    totalInstalled: totalIncrement,
+    registeredCount: registeredIncrement,
   });
 
-  return result.map((r) => r.id);
-}
-
-/**
- * Updates yearly installation records in batch with safety validation
- *
- * @example
- *   const updatedCount = await incrementYearlyInstallationRecords(
- *     executor,
- *     [1, 15, 25],
- *     2,
- *     1,
- *   );
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param ids - Record IDs to update
- * @param totalIncrement - Value to add to total_installed
- * @param registeredIncrement - Value to add to registered_count
- * @returns Number of successfully updated records
- * @throws Error if validation fails (registered > total)
- */
-export async function incrementYearlyInstallationRecords(
-  executor: Executor,
-  ids: number[],
-  totalIncrement: number,
-  registeredIncrement: number,
-): Promise<number> {
-  if (ids.length === 0) return 0;
-
-  const result = await executor
-    .update(yearlyMeterInstallations)
-    .set({
-      totalInstalled: sql`${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
-      registeredCount: sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}`,
-      updatedAt: new Date(),
-    })
+  const futureRecordIds = executor
+    .select({ id: yearlyMeterInstallations.id })
+    .from(yearlyMeterInstallations)
     .where(
       and(
-        inArray(yearlyMeterInstallations.id, ids),
-        sql`${yearlyMeterInstallations.registeredCount} + ${registeredIncrement}
-            <= ${yearlyMeterInstallations.totalInstalled} + ${totalIncrement}`,
+        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
+        gt(yearlyMeterInstallations.date, minDate),
+        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
+        eq(yearlyMeterInstallations.year, year),
       ),
-    )
-    .returning();
+    );
 
-  return result.length;
+  await executor
+    .update(yearlyMeterInstallations)
+    .set({
+      totalInstalled: increment(
+        yearlyMeterInstallations.totalInstalled,
+        totalIncrement,
+      ),
+      registeredCount: increment(
+        yearlyMeterInstallations.registeredCount,
+        registeredIncrement,
+      ),
+      updatedAt: new Date(),
+    })
+    .where(and(inArray(yearlyMeterInstallations.id, futureRecordIds)));
 }
