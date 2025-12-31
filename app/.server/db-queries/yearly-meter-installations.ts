@@ -157,7 +157,7 @@ export async function updateYearlyInstallationRecordById(
   }
 }
 
-interface YearlyMeterInstallationsStatsParams {
+interface FindMeterInstallationParams {
   balanceGroup: YearlyMeterInstallations["balanceGroup"];
   date: YearlyMeterInstallations["date"];
   year: YearlyMeterInstallations["year"];
@@ -165,42 +165,26 @@ interface YearlyMeterInstallationsStatsParams {
 }
 
 /**
- * Retrieves yearly meter installation statistics by exact match criteria
+ * Retrieves the database ID of a specific yearly meter installation record.
  *
- * @example
- *   const stats = await getYearlyMeterInstallationStats(executor, {
- *     balanceGroup: "ЮР П2",
- *     date: "2025-08-17",
- *     year: 2025,
- *     substationId: 789,
- *   });
- *
- *   // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Lookup parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
- *   etc.)
- * @param params.date - Exact record date (ISO date string)
- * @param params.year - Year of installation statistics
- * @param params.substationId - Transformer substation ID
- * @returns Object containing:
- *
- *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters Returns `undefined` if no
- *       matching record found
+ * @remarks
+ *   This function finds a single installation record based on the combination of
+ *   balance group, date, year, and substation ID. Returns `undefined` if no
+ *   matching record exists.
+ * @param executor - Database client or transaction executor
+ * @param params - Filter criteria for locating the installation record
+ * @param params.balanceGroup - Meter balance group category (e.g., 'Быт', 'ЮР
+ *   Sims')
+ * @param params.date - Exact date of the installation record
+ * @param params.year - Statistical year for the installation data
+ * @param params.substationId - Unique identifier of the transformer substation
  */
-export async function getYearlyMeterInstallationStats(
+export async function findYearlyMeterInstallationId(
   executor: Executor,
-  {
-    balanceGroup,
-    date,
-    substationId,
-    year,
-  }: YearlyMeterInstallationsStatsParams,
-): Promise<InstallationStats | undefined> {
+  { balanceGroup, date, substationId, year }: FindMeterInstallationParams,
+): Promise<number | undefined> {
   const result = await executor.query.yearlyMeterInstallations.findFirst({
-    columns: { totalInstalled: true, registeredCount: true },
+    columns: { id: true },
     where: and(
       eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
       eq(yearlyMeterInstallations.date, date),
@@ -209,7 +193,7 @@ export async function getYearlyMeterInstallationStats(
     ),
   });
 
-  return result;
+  return result?.id;
 }
 
 interface YearlyInstallationSummaryQuery {
@@ -272,52 +256,33 @@ export async function getYearlyInstallationSummaryBeforeCutoff(
   return result ?? { totalInstalled: 0, registeredCount: 0 };
 }
 
-interface YearlyMeterInstallationUpdateParams {
+interface YearlyMeterInstallationIncrementParams {
+  recordId: YearlyMeterInstallations["id"];
   totalInstalled: YearlyMeterInstallations["totalInstalled"];
   registeredCount: YearlyMeterInstallations["registeredCount"];
-  balanceGroup: YearlyMeterInstallations["balanceGroup"];
-  date: YearlyMeterInstallations["date"];
-  substationId: YearlyMeterInstallations["transformerSubstationId"];
-  year: YearlyMeterInstallations["year"];
 }
 
 /**
- * Updates an existing yearly meter installation record
+ * Increments the installation counts for a specific yearly meter installation
+ * record.
  *
- * @example
- *   await updateYearlyMeterInstallation(executor, {
- *     totalInstalled: 10,
- *     registeredCount: 8,
- *     balanceGroup: "Быт",
- *     date: "2025-08-18",
- *     year: 2025,
- *     substationId: 4,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Update parameters
- * @param params.totalInstalled - New total installed meters count
- * @param params.registeredCount - New registered meters count
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
- *   etc.)
- * @param params.date - Exact date of the record (YYYY-MM-DD format)
- * @param params.year - Year of installation record
- * @param param.substationId - Transformer substation ID
- * @throws {Error} If no matching record is found
+ * @param executor - Database client or transaction executor
+ * @param params - Parameters for the increment operation
+ * @param params.recordId - Database ID of the record to update
+ * @param params.totalInstalled - Number to add to the current `totalInstalled`
+ *   count
+ * @param params.registeredCount - Number to add to the current
+ *   `registeredCount` count
+ * @throws {Error} If the record with the given ID is not found
  */
-export async function updateYearlyMeterInstallation(
+export async function incrementYearlyMeterInstallationCountsById(
   executor: Executor,
-  params: YearlyMeterInstallationUpdateParams,
-): Promise<void> {
-  const {
+  {
+    recordId,
     totalInstalled,
     registeredCount,
-    balanceGroup,
-    date,
-    year,
-    substationId,
-  } = params;
-
+  }: YearlyMeterInstallationIncrementParams,
+): Promise<void> {
   validateInstallationParams({ totalInstalled, registeredCount });
 
   const updatedAt = new Date();
@@ -325,18 +290,17 @@ export async function updateYearlyMeterInstallation(
   const [updatedRecord] = await executor
     .update(yearlyMeterInstallations)
     .set({
-      totalInstalled,
-      registeredCount,
+      totalInstalled: increment(
+        yearlyMeterInstallations.totalInstalled,
+        totalInstalled,
+      ),
+      registeredCount: increment(
+        yearlyMeterInstallations.registeredCount,
+        registeredCount,
+      ),
       updatedAt,
     })
-    .where(
-      and(
-        eq(yearlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(yearlyMeterInstallations.date, date),
-        eq(yearlyMeterInstallations.transformerSubstationId, substationId),
-        eq(yearlyMeterInstallations.year, year),
-      ),
-    )
+    .where(eq(yearlyMeterInstallations.id, recordId))
     .returning();
 
   if (!updatedRecord) {

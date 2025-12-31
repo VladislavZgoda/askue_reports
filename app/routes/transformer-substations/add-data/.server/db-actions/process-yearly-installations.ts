@@ -2,40 +2,77 @@ import { cutOutYear } from "~/utils/date-functions";
 
 import {
   createYearlyMeterInstallation,
-  updateYearlyMeterInstallation,
-  getYearlyMeterInstallationStats,
+  findYearlyMeterInstallationId,
   incrementFutureYearlyInstallations,
   getYearlyInstallationSummaryBeforeCutoff,
+  incrementYearlyMeterInstallationCountsById,
 } from "~/.server/db-queries/yearly-meter-installations";
 
-import type { InstallationStats } from "../../../../../utils/installation-params";
+interface YearlyInstallationData {
+  readonly balanceGroup: BalanceGroup;
+  readonly totalCount: number;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
+}
 
 /**
- * Updates existing yearly accumulation record with new installation data
+ * Atomically processes a yearly meter installation record.
  *
- * @param executor Database executor
- * @param installationData New installation data
- * @param currentYearStats Existing accumulation record
- * @param targetYear Target year for accumulation
+ * This function ensures data consistency by:
+ *
+ * 1. Updating or creating a yearly accumulation record
+ * 2. Propagating installation counts to future records
+ *
+ * All operations are performed within the provided database transaction
+ * context.
+ *
+ * @param executor - Database client or transaction executor
+ * @param yearlyInstallation - Installation data to process
+ * @throws {Error} If input validation fails (e.g., registeredCount >
+ *   totalCount)
+ * @throws {Error} If database operations fail
  */
-async function updateYearlyMeterAccumulations(
+export default async function processYearlyInstallations(
   executor: Executor,
-  installationData: YearlyInstallationData,
-  currentYearStats: InstallationStats,
-  targetYear: number,
-) {
-  const accumulatedTotalInstallations =
-    installationData.totalCount + currentYearStats.totalInstalled;
-  const accumulatedRegisteredMeters =
-    installationData.registeredCount + currentYearStats.registeredCount;
+  yearlyInstallation: YearlyInstallationData,
+): Promise<void> {
+  const { totalCount, registeredCount, balanceGroup, date, substationId } =
+    yearlyInstallation;
 
-  await updateYearlyMeterInstallation(executor, {
-    totalInstalled: accumulatedTotalInstallations,
-    registeredCount: accumulatedRegisteredMeters,
-    balanceGroup: installationData.balanceGroup,
-    substationId: installationData.substationId,
-    date: installationData.date,
-    year: targetYear,
+  const year = cutOutYear(date);
+
+  // 1. Check for existing record
+  const existingRecordId = await findYearlyMeterInstallationId(executor, {
+    balanceGroup,
+    date,
+    substationId,
+    year,
+  });
+
+  // 2. Update existing or create new accumulation record
+  if (existingRecordId) {
+    await incrementYearlyMeterInstallationCountsById(executor, {
+      recordId: existingRecordId,
+      totalInstalled: totalCount,
+      registeredCount,
+    });
+  } else {
+    await createAccumulatedYearlyInstallation(
+      executor,
+      yearlyInstallation,
+      year,
+    );
+  }
+
+  // 3. Propagate counts to future records
+  await incrementFutureYearlyInstallations(executor, {
+    totalIncrement: totalCount,
+    registeredIncrement: registeredCount,
+    balanceGroup,
+    minDate: date,
+    substationId,
+    year,
   });
 }
 
@@ -75,87 +112,5 @@ async function createAccumulatedYearlyInstallation(
     date: installationData.date,
     substationId: installationData.substationId,
     year: targetYear,
-  });
-}
-
-interface YearlyInstallationData {
-  readonly balanceGroup: BalanceGroup;
-  readonly totalCount: number;
-  readonly registeredCount: number;
-  readonly date: string;
-  readonly substationId: number;
-}
-
-/**
- * Processes yearly meter installation data atomically:
- *
- * 1. Updates or creates yearly accumulation records
- * 2. Propagates installation counts to future records
- *
- * Performs all operations within a database transaction to ensure data
- * consistency
- *
- * @example
- *   await processYearlyInstallations({
- *     totalCount: 15,
- *     registeredCount: 12,
- *     balanceGroup: "Быт",
- *     date: "2023-06-15",
- *     substationId: 42,
- *   });
- *
- * @property totalCount - Total meters installed
- * @property registeredCount - Meters registered in system
- * @property balanceGroup - Balance group category
- * @property date - Installation date (YYYY-MM-DD)
- * @property substationId - Associated substation ID
- * @param executor - Database executor
- * @param yearlyInstallation Installation data with validation
- * @throws Error if:
- *
- *   - Validation fails (registered > total)
- *   - Database constraints are violated
- */
-export default async function processYearlyInstallations(
-  executor: Executor,
-  yearlyInstallation: YearlyInstallationData,
-) {
-  const { totalCount, registeredCount, balanceGroup, date, substationId } =
-    yearlyInstallation;
-
-  const year = cutOutYear(date);
-
-  // 1. Get current stats (transactional)
-  const currentYearStats = await getYearlyMeterInstallationStats(executor, {
-    balanceGroup,
-    date,
-    substationId,
-    year,
-  });
-
-  // 2. Update or create accumulation (transactional)
-  if (currentYearStats) {
-    await updateYearlyMeterAccumulations(
-      executor,
-      yearlyInstallation,
-      currentYearStats,
-      year,
-    );
-  } else {
-    await createAccumulatedYearlyInstallation(
-      executor,
-      yearlyInstallation,
-      year,
-    );
-  }
-
-  // 3. Batch update future records (transactional)
-  await incrementFutureYearlyInstallations(executor, {
-    totalIncrement: totalCount,
-    registeredIncrement: registeredCount,
-    balanceGroup,
-    minDate: date,
-    substationId,
-    year,
   });
 }
