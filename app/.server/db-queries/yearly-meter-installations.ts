@@ -164,21 +164,6 @@ interface FindMeterInstallationParams {
   substationId: YearlyMeterInstallations["transformerSubstationId"];
 }
 
-/**
- * Retrieves the database ID of a specific yearly meter installation record.
- *
- * @remarks
- *   This function finds a single installation record based on the combination of
- *   balance group, date, year, and substation ID. Returns `undefined` if no
- *   matching record exists.
- * @param executor - Database client or transaction executor
- * @param params - Filter criteria for locating the installation record
- * @param params.balanceGroup - Meter balance group category (e.g., 'Быт', 'ЮР
- *   Sims')
- * @param params.date - Exact date of the installation record
- * @param params.year - Statistical year for the installation data
- * @param params.substationId - Unique identifier of the transformer substation
- */
 export async function findYearlyMeterInstallationId(
   executor: Executor,
   { balanceGroup, date, substationId, year }: FindMeterInstallationParams,
