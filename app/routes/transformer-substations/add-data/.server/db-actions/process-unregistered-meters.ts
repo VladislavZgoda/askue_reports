@@ -41,14 +41,14 @@ export default async function processUnregisteredMetersInTx(
 ) {
   const newUnregisteredCount = totalCount - registeredCount;
 
-  // 1. Get current count (transactional)
+  // 1. Check for existing record
   const existingRecordId = await findUnregisteredMeterId(executor, {
     balanceGroup,
     substationId,
     date,
   });
 
-  // 2. Update or create accumulation (transactional)
+  // 2. Update existing or create new accumulation record
   if (existingRecordId) {
     await incrementUnregisteredMeterById(
       executor,
@@ -64,7 +64,7 @@ export default async function processUnregisteredMetersInTx(
     });
   }
 
-  // 3. Batch update future records (transactional)
+  // 3. Propagate counts to future records
   await incrementFutureUnregisteredMeters(executor, {
     incrementValue: newUnregisteredCount,
     balanceGroup,

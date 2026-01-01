@@ -34,14 +34,14 @@ export default async function processRegisteredMetersInTx(
   { registeredCount, balanceGroup, date, substationId }: RegisteredData,
 ) {
   if (registeredCount > 0) {
-    // 1. Get current count (transactional)
+   // 1. Check for existing record
     const existingRecordId = await findRegisteredMeterId(executor, {
       balanceGroup,
       date,
       substationId,
     });
 
-    // 2. Update or create accumulation (transactional)
+    // 2. Update existing or create new accumulation record
     if (existingRecordId) {
       await incrementRegisteredMeterById(
         executor,
@@ -57,7 +57,7 @@ export default async function processRegisteredMetersInTx(
       });
     }
 
-    // 3. Batch update future records (transactional)
+    // 3. Propagate counts to future records
     await incrementFutureRegisteredMeters(executor, {
       incrementValue: registeredCount,
       balanceGroup,
