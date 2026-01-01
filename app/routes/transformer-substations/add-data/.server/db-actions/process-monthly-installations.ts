@@ -1,14 +1,100 @@
 import { cutOutMonth, cutOutYear } from "~/utils/date-functions";
 
 import {
+  findMonthlyMeterInstallationId,
   createMonthlyInstallationRecord,
-  updateMonthlyInstallationRecord,
-  getMonthlyMeterInstallationStats,
   incrementFutureMonthlyInstallations,
   getMonthlyInstallationSummaryBeforeCutoff,
+  incrementMonthlyMeterInstallationCountsById,
 } from "~/.server/db-queries/monthly-meter-installations";
 
-import type { InstallationStats } from "../../../../../utils/installation-params";
+interface MonthlyInstallationData {
+  readonly balanceGroup: BalanceGroup;
+  readonly totalCount: number;
+  readonly registeredCount: number;
+  readonly date: string;
+  readonly substationId: number;
+}
+
+/**
+ * Processes monthly meter installation data in a transactional manner.
+ *
+ * This function ensures data consistency by:
+ * 1. Creating or updating a monthly accumulation record
+ * 2. Propagating installation counts to future records in the same month
+ *
+ * All operations are performed within the provided database transaction context.
+ *
+ * @param executor - Database client or transaction executor
+ * @param monthlyInstallation - Installation data to process
+ * @param monthlyInstallation.totalCount - Total number of meters installed
+ * @param monthlyInstallation.registeredCount - Number of meters registered in the system
+ * @param monthlyInstallation.balanceGroup - Balance group category
+ * @param monthlyInstallation.date - Installation date
+ * @param monthlyInstallation.substationId - Unique identifier of the transformer substation
+ *
+ * @returns Promise that resolves when processing is complete
+ *
+ * @throws {Error} If validation fails (e.g., registeredCount > totalCount)
+ * @throws {Error} If database operations fail
+ *
+ * @example
+ * ```typescript
+ * await processMonthlyInstallations(executor, {
+ *   totalCount: 15,
+ *   registeredCount: 12,
+ *   balanceGroup: "ЮР Sims",
+ *   date: "2023-06-15",
+ *   substationId: 42,
+ * });
+ * ```
+ */
+export default async function processMonthlyInstallations(
+  executor: Executor,
+  monthlyInstallation: MonthlyInstallationData,
+): Promise<void> {
+  const { totalCount, registeredCount, balanceGroup, date, substationId } =
+    monthlyInstallation;
+
+  const year = cutOutYear(date);
+  const month = cutOutMonth(date);
+
+  // 1. Check for existing record
+  const existingRecordId = await findMonthlyMeterInstallationId(executor, {
+    balanceGroup,
+    date,
+    substationId,
+    month,
+    year,
+  });
+
+  // 2. Update existing or create new accumulation record
+  if (existingRecordId) {
+    await incrementMonthlyMeterInstallationCountsById(executor, {
+      recordId: existingRecordId,
+      totalInstalled: totalCount,
+      registeredCount,
+    });
+  } else {
+    await createAccumulatedMonthlyInstallation(
+      executor,
+      monthlyInstallation,
+      month,
+      year,
+    );
+  }
+
+  // 3. Propagate counts to future records
+  await incrementFutureMonthlyInstallations(executor, {
+    totalIncrement: totalCount,
+    registeredIncrement: registeredCount,
+    minDate: date,
+    balanceGroup,
+    substationId,
+    month,
+    year,
+  });
+}
 
 /**
  * Creates accumulated monthly installation record
@@ -51,126 +137,5 @@ async function createAccumulatedMonthlyInstallation(
     substationId: installationData.substationId,
     month: targetMonth,
     year: targetYear,
-  });
-}
-
-type CurrentMonthlyInstallationsStats = NonNullable<InstallationStats>;
-
-/**
- * Updates monthly accumulation records with new installations
- *
- * @param executor - Database executor
- * @param installationData - New installation data
- * @param currentMonthStats - Existing accumulation record
- * @param targetMonth - Target month (MM format)
- * @param targetYear - Target year (YYYY)
- */
-async function updateMonthlyMeterAccumulations(
-  executor: Executor,
-  installationData: MonthlyInstallationData,
-  currentMonthStats: CurrentMonthlyInstallationsStats,
-  targetMonth: string,
-  targetYear: number,
-) {
-  const accumulatedTotalInstallations =
-    installationData.totalCount + currentMonthStats.totalInstalled;
-
-  const acumulatedRegisteredMeters =
-    installationData.registeredCount + currentMonthStats.registeredCount;
-
-  await updateMonthlyInstallationRecord(executor, {
-    totalInstalled: accumulatedTotalInstallations,
-    registeredCount: acumulatedRegisteredMeters,
-    balanceGroup: installationData.balanceGroup,
-    date: installationData.date,
-    substationId: installationData.substationId,
-    month: targetMonth,
-    year: targetYear,
-  });
-}
-
-interface MonthlyInstallationData {
-  readonly balanceGroup: BalanceGroup;
-  readonly totalCount: number;
-  readonly registeredCount: number;
-  readonly date: string;
-  readonly substationId: number;
-}
-
-/**
- * Processes monthly meter installation data atomically:
- *
- * 1. Updates or creates monthly accumulation records
- * 2. Propagates counts to future records in the same month
- *
- * Performs all operations within a database transaction
- *
- * @example
- *   await processMonthlyInstallations({
- *     totalCount: 15,
- *     registeredCount: 12,
- *     balanceGroup: "ЮР Sims",
- *     date: "2023-06-15",
- *     substationId: 42,
- *   });
- *
- * @property totalCount - Total meters installed
- * @property registeredCount - Meters registered in system
- * @property balanceGroup - Balance group category
- * @property date - Installation date (YYYY-MM-DD)
- * @property substationId - Associated substation ID
- * @param executor - Database executor
- * @param monthlyInstallation - Validated installation data
- * @throws {Error} When:
- *
- *   - Registered count exceeds total installed
- *   - Database constraints are violated
- */
-export default async function processMonthlyInstallations(
-  executor: Executor,
-  monthlyInstallation: MonthlyInstallationData,
-) {
-  const { totalCount, registeredCount, balanceGroup, date, substationId } =
-    monthlyInstallation;
-
-  const year = cutOutYear(date);
-  const month = cutOutMonth(date);
-
-  // 1. Get current stats (transactional)
-  const currentMonthStats = await getMonthlyMeterInstallationStats(executor, {
-    balanceGroup,
-    date,
-    substationId,
-    month,
-    year,
-  });
-
-  // 2. Update or create accumulation (transactional)
-  if (currentMonthStats) {
-    await updateMonthlyMeterAccumulations(
-      executor,
-      monthlyInstallation,
-      currentMonthStats,
-      month,
-      year,
-    );
-  } else {
-    await createAccumulatedMonthlyInstallation(
-      executor,
-      monthlyInstallation,
-      month,
-      year,
-    );
-  }
-
-  // 3. Batch update future records (transactional)
-  await incrementFutureMonthlyInstallations(executor, {
-    totalIncrement: totalCount,
-    registeredIncrement: registeredCount,
-    minDate: date,
-    balanceGroup,
-    substationId,
-    month,
-    year,
   });
 }

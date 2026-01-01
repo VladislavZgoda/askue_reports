@@ -73,56 +73,33 @@ export async function createMonthlyInstallationRecord(
   });
 }
 
-interface MonthlyInstallationUpdateParams {
+interface MonthlyMeterInstallationIncrementParams {
+  recordId: MonthlyMeterInstallations["id"];
   totalInstalled: MonthlyMeterInstallations["totalInstalled"];
   registeredCount: MonthlyMeterInstallations["registeredCount"];
-  balanceGroup: MonthlyMeterInstallations["balanceGroup"];
-  date: MonthlyMeterInstallations["date"];
-  month: MonthlyMeterInstallations["month"];
-  year: MonthlyMeterInstallations["year"];
-  substationId: MonthlyMeterInstallations["transformerSubstationId"];
 }
 
 /**
- * Updates an existing monthly meter installation record
+ * Atomically increments the installation counts for a monthly meter
+ * installation record.
  *
- * @example
- *   await updateMonthlyInstallationRecord(executor, {
- *     totalInstalled: 10,
- *     registeredCount: 8,
- *     balanceGroup: "Быт",
- *     date: "2025-08-18",
- *     month: "07",
- *     year: 2025,
- *     substationId: 5,
- *   });
+ * Performs a safe, atomic update by incrementing existing values rather than
+ * replacing them. This ensures data integrity during concurrent updates.
  *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Update parameters
- * @param params.totalInstalled - New total installed meters count
- * @param params.registeredCount - New registered meters count
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
- *   etc.)
- * @param params.date - Exact date of the record (YYYY-MM-DD format)
- * @param params.month - Month of the installation record
- * @param params.year - Year of installation record
- * @param param.substationId - Transformer substation ID
- * @throws {Error} If no matching record is found
+ * @param executor - Database client or transaction executor
+ * @param params - Parameters for the increment operation
+ * @throws {Error} If input validation fails (e.g., registeredCount >
+ *   totalInstalled)
+ * @throws {Error} If the record with the given ID is not found
  */
-export async function updateMonthlyInstallationRecord(
+export async function incrementMonthlyMeterInstallationCountsById(
   executor: Executor,
-  params: MonthlyInstallationUpdateParams,
-) {
-  const {
+  {
+    recordId,
     totalInstalled,
     registeredCount,
-    balanceGroup,
-    date,
-    month,
-    year,
-    substationId,
-  } = params;
-
+  }: MonthlyMeterInstallationIncrementParams,
+) {
   validateInstallationParams({
     totalInstalled,
     registeredCount,
@@ -133,19 +110,17 @@ export async function updateMonthlyInstallationRecord(
   const [updatedRecord] = await executor
     .update(monthlyMeterInstallations)
     .set({
-      totalInstalled,
-      registeredCount,
+      totalInstalled: increment(
+        monthlyMeterInstallations.totalInstalled,
+        totalInstalled,
+      ),
+      registeredCount: increment(
+        monthlyMeterInstallations.registeredCount,
+        registeredCount,
+      ),
       updatedAt,
     })
-    .where(
-      and(
-        eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
-        eq(monthlyMeterInstallations.date, date),
-        eq(monthlyMeterInstallations.month, month),
-        eq(monthlyMeterInstallations.year, year),
-        eq(monthlyMeterInstallations.transformerSubstationId, substationId),
-      ),
-    )
+    .where(eq(monthlyMeterInstallations.id, recordId))
     .returning();
 
   if (!updatedRecord) {
@@ -153,7 +128,7 @@ export async function updateMonthlyInstallationRecord(
   }
 }
 
-interface MonthlyMeterInstallationsStatsParams {
+interface FindMeterInstallationParams {
   balanceGroup: MonthlyMeterInstallations["balanceGroup"];
   date: MonthlyMeterInstallations["date"];
   substationId: MonthlyMeterInstallations["transformerSubstationId"];
@@ -161,35 +136,7 @@ interface MonthlyMeterInstallationsStatsParams {
   year: MonthlyMeterInstallations["year"];
 }
 
-/**
- * Retrieves monthly installation stats by exact match criteria
- *
- * @example
- *   const stats = await getMonthlyMeterInstallationStats(executor, {
- *     balanceGroup: "ЮР П2",
- *     date: "2025-08-17",
- *     month: "08",
- *     year: 2025,
- *     substationId: 78,
- *   });
- *
- *   // Returns: { totalInstalled: 150, registeredCount: 145 } | undefined
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Lookup parameters
- * @param params.balanceGroup - Balance group category (e.g., 'Быт', 'ЮР Sims',
- *   etc.)
- * @param params.date - Exact record date (ISO date string)
- * @param params.month - Month of installation statistics
- * @param params.year - Year of installation statistics
- * @param params.substationId - Transformer substation ID
- * @returns Object containing:
- *
- *   - `totalInstalled`: Total meters installed
- *   - `registeredCount`: Currently registered meters Returns `undefined` if no
- *       matching record found
- */
-export async function getMonthlyMeterInstallationStats(
+export async function findMonthlyMeterInstallationId(
   executor: Executor,
   {
     balanceGroup,
@@ -197,12 +144,11 @@ export async function getMonthlyMeterInstallationStats(
     substationId,
     month,
     year,
-  }: MonthlyMeterInstallationsStatsParams,
-): Promise<InstallationStats | undefined> {
+  }: FindMeterInstallationParams,
+): Promise<number | undefined> {
   const result = await executor.query.monthlyMeterInstallations.findFirst({
     columns: {
-      totalInstalled: true,
-      registeredCount: true,
+      id: true,
     },
     where: and(
       eq(monthlyMeterInstallations.balanceGroup, balanceGroup),
@@ -213,7 +159,7 @@ export async function getMonthlyMeterInstallationStats(
     ),
   });
 
-  return result;
+  return result?.id;
 }
 
 interface MonthlyInstallationIdParams {
