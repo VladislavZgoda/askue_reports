@@ -71,7 +71,7 @@ export const meterCounts = pgTable(
   "meter_counts",
   {
     id: serial("id").primaryKey(),
-    registeredMeterCount: integer("registered_count").notNull(),
+    registeredCount: integer("registered_count").notNull(),
     unregisteredCount: integer("unregistered_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
