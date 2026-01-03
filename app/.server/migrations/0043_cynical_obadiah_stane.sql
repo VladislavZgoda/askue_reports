@@ -1,0 +1,1 @@
+ALTER TABLE "meter_counts" ALTER COLUMN "unregistered_count" DROP DEFAULT;

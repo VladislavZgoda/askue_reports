@@ -34,7 +34,7 @@ export default async function processRegisteredMetersInTx(
   { registeredCount, balanceGroup, date, substationId }: RegisteredData,
 ) {
   if (registeredCount > 0) {
-   // 1. Check for existing record
+    // 1. Check for existing record
     const existingRecordId = await findRegisteredMeterId(executor, {
       balanceGroup,
       date,

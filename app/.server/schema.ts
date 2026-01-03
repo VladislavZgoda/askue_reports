@@ -42,8 +42,7 @@ export const transformerSubstations = pgTable(
 export const transformerSubstationsRelations = relations(
   transformerSubstations,
   ({ many }) => ({
-    registeredMeters: many(registeredMeters),
-    unregisteredMeters: many(unregisteredMeters),
+    meterCounts: many(meterCounts),
     yearlyMeterInstallations: many(yearlyMeterInstallations),
     monthlyMeterInstallations: many(monthlyMeterInstallations),
     technicalMeters: many(technicalMeters),
@@ -68,11 +67,12 @@ const transformerSubstationForeignKey = {
     .notNull(),
 };
 
-export const registeredMeters = pgTable(
-  "registered_meters",
+export const meterCounts = pgTable(
+  "meter_counts",
   {
     id: serial("id").primaryKey(),
-    registeredMeterCount: integer("registered_meter_count").notNull(),
+    registeredMeterCount: integer("registered_count").notNull(),
+    unregisteredCount: integer("unregistered_count").notNull(),
     balanceGroup: balanceGroupEnum("balance_group").notNull(),
     date: date("date", { mode: "string" }).notNull(),
     ...transformerSubstationForeignKey,
@@ -80,10 +80,8 @@ export const registeredMeters = pgTable(
   },
   (table) => {
     return [
-      index("registered_meters_substation_id_idx").on(
-        table.transformerSubstationId,
-      ),
-      index("registered_meters_composite_idx").on(
+      index("meter_counts_substation_id_idx").on(table.transformerSubstationId),
+      index("meter_counts_composite_idx").on(
         table.balanceGroup,
         table.transformerSubstationId,
         sql`${table.date} DESC`,
@@ -92,49 +90,12 @@ export const registeredMeters = pgTable(
   },
 );
 
-export const registeredMetersRelations = relations(
-  registeredMeters,
-  ({ one }) => ({
-    transformerSubstation: one(transformerSubstations, {
-      fields: [registeredMeters.transformerSubstationId],
-      references: [transformerSubstations.id],
-    }),
+export const meterCountsRelations = relations(meterCounts, ({ one }) => ({
+  transformerSubstation: one(transformerSubstations, {
+    fields: [meterCounts.transformerSubstationId],
+    references: [transformerSubstations.id],
   }),
-);
-
-export const unregisteredMeters = pgTable(
-  "unregistered_meters",
-  {
-    id: serial("id").primaryKey(),
-    unregisteredMeterCount: integer("unregistered_meter_count").notNull(),
-    balanceGroup: balanceGroupEnum("balance_group").notNull(),
-    date: date("date", { mode: "string" }).notNull(),
-    ...transformerSubstationForeignKey,
-    ...timestamps,
-  },
-  (table) => {
-    return [
-      index("unregistered_meters_composite_idx").on(
-        table.balanceGroup,
-        table.transformerSubstationId,
-        sql`${table.date} DESC`,
-      ),
-      index("unregistered_meters_substation_id_idx").on(
-        table.transformerSubstationId,
-      ),
-    ];
-  },
-);
-
-export const unregisteredMetersRelations = relations(
-  unregisteredMeters,
-  ({ one }) => ({
-    transformerSubstation: one(transformerSubstations, {
-      fields: [unregisteredMeters.transformerSubstationId],
-      references: [transformerSubstations.id],
-    }),
-  }),
-);
+}));
 
 export const yearlyMeterInstallations = pgTable(
   "yearly_meter_installations",
