@@ -416,30 +416,17 @@ export async function getSubstationMeterCountsAsOfDate(
       name: true,
     },
     with: {
-      registeredMeters: {
+      meterCounts: {
         columns: {
-          registeredMeterCount: true,
+          registeredCount: true,
+          unregisteredCount: true,
         },
-        where: (registeredMeters, { eq, and, lte }) =>
+        where: (meterCounts, { eq, and, lte }) =>
           and(
-            eq(registeredMeters.balanceGroup, balanceGroup),
-            lte(registeredMeters.date, targetDate),
+            eq(meterCounts.balanceGroup, balanceGroup),
+            lte(meterCounts.date, targetDate),
           ),
-        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
-        limit: 1,
-      },
-      unregisteredMeters: {
-        columns: {
-          unregisteredMeterCount: true,
-        },
-        where: (unregisteredMeters, { and, eq, lte }) =>
-          and(
-            eq(unregisteredMeters.balanceGroup, balanceGroup),
-            lte(unregisteredMeters.date, targetDate),
-          ),
-        orderBy: (unregisteredMeters, { desc }) => [
-          desc(unregisteredMeters.date),
-        ],
+        orderBy: (meterCounts, { desc }) => [desc(meterCounts.date)],
         limit: 1,
       },
     },
@@ -448,9 +435,8 @@ export async function getSubstationMeterCountsAsOfDate(
   const transformedResult = result.map((substation) => ({
     id: substation.id,
     name: substation.name,
-    registeredMeters: substation.registeredMeters[0]?.registeredMeterCount || 0,
-    unregisteredMeters:
-      substation.unregisteredMeters[0]?.unregisteredMeterCount || 0,
+    registeredMeters: substation.meterCounts[0]?.registeredCount || 0,
+    unregisteredMeters: substation.meterCounts[0]?.unregisteredCount || 0,
   }));
 
   return transformedResult;
