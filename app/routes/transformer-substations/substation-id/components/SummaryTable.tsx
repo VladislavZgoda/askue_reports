@@ -1,6 +1,6 @@
 interface MeterRegistrationStats {
-  registeredMeterCount: number;
-  unregisteredMeterCount: number;
+  registeredCount: number;
+  unregisteredCount: number;
 }
 
 interface TechnicalMeterStats {
@@ -32,30 +32,29 @@ export default function SummaryTable({ summary }: StatTableProps) {
   } = summary;
 
   const privateTotal =
-    privateMeters.registeredMeterCount + privateMeters.unregisteredMeterCount;
+    privateMeters.registeredCount + privateMeters.unregisteredCount;
 
   const legalSimsTotal =
-    legalSimsMeters.registeredMeterCount +
-    legalSimsMeters.unregisteredMeterCount;
+    legalSimsMeters.registeredCount + legalSimsMeters.unregisteredCount;
 
   const legalP2Total =
-    legalP2Meters.registeredMeterCount + legalP2Meters.unregisteredMeterCount;
+    legalP2Meters.registeredCount + legalP2Meters.unregisteredCount;
 
   const odpuSimsTotal =
-    odpuSimsMeters.registeredMeterCount + odpuSimsMeters.unregisteredMeterCount;
+    odpuSimsMeters.registeredCount + odpuSimsMeters.unregisteredCount;
 
   const odpuP2Total =
-    odpuP2Meters.registeredMeterCount + odpuP2Meters.unregisteredMeterCount;
+    odpuP2Meters.registeredCount + odpuP2Meters.unregisteredCount;
 
   const metersTotal =
     privateTotal + legalSimsTotal + legalP2Total + odpuSimsTotal + odpuP2Total;
 
   const registeredMeterTotal =
-    privateMeters.registeredMeterCount +
-    legalSimsMeters.registeredMeterCount +
-    legalP2Meters.registeredMeterCount +
-    odpuSimsMeters.registeredMeterCount +
-    odpuP2Meters.registeredMeterCount;
+    privateMeters.registeredCount +
+    legalSimsMeters.registeredCount +
+    legalP2Meters.registeredCount +
+    odpuSimsMeters.registeredCount +
+    odpuP2Meters.registeredCount;
 
   return (
     <div className="mt-5 mb-5 max-h-[50vh] overflow-auto">
@@ -90,7 +89,7 @@ export default function SummaryTable({ summary }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>4</th>
             <td>БЫТ в системе</td>
-            <td>{privateMeters.registeredMeterCount}</td>
+            <td>{privateMeters.registeredCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -102,7 +101,7 @@ export default function SummaryTable({ summary }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>7</th>
             <td>ЮР Sims в системе</td>
-            <td>{legalSimsMeters.registeredMeterCount}</td>
+            <td>{legalSimsMeters.registeredCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -114,7 +113,7 @@ export default function SummaryTable({ summary }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>10</th>
             <td>ЮР П2 в системе</td>
-            <td>{legalP2Meters.registeredMeterCount}</td>
+            <td>{legalP2Meters.registeredCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -126,7 +125,7 @@ export default function SummaryTable({ summary }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>14</th>
             <td>ОДПУ Sims в системе</td>
-            <td>{odpuSimsMeters.registeredMeterCount}</td>
+            <td>{odpuSimsMeters.registeredCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
@@ -138,7 +137,7 @@ export default function SummaryTable({ summary }: StatTableProps) {
           <tr className="hover:bg-base-300">
             <th>16</th>
             <td>ОДПУ П2 в системе</td>
-            <td>{odpuP2Meters.registeredMeterCount}</td>
+            <td>{odpuP2Meters.registeredCount}</td>
           </tr>
 
           <tr className="hover:bg-base-300">
