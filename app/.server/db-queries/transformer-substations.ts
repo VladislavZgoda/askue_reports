@@ -473,19 +473,15 @@ export async function getBatchedSubstationMeterReports<
     columns: {},
     where: eq(transformerSubstations.id, substationId),
     with: {
-      registeredMeters: {
-        columns: { registeredMeterCount: true, balanceGroup: true },
-        where: (registeredMeters, { inArray }) =>
-          inArray(registeredMeters.balanceGroup, balanceGroups),
-        orderBy: (registeredMeters, { desc }) => [desc(registeredMeters.date)],
-      },
-      unregisteredMeters: {
-        columns: { unregisteredMeterCount: true, balanceGroup: true },
-        where: (unregisteredMeters, { inArray }) =>
-          inArray(unregisteredMeters.balanceGroup, balanceGroups),
-        orderBy: (unregisteredMeters, { desc }) => [
-          desc(unregisteredMeters.date),
-        ],
+      meterCounts: {
+        columns: {
+          registeredCount: true,
+          unregisteredCount: true,
+          balanceGroup: true,
+        },
+        where: (meterCounts, { inArray }) =>
+          inArray(meterCounts.balanceGroup, balanceGroups),
+        orderBy: (meterCounts, { desc }) => [desc(meterCounts.date)],
       },
       yearlyMeterInstallations: {
         columns: {
@@ -526,11 +522,11 @@ export async function getBatchedSubstationMeterReports<
   for (const group of balanceGroups) {
     report[group] = {
       registeredMeters:
-        result?.registeredMeters.find((r) => r.balanceGroup === group)
-          ?.registeredMeterCount ?? 0,
+        result?.meterCounts.find((r) => r.balanceGroup === group)
+          ?.registeredCount ?? 0,
       unregisteredMeters:
-        result?.unregisteredMeters.find((u) => u.balanceGroup === group)
-          ?.unregisteredMeterCount ?? 0,
+        result?.meterCounts.find((u) => u.balanceGroup === group)
+          ?.unregisteredCount ?? 0,
       yearlyInstallation: result?.yearlyMeterInstallations.find(
         (y) => y.balanceGroup === group,
       ) ?? {
