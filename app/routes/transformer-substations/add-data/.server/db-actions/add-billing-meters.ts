@@ -1,6 +1,5 @@
 import { db } from "~/.server/db";
-import processRegisteredMetersInTx from "./process-registered-meters";
-import processUnregisteredMetersInTx from "./process-unregistered-meters";
+import processMeterCountsInTx from "./process-meter-counts";
 import processYearlyInstallations from "./process-yearly-installations";
 import processMonthlyInstallations from "./process-monthly-installations";
 import { insertMeterActionLog } from "~/.server/db-queries/meter-action-logs";
@@ -46,15 +45,9 @@ type BillingInstallationData = BillingValidationForm & {
 export default async function addBillingMeters(
   installation: BillingInstallationData,
 ) {
-  const { totalCount, registeredCount } = installation;
-
   await db.transaction(async (tx) => {
-    if (totalCount > registeredCount) {
-      await processUnregisteredMetersInTx(tx, installation);
-    }
-
     await Promise.all([
-      processRegisteredMetersInTx(tx, installation),
+      processMeterCountsInTx(tx, installation),
       processYearlyInstallations(tx, installation),
       processMonthlyInstallations(tx, installation),
       logBillingMeterAction(tx, installation),

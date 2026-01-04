@@ -1,14 +1,15 @@
-import { registeredMeters } from "../schema";
+import { meterCounts } from "../schema";
 import { increment } from "./query-helpers";
 import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
 
-type RegisteredMeters = typeof registeredMeters.$inferSelect;
+type MeterCounts = typeof meterCounts.$inferSelect;
 
-interface RegisteredMeterInput {
-  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  date: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
+interface MeterCountsInput {
+  registeredCount: MeterCounts["registeredCount"];
+  unregisteredCount: MeterCounts["unregisteredCount"];
+  balanceGroup: MeterCounts["balanceGroup"];
+  date: MeterCounts["date"];
+  substationId: MeterCounts["transformerSubstationId"];
 }
 
 /**
@@ -47,31 +48,48 @@ export async function createRegisteredMeterRecord(
   });
 }
 
+interface IncrementMeterCountsByIdParams {
+  recordId: MeterCounts["id"];
+  registeredCount: MeterCounts["registeredCount"];
+  unregisteredCount: MeterCounts["unregisteredCount"];
+}
+
 /**
- * Increments the registered meter count for a specific record.
+ * Increments registered and unregistered meter counts for a specific record
  *
- * @param executor - Database connection or transaction
- * @param recordId - ID of the registered meter record to update
- * @param amount - Amount to add to the existing count
- * @throws {Error} If no record with the given ID exists
+ * This function atomically increments the registered and unregistered counts of
+ * a meter record. It also updates the record's `updatedAt` timestamp to the
+ * current time.
+ *
+ * @param executor - Database executor for transactional operations
+ * @param params - Parameters for the increment operation
+ * @param params.recordId - ID of the meter record to update
+ * @param params.registeredCount - Number to add to registered count (must be ≤
+ *   unregisteredCount)
+ * @param params.unregisteredCount - Number to add to unregistered count
+ * @throws {Error} If no matching meter record exists
  */
-export async function incrementRegisteredMeterById(
+export async function incrementMeterCountsById(
   executor: Executor,
-  recordId: number,
-  amount: number,
+  {
+    recordId,
+    registeredCount,
+    unregisteredCount,
+  }: IncrementMeterCountsByIdParams,
 ): Promise<void> {
   const updatedAt = new Date();
 
   const [updatedRecord] = await executor
-    .update(registeredMeters)
+    .update(meterCounts)
     .set({
-      registeredMeterCount: increment(
-        registeredMeters.registeredMeterCount,
-        amount,
+      registeredCount: increment(meterCounts.registeredCount, registeredCount),
+      unregisteredCount: increment(
+        meterCounts.unregisteredCount,
+        unregisteredCount,
       ),
       updatedAt,
     })
-    .where(and(eq(registeredMeters.id, recordId)))
+    .where(and(eq(meterCounts.id, recordId)))
     .returning();
 
   if (!updatedRecord) {
@@ -142,114 +160,136 @@ export async function updateRegisteredMeterRecordById(
   }
 }
 
-interface FindRegisteredMeterParams {
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  date: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
+interface FindMeterCountsIdParams {
+  balanceGroup: MeterCounts["balanceGroup"];
+  date: MeterCounts["date"];
+  substationId: MeterCounts["transformerSubstationId"];
 }
 
-export async function findRegisteredMeterId(
+export async function findMeterCountsId(
   executor: Executor,
-  { balanceGroup, date, substationId }: FindRegisteredMeterParams,
+  { balanceGroup, date, substationId }: FindMeterCountsIdParams,
 ): Promise<number | undefined> {
-  const result = await executor.query.registeredMeters.findFirst({
+  const result = await executor.query.meterCounts.findFirst({
     columns: {
       id: true,
     },
     where: and(
-      eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.date, date),
-      eq(registeredMeters.transformerSubstationId, substationId),
+      eq(meterCounts.balanceGroup, balanceGroup),
+      eq(meterCounts.date, date),
+      eq(meterCounts.transformerSubstationId, substationId),
     ),
   });
 
   return result?.id;
 }
 
-interface RegisteredMetersIncrementParams {
-  incrementValue: number;
-  balanceGroup: RegisteredMeters["balanceGroup"];
-  minDate: RegisteredMeters["date"];
-  substationId: RegisteredMeters["transformerSubstationId"];
+interface MeterCountsIncrementParams {
+  registeredCount: MeterCounts["registeredCount"];
+  unregisteredCount: MeterCounts["unregisteredCount"];
+  balanceGroup: MeterCounts["balanceGroup"];
+  minDate: MeterCounts["date"];
+  substationId: MeterCounts["transformerSubstationId"];
 }
 
 /**
- * Batch increments registered meter counts for future records. Updates all
- * records with date > minDate for the given balance group and substation.
+ * Increments meter counts for all future records matching criteria
+ *
+ * Updates ALL meter count records with dates after `minDate` for a specific
+ * balance group and substation.
+ *
+ * @param executor - Database executor for transactional operations
+ * @param params - Criteria and increments for bulk update
+ * @param params.registeredCount - Value to add to registered count of matching
+ *   records
+ * @param params.unregisteredCount - Value to add to unregistered count of
+ *   matching records
+ * @param params.balanceGroup - Balance group to filter records
+ * @param params.minDate - Minimum date (exclusive) - updates records with date
+ *   > minDate
+ * @param params.substationId - Transformer substation ID to filter records
  */
-export async function incrementFutureRegisteredMeters(
+export async function incrementFutureMeterCounts(
   executor: Executor,
   {
-    incrementValue,
+    registeredCount,
+    unregisteredCount,
     balanceGroup,
     minDate,
     substationId,
-  }: RegisteredMetersIncrementParams,
+  }: MeterCountsIncrementParams,
 ): Promise<void> {
   const futureRecordIds = executor
-    .select({ id: registeredMeters.id })
-    .from(registeredMeters)
+    .select({ id: meterCounts.id })
+    .from(meterCounts)
     .where(
       and(
-        gt(registeredMeters.date, minDate),
-        eq(registeredMeters.balanceGroup, balanceGroup),
-        eq(registeredMeters.transformerSubstationId, substationId),
+        gt(meterCounts.date, minDate),
+        eq(meterCounts.balanceGroup, balanceGroup),
+        eq(meterCounts.transformerSubstationId, substationId),
       ),
     );
 
   await executor
-    .update(registeredMeters)
+    .update(meterCounts)
     .set({
-      registeredMeterCount: increment(
-        registeredMeters.registeredMeterCount,
-        incrementValue,
+      registeredCount: increment(meterCounts.registeredCount, registeredCount),
+      unregisteredCount: increment(
+        meterCounts.unregisteredCount,
+        unregisteredCount,
       ),
       updatedAt: new Date(),
     })
-    .where(and(inArray(registeredMeters.id, futureRecordIds)));
+    .where(and(inArray(meterCounts.id, futureRecordIds)));
 }
 
 /**
- * Creates a new registered meter record with a cumulative count. Finds the most
- * recent record for the same balance group and substation (with an earlier
- * date) and adds the new count to it.
+ * Creates a new cumulative meter count record
  *
- * This creates a running total of registered meters over time.
+ * Finds the most recent record before the specified date for the given balance
+ * group and substation, then creates a new record with cumulative totals
+ * (previous counts + new counts).
  *
- * @param executor - Database connection or transaction
- * @param input - Parameters for the new record
- * @param input.registeredMeterCount - Number of new registered meters to add
- * @param input.balanceGroup - Balance group for the record
- * @param input.date - Date of the new record (must be later than previous
+ * @param executor - Database executor
+ * @param params - Parameters for the new cumulative record
+ * @param params.registeredCount - New registered meters to add
+ * @param params.unregisteredCount - New unregistered meters to add
+ * @param params.balanceGroup - Balance group identifier
+ * @param params.date - Date for the new record (must be later than existing
  *   records)
- * @param input.substationId - Substation ID for the record
+ * @param params.substationId - Transformer substation identifier
  */
-export async function createCumulativeRegisteredMeterRecord(
+export async function createCumulativeMeterCountsRecord(
   executor: Executor,
   {
-    registeredMeterCount,
+    registeredCount,
+    unregisteredCount,
     balanceGroup,
     date,
     substationId,
-  }: RegisteredMeterInput,
+  }: MeterCountsInput,
 ): Promise<void> {
-  const previousCount = executor
-    .select({
-      registeredMeterCount: registeredMeters.registeredMeterCount,
-    })
-    .from(registeredMeters)
-    .where(
-      and(
-        eq(registeredMeters.balanceGroup, balanceGroup),
-        eq(registeredMeters.transformerSubstationId, substationId),
-        lt(registeredMeters.date, date),
-      ),
-    )
-    .orderBy(desc(registeredMeters.date))
-    .limit(1);
+  const previousRecord = await executor.query.meterCounts.findFirst({
+    columns: {
+      registeredCount: true,
+      unregisteredCount: true,
+    },
+    where: and(
+      eq(meterCounts.balanceGroup, balanceGroup),
+      eq(meterCounts.transformerSubstationId, substationId),
+      lt(meterCounts.date, date),
+    ),
+    orderBy: [desc(meterCounts.date)],
+  });
 
-  await executor.insert(registeredMeters).values({
-    registeredMeterCount: sql`coalesce((${previousCount}), 0) + ${registeredMeterCount}`,
+  const previousCounts = previousRecord || {
+    registeredCount: 0,
+    unregisteredCount: 0,
+  };
+
+  await executor.insert(meterCounts).values({
+    registeredCount: previousCounts.registeredCount + registeredCount,
+    unregisteredCount: previousCounts.unregisteredCount + unregisteredCount,
     balanceGroup,
     date,
     transformerSubstationId: substationId,
