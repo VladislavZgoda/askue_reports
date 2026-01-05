@@ -3,7 +3,7 @@ import {
   incrementMeterCountsById,
   incrementFutureMeterCounts,
   createCumulativeMeterCountsRecord,
-} from "~/.server/db-queries/registered-meters";
+} from "~/.server/db-queries/meter-counts";
 
 import { validateInstallationParams } from "~/utils/installation-params";
 

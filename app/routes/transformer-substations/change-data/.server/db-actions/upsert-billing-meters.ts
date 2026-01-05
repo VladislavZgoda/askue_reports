@@ -2,7 +2,7 @@ import {
   findLatestMeterCountsId,
   createMeterCountsRecord,
   updateMeterCountsRecord,
-} from "~/.server/db-queries/registered-meters";
+} from "~/.server/db-queries/meter-counts";
 
 import {
   getLatestYearlyInstallationId,
