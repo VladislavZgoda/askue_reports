@@ -1,14 +1,8 @@
 import {
-  getLatestRegisteredMeterId,
-  createRegisteredMeterRecord,
-  updateRegisteredMeterRecordById,
+  findLatestMeterCountsId,
+  createMeterCountsRecord,
+  updateMeterCountsRecord,
 } from "~/.server/db-queries/registered-meters";
-
-import {
-  getLatestUnregisteredMeterId,
-  createUnregisteredMeterRecord,
-  updateUnregisteredMeterRecordById,
-} from "~/.server/db-queries/unregistered-meters";
 
 import {
   getLatestYearlyInstallationId,
@@ -25,6 +19,7 @@ import {
 import { db } from "~/.server/db";
 import { getBatchedSubstationMeterReports } from "~/.server/db-queries/transformer-substations";
 import { cutOutMonth, cutOutYear } from "~/utils/date-functions";
+import { validateInstallationParams } from "~/utils/installation-params";
 
 import type { BillingFormData } from "../../validation/billing-form.schema";
 
@@ -89,7 +84,7 @@ export default async function upsertBillingMeterRecords(
     const meterReport = existingStats[balanceGroup];
 
     await Promise.all([
-      upsertMeterAggregates(tx, {
+      processMeterCountUpdate(tx, {
         totalCount,
         registeredCount,
         balanceGroup,
@@ -121,7 +116,7 @@ export default async function upsertBillingMeterRecords(
   });
 }
 
-interface MeterAggregateParams {
+interface MeterCountParams {
   totalCount: number;
   registeredCount: number;
   substationId: number;
@@ -132,14 +127,29 @@ interface MeterAggregateParams {
 }
 
 /**
- * Coordinates upsert of registered and unregistered meter aggregates
+ * Processes aggregated meter data to update or create meter count records
  *
- * @param executor - Database executor
- * @param params - Aggregate parameters
+ * Takes aggregated meter data (total and registered counts) and ensures the
+ * corresponding meter counts record exists and is up-to-date. Calculates
+ * unregistered count from total, finds the latest record, and decides whether
+ * to update it or create a new one based on comparison with existing counts.
+ *
+ * @param executor - Database executor for transactional operations
+ * @param params - Aggregated meter data and context
+ * @param params.totalCount - Total number of meters (registered + unregistered)
+ * @param params.registeredCount - Number of registered meters
+ * @param params.substationId - Transformer substation identifier
+ * @param params.balanceGroup - Balance group identifier
+ * @param params.date - Date for the record (as string)
+ * @param params.existingRegistered - Current registered count in the latest
+ *   record
+ * @param params.existingUnregistered - Current unregistered count in the latest
+ *   record
+ * @throws {Error} If registeredCount exceeds totalCount
  */
-async function upsertMeterAggregates(
+async function processMeterCountUpdate(
   executor: Executor,
-  params: MeterAggregateParams,
+  params: MeterCountParams,
 ): Promise<void> {
   const {
     totalCount,
@@ -151,83 +161,36 @@ async function upsertMeterAggregates(
     existingUnregistered,
   } = params;
 
-  const [latestRegisteredMeterId, latestUnregisteredMeterId] =
-    await Promise.all([
-      getLatestRegisteredMeterId(executor, balanceGroup, substationId),
-      getLatestUnregisteredMeterId(executor, balanceGroup, substationId),
-    ]);
+  validateInstallationParams({
+    totalInstalled: totalCount,
+    registeredCount,
+  });
 
-  await Promise.all([
-    upsertRegisteredMeterRecord(executor, {
-      latestRecordId: latestRegisteredMeterId,
-      newCount: registeredCount,
-      existingCount: existingRegistered,
-      balanceGroup,
-      date,
-      substationId,
-    }),
-    upsertUnregisteredMeterRecord(executor, {
-      latestRecordId: latestUnregisteredMeterId,
-      totalCount,
-      registeredCount,
-      existingUnregistered,
-      balanceGroup,
-      date,
-      substationId,
-    }),
-  ]);
-}
+  const unregisteredCount = totalCount - registeredCount;
 
-interface RegisteredMeterUpsertParams {
-  latestRecordId: number | undefined;
-  newCount: number;
-  existingCount: number;
-  balanceGroup: BalanceGroup;
-  date: string;
-  substationId: number;
-}
+  const latestMeterCountsId = await findLatestMeterCountsId(
+    executor,
+    balanceGroup,
+    substationId,
+  );
 
-/**
- * Upserts registered meter record
- *
- * @param executor - Database executor
- * @param params - Upsert parameters
- * @note Only updates if newCount differs from existingCount
- */
-async function upsertRegisteredMeterRecord(
-  executor: Executor,
-  params: RegisteredMeterUpsertParams,
-): Promise<void> {
-  const {
-    latestRecordId,
-    newCount,
-    existingCount,
+  await upsertMeterCountsRecord(executor, {
+    latestRecordId: latestMeterCountsId,
+    newRegistered: registeredCount,
+    newUnregistered: unregisteredCount,
+    existingRegistered: existingRegistered,
+    existingUnregistered: existingUnregistered,
     balanceGroup,
     date,
     substationId,
-  } = params;
-
-  if (latestRecordId) {
-    if (existingCount !== newCount) {
-      await updateRegisteredMeterRecordById(executor, {
-        id: latestRecordId,
-        registeredMeterCount: newCount,
-      });
-    }
-  } else {
-    await createRegisteredMeterRecord(executor, {
-      registeredMeterCount: newCount,
-      balanceGroup,
-      date,
-      substationId,
-    });
-  }
+  });
 }
 
-interface UnregisteredMeterUpsertParams {
+interface MeterCountsUpsertParams {
   latestRecordId: number | undefined;
-  totalCount: number;
-  registeredCount: number;
+  newRegistered: number;
+  newUnregistered: number;
+  existingRegistered: number;
   existingUnregistered: number;
   balanceGroup: BalanceGroup;
   date: string;
@@ -235,40 +198,60 @@ interface UnregisteredMeterUpsertParams {
 }
 
 /**
- * Upserts unregistered meter record
+ * Updates or creates a meter counts record based on comparison with existing
+ * data
+ *
+ * Compares new counts with existing counts and:
+ *
+ * 1. If a latestRecordId exists AND counts differ → Updates the existing record
+ * 2. If no latestRecordId exists → Creates a new record
+ * 3. If counts are identical → No action (idempotent)
  *
  * @param executor - Database executor
- * @param params - Upsert parameters
- * @note Calculates new unregistered count as (totalCount - registeredCount)
+ * @param params - Parameters for update/create decision
+ * @param params.latestRecordId - ID of most recent existing record, or
+ *   undefined
+ * @param params.newRegistered - New registered count to apply
+ * @param params.newUnregistered - New unregistered count to apply
+ * @param params.existingRegistered - Current registered count (for comparison)
+ * @param params.existingUnregistered - Current unregistered count (for
+ *   comparison)
+ * @param params.balanceGroup - Balance group identifier
+ * @param params.date - Date for the record
+ * @param params.substationId - Transformer substation identifier
  */
-async function upsertUnregisteredMeterRecord(
+async function upsertMeterCountsRecord(
   executor: Executor,
-  params: UnregisteredMeterUpsertParams,
+  params: MeterCountsUpsertParams,
 ): Promise<void> {
   const {
     latestRecordId,
-    totalCount,
-    registeredCount,
+    newRegistered,
+    newUnregistered,
+    existingRegistered,
     existingUnregistered,
     balanceGroup,
     date,
     substationId,
   } = params;
 
-  const newUnregistered = totalCount - registeredCount;
-
   if (latestRecordId) {
-    if (existingUnregistered !== newUnregistered) {
-      await updateUnregisteredMeterRecordById(executor, {
+    if (
+      existingRegistered !== newRegistered ||
+      existingUnregistered !== newUnregistered
+    ) {
+      await updateMeterCountsRecord(executor, {
         id: latestRecordId,
-        unregisteredMeterCount: newUnregistered,
+        registeredCount: newRegistered,
+        unregisteredCount: newUnregistered,
       });
     }
   } else {
-    await createUnregisteredMeterRecord(executor, {
-      unregisteredMeterCount: newUnregistered,
-      date,
+    await createMeterCountsRecord(executor, {
+      registeredCount: newRegistered,
+      unregisteredCount: newUnregistered,
       balanceGroup,
+      date,
       substationId,
     });
   }

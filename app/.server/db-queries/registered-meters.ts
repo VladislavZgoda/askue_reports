@@ -13,35 +13,29 @@ interface MeterCountsInput {
 }
 
 /**
- * Creates a new registered meter record in the database
+ * Creates a new meter counts record with the provided values
  *
- * @example
- *   // Inside a transaction
- *   await createRegisteredMeterRecord(tx, {
- *     registeredMeterCount: 5,
- *     balanceGroup: "Быт",
- *     date: "2025-08-13",
- *     substationId: 10,
- *   });
- *
- * @param executor - Database client for query execution (supports transactions)
- * @param params - Input parameters for meter registration
- * @param params.registeredMeterCount Count of registered meters
- * @param params.balanceGroup Balance group category (e.g., "Быт", "ЮР Sims")
- * @param params.date Record date (YYYY-MM-DD format)
- * @param params.substationId Transformer substation ID
+ * @param executor - Database executor
+ * @param params - Record values
+ * @param params.registeredCount - Initial registered count
+ * @param params.unregisteredCount - Initial unregistered count
+ * @param params.balanceGroup - Balance group identifier
+ * @param params.date - Date for the record
+ * @param params.substationId - Transformer substation identifier
  */
-export async function createRegisteredMeterRecord(
+export async function createMeterCountsRecord(
   executor: Executor,
   {
-    registeredMeterCount,
+    registeredCount,
+    unregisteredCount,
     balanceGroup,
     date,
     substationId,
-  }: RegisteredMeterInput,
+  }: MeterCountsInput,
 ): Promise<void> {
-  await executor.insert(registeredMeters).values({
-    registeredMeterCount,
+  await executor.insert(meterCounts).values({
+    registeredCount,
+    unregisteredCount,
     balanceGroup,
     date,
     transformerSubstationId: substationId,
@@ -98,61 +92,64 @@ export async function incrementMeterCountsById(
 }
 
 /**
- * Fetches the latest registered meter ID by date for a given balance group and
- * substation.
+ * Gets the ID of the latest meter counts record for a balance group and
+ * substation
  *
- * @param executor - Database client for query execution (supports transactions)
- * @returns ID of the most recent record, or 'undefined' if none exists.
+ * @param executor - Database executor
+ * @param balanceGroup - Balance group to filter by
+ * @param substationId - Transformer substation ID to filter by
+ * @returns The ID of the most recent record, or undefined if none exists
  */
-export async function getLatestRegisteredMeterId(
+export async function findLatestMeterCountsId(
   executor: Executor,
   balanceGroup: BalanceGroup,
-  substationId: RegisteredMeters["transformerSubstationId"],
+  substationId: MeterCounts["transformerSubstationId"],
 ): Promise<number | undefined> {
-  const result = await executor.query.registeredMeters.findFirst({
+  const result = await executor.query.meterCounts.findFirst({
     columns: {
       id: true,
     },
     where: and(
-      eq(registeredMeters.balanceGroup, balanceGroup),
-      eq(registeredMeters.transformerSubstationId, substationId),
+      eq(meterCounts.balanceGroup, balanceGroup),
+      eq(meterCounts.transformerSubstationId, substationId),
     ),
-    orderBy: [desc(registeredMeters.date)],
+    orderBy: [desc(meterCounts.date)],
   });
 
   return result?.id;
 }
 
-interface RegisteredMeterUpdateInput {
-  id: RegisteredMeters["id"];
-  registeredMeterCount: RegisteredMeters["registeredMeterCount"];
+interface UpdateMeterCountsParams {
+  id: MeterCounts["id"];
+  registeredCount: MeterCounts["registeredCount"];
+  unregisteredCount: MeterCounts["unregisteredCount"];
 }
 
 /**
- * Updates a registered meter record by its ID
+ * Updates a specific meter counts record with new registered and unregistered
+ * counts
  *
- * @example
- *   await updateRegisteredMeterRecordById(tx, {
- *     id: 123,
- *     registeredMeterCount: 85,
- *   });
+ * Updates an existing meter count record by ID, replacing its registered and
+ * unregistered counts with new values. Automatically sets the `updatedAt`
+ * timestamp to current time.
  *
- * @param executor - Database client for query execution (supports transactions)
+ * @param executor - Database executor for transactional operations
  * @param params - Update parameters
- * @param params.id Record ID to update
- * @param params.registeredMeterCount New count of registered meters
- * @throws Will throw if no record with the given ID exists
+ * @param params.id - ID of the meter count record to update
+ * @param params.registeredCount - New registered count value
+ * @param params.unregisteredCount - New unregistered count value
+ * @throws {Error} If no record with the given ID exists
  */
-export async function updateRegisteredMeterRecordById(
+export async function updateMeterCountsRecord(
   executor: Executor,
-  { id, registeredMeterCount }: RegisteredMeterUpdateInput,
+  { id, registeredCount, unregisteredCount }: UpdateMeterCountsParams,
 ): Promise<void> {
   const updatedAt = new Date();
 
   const [updatedRecord] = await executor
-    .update(registeredMeters)
-    .set({ registeredMeterCount, updatedAt })
-    .where(eq(registeredMeters.id, id))
+    .update(meterCounts)
+    .set({ registeredCount, unregisteredCount, updatedAt })
+    .where(eq(meterCounts.id, id))
     .returning();
 
   if (!updatedRecord) {
@@ -206,7 +203,8 @@ interface MeterCountsIncrementParams {
  *   matching records
  * @param params.balanceGroup - Balance group to filter records
  * @param params.minDate - Minimum date (exclusive) - updates records with date
- *   > minDate
+ *
+ * > MinDate
  * @param params.substationId - Transformer substation ID to filter records
  */
 export async function incrementFutureMeterCounts(
