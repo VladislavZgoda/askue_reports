@@ -1,6 +1,6 @@
 import { meterCounts } from "../schema";
 import { increment } from "./query-helpers";
-import { eq, and, desc, lt, gt, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, lt, gt, inArray } from "drizzle-orm";
 
 type MeterCounts = typeof meterCounts.$inferSelect;
 
@@ -280,7 +280,7 @@ export async function createCumulativeMeterCountsRecord(
     orderBy: [desc(meterCounts.date)],
   });
 
-  const previousCounts = previousRecord || {
+  const previousCounts = previousRecord ?? {
     registeredCount: 0,
     unregisteredCount: 0,
   };
