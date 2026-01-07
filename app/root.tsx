@@ -16,6 +16,36 @@ import { searchTransformerSubstationsByName } from "./.server/db-queries/transfo
 
 import type { Route } from "./+types/root";
 
+export async function clientLoader({
+  request,
+  serverLoader,
+}: Route.ClientLoaderArgs) {
+  await requestNotCancelled(request, 400);
+  return await serverLoader();
+}
+
+async function requestNotCancelled(request: Request, ms: number) {
+  const { signal } = request;
+
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason);
+      return;
+    }
+
+    const timeoutId = setTimeout(resolve, ms);
+
+    signal.addEventListener(
+      "abort",
+      () => {
+        clearTimeout(timeoutId);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
+}
+
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
