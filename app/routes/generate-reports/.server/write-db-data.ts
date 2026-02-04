@@ -48,7 +48,7 @@ export default async function writeDbData(formData: FormData) {
     odpu,
   });
 
-  await handleSupplementThree({
+  await handleSupplementTen({
     path,
     privateMeters,
     odpu,
@@ -242,15 +242,15 @@ async function handleReport({
   await excel.xlsx.writeFile(savePath);
 }
 
-async function handleSupplementThree({
+async function handleSupplementTen({
   path,
   privateMeters,
   legalMeters,
   odpu,
   formData,
 }: Report) {
-  const templatePath = path + "workbooks/supplement_three.xlsx";
-  const savePath = path + "filled-reports/Приложение №3.xlsx";
+  const templatePath = path + "workbooks/supplement_ten.xlsx";
+  const savePath = path + "filled-reports/Приложение №10.xlsx";
 
   const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(templatePath);
@@ -258,11 +258,11 @@ async function handleSupplementThree({
 
   const privateMetersTotal = calculateMetersTotal(privateMeters);
 
-  ws.getCell("D29").value =
+  ws.getCell("D8").value =
     privateMetersTotal.registeredMetersTotal +
     privateMetersTotal.unregisteredMetersTotal;
 
-  ws.getCell("E29").value = privateMetersTotal.registeredMetersTotal;
+  ws.getCell("E8").value = privateMetersTotal.registeredMetersTotal;
 
   const legalSimsMeters = calculateMetersTotal(legalMeters.simsReport);
   const legalP2Meters = calculateMetersTotal(legalMeters.p2Report);
@@ -274,8 +274,8 @@ async function handleSupplementThree({
     legalSimsMeters.unregisteredMetersTotal +
     legalP2Meters.unregisteredMetersTotal;
 
-  ws.getCell("F29").value = legalRegisteredMeters + legalUnregisteredMeters;
-  ws.getCell("G29").value = legalRegisteredMeters;
+  ws.getCell("F8").value = legalRegisteredMeters + legalUnregisteredMeters;
+  ws.getCell("G8").value = legalRegisteredMeters;
 
   const odpuSimsMeters = calculateMetersTotal(odpu.simsReport);
   const odpuP2Meters = calculateMetersTotal(odpu.p2Report);
@@ -287,28 +287,27 @@ async function handleSupplementThree({
     odpuSimsMeters.unregisteredMetersTotal +
     odpuP2Meters.unregisteredMetersTotal;
 
-  ws.getCell("H29").value = odpuRegisteredMeters + odpuUnregisteredMeters;
-  ws.getCell("I29").value = odpuRegisteredMeters;
+  ws.getCell("H8").value = odpuRegisteredMeters + odpuUnregisteredMeters;
+  ws.getCell("I8").value = odpuRegisteredMeters;
 
   const technicalMeters = await getTechnicalMetersTotals();
 
   const technicalMetersQuantity = Number(technicalMeters.quantity ?? 0);
   const technicalMetersUnderVoltage = Number(technicalMeters.underVoltage ?? 0);
 
-  ws.getCell("Y29").value = technicalMetersQuantity;
-  ws.getCell("Z29").value = technicalMetersUnderVoltage;
+  ws.getCell("W8").value = technicalMetersQuantity;
+  ws.getCell("X8").value = technicalMetersUnderVoltage;
 
   const notUnderVoltage = technicalMetersQuantity - technicalMetersUnderVoltage;
 
-  ws.getCell("AB29").value =
+  ws.getCell("Z8").value =
     `Технический учет - ${notUnderVoltage} шт. не под напряжением`;
 
-  resetResult(ws, 29);
-  resetResult(ws, 33);
+  resetResult(ws, 8);
 
   ws.getCell("A2").value =
-    `Отчетная форма за ${formData.month} ${formData.year}`;
-
+    `Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" по точкам учета с возможностью дистанционного съема показаний за ${formData.month} ${formData.year}`;
+    
   await excel.xlsx.writeFile(savePath);
 }
 

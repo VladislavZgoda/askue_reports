@@ -60,19 +60,19 @@ async function handleSupplementThree(
   path: string,
   uploadedMetersReadings: UploadedMetersReadings,
 ) {
-  const filePath = path + "Приложение №3.xlsx";
+  const filePath = path + "Приложение №10.xlsx";
 
   const excel = new exceljs.Workbook();
   const wb = await excel.xlsx.readFile(filePath);
   const ws = wb.worksheets[2];
 
-  ws.getCell("K29").value = uploadedMetersReadings.private.askue;
-  ws.getCell("L29").value = uploadedMetersReadings.legal.askue;
-  ws.getCell("M29").value = uploadedMetersReadings.odpy.askue;
+  ws.getCell("K8").value = uploadedMetersReadings.private.askue;
+  ws.getCell("L8").value = uploadedMetersReadings.legal.askue;
+  ws.getCell("M8").value = uploadedMetersReadings.odpy.askue;
 
-  ws.getCell("N29").value = uploadedMetersReadings.private.rider;
-  ws.getCell("O29").value = uploadedMetersReadings.legal.rider;
-  ws.getCell("P29").value = uploadedMetersReadings.odpy.rider;
+  ws.getCell("N8").value = uploadedMetersReadings.private.rider;
+  ws.getCell("O8").value = uploadedMetersReadings.legal.rider;
+  ws.getCell("P8").value = uploadedMetersReadings.odpy.rider;
 
   await excel.xlsx.writeFile(filePath);
 }
