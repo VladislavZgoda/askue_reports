@@ -99,12 +99,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       onSuccessfulSubmit();
       billingForm.reset();
     }
-  }, [
-    billingForm,
-    fetcherBillingMeters.data,
-    isBillingAction,
-    isSubmittingBilling,
-  ]);
+  }, [fetcherBillingMeters.data, isBillingAction, isSubmittingBilling]);
 
   useEffect(() => {
     if (
@@ -115,12 +110,7 @@ export default function AddData({ loaderData }: Route.ComponentProps) {
       onSuccessfulSubmit();
       technicalForm.reset();
     }
-  }, [
-    fetcherTechnicalMeters.data,
-    isSubmittingTechnical,
-    isTechnicalAction,
-    technicalForm,
-  ]);
+  }, [fetcherTechnicalMeters.data, isSubmittingTechnical, isTechnicalAction]);
 
   return (
     <main>
