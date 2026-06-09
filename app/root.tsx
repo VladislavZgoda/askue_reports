@@ -46,10 +46,8 @@ async function requestNotCancelled(request: Request, ms: number) {
   });
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
+export async function loader({ url }: Route.LoaderArgs) {
   const q = url.searchParams.get("q");
-
   const substations = await searchTransformerSubstationsByName(q);
 
   return { substations, q };

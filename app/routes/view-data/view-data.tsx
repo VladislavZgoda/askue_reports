@@ -18,9 +18,7 @@ const dateSchema = z
 
 export const middleware: Route.MiddlewareFunction[] = [authMiddleware];
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const url = new URL(request.url);
-
+export async function loader({ url }: Route.LoaderArgs) {
   const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));
   const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
   const odpuDate = dateSchema.parse(url.searchParams.get("odpuDate"));

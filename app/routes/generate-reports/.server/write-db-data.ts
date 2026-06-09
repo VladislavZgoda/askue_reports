@@ -307,7 +307,7 @@ async function handleSupplementTen({
 
   ws.getCell("A2").value =
     `Отчет филиала АО "Электросети Кубани" "Тимашевскэлектросеть" по точкам учета с возможностью дистанционного съема показаний за ${formData.month} ${formData.year}`;
-    
+
   await excel.xlsx.writeFile(savePath);
 }
 

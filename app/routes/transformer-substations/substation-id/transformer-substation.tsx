@@ -24,14 +24,13 @@ export const middleware: Route.MiddlewareFunction[] = [
   urlMiddleware,
 ];
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
+export const loader = async ({ params, url }: Route.LoaderArgs) => {
   const substation = await getTransformerSubstationById(Number(params.id));
 
   if (!substation) {
     throw new Error("404 Not Found");
   }
 
-  const url = new URL(request.url);
   const privateDate = dateSchema.parse(url.searchParams.get("privateDate"));
   const legalDate = dateSchema.parse(url.searchParams.get("legalDate"));
   const odpuDate = dateSchema.parse(url.searchParams.get("odpuDate"));

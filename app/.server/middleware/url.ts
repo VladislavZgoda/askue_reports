@@ -1,5 +1,4 @@
-export default function urlMiddleware({ request }: { request: Request }): void {
-  const url = request.url;
+export default function urlMiddleware({ url }: { url: URL }): void {
   const id = new URL(url).pathname.split("/")[2];
 
   if (!Number(id)) {
