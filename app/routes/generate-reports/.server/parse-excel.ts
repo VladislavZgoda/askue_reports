@@ -71,7 +71,7 @@ function parseSheet(
       tpMetersReadings[tp] = 0;
     }
 
-    const readingSource = ws.getCell("M" + rowNumber).text;
+    const readingSource = ws.getCell("M" + rowNumber).text.trim();
 
     if (readingSource.toLowerCase() === "ридер") {
       metersReadings.rider += 1;
